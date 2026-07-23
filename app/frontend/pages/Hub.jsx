@@ -1,10 +1,12 @@
-import { Head, usePage } from '@inertiajs/react'
+import { Head, Link, usePage } from '@inertiajs/react'
+import BottomNav from '../components/BottomNav'
 
 const emojiFor = (name = '') => /citro|zeste|lemon/i.test(name) ? '🍋' : '🍓'
 
 export default function Hub({ membership }) {
   const { auth } = usePage().props
   const user = auth.user
+  const unread = user?.unread_count || 0
 
   return (
     <div className="shell">
@@ -13,18 +15,12 @@ export default function Hub({ membership }) {
         <div className="lvl">{user?.firstname?.[0]?.toUpperCase() || '🍑'}</div>
         <span className="curr">🍑 {membership ? membership.balls : 0}</span>
         <span className="curr">💎 {user?.diamonds ?? 0}</span>
-        <div className="bell">🔔</div>
+        <Link href="/notifications" className="bell bell-badge">🔔{unread > 0 && <span className="b">{unread}</span>}</Link>
       </header>
 
       {membership ? <GameView m={membership} /> : <Onboarding user={user} />}
 
-      <nav className="nav">
-        <div className="n on"><span className="ic">🏠</span>Hub</div>
-        <div className="n"><span className="ic">💬</span>Chat</div>
-        <div className="center">⚔️</div>
-        <div className="n"><span className="ic">🏅</span>Ligue</div>
-        <div className="n"><span className="ic">🛒</span>Boutique</div>
-      </nav>
+      <BottomNav active="hub" />
     </div>
   )
 }
@@ -56,7 +52,7 @@ function GameView({ m }) {
           <div className="minibar"><i className="crit" style={{ width: `${foe?.monster?.percent ?? 0}%` }} /></div>
         </div>
       </div>
-      <button className="btn combat">⚔️ COMBATTRE</button>
+      <Link href="/combat" className="btn combat">⚔️ COMBATTRE</Link>
       <div className="tiles">
         <div className="tile"><span className="ic">🔥</span><div><div className="tn">Série hebdo</div><div className="td">{m.weekly_streak} sem.</div></div></div>
         <div className="tile"><span className="ic">🎁</span><div><div className="tn">Coffres</div><div className="td">{m.sealed_chests} à ouvrir</div></div></div>

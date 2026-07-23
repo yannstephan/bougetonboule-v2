@@ -98,3 +98,71 @@ body{margin:0;background:var(--bg);color:var(--text);
 .flash{border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:12px}
 .flash.err{background:color-mix(in srgb,var(--crit) 14%,transparent);color:var(--crit)}
 .flash.ok{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good)}
+
+/* sub-header */
+.subhead{display:flex;align-items:center;gap:10px;padding:14px;border-bottom:1px solid var(--line)}
+.subhead .back{width:32px;height:32px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line);
+  display:grid;place-items:center;font-size:16px;text-decoration:none;color:var(--text)}
+.subhead .ti{font-weight:800;font-size:16px}
+.nav .n.dis{opacity:.45}
+
+/* combat */
+.cbt-top{padding:14px;text-align:center;border-bottom:1px solid var(--line)}
+.cbt-enemy-name{font-weight:800;font-size:15px}
+.bigbar{height:14px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin-top:8px}
+.bigbar>i{display:block;height:100%;border-radius:99px}
+.bigbar>i.crit{background:var(--crit)}
+.hp-num{font-variant-numeric:tabular-nums;font-size:12px;font-weight:800;margin-top:5px}
+.arena-scene{flex:1;position:relative;display:grid;place-items:center;overflow:hidden;background:var(--surface-2)}
+.foe-mon{font-size:110px;line-height:1;animation:hit 2.6s ease-in-out infinite}
+@keyframes hit{0%,100%{transform:translateX(0)}14%{transform:translateX(-5px)}28%{transform:translateX(4px)}42%{transform:translateX(0)}}
+.my-corner{position:absolute;bottom:10px;left:14px;font-size:50px}
+.dmg{position:absolute;top:30%;left:44%;font-weight:800;font-size:30px;color:var(--fraise);
+  font-variant-numeric:tabular-nums;animation:floatup 1.2s ease-out forwards;pointer-events:none}
+@keyframes floatup{0%{opacity:0;transform:translateY(10px) scale(.7)}20%{opacity:1}100%{opacity:0;transform:translateY(-40px) scale(1.1)}}
+.act-gems{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:14px;border-top:1px solid var(--line)}
+.gem-btn{border:none;border-radius:var(--r);aspect-ratio:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;cursor:pointer;font:inherit;background:var(--fraise);color:#fff;transition:filter .12s}
+.gem-btn:disabled{opacity:.4;cursor:not-allowed}
+.gem-btn:not(:disabled):active{transform:translateY(1px)}
+.gem-btn .e{font-size:22px}.gem-btn .c{font-size:10px;font-weight:800;font-variant-numeric:tabular-nums}
+.gem-btn.heal{background:var(--mint);color:var(--mint-ink)}
+.gem-btn.item{background:var(--violet);color:#fff}
+
+/* chat */
+.chat-tabs{display:flex;gap:8px;padding:12px 14px 6px}
+.chat-tab{flex:1;text-align:center;font-size:13px;font-weight:700;padding:9px;border-radius:11px;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--muted);cursor:pointer}
+.chat-tab.on{background:var(--peach);color:#fff;border-color:var(--peach)}
+.chat-scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:12px 14px}
+.msg{max-width:80%;display:flex;flex-direction:column;gap:2px}
+.msg .who{font-size:10px;font-weight:700;color:var(--muted);padding:0 4px}
+.msg .bub{padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.35;background:var(--surface);
+  border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg .tm{font-size:9px;color:var(--faint);padding:0 4px}
+.msg.me{align-self:flex-end;align-items:flex-end}
+.msg.me .bub{background:var(--peach);color:#fff;border-color:var(--peach);border-bottom-left-radius:14px;border-bottom-right-radius:4px}
+.msg.me .who{color:var(--peach)}
+.chat-empty{color:var(--faint);text-align:center;font-size:13px;margin:auto}
+.chat-input{display:flex;gap:9px;padding:10px 14px;border-top:1px solid var(--line);align-items:center}
+.chat-input .field{flex:1;margin:0}
+.chat-input .send{width:40px;height:40px;border-radius:50%;background:var(--peach);color:#fff;border:none;
+  display:grid;place-items:center;font-size:16px;cursor:pointer;flex:none}
+
+/* notifications */
+.push-cta{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px dashed var(--line-2);
+  border-radius:var(--r);padding:11px 13px;font-size:12px;color:var(--muted)}
+.push-cta button{margin-left:auto;background:var(--violet);color:#fff;border:none;border-radius:10px;
+  padding:8px 12px;font:inherit;font-weight:700;cursor:pointer;white-space:nowrap}
+.notif{display:flex;gap:11px;padding:12px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--surface);align-items:flex-start}
+.notif.unread{background:color-mix(in srgb,var(--peach) 7%,var(--surface));border-color:color-mix(in srgb,var(--peach) 26%,transparent)}
+.notif .nic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:18px;flex:none;background:var(--surface-2)}
+.notif .nt{flex:1;min-width:0}
+.notif .nti{font-weight:700;font-size:13px}
+.notif .nb{font-size:12px;color:var(--muted);line-height:1.35}
+.notif .nh{font-size:10px;color:var(--faint);font-variant-numeric:tabular-nums;margin-top:2px}
+.notif .udot{width:8px;height:8px;border-radius:50%;background:var(--peach);flex:none;margin-top:6px}
+.bell-badge{position:relative}
+.bell-badge .b{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;border-radius:99px;background:var(--fraise);
+  color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;padding:0 3px}

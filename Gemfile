@@ -67,3 +67,5 @@ gem "bcrypt", "~> 3.1"
 
 gem "omniauth-google-oauth2", "~> 1.2"
 gem "omniauth-rails_csrf_protection", "~> 2.0"
+
+gem "web-push", "~> 3.1"

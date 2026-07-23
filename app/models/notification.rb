@@ -4,6 +4,8 @@ class Notification < ApplicationRecord
   belongs_to :user
   belongs_to :game, optional: true
 
+  after_create_commit { SendWebPushJob.perform_later(id) }
+
   scope :unread, -> { where(read_at: nil) }
   scope :recent, -> { order(created_at: :desc) }
 
