@@ -1,0 +1,18 @@
+class Game < ApplicationRecord
+  STATUSES = %w[upcoming active finished].freeze
+
+  belongs_to :event
+  has_many :teams, dependent: :destroy
+  has_many :memberships, dependent: :destroy
+  has_many :users, through: :memberships
+  has_many :special_days, dependent: :destroy
+  has_many :conversations, dependent: :destroy
+  has_many :actions, dependent: :destroy
+  has_many :trainings, through: :memberships
+
+  validates :name, presence: true
+  validates :status, inclusion: { in: STATUSES }
+
+  def general_conversation = conversations.find_by(kind: "general")
+  def active? = status == "active"
+end
