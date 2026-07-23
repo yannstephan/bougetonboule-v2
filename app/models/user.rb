@@ -11,6 +11,7 @@ class User < ApplicationRecord
   has_many :rewards, dependent: :destroy
 
   validates :email, presence: true, uniqueness: { case_sensitive: false }
+  validates :password, length: { minimum: 6 }, allow_nil: true
 
   def full_name = [firstname, lastname].compact_blank.join(" ")
   def strava_connected? = strava_uid.present?

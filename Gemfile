@@ -64,3 +64,6 @@ gem "inertia_rails", "~> 3.22"
 gem "vite_rails", "~> 3.11"
 
 gem "bcrypt", "~> 3.1"
+
+gem "omniauth-google-oauth2", "~> 1.2"
+gem "omniauth-rails_csrf_protection", "~> 2.0"

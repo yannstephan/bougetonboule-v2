@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_23_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_23_190000) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -254,18 +254,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_23_180000) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.string "avatar_url"
     t.datetime "created_at", null: false
     t.integer "diamonds", default: 0, null: false
     t.string "email", null: false
     t.string "firstname"
+    t.string "google_uid"
     t.string "lastname"
     t.string "password_digest"
+    t.string "provider"
     t.datetime "strava_expires_at"
     t.string "strava_refresh_token"
     t.string "strava_token"
     t.string "strava_uid"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
   end
 
   add_foreign_key "actions", "games"

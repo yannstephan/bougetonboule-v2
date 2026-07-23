@@ -1,21 +1,27 @@
 Rails.application.routes.draw do
-
-  # Redirect to localhost from 127.0.0.1 to use same IP address with Vite server
+  # Dev : 127.0.0.1 -> localhost (même IP que le serveur Vite)
   constraints(host: "127.0.0.1") do
     get "(*path)", to: redirect { |params, req| "#{req.protocol}localhost:#{req.port}/#{params[:path]}" }
   end
-  root 'inertia_example#index'
-  get 'inertia-example', to: 'inertia_example#index'
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  # Authentification
+  get    "login",    to: "sessions#new",      as: :login
+  post   "login",    to: "sessions#create"
+  delete "logout",   to: "sessions#destroy",  as: :logout
+  get    "register", to: "registrations#new", as: :register
+  post   "register", to: "registrations#create"
+
+  # Connexion Google (OmniAuth)
+  get "auth/google_oauth2/callback", to: "users/omniauth#google"
+  get "auth/failure",                to: "users/omniauth#failure"
+
+  # Strava : connexion OAuth + webhooks temps réel
+  get  "strava/connect",  to: "strava#connect",  as: :strava_connect
+  get  "strava/callback", to: "strava#callback"
+  get  "strava/webhook",  to: "strava/webhooks#verify"
+  post "strava/webhook",  to: "strava/webhooks#event"
+
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
-  # Defines the root path route ("/")
-  # root "posts#index"
+  root "hub#index"
 end
