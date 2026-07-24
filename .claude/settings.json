@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:3000/*)",
+      "Bash(bin/rails routes*)",
+      "Bash(bin/rails league:standings*)",
+      "Bash(bin/rails db:version*)",
+      "Bash(bin/rails db:migrate:status*)"
+    ]
+  }
+}
