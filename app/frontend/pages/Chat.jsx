@@ -1,5 +1,6 @@
 import { Head, Link, router, useForm } from '@inertiajs/react'
 import { useEffect, useRef, useState } from 'react'
+import PlayerAvatar from '../components/PlayerAvatar'
 
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
@@ -22,12 +23,14 @@ export default function Chat({ conversations }) {
 
   const send = (e) => {
     e.preventDefault()
-    if (!form.data.body.trim()) return
+    if (!form.data.body.trim() || form.processing) return
+    // `form.transform()` ne retourne pas le formulaire : on ne peut pas chaîner .post() dessus.
     form.transform((d) => ({ body: d.body, authenticity_token: csrf() }))
-      .post(`/conversations/${conv.id}/messages`, {
-        preserveState: true, preserveScroll: true,
-        onSuccess: () => form.setData('body', ''),
-      })
+    form.post(`/conversations/${conv.id}/messages`, {
+      preserveState: true,
+      preserveScroll: true,
+      onSuccess: () => form.setData('body', ''),
+    })
   }
 
   return (
@@ -47,13 +50,11 @@ export default function Chat({ conversations }) {
       </div>
 
       <div className="chat-scroll" ref={scrollRef}>
-        {conv?.messages?.length ? conv.messages.map((msg) => (
-          <div key={msg.id} className={`msg ${msg.mine ? 'me' : ''}`}>
-            {!msg.mine && <span className="who">{msg.author}</span>}
-            <div className="bub">{msg.body}</div>
-            <span className="tm">{msg.at}</span>
-          </div>
-        )) : <div className="chat-empty">Aucun message. Lance la discussion !</div>}
+        {conv?.messages?.length
+          ? conv.messages.map((msg, i) => (
+              <Message key={msg.id} msg={msg} prev={conv.messages[i - 1]} />
+            ))
+          : <div className="chat-empty">Aucun message. Lance la discussion !</div>}
       </div>
 
       <form className="chat-input" onSubmit={send}>
@@ -62,5 +63,26 @@ export default function Chat({ conversations }) {
         <button className="send" type="submit" disabled={form.processing}>➤</button>
       </form>
     </div>
+  )
+}
+
+function Message({ msg, prev }) {
+  const newDay = prev?.day_label !== msg.day_label
+
+  return (
+    <>
+      {newDay && <div className="chat-day">{msg.day_label}</div>}
+      <div className={`msg ${msg.mine ? 'me' : ''}`}>
+        <PlayerAvatar avatar={msg.avatar} size={30} />
+        <div className="msg-body">
+          <span className="who">
+            {msg.mine ? 'Toi' : msg.author}
+            <i style={{ color: msg.team.color }}>{msg.team.name}</i>
+          </span>
+          <div className="bub">{msg.body}</div>
+          <span className="tm" title={`${msg.on} à ${msg.at}`}>{msg.on} · {msg.at}</span>
+        </div>
+      </div>
+    </>
   )
 }

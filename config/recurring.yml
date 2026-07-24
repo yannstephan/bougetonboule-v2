@@ -4,10 +4,10 @@ production:
   strava_reconcile:
     class: StravaSyncJob
     schedule: every day at 4am
-  # Clôture de la semaine de ligue : promotions / relégations, tous les lundis matin.
-  league_weekly_reset:
-    class: LeagueWeeklyResetJob
-    schedule: every monday at 4:10am
+  # Récompense du 1er du classement mensuel, le 1er de chaque mois (juge le mois écoulé).
+  league_monthly_reward:
+    class: LeagueMonthlyRewardJob
+    schedule: "20 4 1 * *"
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

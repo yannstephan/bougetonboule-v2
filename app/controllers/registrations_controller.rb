@@ -16,7 +16,9 @@ class RegistrationsController < ApplicationController
     if user.save
       Avatar.create!(user:)
       sign_in(user)
-      redirect_to root_path, notice: "Bienvenue sur Bouge Ton Boule, #{user.firstname} !"
+      # On envoie direct sur la personnalisation : c'est la première chose qu'on a envie
+      # de faire en arrivant, et l'avatar suit le joueur dans toutes les parties.
+      redirect_to avatar_path, notice: "Bienvenue #{user.firstname} ! Choisis ton allure."
     else
       redirect_to register_path, alert: user.errors.full_messages.to_sentence
     end

@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react'
 import BottomNav from '../components/BottomNav'
+import PlayerAvatar from '../components/PlayerAvatar'
 
 const emojiFor = (name = '') => /citro|zeste|lemon/i.test(name) ? '🍋' : '🍓'
 
@@ -12,7 +13,9 @@ export default function Hub({ membership }) {
     <div className="shell">
       <Head title="Bouge Ton Boule" />
       <header className="hud">
-        <div className="lvl">{user?.firstname?.[0]?.toUpperCase() || '🍑'}</div>
+        <Link href="/avatar" className="hud-avatar" title="Personnaliser mon avatar">
+          <PlayerAvatar avatar={user?.avatar} size={38} />
+        </Link>
         <span className="curr">🍑 {membership ? membership.balls : 0}</span>
         <span className="curr">💎 {user?.diamonds ?? 0}</span>
         <Link href="/notifications" className="bell bell-badge">🔔{unread > 0 && <span className="b">{unread}</span>}</Link>
@@ -56,6 +59,8 @@ function GameView({ m }) {
       <div className="tiles">
         <div className="tile"><span className="ic">🔥</span><div><div className="tn">Série hebdo</div><div className="td">{m.weekly_streak} sem.</div></div></div>
         <div className="tile"><span className="ic">🎁</span><div><div className="tn">Coffres</div><div className="td">{m.sealed_chests} à ouvrir</div></div></div>
+        <Link href="/ligue" className="tile"><span className="ic">🏅</span><div><div className="tn">Classement</div><div className="td">{m.month_rank ? `${m.month_rank}e ce mois-ci` : 'Cours pour entrer'}</div></div></Link>
+        <Link href="/avatar" className="tile"><span className="ic">🎨</span><div><div className="tn">Mon avatar</div><div className="td">Personnaliser</div></div></Link>
       </div>
     </main>
   )

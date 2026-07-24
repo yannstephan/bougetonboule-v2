@@ -51,28 +51,53 @@ ses 🍑/streak/courses sont **par partie**, son avatar/cosmétiques/💎 sont *
    (partie + équipe), **Notifications + Web Push** (VAPID, service worker)
 6. **Strava temps réel** : Webhook Events API (`/strava/webhook` verify + event), OAuth connect,
    refresh de token, job d'import ; reconciliation quotidienne en filet de sécurité
-7. **Ligue** : classement hebdo de la partie en 5 divisions, promotion/relégation le lundi
+7. **Classement** (`/ligue`) : deux classements, mensuel et général, récompense au 1er du mois
+8. **Avatar** (`/avatar`) : personnalisation + équipement des cosmétiques possédés
 
-### La ligue (`/ligue`)
-Une seule ligue par partie (les deux clans mélangés), 5 divisions : Bronze 🥉 · Argent 🥈 ·
-Or 🥇 · Platine 💠 · Diamant 👑 (`Membership::DIVISIONS`, colonne `memberships.division`).
+### Les classements (`/ligue`)
+Un classement par partie, les deux clans mélangés, **pas de divisions** (elles ont existé une
+journée puis ont été retirées — ne pas les réintroduire sans demander). Deux périodes :
 
-- **Score de la semaine** = somme des 🍑 des `Training` vérifiés de la semaine (lundi → dimanche).
-  Il n'est **pas stocké** : `LeagueStandings` le recalcule, donc le classement repart de zéro
-  tout seul chaque lundi — rien à remettre à zéro en base.
-- **Promotion / relégation** : les 3 premiers montent, les 3 derniers descendent, plafonné à un
-  tiers de l'effectif de la division pour que les deux zones ne se chevauchent jamais. Une
-  semaine à 0 🍑 fait descendre quel que soit le rang. On ne descend pas sous Bronze.
-- Les zones sont calculées **uniquement** dans `LeagueStandings#zone_for` : l'écran et le job
-  de clôture doivent toujours être d'accord sur qui monte et qui descend.
-- `LeagueWeeklyResetJob` (lundi 4h10, `config/recurring.yml`) juge la semaine **écoulée**,
-  déplace les divisions, écrit `last_league_rank` / `last_league_result` et notifie (catégorie
-  `league`).
+- **Du mois** : du 1er au dernier jour du mois en cours.
+- **Général** : depuis `game.starts_at`.
+
+Le score est la somme des 🍑 des `Training` vérifiés de la période. Il n'est **pas stocké** :
+`LeagueStandings` le recalcule, donc le classement du mois repart de zéro tout seul le 1er —
+rien à remettre à zéro en base. Seule la récompense est persistée.
+
+**Récompense du mois** : le 1er gagne un cosmétique tiré au hasard parmi ceux qu'il ne possède
+pas encore (`AwardMonthlyLeague`). S'il les possède tous, il touche 100 💎 à la place —
+sinon il n'y aurait rien à donner. Personne n'est récompensé si personne n'a couru.
+`LeagueMonthlyRewardJob` tourne le 1er de chaque mois et juge le mois **écoulé**.
+
+L'opération est **idempotente** : la récompense est écrite dans `rewards` avec la période
+(`period: "2026-07"`) sous index unique `[membership_id, source, period]`. Rejouer un mois,
+ou lancer le job en retard, ne décerne jamais le titre deux fois.
+
+### L'avatar (`/avatar`)
+`Avatar` porte `base_color` (5 couleurs = tokens CSS existants) et `body_style` (le personnage,
+un emoji — `Avatar::BODY_STYLES`, pas d'assets graphiques). Les cosmétiques possédés s'équipent
+**un par slot** (hat / eyes / aura…), et `cosmetics.emoji` est ce qui les rend affichables.
+
+`AvatarPresenter` est le **seul** endroit qui sérialise un avatar : il est affiché dans le Hub,
+le chat, le classement et l'écran de personnalisation, qui doivent rester cohérents. Côté React,
+le composant unique est `components/PlayerAvatar.jsx`.
+
+L'écran est atteint juste après l'inscription (email **et** Google), depuis l'avatar du HUD et
+depuis une tuile du Hub.
 
 ### Écrans React existants (app/frontend/pages)
-`Hub`, `Combat`, `Chat`, `Ligue`, `Notifications`, `auth/Login`, `auth/Register`.
+`Hub`, `Combat`, `Chat`, `Ligue`, `Avatar`, `Notifications`, `auth/Login`, `auth/Register`.
 Navigation par onglets : **Hub · Chat · ⚔️ Combat · Ligue · Boutique** (`components/BottomNav.jsx`).
 Seule la Boutique est encore **grisée** (à construire).
+
+### Pièges connus
+- **`form.transform()` de `@inertiajs/react` ne retourne rien** (v3.6.1) : `form.transform(fn).post(…)`
+  lève un TypeError et le formulaire ne part jamais, sans erreur visible. Appeler `transform`
+  puis `post` sur deux lignes. C'est ce qui cassait l'envoi de messages dans le chat.
+- Créer un nouveau dossier sous `app/` (ex. `app/presenters`) demande un **redémarrage** du
+  serveur : il n'est pas ajouté aux chemins d'autoload à chaud.
+- Après une migration, redémarrer aussi : Puma garde en cache la liste des colonnes.
 
 ## Design
 
@@ -93,9 +118,10 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 2. **Coffres** — drop aléatoire à l'import d'une course (garde-fou : max 1/jour, pity),
    ouverture animée (💎 + cosmétique), notif "coffre trouvé".
 3. **Streak hebdo** — job hebdomadaire (Solid Queue `recurring.yml`) : +💎 par semaine courue, paliers.
-4. **Avatar & cosmétiques** — personnalisation (slots), équiper les cosmétiques gagnés.
-5. **PWA installable** — manifest + icône 🍑, activer les routes PWA (déjà stubbées).
-6. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
+4. **PWA installable** — manifest + icône 🍑, activer les routes PWA (déjà stubbées).
+5. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
+6. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
+   en console, il n'y a pas d'écran pour rejoindre une équipe.
 
 ## Commandes utiles
 
@@ -106,8 +132,8 @@ bin/rails console
 bin/rails webpush:keys              # génère les clés VAPID
 CALLBACK_URL=https://.../strava/webhook bin/rails strava:subscribe  # abonnement webhook (prod)
 
-bin/rails league:standings          # classement de la semaine en cours, en console
-WEEK_START=2026-07-20 bin/rails league:close_week   # clôture une semaine à la main (test)
+bin/rails league:standings          # classements du mois et général, en console
+MONTH=2026-06 bin/rails league:award_month         # décerne la récompense d'un mois (test)
 ```
 
 ⚠️ **Vite 8 exige Node ≥ 20.12** (`node:util#styleText`). Node 16 fait planter `bin/dev` avec

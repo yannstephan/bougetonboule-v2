@@ -6,11 +6,14 @@ puts "Nettoyage…"
 
 puts "Cosmétiques…"
 Cosmetic.create!([
-  { name: "Haut-de-forme doré", slot: "hat",  rarity: "legendary", price_diamonds: 300, source: "shop" },
-  { name: "Casquette",          slot: "hat",  rarity: "rare",      price_diamonds: 90,  source: "shop" },
-  { name: "Lunettes de star",   slot: "eyes", rarity: "epic",      price_diamonds: 150, source: "shop" },
-  { name: "Aura pêche",         slot: "aura", rarity: "common",    price_diamonds: 50,  source: "shop" },
-  { name: "Couronne de Noël",   slot: "hat",  rarity: "legendary", price_diamonds: nil, source: "event" },
+  { name: "Haut-de-forme doré", slot: "hat",  rarity: "legendary", price_diamonds: 300, source: "shop",  emoji: "🎩" },
+  { name: "Casquette",          slot: "hat",  rarity: "rare",      price_diamonds: 90,  source: "shop",  emoji: "🧢" },
+  { name: "Bandeau",            slot: "hat",  rarity: "common",    price_diamonds: 40,  source: "shop",  emoji: "🎀" },
+  { name: "Lunettes de star",   slot: "eyes", rarity: "epic",      price_diamonds: 150, source: "shop",  emoji: "🕶️" },
+  { name: "Lunettes rondes",    slot: "eyes", rarity: "common",    price_diamonds: 45,  source: "shop",  emoji: "👓" },
+  { name: "Aura pêche",         slot: "aura", rarity: "common",    price_diamonds: 50,  source: "shop",  emoji: "✨" },
+  { name: "Aura de feu",        slot: "aura", rarity: "epic",      price_diamonds: 180, source: "shop",  emoji: "🔥" },
+  { name: "Couronne de Noël",   slot: "hat",  rarity: "legendary", price_diamonds: nil, source: "event", emoji: "👑" },
 ])
 
 puts "Objets (power-ups)…"
@@ -47,18 +50,18 @@ days_elapsed = (Date.current - week_start).to_i
 
 # Deux équipes complètes de 5. `runs` = sorties/semaine, `km` = distance typique d'une sortie :
 # de quoi produire des profils de coureurs différents (assidus, occasionnels, gros volumes).
-# `division` : la majorité en Bronze pour qu'un compte fraîchement créé ait du monde autour.
+# `face` : style de personnage de l'avatar (Avatar::BODY_STYLES).
 roster = [
-  { name: "Yann",  side: "citron", runs: 4, km: 6..11, division: 1, rank: 2, result: "promoted", role: "admin" },
-  { name: "Léa",   side: "citron", runs: 3, km: 5..9,  division: 0, rank: 4, result: "stayed" },
-  { name: "Nico",  side: "citron", runs: 2, km: 4..7,  division: 0, rank: 7, result: "relegated" },
-  { name: "Inès",  side: "citron", runs: 5, km: 7..14, division: 1, rank: 1, result: "promoted" },
-  { name: "Hugo",  side: "citron", runs: 1, km: 3..6,  division: 0, rank: 9, result: "stayed" },
-  { name: "Max",   side: "fraise", runs: 3, km: 6..10, division: 0, rank: 5, result: "stayed" },
-  { name: "Chloé", side: "fraise", runs: 4, km: 8..13, division: 1, rank: 3, result: "promoted" },
-  { name: "Sam",   side: "fraise", runs: 2, km: 4..8,  division: 0, rank: 8, result: "stayed" },
-  { name: "Anaïs", side: "fraise", runs: 3, km: 5..12, division: 0, rank: 6, result: "stayed" },
-  { name: "Théo",  side: "fraise", runs: 1, km: 9..15, division: 0, rank: 10, result: "relegated" }
+  { name: "Yann",  side: "citron", runs: 4, km: 6..11, face: "sporty",  role: "admin" },
+  { name: "Léa",   side: "citron", runs: 3, km: 5..9,  face: "default" },
+  { name: "Nico",  side: "citron", runs: 2, km: 4..7,  face: "zen" },
+  { name: "Inès",  side: "citron", runs: 5, km: 7..14, face: "sporty" },
+  { name: "Hugo",  side: "citron", runs: 1, km: 3..6,  face: "ghost" },
+  { name: "Max",   side: "fraise", runs: 3, km: 6..10, face: "beast" },
+  { name: "Chloé", side: "fraise", runs: 4, km: 8..13, face: "sporty" },
+  { name: "Sam",   side: "fraise", runs: 2, km: 4..8,  face: "robot" },
+  { name: "Anaïs", side: "fraise", runs: 3, km: 5..12, face: "default" },
+  { name: "Théo",  side: "fraise", runs: 1, km: 9..15, face: "zen" }
 ]
 
 # Une sortie, scorée avec la vraie règle du jeu (1 km = 1 🍑, plafond 10, × jour spécial).
@@ -72,13 +75,11 @@ end
 roster.each do |p|
   user = User.create!(firstname: p[:name], diamonds: rand(0..60),
                       email: "#{p[:name].downcase.tr('éèàï', 'eeai')}@btb.test")
-  Avatar.create!(user:, base_color: p[:side])
+  Avatar.create!(user:, base_color: p[:side], body_style: p[:face])
   team = p[:side] == "citron" ? citron : fraise
   m = Membership.create!(user:, game:, team:, balls: rand(4..18),
                          role: p[:role] || "player", weekly_streak: [weeks_of_history, p[:runs] * 2].min,
-                         best_streak: weeks_of_history, last_streak_week: week_start,
-                         division: p[:division], last_league_rank: p[:rank],
-                         last_league_result: p[:result])
+                         best_streak: weeks_of_history, last_streak_week: week_start)
 
   # Historique : les semaines passées, en entier.
   weeks_of_history.downto(1) do |w|
@@ -102,6 +103,32 @@ Chest.create!(membership: first, rarity: "epic", reward_diamonds: 35,
               cosmetic: Cosmetic.find_by(name: "Haut-de-forme doré"))
 Notification.create!(user: first.user, game:, category: "chest",
                      title: "Tu as trouvé un coffre épique", body: "Ouvre-le pour tes récompenses !")
+
+puts "Cosmétiques possédés…"
+# De quoi voir l'écran avatar rempli sans avoir à gagner un mois de classement.
+[["Yann", "Casquette", true], ["Yann", "Aura de feu", true],
+ ["Inès", "Lunettes de star", true], ["Chloé", "Haut-de-forme doré", false]].each do |name, cosmetic, on|
+  user = User.find_by(firstname: name)
+  UserCosmetic.create!(user:, cosmetic: Cosmetic.find_by(name: cosmetic),
+                       equipped: on, acquired_at: 2.weeks.ago, source_game: game)
+end
+
+puts "Messages…"
+general = game.general_conversation
+[["Yann", "Allez les jaunes, on a un mois à gagner 🍋"],
+ ["Chloé", "Vous allez pleurer, Fraizilla a faim 🍓"],
+ ["Inès", "10 km ce matin, Citronator vous salue"],
+ ["Théo", "Qui court demain matin ?"]].each_with_index do |(name, body), i|
+  m = Membership.joins(:user).find_by(users: { firstname: name })
+  Message.create!(conversation: general, membership: m, body:, created_at: (4 - i).hours.ago)
+end
+
+game.conversations.team_chats.find_each do |conv|
+  conv.team.memberships.limit(2).each_with_index do |m, i|
+    Message.create!(conversation: conv, membership: m, created_at: (2 - i).hours.ago,
+                    body: i.zero? ? "On concentre les attaques ce soir ?" : "Ok, je garde mes pêches 🍑")
+  end
+end
 
 puts "OK — #{User.count} joueurs, #{Training.count} courses sur #{weeks_of_history + 1} semaines, " \
      "#{Team.count} équipes, #{Cosmetic.count} cosmétiques."

@@ -5,6 +5,8 @@ class Users::OmniauthController < ApplicationController
            User.find_by(email: data.info.email) ||
            User.new
 
+    first_signup = user.new_record?
+
     if user.new_record?
       user.assign_attributes(
         email:      data.info.email,
@@ -19,7 +21,11 @@ class Users::OmniauthController < ApplicationController
     end
 
     sign_in(user)
-    redirect_to root_path, notice: "Connecté avec Google !"
+    if first_signup
+      redirect_to avatar_path, notice: "Bienvenue #{user.firstname} ! Choisis ton allure."
+    else
+      redirect_to root_path, notice: "Connecté avec Google !"
+    end
   end
 
   def failure

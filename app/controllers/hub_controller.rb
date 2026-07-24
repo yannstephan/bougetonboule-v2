@@ -17,11 +17,18 @@ class HubController < ApplicationController
       game: { id: m.game.id, name: m.game.name },
       balls: m.balls,
       weekly_streak: m.weekly_streak,
+      month_rank: month_rank(m),
       sealed_chests: m.chests.sealed.count,
       special_day: special && { name: special.name, multiplier: special.multiplier.to_f },
       my_team: team_payload(m.team),
       opponent: m.team.opponent && team_payload(m.team.opponent)
     }
+  end
+
+  # Rang du mois, seulement si le joueur a couru — sinon on l'invite à courir.
+  def month_rank(m)
+    row = LeagueStandings.month(m.game).row_for(m)
+    row&.rank if row&.score&.positive?
   end
 
   def team_payload(team)
