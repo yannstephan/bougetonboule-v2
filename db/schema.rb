@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_23_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_24_150000) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -116,13 +116,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_23_190000) do
     t.integer "balls", default: 0, null: false
     t.integer "best_streak", default: 0, null: false
     t.datetime "created_at", null: false
+    t.integer "division", default: 0, null: false
     t.integer "game_id", null: false
+    t.integer "last_league_rank"
+    t.string "last_league_result"
     t.date "last_streak_week"
     t.string "role", default: "player", null: false
     t.integer "team_id", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.integer "weekly_streak", default: 0, null: false
+    t.index ["game_id", "division"], name: "index_memberships_on_game_id_and_division"
     t.index ["game_id"], name: "index_memberships_on_game_id"
     t.index ["team_id"], name: "index_memberships_on_team_id"
     t.index ["user_id", "game_id"], name: "index_memberships_on_user_id_and_game_id", unique: true

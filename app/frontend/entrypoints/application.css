@@ -149,6 +149,53 @@ body{margin:0;background:var(--bg);color:var(--text);
 .chat-input .send{width:40px;height:40px;border-radius:50%;background:var(--peach);color:#fff;border:none;
   display:grid;place-items:center;font-size:16px;cursor:pointer;flex:none}
 
+/* ligue */
+.lg-strip{display:flex;gap:6px}
+.lg-tier{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:11px;opacity:.5}
+.lg-tier.on{opacity:1;background:var(--violet);border-color:var(--violet);color:#fff}
+.lg-tier .e{font-size:18px;line-height:1}
+.lg-tier .n{font-size:9px;font-weight:700}
+
+.lg-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r);padding:13px}
+.lg-emoji{font-size:40px;line-height:1}
+.lg-meta{flex:1;min-width:0}
+.lg-title{font-weight:800;font-size:17px}
+.lg-sub{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.lg-clock{text-align:center;background:var(--surface-2);border-radius:11px;padding:6px 11px;flex:none}
+.lg-clock .d{font-weight:800;font-size:19px;font-variant-numeric:tabular-nums;line-height:1.1}
+.lg-clock .l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+
+.lg-last{background:var(--surface-2);border:1px solid var(--line);border-radius:11px;
+  padding:8px 12px;font-size:12px;font-weight:700;color:var(--muted)}
+
+.lg-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.lg-div{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:800;letter-spacing:.04em;
+  text-transform:uppercase;margin:6px 0 1px}
+.lg-div::after{content:'';flex:1;height:1px;background:currentColor;opacity:.35}
+.lg-div.promotion{color:var(--good)}
+.lg-div.relegation{color:var(--crit)}
+
+.lg-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);
+  border-left:3px solid var(--line-2);border-radius:var(--r);padding:9px 11px}
+.lg-row.promotion{border-left-color:var(--good)}
+.lg-row.relegation{border-left-color:var(--crit)}
+.lg-row.me{background:color-mix(in srgb,var(--peach) 8%,var(--surface));border-color:color-mix(in srgb,var(--peach) 30%,transparent)}
+.lg-rank{width:20px;text-align:center;font-weight:800;font-size:13px;color:var(--muted);
+  font-variant-numeric:tabular-nums;flex:none}
+.lg-ava{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;flex:none;
+  font-weight:800;font-size:13px;color:#fff}
+.lg-name{flex:1;min-width:0;font-weight:700;font-size:13px;display:flex;flex-direction:column;gap:1px}
+.lg-name b{color:var(--peach)}
+.lg-team{font-size:10px;font-weight:600;color:var(--muted)}
+.lg-score{text-align:right;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums;
+  display:flex;flex-direction:column;gap:1px;flex:none}
+.lg-km{font-size:10px;font-weight:600;color:var(--faint)}
+
+.lg-empty{color:var(--faint);text-align:center;font-size:13px;margin:20px 0}
+.lg-rules{font-size:11px;line-height:1.45;color:var(--muted);margin:2px 0 0}
+
 /* notifications */
 .push-cta{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px dashed var(--line-2);
   border-radius:var(--r);padding:11px 13px;font-size:12px;color:var(--muted)}

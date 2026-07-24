@@ -22,6 +22,8 @@ Rails.application.routes.draw do
   get  "combat", to: "combat#show", as: :combat
   post "actions", to: "actions#create", as: :actions
 
+  get  "ligue", to: "league#show", as: :league
+
   get  "chat", to: "chat#show", as: :chat
   post "conversations/:conversation_id/messages", to: "messages#create", as: :conversation_messages
 

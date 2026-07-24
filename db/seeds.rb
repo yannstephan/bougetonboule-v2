@@ -40,15 +40,23 @@ Conversation.create!(game:, kind: "team", team: fraise)
 SpecialDay.create!(game:, name: "Noël", date: Date.new(2026, 12, 25), multiplier: 2)
 
 puts "Joueurs…"
+week_start = Date.current.beginning_of_week
+days_elapsed = (Date.current - week_start).to_i
 [["Yann","citron"],["Léa","citron"],["Nico","citron"],
  ["Max","fraise"],["Chloé","fraise"],["Sam","fraise"]].each_with_index do |(name, side), i|
   user = User.create!(firstname: name, email: "#{name.downcase.tr('é','e')}@btb.test", diamonds: i * 8)
   Avatar.create!(user:, base_color: side)
   team = side == "citron" ? citron : fraise
+  # La majorité en Bronze pour qu'un compte fraîchement créé ait du monde dans sa division.
+  division, last_rank, last_result = [[1, 2, "promoted"], [0, 4, "stayed"], [0, 5, "stayed"],
+                                      [0, 3, "stayed"], [0, 6, "stayed"], [1, 1, "promoted"]][i]
   m = Membership.create!(user:, game:, team:, balls: 14 - i, weekly_streak: [3,2,1].sample,
-                         role: (i.zero? ? "admin" : "player"))
+                         role: (i.zero? ? "admin" : "player"),
+                         division:, last_league_rank: last_rank, last_league_result: last_result)
+  # Courses réparties dans la semaine EN COURS, pour que la ligue ne soit pas vide.
   3.times do |d|
-    Training.create!(membership: m, date: d.days.ago, distance_meters: rand(4000..12000),
+    day = week_start + (d % (days_elapsed + 1))
+    Training.create!(membership: m, date: day.to_time + 8.hours, distance_meters: rand(4000..12000),
                      score: rand(4..10), status: "verified")
   end
 end

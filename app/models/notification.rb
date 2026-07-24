@@ -1,5 +1,6 @@
 class Notification < ApplicationRecord
-  CATEGORIES = %w[attacked healed streak special_day chest message training_verified game_start].freeze
+  CATEGORIES = %w[attacked healed streak special_day chest message training_verified game_start
+                  league].freeze
 
   belongs_to :user
   belongs_to :game, optional: true

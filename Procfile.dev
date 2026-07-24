@@ -1,3 +1,4 @@
-
-vite: bin/vite dev
+# `web` en premier : foreman donne le port de base ($PORT, 3000) au premier process type.
+# Vite écoute de toute façon sur le port fixé dans config/vite.json (3036).
 web: bin/rails s
+vite: bin/vite dev
