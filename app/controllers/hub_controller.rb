@@ -38,6 +38,7 @@ class HubController < ApplicationController
       color: team.color,
       fruit_family: team.fruit_family,
       total_balls: team.total_balls,
+      effects: TeamEffectsPresenter.call(team),
       monster: mon && { name: mon.name, slug: mon.slug, hp: mon.hp, max_hp: mon.max_hp,
                         percent: mon.hp_percent, state: mon.state, protected: mon.protected? }
     }

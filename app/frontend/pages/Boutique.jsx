@@ -1,22 +1,28 @@
 import { Head, Link, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import BottomNav from '../components/BottomNav'
+import TargetPicker from '../components/TargetPicker'
 
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
 
-const itemEmoji = (t) => ({ shield: '🛡️', trap: '🐺', back_wind: '🌬️', booster: '✖️' }[t] || '🎒')
+const itemEmoji = (t) =>
+  ({ shield: '🛡️', trap: '🐺', back_wind: '🌬️', booster: '✖️', wooden_leg: '🦿' }[t] || '🎒')
 const rarityLabel = { common: 'Commun', rare: 'Rare', epic: 'Épique', legendary: 'Légendaire' }
 
-export default function Boutique({ has_team, balls, items, cosmetics, inventory }) {
+export default function Boutique({ has_team, balls, items, cosmetics, inventory, opponents }) {
   const { auth, flash } = usePage().props
   const diamonds = auth.user?.diamonds ?? 0
   const [tab, setTab] = useState('items')
+  const [trapItem, setTrapItem] = useState(null) // objet piège en attente d'une cible
 
   const post = (url, data) => router.post(url, { ...data, authenticity_token: csrf() }, { preserveScroll: true })
   const buyItem = (id) => post('/boutique/items', { item_id: id })
   const buyCosmetic = (id) => post('/boutique/cosmetics', { cosmetic_id: id })
-  const useItem = (id) => post('/boutique/use', { item_id: id })
+  const useItem = (it) => (it.effect_type === 'trap'
+    ? setTrapItem(it)
+    : post('/boutique/use', { item_id: it.item_id }))
+  const trapTarget = (targetId) => { post('/boutique/use', { item_id: trapItem.item_id, target_id: targetId }); setTrapItem(null) }
 
   return (
     <div className="shell">
@@ -44,6 +50,10 @@ export default function Boutique({ has_team, balls, items, cosmetics, inventory 
         {tab === 'cosmetics' && <Cosmetics cosmetics={cosmetics} diamonds={diamonds} onBuy={buyCosmetic} />}
         {tab === 'inventory' && <Inventory inventory={inventory} onUse={useItem} />}
       </main>
+
+      {trapItem && (
+        <TargetPicker opponents={opponents} onPick={trapTarget} onClose={() => setTrapItem(null)} />
+      )}
 
       <BottomNav active="shop" />
     </div>
@@ -108,7 +118,7 @@ function Inventory({ inventory, onUse }) {
                 <div className="shop-name">{it.name}<span className="shop-own">×{it.count}</span></div>
                 <div className="shop-desc">{it.description}</div>
               </div>
-              <button className="shop-use" onClick={() => onUse(it.item_id)}>Utiliser</button>
+              <button className="shop-use" onClick={() => onUse(it)}>Utiliser</button>
             </div>
           ))}
         </div>

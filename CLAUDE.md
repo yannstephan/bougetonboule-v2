@@ -134,6 +134,22 @@ Deux monnaies **étanches** (règle d'or, jamais de pay-to-win), servies par le 
 Trois onglets : Objets · Cosmétiques · Sac (inventaire des objets + lien vers l'armoire). Les
 achats sont refusés proprement si monnaie insuffisante, cosmétique déjà possédé, ou pas d'équipe.
 
+### Effets d'objets (combat)
+`PerformAction` (`use_item`) applique les effets. **Les effets à durée sont publics** :
+`TeamEffectsPresenter` liste, pour une équipe, ses `TeamEffect` actifs (vent de dos/de face) +
+le bouclier du monstre (`monster.protected_until`), chacun avec son échéance. Affichés par
+`components/EffectBadges.jsx` sur le **Hub** (les deux clans) et en **Combat**.
+
+- **Piège à loup** (`trap`) : on **choisit un adversaire** (`components/TargetPicker.jsx`, dans le
+  Combat et le Sac) ; la cible est enregistrée dans l'`Action` mais l'annonce publique reste
+  **générique** — « X a posé un piège à loup » notifiée à tous les autres joueurs, personne ne
+  voit qui est visé.
+- **Jambe de bois** (`wooden_leg`) : usage **silencieux** (rien n'est annoncé) ; elle ne se
+  révélera dans les notifications qu'au moment où elle déjouera un piège.
+- ⚠️ **Les effets sur les courses ne sont pas encore résolus** (piège annulant les 🍑, jambe de
+  bois les protégeant) : les objets se posent et s'affichent, mais le scoring des `Training`
+  n'est pas encore touché. À faire avec les coffres/streak.
+
 ### Écrans React existants (app/frontend/pages)
 `Hub`, `Combat`, `Chat`, `Ligue`, `Avatar`, `Boutique`, `Profile`, `Training`, `Notifications`,
 `auth/Login`, `auth/Register`.

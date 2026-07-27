@@ -23,6 +23,7 @@ Item.create!([
   { name: "Booster ×2",   price: 8,  description: "24h de dégâts et soins doublés",    effect_type: "booster" },
   { name: "Vent de dos",  price: 6,  description: "Bonus de pêches sur l'équipe",      effect_type: "back_wind" },
   { name: "Piège à loup", price: 5,  description: "Annule les pêches d'un adversaire", effect_type: "trap" },
+  { name: "Jambe de bois", price: 7, description: "Déjoue un piège sur ta prochaine course", effect_type: "wooden_leg" },
   { name: "Bouclier",     price: 10, description: "Protège ton monstre 3h",           effect_type: "shield" },
 ])
 

@@ -7,7 +7,7 @@ const csrf = () =>
 
 const icon = (c) => ({
   attacked: '⚡', healed: '💚', streak: '🔥', chest: '🎁', message: '💬',
-  special_day: '🎄', training_verified: '✅', game_start: '🎮', league: '🏅',
+  special_day: '🎄', training_verified: '✅', game_start: '🎮', league: '🏅', trap: '🐺',
 }[c] || '🔔')
 
 export default function Notifications({ notifications }) {

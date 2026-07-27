@@ -14,8 +14,11 @@ class CombatController < ApplicationController
     {
       balls: m.balls,
       multiplier: m.team.multiplier.to_f,
-      my_team:  { name: m.team.name, fruit_family: m.team.fruit_family, monster: monster_json(m.team.monster) },
-      foe_team: foe && { name: foe.name, fruit_family: foe.fruit_family, monster: monster_json(foe.monster) },
+      my_team:  { name: m.team.name, fruit_family: m.team.fruit_family,
+                  effects: TeamEffectsPresenter.call(m.team), monster: monster_json(m.team.monster) },
+      foe_team: foe && { name: foe.name, fruit_family: foe.fruit_family,
+                         effects: TeamEffectsPresenter.call(foe), monster: monster_json(foe.monster) },
+      opponents: foe ? foe.memberships.includes(:user).map { |mem| { id: mem.id, name: mem.display_name } } : [],
       items: m.owned_items.map { |i| { id: i.id, name: i.name, effect_type: i.effect_type } }
     }
   end

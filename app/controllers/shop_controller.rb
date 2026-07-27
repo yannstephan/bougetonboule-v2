@@ -10,7 +10,8 @@ class ShopController < ApplicationController
       balls: m&.balls || 0,
       items: items_json(m),
       cosmetics: cosmetics_json,
-      inventory: inventory_json(m)
+      inventory: inventory_json(m),
+      opponents: opponents_json(m)
     }
   end
 
@@ -35,7 +36,8 @@ class ShopController < ApplicationController
     m = current_membership
     return redirect_to shop_path, alert: "Aucune partie active." unless m
 
-    result = PerformAction.call(m, action_type: "use_item", item_id: params[:item_id])
+    result = PerformAction.call(m, action_type: "use_item",
+                                   item_id: params[:item_id], target_id: params[:target_id])
     flash[result.ok ? :notice : :alert] = result.message
     redirect_to shop_path
   end
@@ -59,6 +61,14 @@ class ShopController < ApplicationController
       { id: c.id, name: c.name, slot: c.slot, rarity: c.rarity, emoji: c.emoji,
         price: c.price_diamonds, owned: uc.present?, equipped: uc&.equipped || false }
     end
+  end
+
+  # Adversaires ciblables par un piège à loup.
+  def opponents_json(membership)
+    foe = membership&.team&.opponent
+    return [] unless foe
+
+    foe.memberships.includes(:user).map { |m| { id: m.id, name: m.display_name } }
   end
 
   # Objets possédés (non utilisés), regroupés par type avec leur nombre.

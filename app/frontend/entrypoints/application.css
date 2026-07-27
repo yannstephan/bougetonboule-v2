@@ -246,6 +246,33 @@ body{margin:0;background:var(--bg);color:var(--text);
 .fruit-name{font-size:11px;font-weight:700}
 .fruit-taken{font-size:9px;font-weight:600;color:var(--faint);line-height:1.2;text-align:center;max-width:88px}
 
+/* effets actifs (visibles par tous) */
+.fx-card{display:flex;flex-direction:column;gap:7px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r);padding:11px 12px}
+.fx-line{display:flex;align-items:flex-start;gap:8px}
+.fx-label{font-size:11px;font-weight:800;color:var(--muted);flex:none;width:34px;padding-top:3px}
+.fx-row{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+.fx{display:inline-flex;align-items:center;gap:5px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:999px;padding:3px 9px 3px 7px;font-size:11px}
+.fx-e{font-size:14px;line-height:1}
+.fx-t{font-weight:700}
+.fx-t b{font-weight:600;color:var(--muted)}
+
+/* sélection de cible (piège) */
+.tp-backdrop{position:fixed;inset:0;background:rgba(10,8,20,.5);display:flex;align-items:flex-end;
+  justify-content:center;z-index:50}
+.tp-sheet{width:100%;max-width:460px;background:var(--surface);border-top-left-radius:20px;
+  border-top-right-radius:20px;padding:18px 16px calc(18px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:8px}
+.tp-title{font-weight:800;font-size:15px;text-align:center;margin-bottom:4px}
+.tp-opt{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:13px;
+  font:inherit;font-weight:700;font-size:14px;color:var(--text);cursor:pointer}
+.tp-opt:active{transform:translateY(1px)}
+.tp-opt:hover{border-color:var(--fraise);color:var(--fraise)}
+.tp-empty{color:var(--muted);text-align:center;font-size:13px;margin:8px 0}
+.tp-cancel{background:none;border:none;color:var(--muted);font:inherit;font-weight:700;padding:10px;
+  cursor:pointer;margin-top:2px}
+
 /* boutique */
 .shop-wallet{margin-left:auto;display:flex;gap:6px}
 .shop-empty{color:var(--muted);font-size:13px;line-height:1.45;text-align:center;margin:24px 8px}

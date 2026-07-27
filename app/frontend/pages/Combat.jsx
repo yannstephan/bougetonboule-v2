@@ -1,24 +1,31 @@
 import { Head, Link, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import Monster from '../components/Monster'
+import EffectBadges from '../components/EffectBadges'
+import TargetPicker from '../components/TargetPicker'
 
 const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
-const itemEmoji = (t) => ({ shield: '🛡️', trap: '🐺', back_wind: '🌬️', booster: '✖️' }[t] || '🎒')
+const itemEmoji = (t) =>
+  ({ shield: '🛡️', trap: '🐺', back_wind: '🌬️', booster: '✖️', wooden_leg: '🦿' }[t] || '🎒')
 
-export default function Combat({ balls, multiplier, my_team, foe_team, items }) {
+export default function Combat({ balls, multiplier, my_team, foe_team, items, opponents }) {
   const { flash } = usePage().props
   const [floats, setFloats] = useState([])
+  const [trapItem, setTrapItem] = useState(null) // objet piège en attente d'une cible
   const foe = foe_team?.monster
   const dmg = Math.round(10 * multiplier)
 
-  const act = (action_type, item_id = null) => {
+  const act = (action_type, item_id = null, target_id = null) => {
     if (action_type === 'attack' && foe && !foe.protected) {
       const id = Date.now() + Math.random()
       setFloats((f) => [...f, { id }])
       setTimeout(() => setFloats((f) => f.filter((x) => x.id !== id)), 1200)
     }
-    router.post('/actions', { action_type, item_id }, { preserveScroll: true })
+    router.post('/actions', { action_type, item_id, target_id }, { preserveScroll: true })
   }
+
+  const onItem = (it) => (it.effect_type === 'trap' ? setTrapItem(it) : act('use_item', it.id))
+  const pickTarget = (id) => { act('use_item', trapItem.id, id); setTrapItem(null) }
 
   return (
     <div className="shell">
@@ -38,6 +45,7 @@ export default function Combat({ balls, multiplier, my_team, foe_team, items }) 
             <div className="cbt-enemy-name">{familyEmoji(foe_team?.fruit_family)} {foe.name}{foe.protected ? ' 🛡️' : ''}</div>
             <div className="bigbar"><i className="crit" style={{ width: `${foe.percent}%` }} /></div>
             <div className="hp-num" style={{ color: 'var(--crit)' }}>{foe.hp} / {foe.max_hp} PV</div>
+            <EffectBadges effects={foe_team?.effects} />
           </div>
           <div className="arena-scene">
             {floats.map((f) => <div key={f.id} className="dmg">-{dmg}</div>)}
@@ -49,6 +57,10 @@ export default function Combat({ balls, multiplier, my_team, foe_team, items }) 
         <div className="arena-scene"><p style={{ color: 'var(--muted)' }}>Pas encore d'adversaire.</p></div>
       )}
 
+      {my_team?.effects?.length > 0 && (
+        <div style={{ padding: '10px 14px 0' }}><EffectBadges effects={my_team.effects} label="Nous" /></div>
+      )}
+
       <div className="act-gems">
         <button className="gem-btn" onClick={() => act('attack')} disabled={balls < 1}>
           <span className="e">⚡</span><span className="c">1 🍑</span>
@@ -57,11 +69,15 @@ export default function Combat({ balls, multiplier, my_team, foe_team, items }) 
           <span className="e">💚</span><span className="c">2 🍑</span>
         </button>
         {items.slice(0, 2).map((it) => (
-          <button key={it.id} className="gem-btn item" onClick={() => act('use_item', it.id)}>
+          <button key={it.id} className="gem-btn item" onClick={() => onItem(it)}>
             <span className="e">{itemEmoji(it.effect_type)}</span><span className="c">objet</span>
           </button>
         ))}
       </div>
+
+      {trapItem && (
+        <TargetPicker opponents={opponents} onPick={pickTarget} onClose={() => setTrapItem(null)} />
+      )}
     </div>
   )
 }

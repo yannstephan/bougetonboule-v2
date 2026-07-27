@@ -7,10 +7,11 @@ class PerformAction
 
   def self.call(membership, **kwargs) = new(membership, **kwargs).call
 
-  def initialize(membership, action_type:, item_id: nil)
+  def initialize(membership, action_type:, item_id: nil, target_id: nil)
     @m = membership
     @action_type = action_type.to_s
     @item_id = item_id
+    @target_id = target_id
   end
 
   def call
@@ -75,16 +76,42 @@ class PerformAction
       consume(mi, "🌬️ Vent de dos activé pour #{team.name}")
       ok("Vent de dos activé !")
     when "trap"
-      err("Le piège à loup nécessite de choisir une cible (bientôt).")
+      set_trap(mi)
+    when "wooden_leg"
+      # Se protège d'un piège sur la prochaine course. Silencieux : rien n'est annoncé
+      # tant que ça n'a pas déjoué un piège (résolution à la course, à venir).
+      consume(mi, "🦿 #{@m.user.firstname} a chaussé une jambe de bois")
+      ok("Jambe de bois prête : elle déjouera un piège sur ta prochaine course.")
     else
       consume(mi, "#{@m.user.firstname} a utilisé #{mi.item.name}")
       ok("#{mi.item.name} utilisé !")
     end
   end
 
-  def consume(mi, description)
+  # Pose un piège sur un adversaire précis. La cible est enregistrée (résolution à la course,
+  # à venir), mais l'annonce publique reste générique : personne ne voit QUI est visé.
+  def set_trap(mi)
+    target = team.opponent&.memberships&.includes(:user)&.find_by(id: @target_id)
+    return err("Choisis un adversaire à piéger.") unless target
+
+    consume(mi, "🐺 #{@m.user.firstname} a posé un piège à loup", target:)
+    announce_trap
+    ok("Piège à loup posé sur #{target.display_name} !")
+  end
+
+  # "Charlotte a posé un piège à loup" — vu par tous les autres joueurs, sans la cible.
+  def announce_trap
+    @m.game.memberships.includes(:user).where.not(id: @m.id).find_each do |mem|
+      Notification.create!(user: mem.user, game: @m.game, category: "trap",
+                           title: "🐺 Piège à loup",
+                           body: "#{@m.user.firstname} a posé un piège à loup.")
+    end
+  end
+
+  def consume(mi, description, target: nil)
     mi.update!(used: true)
-    Action.create!(game: @m.game, membership: @m, item_id: mi.item_id, action_type: "use_item", description:)
+    Action.create!(game: @m.game, membership: @m, item_id: mi.item_id,
+                   action_type: "use_item", description:, target:)
   end
 
   def notify_team(target_team, category, title, body)

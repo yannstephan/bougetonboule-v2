@@ -2,6 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react'
 import BottomNav from '../components/BottomNav'
 import PlayerAvatar from '../components/PlayerAvatar'
 import Monster from '../components/Monster'
+import EffectBadges from '../components/EffectBadges'
 
 const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
 
@@ -56,6 +57,13 @@ function GameView({ m }) {
           <div className="minibar"><i className="crit" style={{ width: `${foe?.monster?.percent ?? 0}%` }} /></div>
         </div>
       </div>
+      {(mine.effects?.length > 0 || foe?.effects?.length > 0) && (
+        <div className="fx-card">
+          <EffectBadges effects={mine.effects} label="Nous" />
+          <EffectBadges effects={foe?.effects} label="Eux" />
+        </div>
+      )}
+
       <Link href="/combat" className="btn combat">⚔️ COMBATTRE</Link>
       <div className="tiles">
         <div className="tile"><span className="ic">🔥</span><div><div className="tn">Série hebdo</div><div className="td">{m.weekly_streak} sem.</div></div></div>
