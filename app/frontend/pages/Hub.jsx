@@ -38,7 +38,7 @@ function GameView({ m }) {
   return (
     <main className="body">
       {m.event?.race_at && (
-        <Countdown raceAt={m.event.race_at} name={m.event.name} location={m.event.location} />
+        <Countdown raceAt={m.event.race_at} startAt={m.event.starts_at} name={m.event.name} location={m.event.location} />
       )}
       {m.special_day && (
         <div className="specialday">

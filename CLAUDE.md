@@ -109,9 +109,14 @@ inconnu retombe sur un emoji 👾.
 ### Le compte à rebours (Hub)
 En haut du Hub, `components/Countdown.jsx` décompte jours/heures/min/sec jusqu'au **jour J**.
 La date vient de l'`Event` (`events.race_date`, un `datetime`) — Odyssea Nantes est le
-**21 mars 2027 à 9h** dans le seed. Le Hub sérialise `event: { name, location, race_at (ISO) }`
-et le composant tique chaque seconde (`setInterval`), puis affiche « C'est le grand jour ! » une
-fois la date passée. Piloté par la donnée : changer `race_date` déplace le décompte.
+**21 mars 2027 à 9h** dans le seed. Le Hub sérialise
+`event: { name, location, race_at (ISO), starts_at (ISO) }` et le composant tique chaque seconde
+(`setInterval`), puis affiche « C'est le grand jour ! » une fois la date passée. Piloté par la
+donnée : changer `race_date` déplace le décompte.
+
+Sous le décompte, une **barre de progression** « vers l'arrivée » : un coureur 🏃 avance vers un
+drapeau 🏁, rempli de `game.starts_at` (ligne de départ) à `race_at` (arrivée), avec le % du
+parcours. Calculée côté React à partir des deux timestamps.
 
 ### Profils & sorties (`/joueurs/:id`, `/courses/:id`)
 Chaque **participation** (Membership) a une page profil consultable par **tout joueur de la même
