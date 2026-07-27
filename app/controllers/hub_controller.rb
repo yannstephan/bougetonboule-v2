@@ -2,9 +2,11 @@ class HubController < ApplicationController
   before_action :require_authentication
 
   def index
-    membership = current_user.memberships
-                   .joins(:game).where(games: { status: "active" })
-                   .includes(game: { teams: :monster }, team: :monster).first
+    scope = current_user.memberships.joins(:game)
+                        .includes(game: { teams: :monster }, team: :monster)
+    # Une partie active d'abord ; sinon la dernière terminée (écran de fin de saison).
+    membership = scope.where(games: { status: "active" }).first ||
+                 scope.where(games: { status: "finished" }).order(updated_at: :desc).first
 
     render inertia: "Hub", props: { membership: membership && payload(membership) }
   end
@@ -14,15 +16,23 @@ class HubController < ApplicationController
   def payload(m)
     special = m.game.special_days.find_by(date: Date.current)
     {
-      game: { id: m.game.id, name: m.game.name },
+      game: game_payload(m.game),
       event: event_payload(m.game),
       balls: m.balls,
       weekly_streak: m.weekly_streak,
       month_rank: month_rank(m),
       sealed_chests: m.chests.sealed.count,
       special_day: special && { name: special.name, multiplier: special.multiplier.to_f },
-      my_team: team_payload(m.team),
-      opponent: m.team.opponent && team_payload(m.team.opponent)
+      my_team: team_payload(m.team, viewer: m.team),
+      opponent: m.team.opponent && team_payload(m.team.opponent, viewer: m.team)
+    }
+  end
+
+  def game_payload(game)
+    {
+      id: game.id, name: game.name, status: game.status,
+      winner: game.winner_team&.name,
+      ends_at: game.ends_at&.strftime("%d/%m/%Y")
     }
   end
 
@@ -42,16 +52,14 @@ class HubController < ApplicationController
     row&.rank if row&.score&.positive?
   end
 
-  def team_payload(team)
-    mon = team.monster
+  def team_payload(team, viewer:)
     {
       name: team.name,
       color: team.color,
       fruit_family: team.fruit_family,
       total_balls: team.total_balls,
       effects: TeamEffectsPresenter.call(team),
-      monster: mon && { name: mon.name, slug: mon.slug, hp: mon.hp, max_hp: mon.max_hp,
-                        percent: mon.hp_percent, state: mon.state, protected: mon.protected? }
+      monster: MonsterPresenter.call(team.monster, viewer_team: viewer)
     }
   end
 end
