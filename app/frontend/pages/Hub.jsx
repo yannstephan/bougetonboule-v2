@@ -3,6 +3,7 @@ import BottomNav from '../components/BottomNav'
 import PlayerAvatar from '../components/PlayerAvatar'
 import Monster from '../components/Monster'
 import EffectBadges from '../components/EffectBadges'
+import Countdown from '../components/Countdown'
 
 const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
 
@@ -36,6 +37,9 @@ function GameView({ m }) {
   const foe = m.opponent
   return (
     <main className="body">
+      {m.event?.race_at && (
+        <Countdown raceAt={m.event.race_at} name={m.event.name} location={m.event.location} />
+      )}
       {m.special_day && (
         <div className="specialday">
           🎄 Jour spécial · {m.special_day.name}

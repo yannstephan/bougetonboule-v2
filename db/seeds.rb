@@ -28,7 +28,7 @@ Item.create!([
 ])
 
 puts "Event + partie…"
-event = Event.create!(name: "Odyssea Nantes", race_date: Date.new(2027, 3, 15), location: "Nantes")
+event = Event.create!(name: "Odyssea Nantes", race_date: Time.zone.local(2027, 3, 21, 9, 0), location: "Nantes")
 game  = Game.create!(event:, name: "Partie Odyssea 2027", status: "active",
                      starts_at: 7.weeks.ago, ends_at: 8.weeks.from_now)
 

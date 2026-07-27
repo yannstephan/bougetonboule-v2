@@ -106,6 +106,13 @@ Dessinés en SVG dans `components/Monster.jsx`, choisis par `Monster#slug` (`"Ki
 `king-coco`). King-Coco (roi noix de coco) et Dracassis (dragon cassis) pour Odyssea. Un slug
 inconnu retombe sur un emoji 👾.
 
+### Le compte à rebours (Hub)
+En haut du Hub, `components/Countdown.jsx` décompte jours/heures/min/sec jusqu'au **jour J**.
+La date vient de l'`Event` (`events.race_date`, un `datetime`) — Odyssea Nantes est le
+**21 mars 2027 à 9h** dans le seed. Le Hub sérialise `event: { name, location, race_at (ISO) }`
+et le composant tique chaque seconde (`setInterval`), puis affiche « C'est le grand jour ! » une
+fois la date passée. Piloté par la donnée : changer `race_date` déplace le décompte.
+
 ### Profils & sorties (`/joueurs/:id`, `/courses/:id`)
 Chaque **participation** (Membership) a une page profil consultable par **tout joueur de la même
 partie** (les deux clans — `ApplicationController#shares_game?`). Elle liste ses sorties (date,

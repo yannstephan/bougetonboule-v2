@@ -408,6 +408,19 @@ body{margin:0;background:var(--bg);color:var(--text);
 .bell-badge .b{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;border-radius:99px;background:var(--fraise);
   color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;padding:0 3px}
 
+/* Compte à rebours de la course (Hub) */
+.countdown{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:12px 14px;display:flex;flex-direction:column;gap:11px}
+.cd-head{display:flex;align-items:center;gap:10px}
+.cd-flag{font-size:26px;flex:none}
+.cd-title{font-weight:800;font-size:14px}
+.cd-date{font-size:11px;color:var(--muted);text-transform:capitalize}
+.cd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.cd-unit{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:9px 4px;text-align:center}
+.cd-n{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;color:var(--peach)}
+.cd-l{font-size:10px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.04em}
+.cd-go{font-weight:800;text-align:center;color:var(--good);padding:6px}
+
 /* FAQ / règles du jeu */
 .faq-intro{margin:0;color:var(--muted);font-size:13px}
 .faq-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}

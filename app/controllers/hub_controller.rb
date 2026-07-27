@@ -15,6 +15,7 @@ class HubController < ApplicationController
     special = m.game.special_days.find_by(date: Date.current)
     {
       game: { id: m.game.id, name: m.game.name },
+      event: event_payload(m.game.event),
       balls: m.balls,
       weekly_streak: m.weekly_streak,
       month_rank: month_rank(m),
@@ -23,6 +24,13 @@ class HubController < ApplicationController
       my_team: team_payload(m.team),
       opponent: m.team.opponent && team_payload(m.team.opponent)
     }
+  end
+
+  # Date de la course (jour J), pour le compte à rebours du Hub.
+  def event_payload(event)
+    return unless event&.race_date
+
+    { name: event.name, location: event.location, race_at: event.race_date.iso8601 }
   end
 
   # Rang du mois, seulement si le joueur a couru — sinon on l'invite à courir.
