@@ -1,6 +1,6 @@
 class Cosmetic < ApplicationRecord
   RARITIES = %w[common rare epic legendary].freeze
-  SLOTS    = %w[base hat eyes outfit aura].freeze
+  SLOTS    = %w[base hat eyes outfit arms legs aura].freeze
   SOURCES  = %w[shop drop event rank].freeze
 
   has_many :user_cosmetics, dependent: :destroy

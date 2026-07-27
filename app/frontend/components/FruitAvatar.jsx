@@ -6,21 +6,39 @@ import { fruitParams } from './fruits'
 // bon endroit, quel que soit le fruit.
 //
 // viewBox 100×100, corps centré autour de (50,55), visage autour de (50,54).
+// Slots dessinés DERRIÈRE le fruit (aura) puis DEVANT (ordre d'empilement du bas vers le haut).
+// Ajouter un slot cosmétique = une entrée ici + son ancre CSS (.fav-<slot>). Aucun autre code :
+// une fois le slot connu, un nouveau cosmétique n'est qu'une ligne en base (Cosmetic + emoji).
+const BACK_SLOTS = ['aura']
+const FRONT_SLOTS = ['legs', 'outfit', 'arms', 'eyes', 'hat']
+
 export default function FruitAvatar({ fruit, size = 96, cosmetics = {}, showCosmetics = true, face = true }) {
   const p = fruitParams(fruit)
+  const worn = (slots) => (showCosmetics ? slots.filter((s) => cosmetics[s]) : [])
 
   return (
     <span className="fav" style={{ width: size, height: size, fontSize: size }}>
-      {showCosmetics && cosmetics.aura && <span className="fav-aura">{cosmetics.aura}</span>}
+      {worn(BACK_SLOTS).map((s) => <Cosmetic key={s} slot={s} emoji={cosmetics[s]} />)}
       <svg viewBox="0 0 100 100" className="fav-svg" role="img" aria-label={fruit || 'fruit'}>
         <Body p={p} />
         {face && <Face />}
       </svg>
-      {showCosmetics && cosmetics.outfit && <span className="fav-outfit">{cosmetics.outfit}</span>}
-      {showCosmetics && cosmetics.eyes && <span className="fav-eyes">{cosmetics.eyes}</span>}
-      {showCosmetics && cosmetics.hat && <span className="fav-hat">{cosmetics.hat}</span>}
+      {worn(FRONT_SLOTS).map((s) => <Cosmetic key={s} slot={s} emoji={cosmetics[s]} />)}
     </span>
   )
+}
+
+// Un cosmétique posé à son ancre. Les bras sont symétriques : un emoji, rendu à gauche et à droite.
+function Cosmetic({ slot, emoji }) {
+  if (slot === 'arms') {
+    return (
+      <>
+        <span className="fav-arm fav-arm-l">{emoji}</span>
+        <span className="fav-arm fav-arm-r">{emoji}</span>
+      </>
+    )
+  }
+  return <span className={`fav-${slot}`}>{emoji}</span>
 }
 
 // Visage commun à tous les fruits.

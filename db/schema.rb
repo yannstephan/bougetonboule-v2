@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_25_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_25_140000) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -26,15 +26,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_120000) do
     t.index ["item_id"], name: "index_actions_on_item_id"
     t.index ["membership_id"], name: "index_actions_on_membership_id"
     t.index ["target_type", "target_id"], name: "index_actions_on_target_type_and_target_id"
-  end
-
-  create_table "avatars", force: :cascade do |t|
-    t.string "base_color", default: "citron", null: false
-    t.string "body_style", default: "default", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
-    t.index ["user_id"], name: "index_avatars_on_user_id", unique: true
   end
 
   create_table "chests", force: :cascade do |t|
@@ -280,7 +271,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_120000) do
   add_foreign_key "actions", "games"
   add_foreign_key "actions", "items"
   add_foreign_key "actions", "memberships"
-  add_foreign_key "avatars", "users"
   add_foreign_key "chests", "cosmetics"
   add_foreign_key "chests", "memberships"
   add_foreign_key "chests", "trainings"

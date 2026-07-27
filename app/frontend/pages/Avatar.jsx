@@ -5,7 +5,8 @@ import PlayerAvatar from '../components/PlayerAvatar'
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
 
-const slotLabel = { base: 'Base', hat: 'Chapeau', eyes: 'Yeux', outfit: 'Tenue', aura: 'Aura' }
+const slotLabel = { base: 'Base', hat: 'Chapeau', eyes: 'Yeux', outfit: 'Tenue',
+  arms: 'Bras', legs: 'Jambes', aura: 'Aura' }
 
 export default function Avatar({ has_team, team, fruits, current_fruit, avatar, cosmetics, slots }) {
   const { flash } = usePage().props

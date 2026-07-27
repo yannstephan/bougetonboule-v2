@@ -2,7 +2,7 @@
 puts "Nettoyage…"
 [Reward, Chest, Message, Conversation, Notification, PushSubscription,
  Action, MembershipItem, Training, TeamEffect, Membership, Monster, Team,
- SpecialDay, Game, Event, UserCosmetic, Cosmetic, Avatar, Item, User].each(&:delete_all)
+ SpecialDay, Game, Event, UserCosmetic, Cosmetic, Item, User].each(&:delete_all)
 
 puts "Cosmétiques…"
 Cosmetic.create!([
@@ -13,6 +13,8 @@ Cosmetic.create!([
   { name: "Lunettes rondes",    slot: "eyes", rarity: "common",    price_diamonds: 45,  source: "shop",  emoji: "👓" },
   { name: "Aura pêche",         slot: "aura", rarity: "common",    price_diamonds: 50,  source: "shop",  emoji: "✨" },
   { name: "Aura de feu",        slot: "aura", rarity: "epic",      price_diamonds: 180, source: "shop",  emoji: "🔥" },
+  { name: "Baskets de course",  slot: "legs", rarity: "rare",      price_diamonds: 80,  source: "shop",  emoji: "👟" },
+  { name: "Gants de boxe",      slot: "arms", rarity: "rare",      price_diamonds: 85,  source: "shop",  emoji: "🥊" },
   { name: "Couronne de Noël",   slot: "hat",  rarity: "legendary", price_diamonds: nil, source: "event", emoji: "👑" },
 ])
 
@@ -76,7 +78,6 @@ end
 roster.each do |p|
   user = User.create!(firstname: p[:name], diamonds: rand(0..60),
                       email: "#{p[:name].downcase.tr('éèàï', 'eeai')}@btb.test")
-  Avatar.create!(user:)
   team = p[:team] == :exo ? exo : rouges
   m = Membership.create!(user:, game:, team:, fruit: p[:fruit], balls: rand(4..18),
                          role: p[:role] || "player", weekly_streak: [weeks_of_history, p[:runs] * 2].min,
@@ -107,8 +108,9 @@ Notification.create!(user: first.user, game:, category: "chest",
 
 puts "Cosmétiques possédés…"
 # De quoi voir l'écran avatar rempli sans avoir à gagner un mois de classement.
-[["Yann", "Casquette", true], ["Yann", "Aura de feu", true],
- ["Inès", "Lunettes de star", true], ["Chloé", "Haut-de-forme doré", false]].each do |name, cosmetic, on|
+[["Yann", "Casquette", true], ["Yann", "Aura de feu", true], ["Yann", "Baskets de course", true],
+ ["Inès", "Lunettes de star", true], ["Inès", "Gants de boxe", true],
+ ["Chloé", "Haut-de-forme doré", false]].each do |name, cosmetic, on|
   user = User.find_by(firstname: name)
   UserCosmetic.create!(user:, cosmetic: Cosmetic.find_by(name: cosmetic),
                        equipped: on, acquired_at: 2.weeks.ago, source_game: game)

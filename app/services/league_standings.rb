@@ -28,7 +28,7 @@ class LeagueStandings
   # Toutes les participations de la partie, triées, rangs renseignés.
   def rows
     @rows ||= begin
-      memberships = game.memberships.includes(:team, user: :avatar).to_a
+      memberships = game.memberships.includes(:team, :user).to_a
       stats = period_stats(memberships)
       built = memberships.map do |m|
         score, meters, count = stats[m.id]

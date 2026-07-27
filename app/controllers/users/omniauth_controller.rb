@@ -13,7 +13,6 @@ class Users::OmniauthController < ApplicationController
         avatar_url: data.info.image
       )
       user.save!
-      Avatar.create!(user:)
     elsif user.google_uid.blank?
       user.update!(google_uid: data.uid, provider: "google")
     end

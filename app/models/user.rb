@@ -1,7 +1,6 @@
 class User < ApplicationRecord
   has_secure_password validations: false
 
-  has_one  :avatar, dependent: :destroy
   has_many :memberships, dependent: :destroy
   has_many :games, through: :memberships
   has_many :user_cosmetics, dependent: :destroy

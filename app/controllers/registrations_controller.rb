@@ -14,7 +14,6 @@ class RegistrationsController < ApplicationController
       redirect_to register_path, alert: "Choisis un mot de passe." and return
     end
     if user.save
-      Avatar.create!(user:)
       sign_in(user)
       # L'avatar (choix du fruit) se fait une fois affecté à une équipe : on va au Hub.
       redirect_to root_path, notice: "Bienvenue sur Bouge Ton Boule, #{user.firstname} !"
