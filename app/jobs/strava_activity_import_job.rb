@@ -47,7 +47,7 @@ class StravaActivityImportJob < ApplicationJob
     others = membership.game.memberships.includes(:user).where.not(id: membership.id).map(&:user)
     Notification.broadcast(others, game: membership.game, category: "training_verified",
                            title: "🏃 Nouvelle course",
-                           body: "#{membership.display_name} a couru #{training.distance_km.round(1)} km.")
+                           body: "#{membership.display_name} a couru #{training.distance_km.round(1)} km · +#{training.score.to_i} 🍑")
   end
 
   # Champs détaillés Strava, à stocker pour la page d'une sortie.

@@ -17,16 +17,14 @@ class MessagesController < ApplicationController
 
   private
 
-  # Prévient les autres participants. Un message d'équipe est important (poussé) ; le chat
-  # général reste secondaire (listé, pas de push) pour ne pas spammer toute la partie.
+  # Seul le chat d'équipe déclenche une notification (importante, poussée). Le chat général
+  # ne notifie personne : on le suit en ouvrant le chat, pas dans la liste des notifications.
   def notify_participants(conv, sender, message)
-    scope = conv.kind == "team" ? conv.team.memberships : conv.game.memberships
-    recipients = scope.includes(:user).where.not(id: sender.id).map(&:user)
-    label = conv.kind == "team" ? "équipe" : "partie"
+    return unless conv.kind == "team"
 
-    Notification.broadcast(recipients, game: conv.game, category: "message",
-                           importance: conv.kind == "team" ? "important" : "secondary",
-                           title: "💬 #{sender.display_name} · #{label}",
+    recipients = conv.team.memberships.includes(:user).where.not(id: sender.id).map(&:user)
+    Notification.broadcast(recipients, game: conv.game, category: "message", importance: "important",
+                           title: "💬 #{sender.display_name} · équipe",
                            body: message.body.truncate(90))
   end
 end

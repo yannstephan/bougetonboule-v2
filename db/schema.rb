@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_27_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_27_130000) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -41,6 +41,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_120000) do
     t.index ["cosmetic_id"], name: "index_chests_on_cosmetic_id"
     t.index ["membership_id"], name: "index_chests_on_membership_id"
     t.index ["training_id"], name: "index_chests_on_training_id"
+  end
+
+  create_table "conversation_reads", force: :cascade do |t|
+    t.integer "conversation_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "last_read_at", null: false
+    t.integer "membership_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id"], name: "index_conversation_reads_on_conversation_id"
+    t.index ["membership_id", "conversation_id"], name: "index_conversation_reads_on_membership_id_and_conversation_id", unique: true
+    t.index ["membership_id"], name: "index_conversation_reads_on_membership_id"
   end
 
   create_table "conversations", force: :cascade do |t|
@@ -282,6 +293,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_120000) do
   add_foreign_key "chests", "cosmetics"
   add_foreign_key "chests", "memberships"
   add_foreign_key "chests", "trainings"
+  add_foreign_key "conversation_reads", "conversations"
+  add_foreign_key "conversation_reads", "memberships"
   add_foreign_key "conversations", "games"
   add_foreign_key "conversations", "teams"
   add_foreign_key "games", "events"

@@ -4,6 +4,7 @@ class Conversation < ApplicationRecord
   belongs_to :game
   belongs_to :team, optional: true
   has_many :messages, dependent: :destroy
+  has_many :conversation_reads, dependent: :destroy
 
   validates :kind, inclusion: { in: KINDS }
 

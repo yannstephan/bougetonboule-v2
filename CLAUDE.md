@@ -31,7 +31,7 @@ L'événement **Odyssea 2027** (mars 2027) oppose deux clans : **🌴 Fruits exo
 
 On n'achète jamais de pêches ni d'avantage de combat. Les 💎 ne touchent qu'au cosmétique.
 
-## Modèle de données (21 tables — voir db/schema.rb)
+## Modèle de données (22 tables — voir db/schema.rb)
 
 Séparation clé : **Event** (la course réelle, ex. Odyssea 2027) → **Game/partie** →
 **Membership** (un user dans une partie, dans une équipe). Un user joue plusieurs parties ;
@@ -43,7 +43,8 @@ cosmétiques/💎 sont **globaux**.
 - **Participation** : `Membership`, `Training` (course Strava scorée)
 - **Combat/éco** : `Item`, `MembershipItem`, `Action` (attaque/soin/objet, cible polymorphe),
   `Chest` (coffre), `Reward` (registre des gains)
-- **Social** : `Conversation` (kind `general` = toute la partie, ou `team` = privé équipe), `Message`
+- **Social** : `Conversation` (kind `general` = toute la partie, ou `team` = privé équipe), `Message`,
+  `ConversationRead` (dernière lecture d'une conversation par participation → pastille non lus)
 
 ## Ce qui est déjà construit (commits)
 
@@ -139,13 +140,25 @@ achats sont refusés proprement si monnaie insuffisante, cosmétique déjà poss
   la **conversation d'équipe**, récompense (coffre, ligue, streak), et (à venir) « ma course a été
   piégée / mon piège a réussi / mon piège a été déjoué ».
 - **secondary** (défaut) : **listé seulement**, jamais poussé. L'activité des autres — « X a
-  couru N km », « X a activé un vent de dos jusqu'à… », « X a posé un piège à loup », chat
-  général, combat.
+  couru N km · +N 🍑 » (km **et** pêches gagnées), « X a activé un vent de dos jusqu'à… », « X a
+  posé un piège à loup », combat.
+
+Le **chat général ne crée AUCUNE notification** (seul le chat d'équipe notifie, en important) :
+`MessagesController#notify_participants` sort tôt si `conv.kind != "team"`. Les messages non lus
+du chat se voient sur la **pastille de l'onglet Chat** (voir ci-dessous), pas dans la liste.
 
 Le push n'est déclenché que pour les importantes (`Notification#push_if_important`).
 `Notification.broadcast(users, importance:, …)` crée la même notif pour plusieurs destinataires.
 L'écran Notifications sépare **Pour toi** (importantes) et **Activité de la partie** (secondaires,
 style atténué).
+
+### Pastille de messages non lus (onglet Chat)
+`conversation_reads` (`membership` × `conversation` × `last_read_at`, index unique) mémorise la
+dernière lecture. `Membership#unread_messages_count` compte les messages **des autres** (équipe +
+général) postés après `last_read_at`, exposé globalement via `chat_unread` (`inertia_share`) et
+affiché en pastille sur l'onglet **Chat** (`components/BottomNav.jsx`). Ouvrir le chat
+(`ChatController#show`) appelle `Membership#mark_conversations_read!` → la pastille retombe à 0.
+⚠️ Le seed doit vider `ConversationRead` en tête du nettoyage (FK vers membership/conversation).
 
 ### Profil : pas de solde de 🍑
 La réserve de pêches d'un joueur ne se voit **que sur sa propre page d'accueil** (le HUD), jamais
@@ -235,8 +248,8 @@ et recharge le Hub.
 `odyssea2027`. Connecte-toi avec **`yann@btb.test` / `odyssea2027`** pour tomber directement dans
 une partie remplie. Le seed **rejoue de vrais événements** (via `PerformAction`) pour peupler le
 feed de notifications : Yann y voit ses importantes (coffre, message d'équipe) et le fil d'activité
-(vent de dos, bouclier, piège à loup, courses, chat général), et des **effets d'équipe actifs**
-sur le Hud. Reseeder (`bin/rails db:seed`) régénère tout ça.
+(vent de dos, bouclier, piège à loup, courses), des **effets d'équipe actifs** sur le Hud, et une
+**pastille de messages non lus** sur l'onglet Chat. Reseeder (`bin/rails db:seed`) régénère tout ça.
 
 ### Secrets (optionnels — l'app tourne sans)
 `GOOGLE_CLIENT_ID/SECRET`, `STRAVA_CLIENT_ID/SECRET`, `STRAVA_VERIFY_TOKEN`,

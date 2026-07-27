@@ -1,6 +1,6 @@
 # Jeu de données de démonstration — valide le schéma et sert d'exemple.
 puts "Nettoyage…"
-[Reward, Chest, Message, Conversation, Notification, PushSubscription,
+[Reward, Chest, ConversationRead, Message, Conversation, Notification, PushSubscription,
  Action, MembershipItem, Training, TeamEffect, Membership, Monster, Team,
  SpecialDay, Game, Event, UserCosmetic, Cosmetic, Item, User].each(&:delete_all)
 
@@ -183,19 +183,15 @@ use_effect[max_m, "back_wind"]         # 🌬️ Max (rouges) : vent de dos → 
 use_effect[ines, "shield"]             # 🛡️ Inès (exo) : bouclier sur King-Coco → secondaire à tous
 use_effect[chloe, "trap", target: yann] # 🐺 Chloé (rouges) : piège sur Yann → « a posé un piège » (cible cachée)
 
-# Fil « X a couru N km » (secondaire), comme à l'import d'une course Strava.
-[[ines, 10.4], [max_m, 7.2], [lea, 5.8]].each do |m, km|
+# Fil « X a couru N km · +N 🍑 » (secondaire), comme à l'import d'une course Strava.
+[[ines, 10.4, 10], [max_m, 7.2, 7], [lea, 5.8, 5]].each do |m, km, balls|
   others = game.memberships.includes(:user).where.not(id: m.id).map(&:user)
-  Notification.broadcast(others, game:, category: "training_verified",
-                         title: "🏃 Nouvelle course", body: "#{m.display_name} a couru #{km} km.")
+  Notification.broadcast(others, game:, category: "training_verified", title: "🏃 Nouvelle course",
+                         body: "#{m.display_name} a couru #{km} km · +#{balls} 🍑")
 end
 
-# Chat général = secondaire (listé, pas poussé).
-Notification.broadcast(game.memberships.includes(:user).where.not(id: chloe.id).map(&:user),
-                       game:, category: "message", title: "💬 Chloé · partie",
-                       body: "Vous allez pleurer, Dracassis a faim 🍒")
-
 # Message d'équipe = important (poussé) : n'arrive qu'aux coéquipiers de Léa (exo).
+# Le chat général ne notifie pas (on le suit en ouvrant le chat).
 Notification.broadcast(exo.memberships.includes(:user).where.not(id: lea.id).map(&:user),
                        game:, importance: "important", category: "message", title: "💬 Léa · équipe",
                        body: "On concentre les attaques ce soir sur Dracassis ?")

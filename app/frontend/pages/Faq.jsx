@@ -68,7 +68,8 @@ const SECTIONS = [
     q: '🔔 Les notifications',
     a: [
       '« Pour toi » : ce qui te concerne directement (message dans ta conversation d\'équipe, récompense de coffre ou de ligue…). Ce sont les seules poussées sur ton téléphone.',
-      '« Activité de la partie » : le reste, en fil d\'activité (X a couru, X a activé un vent de dos, un piège a été posé, le chat général…). Listé, mais jamais poussé.',
+      '« Activité de la partie » : le reste, en fil d\'activité (X a couru et ce que ça lui rapporte, X a activé un vent de dos, un piège a été posé…). Listé, mais jamais poussé.',
+      'Le chat général ne crée pas de notification : les messages non lus (équipe + général) sont signalés par une pastille sur l\'onglet Chat.',
       'Active les notifications push depuis l\'écran 🔔 pour recevoir les alertes « Pour toi ».',
     ],
   },

@@ -8,7 +8,11 @@ class ChatController < ApplicationController
       m.game.conversations.general.first,
       m.game.conversations.team_chats.find_by(team_id: m.team_id)
     ].compact
-    render inertia: "Chat", props: { conversations: convs.map { |c| conv_json(c, m) } }
+    props = { conversations: convs.map { |c| conv_json(c, m) } }
+    # Ouvrir le chat vaut lecture : la pastille de l'onglet retombe à zéro (calculée après, dans le
+    # partage Inertia, donc déjà 0 sur cette page).
+    m.mark_conversations_read!
+    render inertia: "Chat", props:
   end
 
   private
