@@ -26,17 +26,19 @@ class StravaActivityImportJob < ApplicationJob
         strava_activity_id: strava_id,
         date:               Time.zone.parse(activity["start_date"].to_s),
         distance_meters:    activity["distance"].to_i,
-        status:             "pending",
+        status:             "verified",
         **strava_details(activity)
       )
-      TrainingScorer.call(training)
+      TrainingScorer.call(training)      # plafond, jour spécial, vents
+      ResolveRunEffects.call(training)   # piège à loup / jambe de bois (+ notifs importantes)
       training.save!
+      training.credit_balls!             # verse les 🍑 (rien si la course est piégée)
 
-      # Confirmation à soi-même (secondaire : pas urgent, le solde 🍑 se met à jour tout seul).
+      # Confirmation à soi-même (secondaire : pas urgent — le cas piégé a déjà sa notif importante).
       Notification.create!(
         user:, game: membership.game, category: "training_verified",
         title: "Course importée",
-        body: "#{training.distance_km.round(1)} km · +#{training.score.to_i} pêches (en attente de validation)"
+        body: "#{training.distance_km.round(1)} km · +#{training.score.to_i} pêches"
       )
       broadcast_run(membership, training)
     end
@@ -45,9 +47,10 @@ class StravaActivityImportJob < ApplicationJob
   # Feed d'activité : "X a couru N km", vu par les autres joueurs de la partie (secondaire).
   def broadcast_run(membership, training)
     others = membership.game.memberships.includes(:user).where.not(id: membership.id).map(&:user)
+    gain = training.status == "trapped" ? "piégée 🐺 · 0 🍑" : "+#{training.score.to_i} 🍑"
     Notification.broadcast(others, game: membership.game, category: "training_verified",
                            title: "🏃 Nouvelle course",
-                           body: "#{membership.display_name} a couru #{training.distance_km.round(1)} km · +#{training.score.to_i} 🍑")
+                           body: "#{membership.display_name} a couru #{training.distance_km.round(1)} km · #{gain}")
   end
 
   # Champs détaillés Strava, à stocker pour la page d'une sortie.
