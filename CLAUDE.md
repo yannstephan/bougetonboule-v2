@@ -167,9 +167,16 @@ le bouclier du monstre (`monster.protected_until`), chacun avec son échéance. 
   bois les protégeant) : les objets se posent et s'affichent, mais le scoring des `Training`
   n'est pas encore touché. À faire avec les coffres/streak.
 
+### La FAQ / règles (`/faq`)
+Page **statique** des règles du jeu (`FaqController#show` → `pages/Faq.jsx`), en sections
+repliables (`<details>`) : but, pêches, combat, objets, diamants, ligue, avatar, notifications,
++ un encadré « règle d'or ». **Aucun prop** : tout le contenu vit dans le tableau `SECTIONS` du
+composant — c'est le seul endroit qui décrit le fonctionnement côté joueur, **à mettre à jour
+quand une mécanique change**. Lien 📖 dans le **header du Hud** (à côté de la cloche 🔔).
+
 ### Écrans React existants (app/frontend/pages)
 `Hub`, `Combat`, `Chat`, `Ligue`, `Avatar`, `Boutique`, `Profile`, `Training`, `Notifications`,
-`auth/Login`, `auth/Register`.
+`Faq`, `auth/Login`, `auth/Register`.
 Navigation par onglets : **Hub · Chat · ⚔️ Combat · Ligue · Boutique** (`components/BottomNav.jsx`),
 tous actifs.
 
@@ -223,6 +230,13 @@ MONTH=2026-06 bin/rails league:award_month         # décerne la récompense d'u
 Pour voir le jeu après `db:prepare` : crée un compte sur `/register`, puis en console
 `Membership.create!(user: User.last, game: Game.first, team: Game.first.teams.first, balls: 20)`
 et recharge le Hub.
+
+**Plus simple — se connecter en démo** : le seed donne à tous les joueurs le mot de passe
+`odyssea2027`. Connecte-toi avec **`yann@btb.test` / `odyssea2027`** pour tomber directement dans
+une partie remplie. Le seed **rejoue de vrais événements** (via `PerformAction`) pour peupler le
+feed de notifications : Yann y voit ses importantes (coffre, message d'équipe) et le fil d'activité
+(vent de dos, bouclier, piège à loup, courses, chat général), et des **effets d'équipe actifs**
+sur le Hud. Reseeder (`bin/rails db:seed`) régénère tout ça.
 
 ### Secrets (optionnels — l'app tourne sans)
 `GOOGLE_CLIENT_ID/SECRET`, `STRAVA_CLIENT_ID/SECRET`, `STRAVA_VERIFY_TOKEN`,

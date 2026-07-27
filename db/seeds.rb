@@ -100,8 +100,12 @@ def seed_training!(membership, day, distance_meters)
   training.save!
 end
 
+# Mot de passe commun aux joueurs de démo : on peut se connecter en tant que n'importe lequel
+# (ex. yann@btb.test) pour voir le jeu et le feed de notifications sans repartir de zéro.
+DEMO_PASSWORD = "odyssea2027".freeze
+
 roster.each do |p|
-  user = User.create!(firstname: p[:name], diamonds: rand(80..320),
+  user = User.create!(firstname: p[:name], diamonds: rand(80..320), password: DEMO_PASSWORD,
                       email: "#{p[:name].downcase.tr('éèàï', 'eeai')}@btb.test")
   team = p[:team] == :exo ? exo : rouges
   m = Membership.create!(user:, game:, team:, fruit: p[:fruit], balls: rand(4..18),
@@ -158,9 +162,53 @@ game.conversations.team_chats.find_each do |conv|
   end
 end
 
+puts "Activité simulée (pour voir le feed de notifications)…"
+# On rejoue de vrais événements de jeu via les services (PerformAction), pour que le feed de
+# notifications ressemble exactement à ce qu'on verrait en jouant : effets d'équipe, piège,
+# courses, messages. Se connecter en tant que Yann (yann@btb.test) montre le résultat complet.
+by_name = ->(n) { Membership.joins(:user).find_by(users: { firstname: n }) }
+yann, ines, lea = by_name["Yann"], by_name["Inès"], by_name["Léa"]
+max_m, chloe    = by_name["Max"], by_name["Chloé"]
+
+before_id = Notification.maximum(:id) || 0
+
+# Un objet posé dans l'inventaire puis utilisé, exactement comme un achat en boutique + « Utiliser ».
+use_effect = lambda do |membership, effect_type, target: nil|
+  item = Item.find_by(effect_type:)
+  MembershipItem.create!(membership:, item:, used: false)
+  PerformAction.call(membership, action_type: "use_item", item_id: item.id, target_id: target&.id)
+end
+
+use_effect[max_m, "back_wind"]         # 🌬️ Max (rouges) : vent de dos → annonce secondaire à tous
+use_effect[ines, "shield"]             # 🛡️ Inès (exo) : bouclier sur King-Coco → secondaire à tous
+use_effect[chloe, "trap", target: yann] # 🐺 Chloé (rouges) : piège sur Yann → « a posé un piège » (cible cachée)
+
+# Fil « X a couru N km » (secondaire), comme à l'import d'une course Strava.
+[[ines, 10.4], [max_m, 7.2], [lea, 5.8]].each do |m, km|
+  others = game.memberships.includes(:user).where.not(id: m.id).map(&:user)
+  Notification.broadcast(others, game:, category: "training_verified",
+                         title: "🏃 Nouvelle course", body: "#{m.display_name} a couru #{km} km.")
+end
+
+# Chat général = secondaire (listé, pas poussé).
+Notification.broadcast(game.memberships.includes(:user).where.not(id: chloe.id).map(&:user),
+                       game:, category: "message", title: "💬 Chloé · partie",
+                       body: "Vous allez pleurer, Dracassis a faim 🍒")
+
+# Message d'équipe = important (poussé) : n'arrive qu'aux coéquipiers de Léa (exo).
+Notification.broadcast(exo.memberships.includes(:user).where.not(id: lea.id).map(&:user),
+                       game:, importance: "important", category: "message", title: "💬 Léa · équipe",
+                       body: "On concentre les attaques ce soir sur Dracassis ?")
+
+# Étale les horodatages sur les dernières heures pour un feed lisible (sinon tout à la même minute).
+fresh = Notification.where("id > ?", before_id).order(:id).to_a
+fresh.each_with_index { |n, i| n.update_column(:created_at, ((fresh.size - i) * 23).minutes.ago) }
+
 puts "OK — #{User.count} joueurs, #{Training.count} courses sur #{weeks_of_history + 1} semaines, " \
      "#{Team.count} équipes, #{Cosmetic.count} cosmétiques."
 Team.all.each do |t|
   km = Training.where(membership: t.memberships).sum(:distance_meters) / 1000.0
   puts "   #{t.name} : #{t.memberships.count} joueurs, #{km.round} km cumulés"
 end
+puts "👉 Connexion démo : yann@btb.test / #{DEMO_PASSWORD} " \
+     "(Yann voit le feed complet — coffre, message d'équipe, vent, bouclier, piège, courses)."

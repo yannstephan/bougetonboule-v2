@@ -20,7 +20,8 @@ export default function Hub({ membership }) {
         </Link>
         <span className="curr">🍑 {membership ? membership.balls : 0}</span>
         <span className="curr">💎 {user?.diamonds ?? 0}</span>
-        <Link href="/notifications" className="bell bell-badge">🔔{unread > 0 && <span className="b">{unread}</span>}</Link>
+        <Link href="/faq" className="bell" title="Règles du jeu">📖</Link>
+        <Link href="/notifications" className="bell bell-badge" style={{ marginLeft: 0 }}>🔔{unread > 0 && <span className="b">{unread}</span>}</Link>
       </header>
 
       {membership ? <GameView m={membership} /> : <Onboarding user={user} />}

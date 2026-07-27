@@ -39,6 +39,8 @@ Rails.application.routes.draw do
   get  "chat", to: "chat#show", as: :chat
   post "conversations/:conversation_id/messages", to: "messages#create", as: :conversation_messages
 
+  get   "faq", to: "faq#show", as: :faq
+
   get   "notifications", to: "notifications#index", as: :notifications
   post  "notifications/read_all", to: "notifications#read_all", as: :read_all_notifications
   post  "push_subscriptions", to: "push_subscriptions#create", as: :push_subscriptions

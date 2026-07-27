@@ -403,3 +403,21 @@ body{margin:0;background:var(--bg);color:var(--text);
 .bell-badge{position:relative}
 .bell-badge .b{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;border-radius:99px;background:var(--fraise);
   color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;padding:0 3px}
+
+/* FAQ / règles du jeu */
+.faq-intro{margin:0;color:var(--muted);font-size:13px}
+.faq-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.faq-item[open]{border-color:color-mix(in srgb,var(--peach) 30%,var(--line))}
+.faq-q{list-style:none;cursor:pointer;padding:14px;font-weight:700;font-size:14px;
+  display:flex;align-items:center;gap:8px;user-select:none}
+.faq-q::-webkit-details-marker{display:none}
+.faq-q::after{content:'+';margin-left:auto;color:var(--faint);font-weight:400;font-size:20px;line-height:1}
+.faq-item[open] .faq-q::after{content:'–'}
+.faq-a{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px}
+.faq-a p{margin:0;font-size:13px;color:var(--muted);line-height:1.45}
+.faq-gold{display:flex;gap:12px;align-items:flex-start;margin-top:4px;padding:14px;border-radius:var(--r);
+  background:color-mix(in srgb,var(--citron) 12%,var(--surface));
+  border:1px solid color-mix(in srgb,var(--citron) 32%,transparent)}
+.faq-gold-ic{font-size:24px;flex:none}
+.faq-gold-t{font-weight:800;font-size:13px}
+.faq-gold-b{font-size:12px;color:var(--muted);line-height:1.45;margin-top:2px}
