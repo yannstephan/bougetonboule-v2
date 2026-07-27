@@ -100,7 +100,7 @@ def seed_training!(membership, day, distance_meters)
 end
 
 roster.each do |p|
-  user = User.create!(firstname: p[:name], diamonds: rand(0..60),
+  user = User.create!(firstname: p[:name], diamonds: rand(80..320),
                       email: "#{p[:name].downcase.tr('éèàï', 'eeai')}@btb.test")
   team = p[:team] == :exo ? exo : rouges
   m = Membership.create!(user:, game:, team:, fruit: p[:fruit], balls: rand(4..18),

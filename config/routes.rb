@@ -27,6 +27,11 @@ Rails.application.routes.draw do
   get   "joueurs/:id", to: "profiles#show",  as: :player
   get   "courses/:id", to: "trainings#show", as: :training
 
+  get   "boutique",           to: "shop#index",        as: :shop
+  post  "boutique/items",     to: "shop#buy_item",     as: :buy_item
+  post  "boutique/cosmetics", to: "shop#buy_cosmetic", as: :buy_cosmetic
+  post  "boutique/use",       to: "shop#use_item",     as: :use_item
+
   get   "avatar",       to: "avatars#show",   as: :avatar
   patch "avatar",       to: "avatars#update"
   post  "avatar/equip", to: "avatars#equip",  as: :equip_avatar

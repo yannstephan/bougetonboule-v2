@@ -122,11 +122,23 @@ description, durée, allure, dénivelé, **tracé du parcours** et photo. Les ch
   endroit qui formate dates, durées et allure.
 - Les **noms sont cliquables** vers le profil dans le chat et la ligue (et l'avatar au chat).
 
+### La boutique (`/boutique`)
+Deux monnaies **étanches** (règle d'or, jamais de pay-to-win), servies par le service `Purchase` :
+- **Objets** (power-ups) en 🍑 pêches (`Membership.balls`, par partie) → déposés dans l'inventaire
+  de la participation (`MembershipItem`, `used: false`). **À usage unique** : « Utiliser » réutilise
+  `PerformAction` (`use_item`) et consomme l'objet.
+- **Cosmétiques** en 💎 diamants (`User.diamonds`, global) → déposés dans l'armoire
+  (`UserCosmetic`). On les **équipe / remet dans l'armoire** depuis l'écran avatar (`/avatar`).
+  Seuls les cosmétiques `price_diamonds` non nul sont en vente (les récompenses ne le sont pas).
+
+Trois onglets : Objets · Cosmétiques · Sac (inventaire des objets + lien vers l'armoire). Les
+achats sont refusés proprement si monnaie insuffisante, cosmétique déjà possédé, ou pas d'équipe.
+
 ### Écrans React existants (app/frontend/pages)
-`Hub`, `Combat`, `Chat`, `Ligue`, `Avatar`, `Profile`, `Training`, `Notifications`,
+`Hub`, `Combat`, `Chat`, `Ligue`, `Avatar`, `Boutique`, `Profile`, `Training`, `Notifications`,
 `auth/Login`, `auth/Register`.
-Navigation par onglets : **Hub · Chat · ⚔️ Combat · Ligue · Boutique** (`components/BottomNav.jsx`).
-Seule la Boutique est encore **grisée** (à construire).
+Navigation par onglets : **Hub · Chat · ⚔️ Combat · Ligue · Boutique** (`components/BottomNav.jsx`),
+tous actifs.
 
 ### Pièges connus
 - **`form.transform()` de `@inertiajs/react` ne retourne rien** (v3.6.1) : `form.transform(fn).post(…)`
@@ -151,13 +163,12 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 
 ## Roadmap (à faire, ordre suggéré)
 
-1. **Boutique** — cosmétiques en 💎 (par rareté) + power-ups en 🍑 ; achat, inventaire ; écran + onglet.
-2. **Coffres** — drop aléatoire à l'import d'une course (garde-fou : max 1/jour, pity),
+1. **Coffres** — drop aléatoire à l'import d'une course (garde-fou : max 1/jour, pity),
    ouverture animée (💎 + cosmétique), notif "coffre trouvé".
-3. **Streak hebdo** — job hebdomadaire (Solid Queue `recurring.yml`) : +💎 par semaine courue, paliers.
-4. **PWA installable** — manifest + icône 🍑, activer les routes PWA (déjà stubbées).
-5. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
-6. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
+2. **Streak hebdo** — job hebdomadaire (Solid Queue `recurring.yml`) : +💎 par semaine courue, paliers.
+3. **PWA installable** — manifest + icône 🍑, activer les routes PWA (déjà stubbées).
+4. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
+5. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
    en console, il n'y a pas d'écran pour rejoindre une équipe.
 
 ## Commandes utiles
