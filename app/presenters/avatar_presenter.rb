@@ -1,17 +1,19 @@
 # Sérialise l'avatar d'un joueur pour le front. Un seul endroit, parce que le même
 # avatar est affiché dans le Hub, le chat, le classement et l'écran de personnalisation.
+#
+# L'avatar = un fruit (choisi par participation, donc porté par le `Membership`) sur
+# lequel se posent les cosmétiques équipés (globaux, portés par le `User`). Le fruit peut
+# être absent tant que le joueur n'a pas rejoint d'équipe ou pas encore choisi.
 class AvatarPresenter
-  DEFAULT_COLOR = "peach"
-
-  def initialize(user)
+  def initialize(user, membership: nil)
     @user = user
-    @avatar = user&.avatar
+    @membership = membership
   end
 
   def as_json(*)
     {
-      color: @avatar&.base_color || DEFAULT_COLOR,
-      face: @avatar&.face || Avatar::BODY_STYLES["default"],
+      fruit: @membership&.fruit,
+      fruit_family: @membership&.team&.fruit_family,
       initial: initial,
       cosmetics: equipped_by_slot
     }

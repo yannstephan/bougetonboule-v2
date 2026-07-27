@@ -36,8 +36,9 @@ class HubController < ApplicationController
     {
       name: team.name,
       color: team.color,
+      fruit_family: team.fruit_family,
       total_balls: team.total_balls,
-      monster: mon && { name: mon.name, hp: mon.hp, max_hp: mon.max_hp,
+      monster: mon && { name: mon.name, slug: mon.slug, hp: mon.hp, max_hp: mon.max_hp,
                         percent: mon.hp_percent, state: mon.state, protected: mon.protected? }
     }
   end

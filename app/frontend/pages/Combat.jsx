@@ -1,7 +1,8 @@
 import { Head, Link, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
+import Monster from '../components/Monster'
 
-const emojiFor = (name = '') => /citro|zeste|lemon/i.test(name) ? '🍋' : '🍓'
+const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
 const itemEmoji = (t) => ({ shield: '🛡️', trap: '🐺', back_wind: '🌬️', booster: '✖️' }[t] || '🎒')
 
 export default function Combat({ balls, multiplier, my_team, foe_team, items }) {
@@ -34,14 +35,14 @@ export default function Combat({ balls, multiplier, my_team, foe_team, items }) 
       {foe ? (
         <>
           <div className="cbt-top">
-            <div className="cbt-enemy-name">{emojiFor(foe.name)} {foe.name}{foe.protected ? ' 🛡️' : ''}</div>
+            <div className="cbt-enemy-name">{familyEmoji(foe_team?.fruit_family)} {foe.name}{foe.protected ? ' 🛡️' : ''}</div>
             <div className="bigbar"><i className="crit" style={{ width: `${foe.percent}%` }} /></div>
             <div className="hp-num" style={{ color: 'var(--crit)' }}>{foe.hp} / {foe.max_hp} PV</div>
           </div>
           <div className="arena-scene">
             {floats.map((f) => <div key={f.id} className="dmg">-{dmg}</div>)}
-            <div className="foe-mon">{emojiFor(foe.name)}</div>
-            {my_team?.monster && <div className="my-corner">{emojiFor(my_team.name)}</div>}
+            <Monster slug={foe.slug} name={foe.name} size={130} className="foe-mon-svg" />
+            {my_team?.monster && <Monster slug={my_team.monster.slug} name={my_team.monster.name} size={54} className="my-corner-svg" />}
           </div>
         </>
       ) : (

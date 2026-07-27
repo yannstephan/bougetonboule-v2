@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_24_170000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_25_120000) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -117,6 +117,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_24_170000) do
     t.integer "balls", default: 0, null: false
     t.integer "best_streak", default: 0, null: false
     t.datetime "created_at", null: false
+    t.string "fruit"
     t.integer "game_id", null: false
     t.date "last_streak_week"
     t.string "role", default: "player", null: false
@@ -219,6 +220,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_24_170000) do
   create_table "teams", force: :cascade do |t|
     t.string "color"
     t.datetime "created_at", null: false
+    t.string "fruit_family"
     t.integer "game_id", null: false
     t.decimal "multiplier", precision: 5, scale: 2, default: "1.0", null: false
     t.string "name", null: false

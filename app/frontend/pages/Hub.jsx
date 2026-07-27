@@ -1,8 +1,9 @@
 import { Head, Link, usePage } from '@inertiajs/react'
 import BottomNav from '../components/BottomNav'
 import PlayerAvatar from '../components/PlayerAvatar'
+import Monster from '../components/Monster'
 
-const emojiFor = (name = '') => /citro|zeste|lemon/i.test(name) ? '🍋' : '🍓'
+const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
 
 export default function Hub({ membership }) {
   const { auth } = usePage().props
@@ -40,18 +41,18 @@ function GameView({ m }) {
         </div>
       )}
       <div className="stage">
-        <div className="monster">{emojiFor(mine.monster?.name || mine.name)}</div>
+        <Monster slug={mine.monster?.slug} name={mine.monster?.name} size={130} className="stage-mon" />
         <div className="mname">{mine.monster?.name || mine.name}</div>
         <div className="mtag">{mine.name}</div>
       </div>
       <div className="vs-mini">
         <div className="side">
-          <div className="row"><b>{emojiFor(mine.name)} Nous</b><span>{mine.monster?.hp ?? '–'}</span></div>
+          <div className="row"><b>{familyEmoji(mine.fruit_family)} Nous</b><span>{mine.monster?.hp ?? '–'}</span></div>
           <div className="minibar"><i className="good" style={{ width: `${mine.monster?.percent ?? 0}%` }} /></div>
         </div>
         <span className="vlabel">VS</span>
         <div className="side">
-          <div className="row"><span>{foe?.monster?.hp ?? '–'}</span><b>{emojiFor(foe?.name)} Eux</b></div>
+          <div className="row"><span>{foe?.monster?.hp ?? '–'}</span><b>{familyEmoji(foe?.fruit_family)} Eux</b></div>
           <div className="minibar"><i className="crit" style={{ width: `${foe?.monster?.percent ?? 0}%` }} /></div>
         </div>
       </div>

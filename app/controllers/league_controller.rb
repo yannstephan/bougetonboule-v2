@@ -28,7 +28,7 @@ class LeagueController < ApplicationController
   def row_json(row, me)
     m = row.membership
     { id: m.id, rank: row.rank, name: m.display_name,
-      avatar: AvatarPresenter.new(m.user).as_json,
+      avatar: AvatarPresenter.new(m.user, membership: m).as_json,
       team: { name: m.team.name, color: m.team.color },
       score: row.score.round(1), km: (row.distance_meters / 1000.0).round(1),
       trainings: row.trainings_count, me: m.id == me.id }

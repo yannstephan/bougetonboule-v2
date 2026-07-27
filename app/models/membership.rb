@@ -13,9 +13,22 @@ class Membership < ApplicationRecord
 
   validates :user_id, uniqueness: { scope: :game_id }
   validates :role, inclusion: { in: ROLES }
+  validate :fruit_belongs_to_team_family
 
   def admin? = role == "admin"
   def owned_items = membership_items.unused.includes(:item).map(&:item)
 
   def display_name = user.firstname.presence || user.email.to_s.split("@").first
+  def fruit_name = FruitCatalog.name_for(fruit)
+  def fruit_chosen? = fruit.present?
+
+  private
+
+  # Le fruit doit appartenir à la famille de l'équipe (ou être vide tant qu'il n'a pas été choisi).
+  def fruit_belongs_to_team_family
+    return if fruit.blank?
+    return if team&.fruit_keys&.include?(fruit)
+
+    errors.add(:fruit, "n'est pas disponible pour cette équipe")
+  end
 end

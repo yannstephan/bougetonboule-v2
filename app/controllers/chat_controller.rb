@@ -28,7 +28,7 @@ class ChatController < ApplicationController
       author = msg.membership
       { id: msg.id, body: msg.body,
         author: author.display_name,
-        avatar: AvatarPresenter.new(author.user).as_json,
+        avatar: AvatarPresenter.new(author.user, membership: author).as_json,
         team: { name: author.team.name, color: author.team.color },
         mine: msg.membership_id == me.id,
         at: msg.created_at.strftime("%H:%M"),

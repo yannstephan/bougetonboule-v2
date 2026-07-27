@@ -1,26 +1,27 @@
 class AvatarsController < ApplicationController
   before_action :require_authentication
+  before_action :set_membership
 
   def show
     render inertia: "Avatar", props: {
-      avatar: AvatarPresenter.new(current_user).as_json,
-      base_colors: Avatar::BASE_COLORS,
-      body_styles: Avatar::BODY_STYLES.map { |key, emoji| { key:, emoji: } },
+      has_team: @membership.present?,
+      team: team_json,
+      fruits: fruits_json,
+      current_fruit: @membership&.fruit,
+      avatar: AvatarPresenter.new(current_user, membership: @membership).as_json,
       cosmetics: owned_cosmetics,
-      slots: Cosmetic::SLOTS,
-      has_team: current_membership.present?
+      slots: Cosmetic::SLOTS
     }
   end
 
+  # Choix du fruit-avatar. Réservé aux joueurs affectés à une équipe.
   def update
-    avatar = current_user.avatar || current_user.build_avatar
-    avatar.base_color = params[:base_color] if params[:base_color].present?
-    avatar.body_style = params[:body_style] if params[:body_style].present?
+    return redirect_to avatar_path, alert: "Rejoins une équipe pour choisir ton fruit." unless @membership
 
-    if avatar.save
+    if @membership.update(fruit: params[:fruit])
       redirect_to avatar_path, notice: "Avatar mis à jour !"
     else
-      redirect_to avatar_path, alert: avatar.errors.full_messages.to_sentence
+      redirect_to avatar_path, alert: @membership.errors.full_messages.to_sentence
     end
   end
 
@@ -30,15 +31,45 @@ class AvatarsController < ApplicationController
     return redirect_to avatar_path, alert: "Tu ne possèdes pas ce cosmétique." unless owned
 
     UserCosmetic.transaction do
-      same_slot = current_user.user_cosmetics.joins(:cosmetic)
-                              .where(cosmetics: { slot: owned.cosmetic.slot })
-      same_slot.update_all(equipped: false)
+      current_user.user_cosmetics.joins(:cosmetic)
+                  .where(cosmetics: { slot: owned.cosmetic.slot }).update_all(equipped: false)
       owned.update!(equipped: params[:equipped].to_s != "false")
     end
     redirect_to avatar_path
   end
 
   private
+
+  def set_membership = @membership = current_membership
+
+  def team_json
+    return nil unless @membership
+
+    team = @membership.team
+    { name: team.name, family: team.fruit_family,
+      family_label: FruitCatalog.family(team.fruit_family)&.dig(:label) }
+  end
+
+  # Chaque fruit de l'équipe, avec les coéquipiers qui l'ont déjà choisi (partage autorisé,
+  # on l'indique juste). `mine` marque le fruit courant du joueur.
+  def fruits_json
+    return [] unless @membership
+
+    chosen = teammates_by_fruit
+    @membership.team.fruits.map do |fruit|
+      { key: fruit[:key], name: fruit[:name],
+        taken_by: chosen[fruit[:key]] || [],
+        mine: @membership.fruit == fruit[:key] }
+    end
+  end
+
+  # { "ananas" => ["Léa", "Max"] } — coéquipiers (hors moi) par fruit choisi.
+  def teammates_by_fruit
+    @membership.team.memberships.includes(:user).where.not(id: @membership.id)
+               .each_with_object(Hash.new { |h, k| h[k] = [] }) do |m, acc|
+      acc[m.fruit] << m.display_name if m.fruit.present?
+    end
+  end
 
   def owned_cosmetics
     current_user.user_cosmetics.includes(:cosmetic).map do |uc|

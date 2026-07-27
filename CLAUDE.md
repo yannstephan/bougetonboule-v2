@@ -7,9 +7,12 @@
 
 Jeu de **course à pied entre amis**. Chaque km couru (importé depuis **Strava**) rapporte
 **1 pêche 🍑** (max 10 / sortie). On dépense ses pêches pour **attaquer** le monstre de
-l'équipe adverse ou **soigner** le sien. Deux clans s'affrontent : **🍋 Zeste Solaire
-(Citronator)** vs **🍓 Chair Écarlate (Fraizilla)**. Quand les PV d'un monstre tombent à 0,
-son équipe perd. C'est la v2 (front moderne) d'une app Rails existante jugée trop brouillonne.
+l'équipe adverse ou **soigner** le sien. Quand les PV d'un monstre tombent à 0, son équipe perd.
+C'est la v2 (front moderne) d'une app Rails existante jugée trop brouillonne.
+
+L'événement **Odyssea 2027** (mars 2027) oppose deux clans : **🌴 Fruits exotiques** (monstre
+**King-Coco**) vs **🍒 Fruits rouges** (monstre **Dracassis**). Chaque joueur choisit un
+**fruit-avatar** dans la famille de son équipe (voir plus bas).
 
 ## Stack
 
@@ -32,7 +35,8 @@ On n'achète jamais de pêches ni d'avantage de combat. Les 💎 ne touchent qu'
 
 Séparation clé : **Event** (la course réelle, ex. Odyssea 2027) → **Game/partie** →
 **Membership** (un user dans une partie, dans une équipe). Un user joue plusieurs parties ;
-ses 🍑/streak/courses sont **par partie**, son avatar/cosmétiques/💎 sont **globaux**.
+ses 🍑/streak/courses **et son fruit-avatar** (`memberships.fruit`) sont **par partie**, ses
+cosmétiques/💎 sont **globaux**.
 
 - **Compte** : `User`, `Avatar`, `Cosmetic`, `UserCosmetic`, `PushSubscription`, `Notification`
 - **Partie** : `Event`, `Game`, `Team`, `Monster` (PV), `TeamEffect` (vent/bouclier), `SpecialDay`
@@ -74,17 +78,32 @@ L'opération est **idempotente** : la récompense est écrite dans `rewards` ave
 (`period: "2026-07"`) sous index unique `[membership_id, source, period]`. Rejouer un mois,
 ou lancer le job en retard, ne décerne jamais le titre deux fois.
 
-### L'avatar (`/avatar`)
-`Avatar` porte `base_color` (5 couleurs = tokens CSS existants) et `body_style` (le personnage,
-un emoji — `Avatar::BODY_STYLES`, pas d'assets graphiques). Les cosmétiques possédés s'équipent
-**un par slot** (hat / eyes / aura…), et `cosmetics.emoji` est ce qui les rend affichables.
+### L'avatar (`/avatar`) — fruits par équipe
+L'avatar = un **fruit** (choisi une fois affecté à une équipe) sur lequel se posent les
+cosmétiques équipés. **Portée par participation** : `memberships.fruit`, donc un joueur peut être
+Ananas dans une partie et Fraise dans une autre. On ne peut le personnaliser **qu'en équipe**
+(l'écran affiche un message tant qu'on n'a pas de `Membership`).
 
-`AvatarPresenter` est le **seul** endroit qui sérialise un avatar : il est affiché dans le Hub,
-le chat, le classement et l'écran de personnalisation, qui doivent rester cohérents. Côté React,
-le composant unique est `components/PlayerAvatar.jsx`.
+- `FruitCatalog` (app/models) = source de vérité : deux familles (`exotiques` / `rouges`), chacune
+  une liste de fruits `{ key, name }`. `teams.fruit_family` fixe la famille d'une équipe.
+- La **clé** du fruit est partagée avec le front : `components/FruitAvatar.jsx` dessine chaque
+  fruit en **SVG** (silhouette + visage commun + ancres cosmétiques fixes, pas d'assets). Toute
+  clé ajoutée dans le catalogue Ruby doit avoir son pendant visuel dans `components/fruits.js`.
+- Choix **partageable** : plusieurs coéquipiers peuvent prendre le même fruit ; l'écran indique
+  « déjà : X » sous chaque fruit. Le fruit doit appartenir à la famille de l'équipe (validé).
+- Les **cosmétiques** possédés s'équipent **un par slot** (hat / eyes / outfit / aura), et
+  `cosmetics.emoji` est ce qui les rend affichables. Les ancres SVG sont fixes → un cosmétique
+  tombe au même endroit sur tous les fruits.
 
-L'écran est atteint juste après l'inscription (email **et** Google), depuis l'avatar du HUD et
-depuis une tuile du Hub.
+`AvatarPresenter.new(user, membership:)` est le **seul** endroit qui sérialise un avatar (fruit +
+cosmétiques), affiché dans le Hub, le chat, le classement et l'écran avatar. Côté React, le
+composant unique est `components/PlayerAvatar.jsx` (délègue à `FruitAvatar`, pastille + initiale
+en secours si pas de fruit).
+
+### Les monstres
+Dessinés en SVG dans `components/Monster.jsx`, choisis par `Monster#slug` (`"King-Coco"` →
+`king-coco`). King-Coco (roi noix de coco) et Dracassis (dragon cassis) pour Odyssea. Un slug
+inconnu retombe sur un emoji 👾.
 
 ### Écrans React existants (app/frontend/pages)
 `Hub`, `Combat`, `Chat`, `Ligue`, `Avatar`, `Notifications`, `auth/Login`, `auth/Register`.

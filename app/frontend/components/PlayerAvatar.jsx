@@ -1,15 +1,22 @@
-// Avatar d'un joueur : pastille de couleur + personnage, avec les cosmétiques équipés
-// posés par-dessus. Utilisé dans le Hub, le chat, le classement et l'écran avatar.
+import FruitAvatar from './FruitAvatar'
+
+// Avatar d'un joueur, utilisé partout (Hub, chat, classement, écran avatar).
+// Sans fruit choisi (joueur pas encore en équipe), on affiche une pastille neutre
+// avec l'initiale — les cosmétiques éventuels restent visibles.
 export default function PlayerAvatar({ avatar, size = 36, showCosmetics = true }) {
   if (!avatar) return null
-  const { color, face, cosmetics = {} } = avatar
+  if (!avatar.fruit) return <Placeholder avatar={avatar} size={size} showCosmetics={showCosmetics} />
 
   return (
-    <span className="pav" style={{ '--pav-size': `${size}px`, background: `var(--${color})` }}>
-      <span className="pav-face">{face}</span>
-      {showCosmetics && cosmetics.aura && <span className="pav-aura">{cosmetics.aura}</span>}
-      {showCosmetics && cosmetics.hat && <span className="pav-hat">{cosmetics.hat}</span>}
-      {showCosmetics && cosmetics.eyes && <span className="pav-eyes">{cosmetics.eyes}</span>}
+    <FruitAvatar fruit={avatar.fruit} size={size} cosmetics={avatar.cosmetics} showCosmetics={showCosmetics} />
+  )
+}
+
+function Placeholder({ avatar, size, showCosmetics }) {
+  return (
+    <span className="fav" style={{ width: size, height: size, fontSize: size }}>
+      <span className="fav-blank">{avatar.initial || '🍑'}</span>
+      {showCosmetics && avatar.cosmetics?.hat && <span className="fav-hat">{avatar.cosmetics.hat}</span>}
     </span>
   )
 }

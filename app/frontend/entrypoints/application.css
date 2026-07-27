@@ -157,14 +157,22 @@ body{margin:0;background:var(--bg);color:var(--text);
 .chat-input .send{width:40px;height:40px;border-radius:50%;background:var(--peach);color:#fff;border:none;
   display:grid;place-items:center;font-size:16px;cursor:pointer;flex:none}
 
-/* avatar joueur (Hub, chat, classement) */
-.pav{position:relative;width:var(--pav-size);height:var(--pav-size);border-radius:50%;flex:none;
-  display:inline-grid;place-items:center;line-height:1}
-.pav-face{font-size:calc(var(--pav-size) * .56)}
-.pav-hat{position:absolute;top:calc(var(--pav-size) * -.22);font-size:calc(var(--pav-size) * .44)}
-.pav-eyes{position:absolute;top:calc(var(--pav-size) * .16);font-size:calc(var(--pav-size) * .38)}
-.pav-aura{position:absolute;right:calc(var(--pav-size) * -.1);bottom:calc(var(--pav-size) * -.1);
-  font-size:calc(var(--pav-size) * .38)}
+/* avatar-fruit (Hub, chat, classement, écran avatar) */
+.fav{position:relative;display:inline-grid;place-items:center;flex:none;line-height:1}
+.fav-svg{position:relative;z-index:1;width:100%;height:100%;display:block}
+.fav-blank{z-index:1;font-weight:800;color:var(--muted)}
+/* cosmétiques : ancres fixes en em (le conteneur porte font-size = taille px) */
+.fav-aura{position:absolute;inset:0;z-index:0;display:grid;place-items:center;font-size:.95em;opacity:.5}
+.fav-hat{position:absolute;left:50%;top:-.06em;transform:translateX(-50%);z-index:3;font-size:.42em}
+.fav-eyes{position:absolute;left:50%;top:.4em;transform:translateX(-50%);z-index:3;font-size:.34em}
+.fav-outfit{position:absolute;left:50%;bottom:-.04em;transform:translateX(-50%);z-index:3;font-size:.4em}
+
+/* monstres SVG */
+.mon{position:relative;display:inline-grid;place-items:center;flex:none;line-height:1}
+.mon-svg{width:100%;height:100%;display:block}
+.stage-mon{animation:bob 4s ease-in-out infinite}
+.foe-mon-svg{animation:hit 2.6s ease-in-out infinite}
+.my-corner-svg{position:absolute;bottom:10px;left:14px}
 
 /* ligue */
 .lg-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);
@@ -220,6 +228,15 @@ body{margin:0;background:var(--bg);color:var(--text);
 .av-slot-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
   color:var(--muted);margin-bottom:5px}
 .av-empty{font-size:12px;color:var(--muted);line-height:1.45;margin:0}
+.av-hint{font-size:12px;color:var(--muted);line-height:1.4;margin:0 0 10px}
+
+.fruit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fruit-pick{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:8px 4px;
+  cursor:pointer;font:inherit;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:3px}
+.fruit-pick:active{transform:translateY(1px)}
+.fruit-pick.on{border-color:var(--peach);background:color-mix(in srgb,var(--peach) 10%,var(--surface))}
+.fruit-name{font-size:11px;font-weight:700}
+.fruit-taken{font-size:9px;font-weight:600;color:var(--faint);line-height:1.2;text-align:center;max-width:88px}
 
 /* notifications */
 .push-cta{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px dashed var(--line-2);

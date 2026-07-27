@@ -29,16 +29,17 @@ event = Event.create!(name: "Odyssea Nantes", race_date: Date.new(2027, 3, 15), 
 game  = Game.create!(event:, name: "Partie Odyssea 2027", status: "active",
                      starts_at: 7.weeks.ago, ends_at: 8.weeks.from_now)
 
-citron = Team.create!(game:, name: "Zeste Solaire",  color: "#f2b100")
-fraise = Team.create!(game:, name: "Chair Écarlate", color: "#f0325b")
-citron.update!(opponent: fraise); fraise.update!(opponent: citron)
+# Le duel d'Odyssea 2027 : Fruits exotiques (King-Coco) vs Fruits rouges (Dracassis).
+exo    = Team.create!(game:, name: "Fruits exotiques", color: "#f6b93b", fruit_family: "exotiques")
+rouges = Team.create!(game:, name: "Fruits rouges",    color: "#f0325b", fruit_family: "rouges")
+exo.update!(opponent: rouges); rouges.update!(opponent: exo)
 
-Monster.create!(team: citron, name: "Citronator", hp: 720, max_hp: 1000, state: "hurt")
-Monster.create!(team: fraise, name: "Fraizilla",  hp: 340, max_hp: 1000, state: "critical")
+Monster.create!(team: exo,    name: "King-Coco",  hp: 720, max_hp: 1000, state: "hurt")
+Monster.create!(team: rouges, name: "Dracassis",  hp: 340, max_hp: 1000, state: "critical")
 
 Conversation.create!(game:, kind: "general")
-Conversation.create!(game:, kind: "team", team: citron)
-Conversation.create!(game:, kind: "team", team: fraise)
+Conversation.create!(game:, kind: "team", team: exo)
+Conversation.create!(game:, kind: "team", team: rouges)
 
 SpecialDay.create!(game:, name: "Noël", date: Date.new(2026, 12, 25), multiplier: 2)
 
@@ -50,18 +51,18 @@ days_elapsed = (Date.current - week_start).to_i
 
 # Deux équipes complètes de 5. `runs` = sorties/semaine, `km` = distance typique d'une sortie :
 # de quoi produire des profils de coureurs différents (assidus, occasionnels, gros volumes).
-# `face` : style de personnage de l'avatar (Avatar::BODY_STYLES).
+# `fruit` : l'avatar-fruit, dans la famille de l'équipe (voir FruitCatalog).
 roster = [
-  { name: "Yann",  side: "citron", runs: 4, km: 6..11, face: "sporty",  role: "admin" },
-  { name: "Léa",   side: "citron", runs: 3, km: 5..9,  face: "default" },
-  { name: "Nico",  side: "citron", runs: 2, km: 4..7,  face: "zen" },
-  { name: "Inès",  side: "citron", runs: 5, km: 7..14, face: "sporty" },
-  { name: "Hugo",  side: "citron", runs: 1, km: 3..6,  face: "ghost" },
-  { name: "Max",   side: "fraise", runs: 3, km: 6..10, face: "beast" },
-  { name: "Chloé", side: "fraise", runs: 4, km: 8..13, face: "sporty" },
-  { name: "Sam",   side: "fraise", runs: 2, km: 4..8,  face: "robot" },
-  { name: "Anaïs", side: "fraise", runs: 3, km: 5..12, face: "default" },
-  { name: "Théo",  side: "fraise", runs: 1, km: 9..15, face: "zen" }
+  { name: "Yann",  team: :exo,    runs: 4, km: 6..11, fruit: "ananas",    role: "admin" },
+  { name: "Léa",   team: :exo,    runs: 3, km: 5..9,  fruit: "mangue" },
+  { name: "Nico",  team: :exo,    runs: 2, km: 4..7,  fruit: "kiwi" },
+  { name: "Inès",  team: :exo,    runs: 5, km: 7..14, fruit: "dragon" },
+  { name: "Hugo",  team: :exo,    runs: 1, km: 3..6,  fruit: "banane" },
+  { name: "Max",   team: :rouges, runs: 3, km: 6..10, fruit: "cerise" },
+  { name: "Chloé", team: :rouges, runs: 4, km: 8..13, fruit: "fraise" },
+  { name: "Sam",   team: :rouges, runs: 2, km: 4..8,  fruit: "framboise" },
+  { name: "Anaïs", team: :rouges, runs: 3, km: 5..12, fruit: "myrtille" },
+  { name: "Théo",  team: :rouges, runs: 1, km: 9..15, fruit: "grenade" }
 ]
 
 # Une sortie, scorée avec la vraie règle du jeu (1 km = 1 🍑, plafond 10, × jour spécial).
@@ -75,9 +76,9 @@ end
 roster.each do |p|
   user = User.create!(firstname: p[:name], diamonds: rand(0..60),
                       email: "#{p[:name].downcase.tr('éèàï', 'eeai')}@btb.test")
-  Avatar.create!(user:, base_color: p[:side], body_style: p[:face])
-  team = p[:side] == "citron" ? citron : fraise
-  m = Membership.create!(user:, game:, team:, balls: rand(4..18),
+  Avatar.create!(user:)
+  team = p[:team] == :exo ? exo : rouges
+  m = Membership.create!(user:, game:, team:, fruit: p[:fruit], balls: rand(4..18),
                          role: p[:role] || "player", weekly_streak: [weeks_of_history, p[:runs] * 2].min,
                          best_streak: weeks_of_history, last_streak_week: week_start)
 
@@ -115,9 +116,9 @@ end
 
 puts "Messages…"
 general = game.general_conversation
-[["Yann", "Allez les jaunes, on a un mois à gagner 🍋"],
- ["Chloé", "Vous allez pleurer, Fraizilla a faim 🍓"],
- ["Inès", "10 km ce matin, Citronator vous salue"],
+[["Yann", "Allez les exotiques, on a un mois à gagner 🌴"],
+ ["Chloé", "Vous allez pleurer, Dracassis a faim 🍒"],
+ ["Inès", "10 km ce matin, King-Coco vous salue 🥥"],
  ["Théo", "Qui court demain matin ?"]].each_with_index do |(name, body), i|
   m = Membership.joins(:user).find_by(users: { firstname: name })
   Message.create!(conversation: general, membership: m, body:, created_at: (4 - i).hours.ago)
