@@ -183,6 +183,9 @@ use_effect[max_m, "back_wind"]         # 🌬️ Max (rouges) : vent de dos → 
 use_effect[ines, "shield"]             # 🛡️ Inès (exo) : bouclier sur King-Coco → secondaire à tous
 use_effect[chloe, "trap", target: yann] # 🐺 Chloé (rouges) : piège sur Yann → « a posé un piège » (cible cachée)
 
+PerformAction.call(ines, action_type: "attack")  # ⚡ Inès (exo) frappe Dracassis → « -N PV » (secondaire)
+PerformAction.call(lea,  action_type: "heal")    # 💚 Léa (exo) soigne King-Coco → « +N PV » (secondaire)
+
 # Fil « X a couru N km · +N 🍑 » (secondaire), comme à l'import d'une course Strava.
 [[ines, 10.4, 10], [max_m, 7.2, 7], [lea, 5.8, 5]].each do |m, km, balls|
   others = game.memberships.includes(:user).where.not(id: m.id).map(&:user)

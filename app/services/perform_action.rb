@@ -43,8 +43,8 @@ class PerformAction
     @m.update!(balls: @m.balls - ATTACK_COST)
     Action.create!(game: @m.game, membership: @m, action_type: "attack", target: foe, amount: dmg,
                    description: "#{@m.user.firstname} a attaqué #{foe.name} (-#{dmg} PV)")
-    notify_team(team.opponent, "attacked", "Ton monstre est attaqué !",
-                "#{@m.user.firstname} a infligé -#{dmg} PV à #{foe.name}.")
+    broadcast_combat("attacked", "⚡ Attaque sur #{foe.name}",
+                     "#{@m.user.firstname} a infligé -#{dmg} PV à #{foe.name}.")
     ok("-#{dmg} PV infligés à #{foe.name} !")
   end
 
@@ -59,6 +59,8 @@ class PerformAction
     @m.update!(balls: @m.balls - HEAL_COST)
     Action.create!(game: @m.game, membership: @m, action_type: "heal", target: mine, amount: amt,
                    description: "#{@m.user.firstname} a soigné #{mine.name} (+#{amt} PV)")
+    broadcast_combat("healed", "💚 Soin sur #{mine.name}",
+                     "#{@m.user.firstname} a rendu +#{amt} PV à #{mine.name}.")
     ok("+#{amt} PV restaurés sur #{mine.name} !")
   end
 
@@ -117,6 +119,11 @@ class PerformAction
                            title: "✨ Effet d'équipe", body:)
   end
 
+  # Attaques et soins remontent dans le fil d'activité (secondaire) avec les PV en jeu.
+  def broadcast_combat(category, title, body)
+    Notification.broadcast(other_players, game: @m.game, category:, title:, body:)
+  end
+
   def other_players
     @m.game.memberships.includes(:user).where.not(id: @m.id).map(&:user)
   end
@@ -125,13 +132,5 @@ class PerformAction
     mi.update!(used: true)
     Action.create!(game: @m.game, membership: @m, item_id: mi.item_id,
                    action_type: "use_item", description:, target:)
-  end
-
-  # Combat : quand un monstre est attaqué, l'équipe visée est prévenue. Secondaire (pas de push).
-  def notify_team(target_team, category, title, body)
-    return unless target_team
-
-    Notification.broadcast(target_team.memberships.includes(:user).map(&:user),
-                           game: @m.game, category:, title:, body:)
   end
 end

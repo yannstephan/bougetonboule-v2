@@ -153,7 +153,8 @@ achats sont refusés proprement si monnaie insuffisante, cosmétique déjà poss
   piégée / mon piège a réussi / mon piège a été déjoué ».
 - **secondary** (défaut) : **listé seulement**, jamais poussé. L'activité des autres — « X a
   couru N km · +N 🍑 » (km **et** pêches gagnées), « X a activé un vent de dos jusqu'à… », « X a
-  posé un piège à loup », combat.
+  posé un piège à loup », et le **combat** : attaque (⚡ « -N PV ») et soin (💚 « +N PV »), avec
+  les PV en jeu. `PerformAction#broadcast_combat` diffuse ces deux-là aux autres joueurs.
 
 Le **chat général ne crée AUCUNE notification** (seul le chat d'équipe notifie, en important) :
 `MessagesController#notify_participants` sort tôt si `conv.kind != "team"`. Les messages non lus
