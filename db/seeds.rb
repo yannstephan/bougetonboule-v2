@@ -1,5 +1,6 @@
 # Jeu de données de démonstration — valide le schéma et sert d'exemple.
 puts "Nettoyage…"
+Game.update_all(winner_team_id: nil) # FK games → teams : à détacher avant de supprimer les équipes
 [Reward, Chest, ConversationRead, Message, Conversation, Notification, PushSubscription,
  Action, MembershipItem, Training, TeamEffect, Membership, Monster, Team,
  SpecialDay, Game, Event, UserCosmetic, Cosmetic, Item, User].each(&:delete_all)
@@ -19,12 +20,15 @@ Cosmetic.create!([
 ])
 
 puts "Objets (power-ups)…"
+# Prix calibrés sur les données de la saison v1 (~10 🍑/semaine pour un actif médian).
+# Le booster n'est plus un objet : c'est la jauge de meute (PackLevelJob), gagnée en courant.
 Item.create!([
-  { name: "Booster ×2",   price: 8,  description: "24h de dégâts et soins doublés",    effect_type: "booster" },
-  { name: "Vent de dos",  price: 6,  description: "Bonus de pêches sur l'équipe",      effect_type: "back_wind" },
-  { name: "Piège à loup", price: 5,  description: "Annule les pêches d'un adversaire", effect_type: "trap" },
-  { name: "Jambe de bois", price: 7, description: "Déjoue un piège sur ta prochaine course", effect_type: "wooden_leg" },
-  { name: "Bouclier",     price: 10, description: "Protège ton monstre 3h",           effect_type: "shield" },
+  { name: "Jambe de bois", price: 4, description: "Déjoue le prochain piège sur ta course",             effect_type: "wooden_leg" },
+  { name: "Vent de dos",   price: 4, description: "×1,5 sur les pêches de l'équipe pendant 12h",        effect_type: "back_wind" },
+  { name: "Vent de face",  price: 4, description: "−25 % sur les pêches adverses pendant 12h",          effect_type: "face_wind" },
+  { name: "Fumigène",      price: 4, description: "Masque les PV des monstres à l'équipe visée (24h)",  effect_type: "smoke" },
+  { name: "Piège à loup",  price: 5, description: "Annule les pêches de la prochaine course d'un adversaire", effect_type: "trap" },
+  { name: "Bouclier",      price: 6, description: "Monstre intouchable pendant 6h",                     effect_type: "shield" },
 ])
 
 puts "Event + partie…"
@@ -37,14 +41,21 @@ exo    = Team.create!(game:, name: "Fruits exotiques", color: "#f6b93b", fruit_f
 rouges = Team.create!(game:, name: "Fruits rouges",    color: "#f0325b", fruit_family: "rouges")
 exo.update!(opponent: rouges); rouges.update!(opponent: exo)
 
-Monster.create!(team: exo,    name: "King-Coco",  hp: 720, max_hp: 1000, state: "hurt")
-Monster.create!(team: rouges, name: "Dracassis",  hp: 340, max_hp: 1000, state: "critical")
+# PV calibrés pour une saison de ~24 semaines (voir GameRules::MONSTER_MAX_HP).
+Monster.create!(team: exo,    name: "King-Coco",  hp: 4_600, max_hp: GameRules::MONSTER_MAX_HP, state: "hurt")
+Monster.create!(team: rouges, name: "Dracassis",  hp: 2_510, max_hp: GameRules::MONSTER_MAX_HP, state: "hurt")
+
+# La jauge de meute (semaines où ≥5 coéquipiers ont couru ≥10 km) : quelques paliers déjà gagnés.
+exo.update!(pack_level: 3)
+rouges.update!(pack_level: 2)
 
 Conversation.create!(game:, kind: "general")
 Conversation.create!(game:, kind: "team", team: exo)
 Conversation.create!(game:, kind: "team", team: rouges)
 
-SpecialDay.create!(game:, name: "Noël", date: Date.new(2026, 12, 25), multiplier: 2)
+# Journées ×2 de la saison (pêches ET plafond doublés) — 2 fixées, les suivantes en cours de route.
+SpecialDay.create!(game:, name: "Halloween",         date: Date.new(2026, 10, 31), multiplier: 2)
+SpecialDay.create!(game:, name: "Réveillon de Noël", date: Date.new(2026, 12, 24), multiplier: 2)
 
 puts "Joueurs…"
 weeks_of_history = 6 # semaines de courses passées, en plus de la semaine en cours
@@ -168,20 +179,28 @@ puts "Activité simulée (pour voir le feed de notifications)…"
 # courses, messages. Se connecter en tant que Yann (yann@btb.test) montre le résultat complet.
 by_name = ->(n) { Membership.joins(:user).find_by(users: { firstname: n }) }
 yann, ines, lea = by_name["Yann"], by_name["Inès"], by_name["Léa"]
-max_m, chloe    = by_name["Max"], by_name["Chloé"]
+max_m, chloe, theo = by_name["Max"], by_name["Chloé"], by_name["Théo"]
 
 before_id = Notification.maximum(:id) || 0
 
 # Un objet posé dans l'inventaire puis utilisé, exactement comme un achat en boutique + « Utiliser ».
-use_effect = lambda do |membership, effect_type, target: nil|
+use_effect = lambda do |membership, effect_type, target: nil, target_team: nil|
   item = Item.find_by(effect_type:)
   MembershipItem.create!(membership:, item:, used: false)
-  PerformAction.call(membership, action_type: "use_item", item_id: item.id, target_id: target&.id)
+  PerformAction.call(membership, action_type: "use_item", item_id: item.id,
+                     target_id: target&.id, target_team:)
 end
 
-use_effect[max_m, "back_wind"]         # 🌬️ Max (rouges) : vent de dos → annonce secondaire à tous
-use_effect[ines, "shield"]             # 🛡️ Inès (exo) : bouclier sur King-Coco → secondaire à tous
+use_effect[max_m, "back_wind"]          # 🌬️ Max (rouges) : vent de dos → annonce secondaire à tous
+use_effect[ines, "shield"]              # 🛡️ Inès (exo) : bouclier sur King-Coco → secondaire à tous
 use_effect[chloe, "trap", target: yann] # 🐺 Chloé (rouges) : piège sur Yann → « a posé un piège » (cible cachée)
+use_effect[lea, "face_wind"]            # 🌪️ Léa (exo) : vent de face sur les rouges → notif importante aux victimes
+use_effect[theo, "smoke", target_team: "foe"] # 🌫️ Théo (rouges) enfume les exotiques → leurs PV vus en « ??? »
+
+# ⚔️ Une attaque qui fait passer Dracassis sous 25 % → déclenche son Second souffle
+# (notif importante aux rouges : soins à 1 🍑 pendant 7 jours).
+ines.update!(balls: [ines.balls, 2].max)
+PerformAction.call(ines, action_type: "attack")
 
 PerformAction.call(ines, action_type: "attack")  # ⚡ Inès (exo) frappe Dracassis → « -N PV » (secondaire)
 PerformAction.call(lea,  action_type: "heal")    # 💚 Léa (exo) soigne King-Coco → « +N PV » (secondaire)
@@ -210,4 +229,5 @@ Team.all.each do |t|
   puts "   #{t.name} : #{t.memberships.count} joueurs, #{km.round} km cumulés"
 end
 puts "👉 Connexion démo : yann@btb.test / #{DEMO_PASSWORD} " \
-     "(Yann voit le feed complet — coffre, message d'équipe, vent, bouclier, piège, courses)."
+     "(Yann voit le feed complet — coffre, message d'équipe, vents, bouclier, piège, fumigène " \
+     "(PV adverses en « ??? »), second souffle de Dracassis, jauges de meute, courses)."
