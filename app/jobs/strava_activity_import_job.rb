@@ -32,12 +32,22 @@ class StravaActivityImportJob < ApplicationJob
       TrainingScorer.call(training)
       training.save!
 
+      # Confirmation à soi-même (secondaire : pas urgent, le solde 🍑 se met à jour tout seul).
       Notification.create!(
         user:, game: membership.game, category: "training_verified",
         title: "Course importée",
         body: "#{training.distance_km.round(1)} km · +#{training.score.to_i} pêches (en attente de validation)"
       )
+      broadcast_run(membership, training)
     end
+  end
+
+  # Feed d'activité : "X a couru N km", vu par les autres joueurs de la partie (secondaire).
+  def broadcast_run(membership, training)
+    others = membership.game.memberships.includes(:user).where.not(id: membership.id).map(&:user)
+    Notification.broadcast(others, game: membership.game, category: "training_verified",
+                           title: "🏃 Nouvelle course",
+                           body: "#{membership.display_name} a couru #{training.distance_km.round(1)} km.")
   end
 
   # Champs détaillés Strava, à stocker pour la page d'une sortie.

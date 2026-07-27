@@ -68,12 +68,16 @@ class PerformAction
 
     case mi.item.effect_type
     when "shield"
-      team.monster.update!(protected_until: 3.hours.from_now)
+      until_at = 3.hours.from_now
+      team.monster.update!(protected_until: until_at)
       consume(mi, "🛡️ #{@m.user.firstname} a protégé #{team.monster.name}")
+      broadcast_effect("🛡️ #{@m.user.firstname} a activé un bouclier jusqu'à #{until_at.strftime('%H:%M')}.")
       ok("Bouclier activé (3h) !")
     when "back_wind"
-      TeamEffect.create!(team:, kind: "back_wind", modifier: 1.5, expires_at: 12.hours.from_now, created_by: @m)
+      until_at = 12.hours.from_now
+      TeamEffect.create!(team:, kind: "back_wind", modifier: 1.5, expires_at: until_at, created_by: @m)
       consume(mi, "🌬️ Vent de dos activé pour #{team.name}")
+      broadcast_effect("🌬️ #{@m.user.firstname} a activé un vent de dos jusqu'à #{until_at.strftime('%H:%M')}.")
       ok("Vent de dos activé !")
     when "trap"
       set_trap(mi)
@@ -100,12 +104,21 @@ class PerformAction
   end
 
   # "Charlotte a posé un piège à loup" — vu par tous les autres joueurs, sans la cible.
+  # Secondaire : ça ne concerne personne directement (la cible est cachée), pas de push.
   def announce_trap
-    @m.game.memberships.includes(:user).where.not(id: @m.id).find_each do |mem|
-      Notification.create!(user: mem.user, game: @m.game, category: "trap",
+    Notification.broadcast(other_players, game: @m.game, category: "trap",
                            title: "🐺 Piège à loup",
                            body: "#{@m.user.firstname} a posé un piège à loup.")
-    end
+  end
+
+  # Annonce secondaire d'un effet d'équipe (vent de dos, bouclier) — feed d'activité, pas de push.
+  def broadcast_effect(body)
+    Notification.broadcast(other_players, game: @m.game, category: "effect",
+                           title: "✨ Effet d'équipe", body:)
+  end
+
+  def other_players
+    @m.game.memberships.includes(:user).where.not(id: @m.id).map(&:user)
   end
 
   def consume(mi, description, target: nil)
@@ -114,10 +127,11 @@ class PerformAction
                    action_type: "use_item", description:, target:)
   end
 
+  # Combat : quand un monstre est attaqué, l'équipe visée est prévenue. Secondaire (pas de push).
   def notify_team(target_team, category, title, body)
     return unless target_team
-    target_team.memberships.includes(:user).find_each do |mem|
-      Notification.create!(user: mem.user, game: @m.game, category:, title:, body:)
-    end
+
+    Notification.broadcast(target_team.memberships.includes(:user).map(&:user),
+                           game: @m.game, category:, title:, body:)
   end
 end

@@ -66,7 +66,7 @@ class AwardMonthlyLeague
             end
 
     Notification.create!(
-      user: winner.membership.user, game: @game, category: "league",
+      user: winner.membership.user, game: @game, category: "league", importance: "important",
       title: "🏆 1er du classement de #{month_name} !",
       body: "#{winner.score.round(1)} 🍑 sur le mois. #{prize}",
       payload: { period: @period, rank: 1, score: winner.score,

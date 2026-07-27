@@ -24,8 +24,8 @@ class ProfilesController < ApplicationController
         team: { name: m.team.name, color: m.team.color, family: m.team.fruit_family },
         is_me: m.user_id == current_user.id
       },
+      # Pas de solde de 🍑 ici : la réserve d'un joueur ne se voit que sur sa propre page d'accueil.
       stats: {
-        balls: m.balls,
         total_km: (verified.sum(&:distance_meters) / 1000.0).round(1),
         month_score: month_score(m),
         trainings_count: verified.size

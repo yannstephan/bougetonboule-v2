@@ -29,11 +29,10 @@ export default function Profile({ player, stats, trainings }) {
           </div>
         </div>
 
-        <div className="pf-stats">
+        <div className="pf-stats pf-stats-3">
           <Stat value={`${stats.total_km} km`} label="Total validé" />
           <Stat value={stats.trainings_count} label="Sorties" />
           <Stat value={`${stats.month_score} 🍑`} label="Ce mois-ci" />
-          <Stat value={`${stats.balls} 🍑`} label="En réserve" />
         </div>
 
         <h2 className="pf-h2">Sorties</h2>

@@ -128,7 +128,7 @@ end
 first = Membership.first
 Chest.create!(membership: first, rarity: "epic", reward_diamonds: 35,
               cosmetic: Cosmetic.find_by(name: "Haut-de-forme doré"))
-Notification.create!(user: first.user, game:, category: "chest",
+Notification.create!(user: first.user, game:, category: "chest", importance: "important",
                      title: "Tu as trouvé un coffre épique", body: "Ouvre-le pour tes récompenses !")
 
 puts "Cosmétiques possédés…"

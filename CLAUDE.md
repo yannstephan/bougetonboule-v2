@@ -134,6 +134,23 @@ Deux monnaies **étanches** (règle d'or, jamais de pay-to-win), servies par le 
 Trois onglets : Objets · Cosmétiques · Sac (inventaire des objets + lien vers l'armoire). Les
 achats sont refusés proprement si monnaie insuffisante, cosmétique déjà possédé, ou pas d'équipe.
 
+### Notifications — deux niveaux (`notifications.importance`)
+- **important** : poussé en Web Push **et** listé. Concerne le joueur directement — message dans
+  la **conversation d'équipe**, récompense (coffre, ligue, streak), et (à venir) « ma course a été
+  piégée / mon piège a réussi / mon piège a été déjoué ».
+- **secondary** (défaut) : **listé seulement**, jamais poussé. L'activité des autres — « X a
+  couru N km », « X a activé un vent de dos jusqu'à… », « X a posé un piège à loup », chat
+  général, combat.
+
+Le push n'est déclenché que pour les importantes (`Notification#push_if_important`).
+`Notification.broadcast(users, importance:, …)` crée la même notif pour plusieurs destinataires.
+L'écran Notifications sépare **Pour toi** (importantes) et **Activité de la partie** (secondaires,
+style atténué).
+
+### Profil : pas de solde de 🍑
+La réserve de pêches d'un joueur ne se voit **que sur sa propre page d'accueil** (le HUD), jamais
+sur la page profil d'un joueur.
+
 ### Effets d'objets (combat)
 `PerformAction` (`use_item`) applique les effets. **Les effets à durée sont publics** :
 `TeamEffectsPresenter` liste, pour une équipe, ses `TeamEffect` actifs (vent de dos/de face) +

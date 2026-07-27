@@ -4,7 +4,7 @@ class NotificationsController < ApplicationController
   def index
     render inertia: "Notifications", props: {
       notifications: current_user.notifications.recent.limit(50).map do |n|
-        { id: n.id, category: n.category, title: n.title, body: n.body,
+        { id: n.id, category: n.category, importance: n.importance, title: n.title, body: n.body,
           read: n.read?, at: n.created_at.strftime("%d/%m %H:%M") }
       end
     }

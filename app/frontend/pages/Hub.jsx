@@ -41,28 +41,11 @@ function GameView({ m }) {
           <span className="x2">🍑 ×{m.special_day.multiplier}</span>
         </div>
       )}
-      <div className="stage">
-        <Monster slug={mine.monster?.slug} name={mine.monster?.name} size={130} className="stage-mon" />
-        <div className="mname">{mine.monster?.name || mine.name}</div>
-        <div className="mtag">{mine.name}</div>
+      <div className="boards">
+        <TeamBoard team={mine} mine />
+        <div className="boards-vs"><span>VS</span></div>
+        {foe ? <TeamBoard team={foe} /> : <div className="board board-empty">En attente d'un adversaire…</div>}
       </div>
-      <div className="vs-mini">
-        <div className="side">
-          <div className="row"><b>{familyEmoji(mine.fruit_family)} Nous</b><span>{mine.monster?.hp ?? '–'}</span></div>
-          <div className="minibar"><i className="good" style={{ width: `${mine.monster?.percent ?? 0}%` }} /></div>
-        </div>
-        <span className="vlabel">VS</span>
-        <div className="side">
-          <div className="row"><span>{foe?.monster?.hp ?? '–'}</span><b>{familyEmoji(foe?.fruit_family)} Eux</b></div>
-          <div className="minibar"><i className="crit" style={{ width: `${foe?.monster?.percent ?? 0}%` }} /></div>
-        </div>
-      </div>
-      {(mine.effects?.length > 0 || foe?.effects?.length > 0) && (
-        <div className="fx-card">
-          <EffectBadges effects={mine.effects} label="Nous" />
-          <EffectBadges effects={foe?.effects} label="Eux" />
-        </div>
-      )}
 
       <Link href="/combat" className="btn combat">⚔️ COMBATTRE</Link>
       <div className="tiles">
@@ -72,6 +55,29 @@ function GameView({ m }) {
         <Link href="/avatar" className="tile"><span className="ic">🎨</span><div><div className="tn">Mon avatar</div><div className="td">Personnaliser</div></div></Link>
       </div>
     </main>
+  )
+}
+
+// État de santé → couleur de la barre de PV (même code pour les deux équipes, pas de « nous/eux »).
+const hpClass = (state) => ({ healthy: 'good', hurt: 'warn', critical: 'crit', defeated: 'crit' }[state] || 'good')
+
+function TeamBoard({ team, mine = false }) {
+  const mon = team.monster
+  return (
+    <div className={`board ${mine ? 'mine' : ''}`} style={mine ? { borderColor: team.color } : undefined}>
+      <div className="board-top">
+        <Monster slug={mon?.slug} name={mon?.name} size={64} />
+        <div className="board-id">
+          <div className="board-team">{familyEmoji(team.fruit_family)} {team.name}{mine && <span className="board-you">toi</span>}</div>
+          <div className="board-mon">{mon?.name}</div>
+        </div>
+      </div>
+      <div className="board-hp">
+        <div className="bigbar"><i className={hpClass(mon?.state)} style={{ width: `${mon?.percent ?? 0}%` }} /></div>
+        <div className="board-hpnum">{mon?.hp ?? '–'} / {mon?.max_hp ?? '–'} PV</div>
+      </div>
+      <EffectBadges effects={team.effects} />
+    </div>
   )
 }
 
