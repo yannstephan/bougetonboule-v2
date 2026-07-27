@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_27_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_27_205534) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -19,6 +19,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_130000) do
     t.integer "game_id", null: false
     t.integer "item_id"
     t.integer "membership_id", null: false
+    t.datetime "resolved_at"
     t.bigint "target_id"
     t.string "target_type"
     t.datetime "updated_at", null: false
@@ -92,6 +93,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_130000) do
     t.datetime "starts_at"
     t.string "status", default: "upcoming", null: false
     t.datetime "updated_at", null: false
+    t.integer "winner_team_id"
     t.index ["event_id"], name: "index_games_on_event_id"
   end
 
@@ -225,15 +227,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_130000) do
     t.datetime "created_at", null: false
     t.string "fruit_family"
     t.integer "game_id", null: false
-    t.decimal "multiplier", precision: 5, scale: 2, default: "1.0", null: false
     t.string "name", null: false
     t.integer "opponent_id"
+    t.integer "pack_level", default: 0, null: false
+    t.datetime "second_wind_until"
     t.datetime "updated_at", null: false
     t.index ["game_id"], name: "index_teams_on_game_id"
     t.index ["opponent_id"], name: "index_teams_on_opponent_id"
   end
 
   create_table "trainings", force: :cascade do |t|
+    t.datetime "balls_credited_at"
     t.datetime "created_at", null: false
     t.datetime "date", null: false
     t.text "description"
@@ -298,6 +302,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_130000) do
   add_foreign_key "conversations", "games"
   add_foreign_key "conversations", "teams"
   add_foreign_key "games", "events"
+  add_foreign_key "games", "teams", column: "winner_team_id"
   add_foreign_key "membership_items", "items"
   add_foreign_key "membership_items", "memberships"
   add_foreign_key "memberships", "games"

@@ -11,6 +11,8 @@ class Training < ApplicationRecord
   validates :status, inclusion: { in: STATUSES }
 
   scope :verified, -> { where(status: "verified") }
+  # Courses qui rapportent : vérifiées, ou protégées d'un piège par une jambe de bois.
+  scope :scoring, -> { where(status: %w[verified protected]) }
   scope :recent, -> { order(date: :desc) }
 
   def distance_km = distance_meters.to_f / 1000

@@ -13,7 +13,8 @@ class CombatController < ApplicationController
     foe = m.team.opponent
     {
       balls: m.balls,
-      multiplier: m.team.multiplier.to_f,
+      multiplier: m.team.combat_multiplier.to_f,
+      heal_cost: m.team.heal_cost,
       my_team:  { name: m.team.name, fruit_family: m.team.fruit_family,
                   effects: TeamEffectsPresenter.call(m.team), monster: monster_json(m.team.monster) },
       foe_team: foe && { name: foe.name, fruit_family: foe.fruit_family,
