@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_25_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_26_120000) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -224,12 +224,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_140000) do
   create_table "trainings", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "date", null: false
+    t.text "description"
     t.integer "distance_meters", default: 0, null: false
+    t.integer "elapsed_time"
+    t.decimal "elevation_gain", precision: 7, scale: 1
     t.integer "membership_id", null: false
+    t.integer "moving_time"
+    t.string "photo_url"
+    t.json "route_points"
     t.decimal "score", precision: 6, scale: 1, default: "0.0", null: false
     t.integer "special_day_id"
     t.string "status", default: "pending", null: false
     t.string "strava_activity_id"
+    t.string "title"
     t.datetime "updated_at", null: false
     t.index ["membership_id"], name: "index_trainings_on_membership_id"
     t.index ["special_day_id"], name: "index_trainings_on_special_day_id"

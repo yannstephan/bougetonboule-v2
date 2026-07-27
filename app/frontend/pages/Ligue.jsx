@@ -79,7 +79,7 @@ export default function Ligue({ month, overall, last_winner, balls }) {
 
 function Standing({ row }) {
   return (
-    <div className={`lg-row ${row.me ? 'me' : ''} ${row.rank <= 3 ? 'podium' : ''}`}>
+    <Link href={`/joueurs/${row.id}`} className={`lg-row ${row.me ? 'me' : ''} ${row.rank <= 3 ? 'podium' : ''}`}>
       <span className="lg-rank">{medal(row.rank) || row.rank}</span>
       <PlayerAvatar avatar={row.avatar} size={34} />
       <span className="lg-name">
@@ -90,6 +90,6 @@ function Standing({ row }) {
         {row.score} 🍑
         <span className="lg-km">{row.km} km · {row.trainings} sortie{row.trainings > 1 ? 's' : ''}</span>
       </span>
-    </div>
+    </Link>
   )
 }

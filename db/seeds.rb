@@ -67,10 +67,34 @@ roster = [
   { name: "Théo",  team: :rouges, runs: 1, km: 9..15, fruit: "grenade" }
 ]
 
-# Une sortie, scorée avec la vraie règle du jeu (1 km = 1 🍑, plafond 10, × jour spécial).
+RUN_TITLES = ["Footing du matin", "Sortie longue", "Fractionné piste", "Récup tranquille",
+              "Tempo au bord de l'Erdre", "Trail urbain", "Sortie club", "Petit tour digestif"].freeze
+RUN_NOTES  = [nil, nil, "Jambes lourdes mais content d'être sorti.", "Nickel, beau soleil sur la Loire ☀️",
+              "Objectif allure tenu 💪", "Un peu de vent de face au retour.", nil].freeze
+
+# Parcours GPS synthétique : une boucle bruitée autour de Nantes, dimensionnée par la distance.
+def seed_route(distance_meters)
+  center = [47.2184 + rand(-0.02..0.02), -1.5536 + rand(-0.02..0.02)]
+  radius = (distance_meters / 6.283 / 111_000.0) * rand(0.4..0.7)
+  klng = Math.cos(center[0] * Math::PI / 180)
+  (0..32).map do |i|
+    angle = (2 * Math::PI * i / 32) + rand(-0.15..0.15)
+    r = radius * (0.7 + rand * 0.6)
+    [(center[0] + r * Math.sin(angle)).round(5), (center[1] + r * Math.cos(angle) / klng).round(5)]
+  end
+end
+
+# Une sortie, scorée avec la vraie règle du jeu (1 km = 1 🍑, plafond 10, × jour spécial),
+# enrichie des détails qu'on récupérerait de Strava (titre, temps, dénivelé, tracé).
 def seed_training!(membership, day, distance_meters)
-  training = Training.new(membership:, date: day.to_time + rand(7..19).hours,
-                          distance_meters:, status: "verified")
+  km = distance_meters / 1000.0
+  moving = (km * rand(290..360)).round
+  training = Training.new(
+    membership:, date: day.to_time + rand(7..19).hours, distance_meters:, status: "verified",
+    title: RUN_TITLES.sample, description: RUN_NOTES.sample,
+    moving_time: moving, elapsed_time: moving + rand(0..280),
+    elevation_gain: rand(4..180), route_points: seed_route(distance_meters)
+  )
   TrainingScorer.call(training)
   training.save!
 end

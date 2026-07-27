@@ -73,10 +73,10 @@ function Message({ msg, prev }) {
     <>
       {newDay && <div className="chat-day">{msg.day_label}</div>}
       <div className={`msg ${msg.mine ? 'me' : ''}`}>
-        <PlayerAvatar avatar={msg.avatar} size={30} />
+        <Link href={`/joueurs/${msg.membership_id}`}><PlayerAvatar avatar={msg.avatar} size={30} /></Link>
         <div className="msg-body">
           <span className="who">
-            {msg.mine ? 'Toi' : msg.author}
+            <Link href={`/joueurs/${msg.membership_id}`} className="who-link">{msg.mine ? 'Toi' : msg.author}</Link>
             <i style={{ color: msg.team.color }}>{msg.team.name}</i>
           </span>
           <div className="bub">{msg.body}</div>

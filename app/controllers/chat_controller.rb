@@ -27,6 +27,7 @@ class ChatController < ApplicationController
     scope.last(60).map do |msg|
       author = msg.membership
       { id: msg.id, body: msg.body,
+        membership_id: author.id,
         author: author.display_name,
         avatar: AvatarPresenter.new(author.user, membership: author).as_json,
         team: { name: author.team.name, color: author.team.color },

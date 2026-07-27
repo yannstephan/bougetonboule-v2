@@ -21,6 +21,11 @@ class ApplicationController < ActionController::Base
 
   private
 
+  # Un joueur peut voir les profils / sorties des autres joueurs de ses parties.
+  def shares_game?(game_id)
+    current_user&.memberships&.exists?(game_id:)
+  end
+
   def current_membership
     return unless current_user
     @current_membership ||= current_user.memberships

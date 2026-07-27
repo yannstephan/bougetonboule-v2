@@ -26,7 +26,8 @@ class StravaActivityImportJob < ApplicationJob
         strava_activity_id: strava_id,
         date:               Time.zone.parse(activity["start_date"].to_s),
         distance_meters:    activity["distance"].to_i,
-        status:             "pending"
+        status:             "pending",
+        **strava_details(activity)
       )
       TrainingScorer.call(training)
       training.save!
@@ -37,5 +38,18 @@ class StravaActivityImportJob < ApplicationJob
         body: "#{training.distance_km.round(1)} km · +#{training.score.to_i} pêches (en attente de validation)"
       )
     end
+  end
+
+  # Champs détaillés Strava, à stocker pour la page d'une sortie.
+  def strava_details(activity)
+    {
+      title:          activity["name"],
+      description:     activity["description"],
+      moving_time:    activity["moving_time"],
+      elapsed_time:   activity["elapsed_time"],
+      elevation_gain: activity["total_elevation_gain"],
+      route_points:   Polyline.decode(activity.dig("map", "summary_polyline")),
+      photo_url:      activity.dig("photos", "primary", "urls")&.values&.last
+    }
   end
 end

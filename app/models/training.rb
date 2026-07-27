@@ -11,6 +11,16 @@ class Training < ApplicationRecord
   validates :status, inclusion: { in: STATUSES }
 
   scope :verified, -> { where(status: "verified") }
+  scope :recent, -> { order(date: :desc) }
 
   def distance_km = distance_meters.to_f / 1000
+  def has_route? = route_points.present?
+  def has_photo? = photo_url.present?
+
+  # Allure moyenne en secondes / km (nil si on n'a pas le temps de mouvement).
+  def pace_seconds
+    return nil if moving_time.to_i.zero? || distance_km.zero?
+
+    (moving_time / distance_km).round
+  end
 end

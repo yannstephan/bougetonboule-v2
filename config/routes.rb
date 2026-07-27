@@ -24,6 +24,9 @@ Rails.application.routes.draw do
 
   get   "ligue", to: "league#show", as: :league
 
+  get   "joueurs/:id", to: "profiles#show",  as: :player
+  get   "courses/:id", to: "trainings#show", as: :training
+
   get   "avatar",       to: "avatars#show",   as: :avatar
   patch "avatar",       to: "avatars#update"
   post  "avatar/equip", to: "avatars#equip",  as: :equip_avatar

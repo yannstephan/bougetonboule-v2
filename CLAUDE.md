@@ -105,8 +105,26 @@ Dessinés en SVG dans `components/Monster.jsx`, choisis par `Monster#slug` (`"Ki
 `king-coco`). King-Coco (roi noix de coco) et Dracassis (dragon cassis) pour Odyssea. Un slug
 inconnu retombe sur un emoji 👾.
 
+### Profils & sorties (`/joueurs/:id`, `/courses/:id`)
+Chaque **participation** (Membership) a une page profil consultable par **tout joueur de la même
+partie** (les deux clans — `ApplicationController#shares_game?`). Elle liste ses sorties (date,
+heure, km, 🍑, statut) et lie vers le détail de chacune.
+
+Le **détail d'une sortie** (`/courses/:id`) montre ce qu'on récupère de Strava : titre,
+description, durée, allure, dénivelé, **tracé du parcours** et photo. Les champs sont stockés sur
+`trainings` (`title`, `description`, `moving_time`, `elapsed_time`, `elevation_gain`,
+`route_points`, `photo_url`) et remplis à l'import (`StravaActivityImportJob`).
+
+- Le **tracé** est dessiné en **SVG** (`components/RouteMap.jsx`) à partir de `route_points`
+  (`[[lat, lng], …]`) — pas de fond de carte, pas de service tiers (objectif ~5-6 €/mois). La
+  polyline Strava est décodée à l'import par le module `Polyline`.
+- `TrainingPresenter` sérialise une sortie (résumé pour la liste, détail pour la page) — seul
+  endroit qui formate dates, durées et allure.
+- Les **noms sont cliquables** vers le profil dans le chat et la ligue (et l'avatar au chat).
+
 ### Écrans React existants (app/frontend/pages)
-`Hub`, `Combat`, `Chat`, `Ligue`, `Avatar`, `Notifications`, `auth/Login`, `auth/Register`.
+`Hub`, `Combat`, `Chat`, `Ligue`, `Avatar`, `Profile`, `Training`, `Notifications`,
+`auth/Login`, `auth/Register`.
 Navigation par onglets : **Hub · Chat · ⚔️ Combat · Ligue · Boutique** (`components/BottomNav.jsx`).
 Seule la Boutique est encore **grisée** (à construire).
 
