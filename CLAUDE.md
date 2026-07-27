@@ -104,7 +104,10 @@ en secours si pas de fruit).
 ### Les monstres
 Dessinés en SVG dans `components/Monster.jsx`, choisis par `Monster#slug` (`"King-Coco"` →
 `king-coco`). King-Coco (roi noix de coco) et Dracassis (dragon cassis) pour Odyssea. Un slug
-inconnu retombe sur un emoji 👾.
+inconnu retombe sur un emoji 👾. En **Combat**, l'attaque secoue + flashe en rouge le monstre
+adverse (💥 + « -N ») et le soin fait gonfler mon monstre avec une lueur verte (✨ + « +N »),
+piloté par état React dans `pages/Combat.jsx` (classes `.impact` / `.healpulse`, guard
+`prefers-reduced-motion`).
 
 ### Le compte à rebours (Hub)
 En haut du Hub, `components/Countdown.jsx` décompte jours/heures/min/sec jusqu'au **jour J**.
@@ -154,7 +157,9 @@ achats sont refusés proprement si monnaie insuffisante, cosmétique déjà poss
 - **secondary** (défaut) : **listé seulement**, jamais poussé. L'activité des autres — « X a
   couru N km · +N 🍑 » (km **et** pêches gagnées), « X a activé un vent de dos jusqu'à… », « X a
   posé un piège à loup », et le **combat** : attaque (⚡ « -N PV ») et soin (💚 « +N PV »), avec
-  les PV en jeu. `PerformAction#broadcast_combat` diffuse ces deux-là aux autres joueurs.
+  les PV en jeu. `PerformAction#broadcast_combat` notifie **tout le monde, l'auteur inclus** :
+  l'auteur reçoit une version à la 1re personne (« Tu as infligé… »), les autres la 3e (« X a
+  infligé… ») — pour qu'on voie sa propre action dans ses notifications.
 
 Le **chat général ne crée AUCUNE notification** (seul le chat d'équipe notifie, en important) :
 `MessagesController#notify_participants` sort tôt si `conv.kind != "team"`. Les messages non lus

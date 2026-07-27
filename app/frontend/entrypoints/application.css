@@ -126,8 +126,41 @@ body{margin:0;background:var(--bg);color:var(--text);
 @keyframes hit{0%,100%{transform:translateX(0)}14%{transform:translateX(-5px)}28%{transform:translateX(4px)}42%{transform:translateX(0)}}
 .my-corner{position:absolute;bottom:10px;left:14px;font-size:50px}
 .dmg{position:absolute;top:30%;left:44%;font-weight:800;font-size:30px;color:var(--fraise);
-  font-variant-numeric:tabular-nums;animation:floatup 1.2s ease-out forwards;pointer-events:none}
+  font-variant-numeric:tabular-nums;animation:floatup 1.2s ease-out forwards;pointer-events:none;z-index:2}
 @keyframes floatup{0%{opacity:0;transform:translateY(10px) scale(.7)}20%{opacity:1}100%{opacity:0;transform:translateY(-40px) scale(1.1)}}
+/* Soin : +PV vert qui monte près de mon monstre (coin bas-gauche). */
+.heal-float{position:absolute;bottom:62px;left:18px;font-weight:800;font-size:26px;color:var(--good);
+  font-variant-numeric:tabular-nums;animation:floatup 1.1s ease-out forwards;pointer-events:none;z-index:2}
+/* Attaque : le monstre adverse encaisse (secousse + flash rouge), remplace l'animation d'attente. */
+.foe-mon-svg.impact{animation:impact .55s ease-out}
+@keyframes impact{
+  0%{transform:translateX(0) scale(1);filter:none}
+  15%{transform:translateX(-9px) rotate(-4deg) scale(1.05);filter:brightness(1.5) drop-shadow(0 0 7px var(--crit))}
+  32%{transform:translateX(8px) rotate(3deg);filter:brightness(1.3) drop-shadow(0 0 5px var(--crit))}
+  50%{transform:translateX(-5px) rotate(-1deg)}
+  70%{transform:translateX(4px);filter:none}
+  100%{transform:translateX(0)}
+}
+/* Soin : mon monstre gonfle avec une lueur verte. */
+.my-corner-svg.healpulse{animation:healpulse .75s ease-out}
+@keyframes healpulse{
+  0%{transform:scale(1);filter:none}
+  30%{transform:scale(1.28);filter:brightness(1.25) drop-shadow(0 0 9px var(--good))}
+  60%{transform:scale(1.08);filter:brightness(1.1) drop-shadow(0 0 5px var(--good))}
+  100%{transform:scale(1);filter:none}
+}
+/* Éclats d'impact / étincelles de soin. */
+.burst{position:absolute;top:34%;left:50%;font-size:46px;pointer-events:none;z-index:3;
+  animation:burst .55s ease-out forwards}
+@keyframes burst{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}
+  35%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}
+.heal-spark{position:absolute;bottom:58px;left:30px;font-size:22px;pointer-events:none;z-index:3;
+  animation:burst .75s ease-out forwards}
+@media (prefers-reduced-motion:reduce){
+  .foe-mon-svg,.foe-mon-svg.impact,.my-corner-svg.healpulse{animation:none}
+  .burst,.heal-spark{display:none}
+}
 .act-gems{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:14px;border-top:1px solid var(--line)}
 .gem-btn{border:none;border-radius:var(--r);aspect-ratio:1;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:3px;cursor:pointer;font:inherit;background:var(--fraise);color:#fff;transition:filter .12s}

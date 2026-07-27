@@ -44,7 +44,8 @@ class PerformAction
     Action.create!(game: @m.game, membership: @m, action_type: "attack", target: foe, amount: dmg,
                    description: "#{@m.user.firstname} a attaqué #{foe.name} (-#{dmg} PV)")
     broadcast_combat("attacked", "⚡ Attaque sur #{foe.name}",
-                     "#{@m.user.firstname} a infligé -#{dmg} PV à #{foe.name}.")
+                     self_body:   "Tu as infligé -#{dmg} PV à #{foe.name}.",
+                     others_body: "#{@m.user.firstname} a infligé -#{dmg} PV à #{foe.name}.")
     ok("-#{dmg} PV infligés à #{foe.name} !")
   end
 
@@ -60,7 +61,8 @@ class PerformAction
     Action.create!(game: @m.game, membership: @m, action_type: "heal", target: mine, amount: amt,
                    description: "#{@m.user.firstname} a soigné #{mine.name} (+#{amt} PV)")
     broadcast_combat("healed", "💚 Soin sur #{mine.name}",
-                     "#{@m.user.firstname} a rendu +#{amt} PV à #{mine.name}.")
+                     self_body:   "Tu as rendu +#{amt} PV à #{mine.name}.",
+                     others_body: "#{@m.user.firstname} a rendu +#{amt} PV à #{mine.name}.")
     ok("+#{amt} PV restaurés sur #{mine.name} !")
   end
 
@@ -120,8 +122,11 @@ class PerformAction
   end
 
   # Attaques et soins remontent dans le fil d'activité (secondaire) avec les PV en jeu.
-  def broadcast_combat(category, title, body)
-    Notification.broadcast(other_players, game: @m.game, category:, title:, body:)
+  # L'auteur reçoit une version à la 1re personne (« Tu as… »), les autres la 3e (« X a… »).
+  def broadcast_combat(category, title, self_body:, others_body:)
+    Notification.create!(user: @m.user, game: @m.game, importance: "secondary",
+                         category:, title:, body: self_body)
+    Notification.broadcast(other_players, game: @m.game, category:, title:, body: others_body)
   end
 
   def other_players

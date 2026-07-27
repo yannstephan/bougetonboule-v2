@@ -10,16 +10,31 @@ const itemEmoji = (t) =>
 
 export default function Combat({ balls, multiplier, my_team, foe_team, items, opponents }) {
   const { flash } = usePage().props
-  const [floats, setFloats] = useState([])
+  const [floats, setFloats] = useState([]) // nombres flottants { id, type:'dmg'|'heal', text }
+  const [hitFoe, setHitFoe] = useState(false)   // monstre adverse encaisse un coup
+  const [healMine, setHealMine] = useState(false) // mon monstre est soigné
   const [trapItem, setTrapItem] = useState(null) // objet piège en attente d'une cible
   const foe = foe_team?.monster
+  const mine = my_team?.monster
   const dmg = Math.round(10 * multiplier)
+  const healAmt = mine ? Math.min(dmg, mine.max_hp - mine.hp) : dmg
+
+  const float = (type, text) => {
+    const id = Date.now() + Math.random()
+    setFloats((f) => [...f, { id, type, text }])
+    setTimeout(() => setFloats((f) => f.filter((x) => x.id !== id)), 1100)
+  }
 
   const act = (action_type, item_id = null, target_id = null) => {
     if (action_type === 'attack' && foe && !foe.protected) {
-      const id = Date.now() + Math.random()
-      setFloats((f) => [...f, { id }])
-      setTimeout(() => setFloats((f) => f.filter((x) => x.id !== id)), 1200)
+      float('dmg', `-${dmg}`)
+      setHitFoe(true)
+      setTimeout(() => setHitFoe(false), 600)
+    }
+    if (action_type === 'heal' && mine && mine.hp < mine.max_hp) {
+      float('heal', `+${healAmt}`)
+      setHealMine(true)
+      setTimeout(() => setHealMine(false), 750)
     }
     router.post('/actions', { action_type, item_id, target_id }, { preserveScroll: true })
   }
@@ -48,9 +63,17 @@ export default function Combat({ balls, multiplier, my_team, foe_team, items, op
             <EffectBadges effects={foe_team?.effects} />
           </div>
           <div className="arena-scene">
-            {floats.map((f) => <div key={f.id} className="dmg">-{dmg}</div>)}
-            <Monster slug={foe.slug} name={foe.name} size={130} className="foe-mon-svg" />
-            {my_team?.monster && <Monster slug={my_team.monster.slug} name={my_team.monster.name} size={54} className="my-corner-svg" />}
+            {floats.map((f) => <div key={f.id} className={f.type === 'heal' ? 'heal-float' : 'dmg'}>{f.text}</div>)}
+            {hitFoe && <div className="burst">💥</div>}
+            <Monster slug={foe.slug} name={foe.name} size={130}
+                     className={`foe-mon-svg ${hitFoe ? 'impact' : ''}`} />
+            {mine && (
+              <>
+                <Monster slug={mine.slug} name={mine.name} size={54}
+                         className={`my-corner-svg ${healMine ? 'healpulse' : ''}`} />
+                {healMine && <div className="heal-spark">✨</div>}
+              </>
+            )}
           </div>
         </>
       ) : (
