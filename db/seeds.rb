@@ -207,10 +207,11 @@ seed_import = lambda do |membership, distance_meters|
   t.save!
   t.credit_balls!           # rien n'est versé si la course est piégée (score 0)
   gain = t.status == "trapped" ? "piégée 🐺 · 0 🍑" : "+#{t.score.to_i} 🍑"
+  link = "/courses/#{t.id}"
   others = game.memberships.includes(:user).where.not(id: membership.id).map(&:user)
-  Notification.broadcast(others, game:, category: "training_verified", title: "🏃 Nouvelle course",
+  Notification.broadcast(others, game:, category: "training_verified", title: "🏃 Nouvelle course", link:,
                          body: "#{membership.display_name} a couru #{t.distance_km.round(1)} km · #{gain}")
-  Notification.create!(user: membership.user, game:, category: "training_verified",
+  Notification.create!(user: membership.user, game:, category: "training_verified", link:,
                        title: "Course importée", body: "#{t.distance_km.round(1)} km · +#{t.score.to_i} pêches")
 end
 

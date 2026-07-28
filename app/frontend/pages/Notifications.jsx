@@ -65,15 +65,19 @@ export default function Notifications({ notifications }) {
 }
 
 function Notif({ n, secondary = false }) {
-  return (
-    <div className={`notif ${n.read ? '' : 'unread'} ${secondary ? 'sec' : ''}`}>
+  const cls = `notif ${n.read ? '' : 'unread'} ${secondary ? 'sec' : ''} ${n.link ? 'clickable' : ''}`
+  const inner = (
+    <>
       <div className="nic">{icon(n.category)}</div>
       <div className="nt">
         <div className="nti">{n.title}</div>
         <div className="nb">{n.body}</div>
         <div className="nh">{n.at}</div>
       </div>
-      {!n.read && !secondary && <div className="udot" />}
-    </div>
+      {n.link ? <span className="nchev">›</span> : !n.read && !secondary && <div className="udot" />}
+    </>
   )
+  return n.link
+    ? <Link href={n.link} className={cls}>{inner}</Link>
+    : <div className={cls}>{inner}</div>
 }

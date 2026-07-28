@@ -37,7 +37,7 @@ class StravaActivityImportJob < ApplicationJob
       # Confirmation à soi-même (secondaire : pas urgent — le cas piégé a déjà sa notif importante).
       Notification.create!(
         user:, game: membership.game, category: "training_verified",
-        title: "Course importée",
+        title: "Course importée", link: "/courses/#{training.id}",
         body: "#{training.distance_km.round(1)} km · +#{training.score.to_i} pêches"
       )
       broadcast_run(membership, training)
@@ -49,7 +49,7 @@ class StravaActivityImportJob < ApplicationJob
     others = membership.game.memberships.includes(:user).where.not(id: membership.id).map(&:user)
     gain = training.status == "trapped" ? "piégée 🐺 · 0 🍑" : "+#{training.score.to_i} 🍑"
     Notification.broadcast(others, game: membership.game, category: "training_verified",
-                           title: "🏃 Nouvelle course",
+                           title: "🏃 Nouvelle course", link: "/courses/#{training.id}",
                            body: "#{membership.display_name} a couru #{training.distance_km.round(1)} km · #{gain}")
   end
 

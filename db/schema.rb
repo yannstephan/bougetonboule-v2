@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_27_205534) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_28_120000) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -163,6 +163,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_205534) do
     t.datetime "created_at", null: false
     t.integer "game_id"
     t.string "importance", default: "secondary", null: false
+    t.string "link"
     t.json "payload"
     t.datetime "read_at"
     t.string "title"

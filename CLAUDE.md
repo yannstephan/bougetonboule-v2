@@ -217,7 +217,8 @@ du chat se voient sur la **pastille de l'onglet Chat** (voir ci-dessous), pas da
 Le push n'est déclenché que pour les importantes (`Notification#push_if_important`).
 `Notification.broadcast(users, importance:, …)` crée la même notif pour plusieurs destinataires.
 L'écran Notifications sépare **Pour toi** (importantes) et **Activité de la partie** (secondaires,
-style atténué).
+style atténué). Une notif peut porter un **`link`** (colonne `notifications.link`) : la carte
+devient alors cliquable (chevron ›). Les notifs « nouvelle course » pointent vers `/courses/:id`.
 
 ### Pastille de messages non lus (onglet Chat)
 `conversation_reads` (`membership` × `conversation` × `last_read_at`, index unique) mémorise la
