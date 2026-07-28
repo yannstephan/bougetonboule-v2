@@ -20,6 +20,14 @@ class StravaController < ApplicationController
     end
   end
 
+  # Délie le compte Strava : on efface le jeton et l'identifiant athlète (les courses ne
+  # s'importeront plus jusqu'à une nouvelle connexion). Les courses déjà importées restent.
+  def disconnect
+    current_user.update!(strava_uid: nil, strava_token: nil,
+                         strava_refresh_token: nil, strava_expires_at: nil)
+    redirect_to avatar_path, notice: "Compte Strava déconnecté."
+  end
+
   private
 
   def authorize_url

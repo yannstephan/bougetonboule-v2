@@ -69,6 +69,12 @@ body{margin:0;background:var(--bg);color:var(--text);
 .btn-logout{align-self:center;background:none;border:none;color:var(--muted);font:inherit;font-weight:700;
   font-size:13px;padding:8px 12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .btn-logout:hover{color:var(--crit)}
+.strava-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r);padding:11px 13px}
+.strava-ok{font-weight:800;font-size:13px;color:var(--strava)}
+.strava-off{margin-left:auto;background:none;border:1px solid var(--line-2);border-radius:10px;
+  color:var(--muted);font:inherit;font-weight:700;font-size:12px;padding:6px 12px;cursor:pointer}
+.strava-off:hover{border-color:var(--crit);color:var(--crit)}
 
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:11px;

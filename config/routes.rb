@@ -13,8 +13,9 @@ Rails.application.routes.draw do
   get "auth/failure",                to: "users/omniauth#failure"
 
   # Strava
-  get  "strava/connect",  to: "strava#connect",  as: :strava_connect
-  get  "strava/callback", to: "strava#callback"
+  get    "strava/connect",    to: "strava#connect",    as: :strava_connect
+  get    "strava/callback",   to: "strava#callback"
+  delete "strava/disconnect", to: "strava#disconnect", as: :strava_disconnect
   get  "strava/webhook",  to: "strava/webhooks#verify"
   post "strava/webhook",  to: "strava/webhooks#event"
 

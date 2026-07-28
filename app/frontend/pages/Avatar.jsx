@@ -8,7 +8,7 @@ const csrf = () =>
 const slotLabel = { base: 'Base', hat: 'Chapeau', eyes: 'Yeux', outfit: 'Tenue',
   arms: 'Bras', legs: 'Jambes', aura: 'Aura' }
 
-export default function Avatar({ has_team, team, fruits, current_fruit, avatar, cosmetics, slots }) {
+export default function Avatar({ has_team, strava_connected, team, fruits, current_fruit, avatar, cosmetics, slots }) {
   const { flash } = usePage().props
 
   const pickFruit = (key) =>
@@ -22,6 +22,12 @@ export default function Avatar({ has_team, team, fruits, current_fruit, avatar, 
   const logout = () => {
     if (confirm('Se déconnecter de ce compte ?')) {
       router.delete('/logout', { data: { authenticity_token: csrf() } })
+    }
+  }
+
+  const disconnectStrava = () => {
+    if (confirm("Déconnecter ton compte Strava ? Tes nouvelles courses ne s'importeront plus.")) {
+      router.delete('/strava/disconnect', { data: { authenticity_token: csrf() } })
     }
   }
 
@@ -93,6 +99,21 @@ export default function Avatar({ has_team, team, fruits, current_fruit, avatar, 
             </section>
           </>
         )}
+
+        <section className="av-sec">
+          <h2>Compte Strava</h2>
+          {strava_connected ? (
+            <div className="strava-row">
+              <span className="strava-ok">◎ Strava connecté</span>
+              <button type="button" className="strava-off" onClick={disconnectStrava}>Déconnecter</button>
+            </div>
+          ) : (
+            <>
+              <p className="av-hint">Connecte Strava pour que tes courses comptent automatiquement.</p>
+              <a className="btn strava" href="/strava/connect">◎ Connecter Strava</a>
+            </>
+          )}
+        </section>
 
         <Link href="/" className="btn primary">C'est bon !</Link>
         <button type="button" className="btn-logout" onClick={logout}>Se déconnecter</button>

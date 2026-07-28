@@ -137,6 +137,10 @@ Ananas dans une partie et Fraise dans une autre. On ne peut le personnaliser **q
   `cosmetics.emoji` est ce qui les rend affichables. Les ancres SVG sont fixes → un cosmétique
   tombe au même endroit sur tous les fruits.
 
+Cet écran fait aussi office de **compte** (accès en tapant l'avatar du Hud) : **connecter/déconnecter
+Strava** (`StravaController#connect` / `#disconnect`, prop `strava_connected`) et **se déconnecter**
+(`DELETE /logout`). Les deux boutons de suppression demandent une confirmation.
+
 `AvatarPresenter.new(user, membership:)` est le **seul** endroit qui sérialise un avatar (fruit +
 cosmétiques), affiché dans le Hub, le chat, le classement et l'écran avatar. Côté React, le
 composant unique est `components/PlayerAvatar.jsx` (délègue à `FruitAvatar`, pastille + initiale
