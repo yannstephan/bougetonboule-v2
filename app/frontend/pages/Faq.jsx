@@ -4,15 +4,6 @@ import { Head, Link } from '@inertiajs/react'
 // À garder à jour quand une mécanique change (voir CLAUDE.md).
 const SECTIONS = [
   {
-    q: '🎯 C\'est quoi le but ?',
-    a: [
-      'Bouge Ton Boule est un jeu de course à pied entre amis. Deux clans s\'affrontent, chacun avec son monstre de 10 000 PV.',
-      'Pour l\'événement Odyssea 2027, c\'est 🌴 Fruits exotiques (monstre King-Coco) contre 🍒 Fruits rouges (monstre Framboitrix).',
-      'Tu cours, tu gagnes des pêches, tu t\'en sers pour attaquer le monstre adverse ou soigner le tien.',
-      'La partie se termine de deux façons : si un monstre tombe à 0 PV, son équipe perd immédiatement. Sinon, au dernier jour de la saison, l\'équipe dont le monstre a le plus haut pourcentage de PV gagne. Il y a toujours un vainqueur (ou une égalité parfaite) — le suspense dure jusqu\'au bout.',
-    ],
-  },
-  {
     q: '🍑 Comment je gagne des pêches ?',
     a: [
       'En courant, uniquement. Tes courses sont importées automatiquement depuis Strava et tes pêches créditées dans la foulée.',
@@ -102,7 +93,8 @@ const SECTIONS = [
     a: [
       'Ton avatar est un fruit, choisi dans la famille de ton équipe. Tu ne peux le personnaliser qu\'une fois affecté à une équipe.',
       'Plusieurs coéquipiers peuvent prendre le même fruit — l\'écran indique qui a déjà choisi quoi.',
-      'Les cosmétiques (chapeau, lunettes, tenue, aura…) s\'achètent en 💎 ou se gagnent, puis s\'équipent un par emplacement depuis l\'écran Avatar.',
+      'Les cosmétiques (chapeau, lunettes, tenue, bras, jambes, aura) s\'achètent en 💎 ou se gagnent, puis s\'équipent un par emplacement depuis l\'écran Avatar.',
+      'Certaines pièces ne sont jamais en vente : elles ne se gagnent que par les coffres, les séries, la ligue ou les événements de la saison. L\'🐺 Esprit du loup, par exemple, ne sort que des coffres…',
     ],
   },
   {
@@ -126,8 +118,27 @@ export default function Faq() {
       </div>
 
       <main className="body">
+        <div className="faq-hero">
+          <div className="faq-hero-vs"><span>🌴</span><b>VS</b><span>🍒</span></div>
+          <p>
+            La guerre du verger a commencé. D'un côté, les <b>🌴 Fruits exotiques</b>, menés
+            par <b>King-Coco</b>, le roi noix de coco. De l'autre, les <b>🍒 Fruits rouges</b>,
+            rassemblés derrière <b>Framboitrix</b>, la sorcière framboise. Toi, tu es un fruit
+            de ton clan — ananas, fraise, kiwi, cerise… — et ton arme pousse au bout de tes
+            baskets : <b>chaque kilomètre couru fait mûrir une pêche 🍑</b>.
+          </p>
+          <p>
+            Avec tes pêches, <b>attaque le monstre adverse ou soigne le tien</b> (10 000 PV
+            chacun). Un monstre à 0 PV, et son clan tombe sur-le-champ ; sinon, au dernier jour
+            de la saison, le monstre le mieux portant offre la victoire aux siens. En chemin :
+            des objets pour piéger l'autre camp, des séries et des coffres pleins de
+            diamants 💎 pour bichonner ton fruit. Une seule loi au verger : <b>tout se gagne
+            en courant</b>, rien ne s'achète.
+          </p>
+        </div>
+
         <p className="faq-intro">
-          Tout ce qu'il faut savoir pour jouer. Une question en tête ? Déplie-la.
+          Les règles en détail — une question en tête ? Déplie-la.
         </p>
 
         {SECTIONS.map((s) => (

@@ -77,7 +77,6 @@ body{margin:0;background:var(--bg);color:var(--text);
 .strava-off:hover{border-color:var(--crit);color:var(--crit)}
 
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tiles .tile.wide{grid-column:1/-1}
 .tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:11px;
   display:flex;gap:10px;align-items:center;text-decoration:none;color:inherit}
 .tile .ic{font-size:22px}
@@ -543,6 +542,11 @@ body{margin:0;background:var(--bg);color:var(--text);
 .cd-pct{font-size:10px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
 
 /* FAQ / règles du jeu */
+.faq-hero{background:color-mix(in srgb,var(--peach) 12%,var(--surface));border:2px solid var(--peach);
+  border-radius:var(--r);padding:16px 16px 6px;font-size:13.5px;line-height:1.55}
+.faq-hero p{margin:0 0 12px}
+.faq-hero-vs{display:flex;align-items:center;justify-content:center;gap:14px;font-size:26px;margin-bottom:10px}
+.faq-hero-vs b{font-size:14px;color:var(--fraise)}
 .faq-intro{margin:0;color:var(--muted);font-size:13px}
 .faq-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .faq-item[open]{border-color:color-mix(in srgb,var(--peach) 30%,var(--line))}

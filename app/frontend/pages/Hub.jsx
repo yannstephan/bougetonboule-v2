@@ -64,9 +64,8 @@ function GameView({ m }) {
 
       {!finished && <Link href="/combat" className="btn combat">⚔️ COMBATTRE</Link>}
       <div className="tiles">
-        <div className="tile wide"><span className="ic">🔥</span><div><div className="tn">Série hebdo</div><div className="td">{m.weekly_streak} sem.{m.streak_jokers > 0 ? ` · 🧊×${m.streak_jokers}` : ''}</div></div></div>
+        <div className="tile"><span className="ic">🔥</span><div><div className="tn">Série hebdo</div><div className="td">{m.weekly_streak} sem.{m.streak_jokers > 0 ? ` · 🧊×${m.streak_jokers}` : ''}</div></div></div>
         <Link href="/ligue" className="tile"><span className="ic">🏅</span><div><div className="tn">Classement</div><div className="td">{m.month_rank ? `${m.month_rank}e ce mois-ci` : 'Cours pour entrer'}</div></div></Link>
-        <Link href="/avatar" className="tile"><span className="ic">🎨</span><div><div className="tn">Mon avatar</div><div className="td">Personnaliser</div></div></Link>
       </div>
     </main>
   )
