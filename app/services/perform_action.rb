@@ -32,11 +32,12 @@ class PerformAction
   def err(msg) = Result.new(ok: false, message: msg)
 
   def attack
-    return err("Pas assez de pêches") if @m.balls < GameRules::ATTACK_COST
+    return err("Pas assez de boules") if @m.balls < GameRules::ATTACK_COST
     foe = team.opponent&.monster
     return err("Aucun adversaire") unless foe
     return err("Le monstre adverse est protégé 🛡️") if foe.protected?
     return err("L'adversaire est déjà vaincu") unless foe.alive?
+    return crit_fail(foe) if rand < GameRules::CRIT_FAIL_CHANCE
 
     dmg = power
     foe.update!(hp: [foe.hp - dmg, 0].max)
@@ -55,9 +56,24 @@ class PerformAction
     ok("-#{dmg} PV infligés à #{foe.name} !")
   end
 
+  # L'attaque rate : 0 dégât, le monstre mord 15 % du solde (min 1, max 10 🍑).
+  # Result ok: false uniquement pour que le flash s'affiche en rouge — les 🍑 sont bien perdues.
+  def crit_fail(foe)
+    loss = (@m.balls * GameRules::CRIT_FAIL_RATIO).round
+               .clamp(GameRules::CRIT_FAIL_MIN, GameRules::CRIT_FAIL_MAX)
+    loss = [loss, @m.balls].min
+    @m.update!(balls: @m.balls - loss)
+    Action.create!(game: @m.game, membership: @m, action_type: "attack", target: foe, amount: 0,
+                   description: "#{@m.user.firstname} s'est fait mordre par #{foe.name} (échec critique, -#{loss} 🍑)")
+    broadcast_combat("crit_failed", "💥 Échec critique !",
+                     self_body:   "#{foe.name} t'a mordu le petit boule : attaque ratée, -#{loss} 🍑.",
+                     others_body: "#{@m.user.firstname} s'est fait mordre le petit boule par #{foe.name} — attaque ratée, -#{loss} 🍑.")
+    err("💥 Échec critique ! #{foe.name} t'a mordu le petit boule : -#{loss} 🍑 et 0 dégât.")
+  end
+
   def heal
     cost = team.heal_cost
-    return err("Pas assez de pêches") if @m.balls < cost
+    return err("Pas assez de boules") if @m.balls < cost
     mine = team.monster
     return err("#{mine.name} est déjà au maximum") if mine.hp >= mine.max_hp
 
@@ -121,7 +137,7 @@ class PerformAction
     Notification.broadcast(foe.memberships.includes(:user).map(&:user),
                            game: @m.game, importance: "important", category: "effect",
                            title: "🌪️ Vent de face !",
-                           body: "#{@m.user.firstname} souffle contre vous : −25 % de pêches jusqu'à #{until_at.strftime('%H:%M')}.")
+                           body: "#{@m.user.firstname} souffle contre vous : −25 % de boules jusqu'à #{until_at.strftime('%H:%M')}.")
     broadcast_effect("🌪️ #{@m.user.firstname} a lancé un vent de face sur #{foe.name}.", except_team: foe)
     ok("Vent de face lancé sur #{foe.name} !")
   end

@@ -28,6 +28,8 @@ Rails.application.routes.draw do
   get   "joueurs/:id", to: "profiles#show",  as: :player
   get   "courses/:id", to: "trainings#show", as: :training
 
+  post  "coffres/:id/ouvrir", to: "chests#open", as: :open_chest
+
   get   "boutique",           to: "shop#index",        as: :shop
   post  "boutique/items",     to: "shop#buy_item",     as: :buy_item
   post  "boutique/cosmetics", to: "shop#buy_cosmetic", as: :buy_cosmetic
@@ -45,9 +47,9 @@ Rails.application.routes.draw do
   get   "notifications", to: "notifications#index", as: :notifications
   post  "push_subscriptions", to: "push_subscriptions#create", as: :push_subscriptions
 
-  # PWA
-  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  # PWA (contrôleur maison : Rails::PwaController rate le format du .js — voir PwaController)
+  get "service-worker" => "pwa#service_worker", as: :pwa_service_worker
+  get "manifest" => "pwa#manifest", as: :pwa_manifest
 
   get "up" => "rails/health#show", as: :rails_health_check
   root "hub#index"

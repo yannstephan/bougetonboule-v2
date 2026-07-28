@@ -414,7 +414,60 @@ body{margin:0;background:var(--bg);color:var(--text);
 .tr-author-name{font-weight:800;font-size:14px}
 .tr-author-team{font-size:11px;font-weight:700}
 .tr-when{margin-left:auto;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
-.route-map{width:100%;height:auto;display:block;background:var(--surface-2);border:1px solid var(--line);border-radius:14px}
+.chest-card{display:flex;align-items:center;gap:12px;margin:10px 14px 0;padding:12px 14px;
+  background:var(--surface);border:2px solid var(--line-2);border-radius:16px}
+.chest-card.rar-rare{border-color:var(--mint)}
+.chest-card.rar-epic{border-color:var(--violet)}
+.chest-card.rar-legendary{border-color:var(--citron)}
+.chest-emoji{font-size:30px}
+.chest-text{flex:1}
+.chest-title{font-weight:800;font-size:14px}
+.chest-sub{font-size:12px;color:var(--muted)}
+.chest-btn{background:var(--citron);color:var(--citron-ink);border:0;border-radius:12px;
+  padding:10px 16px;font-weight:800;font-size:13px}
+
+/* Modal d'ouverture : coffre SVG (couvercle sur charnière), paillettes, gains qui sortent */
+.chest-modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;
+  background:rgba(20,16,28,.72);backdrop-filter:blur(3px);animation:chest-fade .25s ease-out}
+@keyframes chest-fade{from{opacity:0}to{opacity:1}}
+.chest-stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;
+  padding:32px 24px;max-width:320px;text-align:center}
+.chest-svg{width:150px;height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.4))}
+.chest-svg.shaking{animation:chest-shake .9s ease-in-out infinite}
+@keyframes chest-shake{0%,100%{transform:rotate(0)}15%{transform:rotate(-7deg) scale(1.03)}
+  35%{transform:rotate(6deg) scale(1.06)}55%{transform:rotate(-5deg) scale(1.08)}75%{transform:rotate(4deg) scale(1.05)}}
+.chest-lid{transform-origin:18px 46px;transition:transform .01s}
+.chest-lid.open{animation:chest-lid-open .7s cubic-bezier(.3,1.5,.5,1) forwards}
+@keyframes chest-lid-open{from{transform:rotate(0)}to{transform:rotate(-70deg) translate(-6px,-10px)}}
+.chest-particle{position:absolute;top:44%;left:50%;font-size:15px;pointer-events:none;opacity:0;
+  animation:chest-burst 1.1s ease-out forwards}
+@keyframes chest-burst{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}
+  15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.15);opacity:0}}
+.chest-gains-out{display:flex;flex-direction:column;align-items:center;gap:8px;min-height:40px}
+.chest-gain-chip{background:var(--surface);border:2px solid var(--line-2);border-radius:999px;
+  padding:8px 16px;font-weight:800;font-size:14px;opacity:0;
+  animation:chest-gain-pop .5s cubic-bezier(.2,1.6,.4,1) forwards}
+.chest-gain-chip.rar-rare{border-color:var(--mint)}
+.chest-gain-chip.rar-epic{border-color:var(--violet)}
+.chest-gain-chip.rar-legendary{border-color:var(--citron)}
+@keyframes chest-gain-pop{from{transform:translateY(26px) scale(.6);opacity:0}
+  to{transform:translateY(0) scale(1);opacity:1}}
+.chest-reveal-title{color:#fff;font-weight:800;font-size:17px;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+@media (prefers-reduced-motion: reduce){
+  .chest-svg.shaking,.chest-particle{animation:none}
+  .chest-particle{display:none}
+  .chest-lid.open{animation:none;transform:rotate(-70deg) translate(-6px,-10px)}
+  .chest-gain-chip{animation:none;opacity:1}
+}
+.install-hint{display:flex;align-items:center;gap:10px;margin:10px 14px 0;padding:10px 12px;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;font-size:13px}
+.install-hint .ih-icon{font-size:20px}
+.install-hint .ih-text{flex:1;line-height:1.35}
+.install-hint .ih-btn{background:var(--peach);color:#fff;border:0;border-radius:10px;
+  padding:8px 12px;font-weight:800;font-size:13px}
+.install-hint .ih-close{background:none;border:0;color:var(--faint);font-size:14px;padding:4px}
+.route-map{width:100%;display:block;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;
+  overflow:hidden;position:relative;z-index:0} /* z-index:0 : les contrôles Leaflet restent sous la nav */
 .route-empty{display:grid;place-items:center;background:var(--surface-2);border:1px dashed var(--line-2);
   border-radius:14px;color:var(--faint);font-size:12px}
 .tr-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:8px}
@@ -489,6 +542,11 @@ body{margin:0;background:var(--bg);color:var(--text);
 .cd-pct{font-size:10px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
 
 /* FAQ / règles du jeu */
+.faq-hero{background:color-mix(in srgb,var(--peach) 12%,var(--surface));border:2px solid var(--peach);
+  border-radius:var(--r);padding:16px 16px 6px;font-size:13.5px;line-height:1.55}
+.faq-hero p{margin:0 0 12px}
+.faq-hero-vs{display:flex;align-items:center;justify-content:center;gap:14px;font-size:26px;margin-bottom:10px}
+.faq-hero-vs b{font-size:14px;color:var(--fraise)}
 .faq-intro{margin:0;color:var(--muted);font-size:13px}
 .faq-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .faq-item[open]{border-color:color-mix(in srgb,var(--peach) 30%,var(--line))}

@@ -6,7 +6,9 @@
 ## Le concept
 
 Jeu de **course à pied entre amis**. Chaque km couru (importé depuis **Strava**) rapporte
-**1 pêche 🍑** (max 10 / sortie). On dépense ses pêches pour **attaquer** le monstre de
+**1 boule 🍑** (max 10 / sortie). ⚠️ **Vocabulaire** : la monnaie s'appelle la **boule**
+(féminin — c'est Bouge Ton Boule), illustrée par l'emoji pêche 🍑 — écrire « boules »,
+jamais « pêches », dans tous les textes joueurs. On dépense ses boules pour **attaquer** le monstre de
 l'équipe adverse (10 000 PV) ou **soigner** le sien. Un monstre à 0 PV = défaite immédiate ;
 sinon, à la date de fin de la partie, l'équipe au plus haut **% de PV** gagne (`FinishGame`).
 C'est la v2 (front moderne) d'une app Rails existante jugée trop brouillonne.
@@ -28,16 +30,20 @@ L'événement **Odyssea 2027** (mars 2027) oppose deux clans : **🌴 Fruits exo
 
 | Monnaie | Gagnée par | Dépensée en | Portée |
 |---|---|---|---|
-| 🍑 **Pêches** | **courir uniquement** (1/km, max 10) | combat + power-ups | **par partie** (`Membership.balls`) |
+| 🍑 **Boules** | **courir uniquement** (1/km, max 10) | combat + power-ups | **par partie** (`Membership.balls`) |
 | 💎 **Diamants** | streaks, jours spéciaux, coffres, fin de partie | **cosmétiques uniquement** | **globale** (`User.diamonds`) |
 
-On n'achète jamais de pêches ni d'avantage de combat. Les 💎 ne touchent qu'au cosmétique.
+On n'achète jamais de boules ni d'avantage de combat. Les 💎 ne touchent qu'au cosmétique.
 Le seul « booster » (jauge de meute) se **gagne en courant à plusieurs** — jamais acheté.
 
 **Scoring d'une course** (`TrainingScorer`) : plafond d'abord, multiplicateurs ensuite —
 15 km = 10 🍑, ×1,5 avec un vent de dos = 15 🍑. Un jour spécial ×2 double aussi le plafond
 effectif. Les 🍑 sont **créditées à l'import** (`Training#credit_balls!`, idempotent) ; les
 courses sont auto-vérifiées (`status: "verified"`), `Training.scoring` = verified + protected.
+**Porte-monnaie plafonné à 100 🍑** (retour v1, `GameRules::WALLET_CAP`) : le crédit est tronqué
+au plafond, l'excédent est perdu (notif importante « dépense tes boules ! ») — mais le **score de
+la course reste entier**, donc la ligue n'est jamais pénalisée. Avec l'échec critique (15 % du
+solde), thésauriser est doublement puni.
 
 ## Modèle de données (22 tables — voir db/schema.rb)
 
@@ -99,6 +105,28 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   (`masked: true`) pour ce viewer sur Hub et Combat — l'état (dessin) reste visible.
 - **🎉 Journées spéciales** : 5-6 par saison (`SpecialDay`, ×2). Seedées : Halloween 31/10 et
   Réveillon 24/12. Le multiplicateur s'applique après le plafond → plafond effectif doublé.
+- **🔥 Streak hebdo** (`WeeklyStreakJob`, le lundi) : ≥ 1 course scorée dans la semaine →
+  série +1 et 💎 selon l'échelle 10/20/30/40/50 (plateau 50). **Tous les 5 paliers** :
+  cosmétique tiré au sort (fallback 100 💎) + **1 joker** 🧊 (max 2, jamais achetable).
+  Semaine ratée : un joker se consomme et **gèle** la série, sinon retour à zéro.
+  Doublement idempotent (`memberships.last_streak_week` + registre `rewards` source
+  `streak`/`streak_gift`). ~1 100 💎 max par saison parfaite → **prix boutique calés
+  dessus : common ~100 · rare ~250 · epic ~500 · legendary 1000**. Notifs importantes
+  (gain, gel, perte), jokers visibles sur la tuile 🔥 du Hub.
+- **🎁 Coffres** (`DropChest`, appelé à l'import après le crédit) : une course scorée a
+  15 % de chance de cacher un coffre — **max 1/jour** par participation, **pity** garanti
+  après 7 courses scorées sans drop. Rareté pondérée (60/25/12/3), contenu décidé **au drop**
+  (💎 15/30/60/120 + parfois un cosmétique non possédé, toujours pour un légendaire — c'est
+  par là qu'arrive l'Esprit du loup). Ouverture sur le **Hub** (`ChestCard`) en **modal
+  plein écran** : coffre SVG qui tremble → POST → au rechargement, `flash[:chest]` rouvre la
+  modal en mode révélation (couvercle sur charnière, **paillettes**, gains qui sortent en
+  chips). Pas de tuile « coffres » : la carte n'apparaît que s'il y a un coffre scellé.
+  `Chest#open!` idempotent (verrou + statut) crédite et journalise dans `rewards`
+  (period `chest-<id>`), doublon acquis entre-temps → +30 💎.
+- **💥 Échec critique** (retour v1) : 1 attaque sur 10 rate (`PerformAction#crit_fail`) — 0 dégât
+  et perte de **15 % du solde** (min 1, max 10 🍑), non multipliée par la meute. Taxe les
+  thésauriseurs (pas de plafond de porte-monnaie en v2) sans inverser l'économie attaque/soin
+  (coût moyen d'une attaque ~1,1 🍑 pour un actif). Flash rouge + notifs « morsure » aux deux camps.
 
 ### Les classements (`/ligue`)
 Un classement par partie, les deux clans mélangés, **pas de divisions** (elles ont existé une
@@ -133,9 +161,13 @@ Ananas dans une partie et Fraise dans une autre. On ne peut le personnaliser **q
   clé ajoutée dans le catalogue Ruby doit avoir son pendant visuel dans `components/fruits.js`.
 - Choix **partageable** : plusieurs coéquipiers peuvent prendre le même fruit ; l'écran indique
   « déjà : X » sous chaque fruit. Le fruit doit appartenir à la famille de l'équipe (validé).
-- Les **cosmétiques** possédés s'équipent **un par slot** (hat / eyes / outfit / aura), et
-  `cosmetics.emoji` est ce qui les rend affichables. Les ancres SVG sont fixes → un cosmétique
-  tombe au même endroit sur tous les fruits.
+- Les **cosmétiques** possédés s'équipent **un par slot** (hat / eyes / outfit / arms / legs /
+  aura), et `cosmetics.emoji` est ce qui les rend affichables. Les ancres SVG sont fixes → un
+  cosmétique tombe au même endroit sur tous les fruits. **Catalogue : ~33 pièces** dans le seed
+  (tous les slots garnis, grille 100/250/500/1000) dont 5 **exclusives** `price_diamonds: nil`
+  (sources `event`/`rank`/`drop` : Noël, Halloween, médaille, loup…) — jamais en vente, mais
+  **tirables** par les cadeaux de streak et de ligue (comportement assumé, comme la Couronne).
+  Ajouter une pièce = une ligne dans le seed (slot existant + emoji), aucun code.
 
 Cet écran fait aussi office de **compte** (accès en tapant l'avatar du Hud) : **connecter/déconnecter
 Strava** (`StravaController#connect` / `#disconnect`, prop `strava_connected`) et **se déconnecter**
@@ -176,16 +208,18 @@ description, durée, allure, dénivelé, **tracé du parcours** et photo. Les ch
 `trainings` (`title`, `description`, `moving_time`, `elapsed_time`, `elevation_gain`,
 `route_points`, `photo_url`) et remplis à l'import (`StravaActivityImportJob`).
 
-- Le **tracé** est dessiné en **SVG** (`components/RouteMap.jsx`) à partir de `route_points`
-  (`[[lat, lng], …]`) — pas de fond de carte, pas de service tiers (objectif ~5-6 €/mois). La
-  polyline Strava est décodée à l'import par le module `Polyline`.
+- Le **tracé** est affiché sur un **vrai fond de carte** (`components/RouteMap.jsx` : **Leaflet**
+  + tuiles **OpenStreetMap**, comme la v1) à partir de `route_points` (`[[lat, lng], …]`). Les
+  tuiles OSM sont gratuites (attribution obligatoire, incluse) — compatible objectif ~5-6 €/mois.
+  La polyline Strava est décodée à l'import par le module `Polyline`. `.route-map` garde
+  `z-index: 0` pour que les contrôles Leaflet passent sous la nav.
 - `TrainingPresenter` sérialise une sortie (résumé pour la liste, détail pour la page) — seul
   endroit qui formate dates, durées et allure.
 - Les **noms sont cliquables** vers le profil dans le chat et la ligue (et l'avatar au chat).
 
 ### La boutique (`/boutique`)
 Deux monnaies **étanches** (règle d'or, jamais de pay-to-win), servies par le service `Purchase` :
-- **Objets** (power-ups) en 🍑 pêches (`Membership.balls`, par partie) → déposés dans l'inventaire
+- **Objets** (power-ups) en 🍑 boules (`Membership.balls`, par partie) → déposés dans l'inventaire
   de la participation (`MembershipItem`, `used: false`). **À usage unique** : « Utiliser » réutilise
   `PerformAction` (`use_item`) et consomme l'objet. Catalogue (prix calibrés sur ~10 🍑/sem
   pour un actif médian) : **Jambe de bois 4** · **Vent de dos 4** · **Vent de face 4** ·
@@ -204,7 +238,7 @@ achats sont refusés proprement si monnaie insuffisante, cosmétique déjà poss
   mon piège a réussi / mon piège a été déjoué », vent de face ou fumigène **reçu**, palier de
   meute gagné, monstre affamé, second souffle, fin de partie.
 - **secondary** (défaut) : **listé seulement**, jamais poussé. L'activité des autres — « X a
-  couru N km · +N 🍑 » (km **et** pêches gagnées), « X a activé un vent de dos jusqu'à… », « X a
+  couru N km · +N 🍑 » (km **et** boules gagnées), « X a activé un vent de dos jusqu'à… », « X a
   posé un piège à loup », et le **combat** : attaque (⚡ « -N PV ») et soin (💚 « +N PV »), avec
   les PV en jeu. `PerformAction#broadcast_combat` notifie **tout le monde, l'auteur inclus** :
   l'auteur reçoit une version à la 1re personne (« Tu as infligé… »), les autres la 3e (« X a
@@ -229,7 +263,7 @@ affiché en pastille sur l'onglet **Chat** (`components/BottomNav.jsx`). Ouvrir 
 ⚠️ Le seed doit vider `ConversationRead` en tête du nettoyage (FK vers membership/conversation).
 
 ### Profil : pas de solde de 🍑
-La réserve de pêches d'un joueur ne se voit **que sur sa propre page d'accueil** (le HUD), jamais
+La réserve de boules d'un joueur ne se voit **que sur sa propre page d'accueil** (le HUD), jamais
 sur la page profil d'un joueur.
 
 ### Effets d'objets (combat)
@@ -249,7 +283,7 @@ le bouclier du monstre (`monster.protected_until`), chacun avec son échéance. 
 
 ### La FAQ / règles (`/faq`)
 Page **statique** des règles du jeu (`FaqController#show` → `pages/Faq.jsx`), en sections
-repliables (`<details>`) : but, pêches, combat, objets, diamants, ligue, avatar, notifications,
+repliables (`<details>`) : but, boules, combat, objets, diamants, ligue, avatar, notifications,
 + un encadré « règle d'or ». **Aucun prop** : tout le contenu vit dans le tableau `SECTIONS` du
 composant — c'est le seul endroit qui décrit le fonctionnement côté joueur, **à mettre à jour
 quand une mécanique change**. Lien 📖 dans le **header du Hud** (à côté de la cloche 🔔).
@@ -259,6 +293,18 @@ quand une mécanique change**. Lien 📖 dans le **header du Hud** (à côté de
 `Faq`, `auth/Login`, `auth/Register`.
 Navigation par onglets : **Hub · Chat · ⚔️ Combat · Ligue · Boutique** (`components/BottomNav.jsx`),
 tous actifs.
+
+### PWA (installable)
+`PwaController` (maison) sert `/manifest.json` et `/service-worker` — **pas**
+`Rails::PwaController` : il rate le format du template `.js` (la requête d'enregistrement
+arrive en `Accept: */*` → MissingTemplate 500), d'où `formats:` explicites +
+`skip_forgery_protection` (l'anti-JSONP refuse de rendre du .js non-XHR, 422). Le template
+est `app/views/pwa/service-worker.js` (**avec tiret** — le nom que Rails cherche) : push
+Web (VAPID) + clic → ouvre l'app. Icône 🍑 flat : `public/icon.svg` (source) et `icon.png`
+512 (généré). Manifest aux couleurs de la charte (`#ff7a59`), `display: standalone`.
+`components/InstallHint.jsx` sur le Hub : guide iOS (Partager → écran d'accueil, requis pour
+recevoir les push sur iPhone) ou bouton natif `beforeinstallprompt` ailleurs, refus mémorisé
+en localStorage.
 
 ### Pièges connus
 - **`form.transform()` de `@inertiajs/react` ne retourne rien** (v3.6.1) : `form.transform(fn).post(…)`
@@ -283,13 +329,11 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 
 ## Roadmap (à faire, ordre suggéré)
 
-1. **Coffres** — drop aléatoire à l'import d'une course (garde-fou : max 1/jour, pity),
-   ouverture animée (💎 + cosmétique), notif "coffre trouvé".
-2. **Streak hebdo** — job hebdomadaire (Solid Queue `recurring.yml`) : +💎 par semaine courue, paliers.
-3. **PWA installable** — manifest + icône 🍑, activer les routes PWA (déjà stubbées).
-4. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
-5. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
+1. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
+2. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
    en console, il n'y a pas d'écran pour rejoindre une équipe.
+3. **Déploiement** (Kamal, VPS) — y ajouter le **mot de passe oublié** (nécessite un SMTP,
+   ex. Brevo comme la v1) et une limitation des tentatives de connexion (rack-attack).
 
 ## Commandes utiles
 

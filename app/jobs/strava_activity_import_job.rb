@@ -32,13 +32,21 @@ class StravaActivityImportJob < ApplicationJob
       TrainingScorer.call(training)      # plafond, jour spécial, vents
       ResolveRunEffects.call(training)   # piège à loup / jambe de bois (+ notifs importantes)
       training.save!
-      training.credit_balls!             # verse les 🍑 (rien si la course est piégée)
+      credited = training.credit_balls!.to_i # verse les 🍑 (rien si la course est piégée)
+      DropChest.call(training)               # peut faire tomber un coffre (1/jour max, pity)
+      lost = training.balls_credited_at ? training.score.to_i - credited : 0
 
-      # Confirmation à soi-même (secondaire : pas urgent — le cas piégé a déjà sa notif importante).
+      # Confirmation à soi-même (secondaire : pas urgent — le cas piégé a déjà sa notif
+      # importante). Sauf porte-monnaie plein : là, on pousse — des 🍑 sont perdues.
       Notification.create!(
         user:, game: membership.game, category: "training_verified",
-        title: "Course importée", link: "/courses/#{training.id}",
-        body: "#{training.distance_km.round(1)} km · +#{training.score.to_i} pêches"
+        title: lost.positive? ? "Course importée · porte-monnaie plein !" : "Course importée",
+        importance: lost.positive? ? "important" : "secondary",
+        link: "/courses/#{training.id}",
+        body: [
+          "#{training.distance_km.round(1)} km · +#{credited} boules",
+          ("#{lost} 🍑 perdues (plafond #{GameRules::WALLET_CAP}) — dépense tes boules !" if lost.positive?),
+        ].compact.join(" · ")
       )
       broadcast_run(membership, training)
     end

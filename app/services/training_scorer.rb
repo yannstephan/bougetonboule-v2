@@ -1,4 +1,4 @@
-# Calcule le score en pêches d'une course : 1 boule / km, plafond d'abord, multiplicateurs
+# Calcule le score en boules d'une course : 1 boule / km, plafond d'abord, multiplicateurs
 # ensuite — jour spécial puis vents. Exemple : 15 km = 10 🍑 (plafond), ×1,5 avec un vent
 # de dos = 15 🍑. Un jour spécial ×2 double donc aussi le plafond effectif (10 → 20).
 class TrainingScorer

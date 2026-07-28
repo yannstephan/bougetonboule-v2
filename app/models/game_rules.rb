@@ -11,8 +11,23 @@ module GameRules
   HEAL_COST   = 2
   BASE_POWER  = 10 # PV par action, × le multiplicateur de meute
 
-  # Pêches
+  # Échec critique (retour de la v1) : 1 attaque sur 10 rate — 0 dégât et le monstre
+  # mord 15 % du solde de l'attaquant (min 1, max 10 🍑 = au pire une sortie pleine).
+  # Calibrage : solde typique d'un actif ~8 🍑 → perte 1, soit ~+10 % sur le coût moyen
+  # d'une attaque (1,1 🍑 pour 10 PV) — l'attaque reste plus rentable que le soin (2 🍑).
+  # Le ratio sur le solde taxe les thésauriseurs (pas de plafond de porte-monnaie en v2).
+  # Volontairement NON multiplié par la jauge de meute : pénalité prévisible.
+  CRIT_FAIL_CHANCE = 0.10
+  CRIT_FAIL_RATIO  = 0.15
+  CRIT_FAIL_MIN    = 1
+  CRIT_FAIL_MAX    = 10
+
+  # Boules
   MAX_BALLS_PER_RUN = 10 # doublé les jours spéciaux (le multiplicateur s'applique après le plafond)
+  # Plafond de porte-monnaie (retour v1) : une course ne verse que jusqu'à 100 🍑 en poche,
+  # l'excédent est perdu (notifié). Le score de la course reste entier — la ligue le compte.
+  # Avec l'échec critique (15 % du solde), c'est la double peine des thésauriseurs.
+  WALLET_CAP = 100
 
   # Jauge de meute : +10 % permanents (attaques ET soins) par semaine où au moins
   # 5 coéquipiers ont chacun couru 10 km. Additif, plafonné à ×2 — jamais multiplicatif :
@@ -22,6 +37,30 @@ module GameRules
   PACK_WEEKLY_KM      = 10
   PACK_STEP           = 0.10
   PACK_MAX_LEVEL      = 10
+
+  # Streak hebdo (💎, jugée le lundi par WeeklyStreakJob) : au moins une course scorée
+  # dans la semaine → la série grandit et paie selon l'échelle (semaine 1 = 10 💎, puis
+  # 20/30/40/50, plateau à 50). Tous les 5 paliers : cosmétique tiré au sort (fallback
+  # 100 💎 si tout est possédé) + 1 joker (réserve max 2). Semaine ratée : un joker se
+  # consomme et gèle la série (rien gagné, rien perdu) — sans joker, retour à zéro.
+  # Les jokers ne s'achètent jamais (règle d'or). ~1 100 💎 max sur une saison parfaite
+  # de 24 semaines — les prix boutique (100/250/500/1000 par rareté) sont calés dessus.
+  STREAK_LADDER          = [10, 20, 30, 40, 50].freeze # 💎 par semaine, plateau ensuite
+  STREAK_MILESTONE_EVERY = 5   # toutes les 5 semaines : cadeau + joker
+  STREAK_GIFT_FALLBACK   = 100 # 💎 si le joueur possède déjà tous les cosmétiques
+  STREAK_JOKER_MAX       = 2
+
+  # Coffres (DropChest, à l'import d'une course scorée) : chance de drop, max 1/jour par
+  # participation, pity = garanti après 7 courses scorées sans coffre. Contenu tiré au drop :
+  # 💎 selon la rareté + parfois un cosmétique non possédé (toujours pour un légendaire —
+  # c'est par là qu'arrive l'Esprit du loup, source "drop"). Un actif médian (~3 courses/sem)
+  # touche ~0,5 coffre/sem → ~300 💎/saison, complément de la streak sans la concurrencer.
+  CHEST_DROP_CHANCE     = 0.15
+  CHEST_PITY_RUNS       = 7
+  CHEST_RARITY_WEIGHTS  = { "common" => 60, "rare" => 25, "epic" => 12, "legendary" => 3 }.freeze
+  CHEST_DIAMONDS        = { "common" => 15, "rare" => 30, "epic" => 60, "legendary" => 120 }.freeze
+  CHEST_COSMETIC_CHANCE = { "common" => 0.0, "rare" => 0.2, "epic" => 0.5, "legendary" => 1.0 }.freeze
+  CHEST_DUPE_DIAMONDS   = 30 # si le cosmétique du coffre a été acquis entre le drop et l'ouverture
 
   # Effets d'objets
   SHIELD_DURATION = 6.hours

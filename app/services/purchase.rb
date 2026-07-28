@@ -1,15 +1,15 @@
 # Achats à la boutique. Deux monnaies étanches (règle d'or : jamais de pay-to-win) :
-#   - les OBJETS (power-ups) s'achètent en 🍑 pêches (Membership.balls, par partie) ;
+#   - les OBJETS (power-ups) s'achètent en 🍑 boules (Membership.balls, par partie) ;
 #   - les COSMÉTIQUES s'achètent en 💎 diamants (User.diamonds, global) et ne touchent
 #     qu'à l'apparence.
-# On n'achète jamais de pêches, ni d'avantage de combat avec des diamants.
+# On n'achète jamais de boules, ni d'avantage de combat avec des diamants.
 class Purchase
   Result = Struct.new(:ok, :message, keyword_init: true)
 
   # Achète un objet à usage unique, déposé dans l'inventaire de la participation.
   def self.item(membership, item)
     return err("Rejoins une partie pour acheter des objets.") unless membership
-    return err("Pas assez de pêches 🍑") if membership.balls < item.price
+    return err("Pas assez de boules 🍑") if membership.balls < item.price
 
     MembershipItem.transaction do
       membership.update!(balls: membership.balls - item.price)

@@ -20,8 +20,9 @@ class HubController < ApplicationController
       event: event_payload(m.game),
       balls: m.balls,
       weekly_streak: m.weekly_streak,
+      streak_jokers: m.streak_jokers,
       month_rank: month_rank(m),
-      sealed_chests: m.chests.sealed.count,
+      next_chest: m.chests.sealed.order(:created_at).first&.then { |c| { id: c.id, rarity: c.rarity } },
       special_day: special && { name: special.name, multiplier: special.multiplier.to_f },
       my_team: team_payload(m.team, viewer: m.team),
       opponent: m.team.opponent && team_payload(m.team.opponent, viewer: m.team)
