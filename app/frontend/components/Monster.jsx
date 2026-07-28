@@ -57,9 +57,10 @@ function Framboitrix() {
   ]
   const drupes = rows.flatMap((r) => r.xs.map((x) => [x, r.y]))
   // Trois mèches ondulées de chaque côté [xDépart, yDépart, dérive, longueur, ondulations, ampleur, sens].
+  // Départ haut et large + 4 vagues d'ampleur forte → chevelure qui enveloppe la tête.
   const locks = [
-    [37, 41, -15, 47, 3, 8, 1], [35, 44, -9, 46, 3, 7, -1], [34, 47, -4, 42, 3, 6, 1],
-    [63, 41, 15, 47, 3, 8, -1], [65, 44, 9, 46, 3, 7, 1], [66, 47, 4, 42, 3, 6, -1]
+    [39, 37, -20, 52, 4, 11, 1], [35, 41, -13, 50, 4, 10, -1], [33, 46, -6, 45, 4, 8, 1],
+    [61, 37, 20, 52, 4, 11, -1], [65, 41, 13, 50, 4, 10, 1], [67, 46, 6, 45, 4, 8, -1]
   ].map((a) => wavyLock(...a))
   return (
     <g>
