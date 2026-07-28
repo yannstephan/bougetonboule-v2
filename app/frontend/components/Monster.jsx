@@ -58,7 +58,21 @@ function Framboitrix() {
   const drupes = rows.flatMap((r) => r.xs.map((x) => [x, r.y]))
   return (
     <g>
-      <ellipse cx="50" cy="90" rx="24" ry="4.5" fill="#000" opacity="0.12" />
+      <ellipse cx="50" cy="91" rx="24" ry="4.5" fill="#000" opacity="0.12" />
+      {/* cheveux sauvages de sorcière (Bellatrix) : masse sombre derrière l'amas, bas ondulé (boucles) */}
+      <path d="M50 33 C29 33 18 45 20 61 C20.5 70 23 80 28 88 C27 81 29 75 33 72
+               C31 80 35 85 40 86 C38 80 40 74 44 71 C43 81 47 87 50 87
+               C53 87 57 81 56 71 C60 74 62 80 60 86 C65 85 69 80 67 72
+               C71 75 73 81 72 88 C77 80 79.5 70 80 61 C82 45 71 33 50 33 Z"
+            fill="#1f1022" stroke="#140a16" strokeWidth="0.8" />
+      {/* mèches folles + reflets */}
+      <g stroke="#1f1022" strokeWidth="4.5" strokeLinecap="round" fill="none">
+        <path d="M24 50 C12 47 11 61 18 67" />
+        <path d="M76 50 C88 47 89 61 82 67" />
+      </g>
+      <g stroke="#3a2038" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.75">
+        <path d="M29 46 C25 57 27 70 33 80" /><path d="M71 46 C75 57 73 70 67 80" />
+      </g>
       {/* corps : amas de drupéoles */}
       {drupes.map(([x, y], i) => (
         <circle key={i} cx={x} cy={y} r="5.4" fill="#d62d63" stroke="#a01e49" strokeWidth="0.8" />

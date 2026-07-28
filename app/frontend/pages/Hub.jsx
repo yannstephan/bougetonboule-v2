@@ -77,7 +77,7 @@ function TeamBoard({ team, mine = false }) {
   return (
     <div className={`board ${mine ? 'mine' : ''}`} style={mine ? { borderColor: team.color } : undefined}>
       <div className="board-top">
-        <Monster slug={mon?.slug} name={mon?.name} size={64} />
+        <Monster slug={mon?.slug} name={mon?.name} size={92} />
         <div className="board-id">
           <div className="board-team">{familyEmoji(team.fruit_family)} {team.name}{mine && <span className="board-you">toi</span>}</div>
           <div className="board-mon">{mon?.name}</div>
