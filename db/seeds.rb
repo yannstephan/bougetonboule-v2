@@ -9,16 +9,45 @@ puts "Cosmétiques…"
 # Prix calés sur la streak hebdo (~1 100 💎 max sur une saison parfaite, voir GameRules) :
 # common ~100 · rare ~250 · epic ~500 · legendary 1000.
 Cosmetic.create!([
+  # Chapeaux
   { name: "Haut-de-forme doré", slot: "hat",  rarity: "legendary", price_diamonds: 1000, source: "shop",  emoji: "🎩" },
   { name: "Casquette",          slot: "hat",  rarity: "rare",      price_diamonds: 250,  source: "shop",  emoji: "🧢" },
   { name: "Bandeau",            slot: "hat",  rarity: "common",    price_diamonds: 90,   source: "shop",  emoji: "🎀" },
+  { name: "Capeline d'été",     slot: "hat",  rarity: "common",    price_diamonds: 100,  source: "shop",  emoji: "👒" },
+  { name: "Chapeau de cowboy",  slot: "hat",  rarity: "rare",      price_diamonds: 260,  source: "shop",  emoji: "🤠" },
+  { name: "Toque de diplômé",   slot: "hat",  rarity: "epic",      price_diamonds: 500,  source: "shop",  emoji: "🎓" },
+  # Yeux
   { name: "Lunettes de star",   slot: "eyes", rarity: "epic",      price_diamonds: 500,  source: "shop",  emoji: "🕶️" },
   { name: "Lunettes rondes",    slot: "eyes", rarity: "common",    price_diamonds: 100,  source: "shop",  emoji: "👓" },
+  { name: "Lunettes de piscine", slot: "eyes", rarity: "common",   price_diamonds: 90,   source: "shop",  emoji: "🥽" },
+  { name: "Masque de théâtre",  slot: "eyes", rarity: "epic",      price_diamonds: 520,  source: "shop",  emoji: "🎭" },
+  # Tenues
+  { name: "Maillot de course",  slot: "outfit", rarity: "common",  price_diamonds: 100,  source: "shop",  emoji: "🎽" },
+  { name: "Gilet fluo",         slot: "outfit", rarity: "common",  price_diamonds: 90,   source: "shop",  emoji: "🦺" },
+  { name: "Kimono de soie",     slot: "outfit", rarity: "rare",    price_diamonds: 250,  source: "shop",  emoji: "👘" },
+  { name: "Kimono de combat",   slot: "outfit", rarity: "epic",    price_diamonds: 500,  source: "shop",  emoji: "🥋" },
+  # Bras
+  { name: "Gants de boxe",      slot: "arms", rarity: "rare",      price_diamonds: 260,  source: "shop",  emoji: "🥊" },
+  { name: "Gants d'hiver",      slot: "arms", rarity: "common",    price_diamonds: 90,   source: "shop",  emoji: "🧤" },
+  { name: "Montre GPS",         slot: "arms", rarity: "rare",      price_diamonds: 250,  source: "shop",  emoji: "⌚" },
+  # Jambes
+  { name: "Baskets de course",  slot: "legs", rarity: "rare",      price_diamonds: 240,  source: "shop",  emoji: "👟" },
+  { name: "Short de course",    slot: "legs", rarity: "common",    price_diamonds: 100,  source: "shop",  emoji: "🩳" },
+  { name: "Chaussures de rando", slot: "legs", rarity: "rare",     price_diamonds: 240,  source: "shop",  emoji: "🥾" },
+  { name: "Rollers dorés",      slot: "legs", rarity: "epic",      price_diamonds: 500,  source: "shop",  emoji: "🛼" },
+  # Auras
   { name: "Aura pêche",         slot: "aura", rarity: "common",    price_diamonds: 120,  source: "shop",  emoji: "✨" },
   { name: "Aura de feu",        slot: "aura", rarity: "epic",      price_diamonds: 550,  source: "shop",  emoji: "🔥" },
-  { name: "Baskets de course",  slot: "legs", rarity: "rare",      price_diamonds: 240,  source: "shop",  emoji: "👟" },
-  { name: "Gants de boxe",      slot: "arms", rarity: "rare",      price_diamonds: 260,  source: "shop",  emoji: "🥊" },
+  { name: "Pétales de cerisier", slot: "aura", rarity: "common",   price_diamonds: 110,  source: "shop",  emoji: "🌸" },
+  { name: "Aura de givre",      slot: "aura", rarity: "rare",      price_diamonds: 250,  source: "shop",  emoji: "❄️" },
+  { name: "Aura électrique",    slot: "aura", rarity: "epic",      price_diamonds: 550,  source: "shop",  emoji: "⚡" },
+  { name: "Arc-en-ciel",        slot: "aura", rarity: "legendary", price_diamonds: 1000, source: "shop",  emoji: "🌈" },
+  # Exclusives — jamais en vente (price nil) : tirages (streak, ligue), coffres, jours spéciaux
   { name: "Couronne de Noël",   slot: "hat",  rarity: "legendary", price_diamonds: nil,  source: "event", emoji: "👑" },
+  { name: "Bonnet du Réveillon", slot: "hat", rarity: "epic",      price_diamonds: nil,  source: "event", emoji: "🎅" },
+  { name: "Citrouille maudite", slot: "hat",  rarity: "epic",      price_diamonds: nil,  source: "event", emoji: "🎃" },
+  { name: "Médaille d'Odyssea", slot: "outfit", rarity: "legendary", price_diamonds: nil, source: "rank", emoji: "🏅" },
+  { name: "Esprit du loup",     slot: "aura", rarity: "legendary", price_diamonds: nil,  source: "drop",  emoji: "🐺" },
 ])
 
 puts "Objets (power-ups)…"

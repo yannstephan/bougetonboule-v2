@@ -149,9 +149,13 @@ Ananas dans une partie et Fraise dans une autre. On ne peut le personnaliser **q
   clé ajoutée dans le catalogue Ruby doit avoir son pendant visuel dans `components/fruits.js`.
 - Choix **partageable** : plusieurs coéquipiers peuvent prendre le même fruit ; l'écran indique
   « déjà : X » sous chaque fruit. Le fruit doit appartenir à la famille de l'équipe (validé).
-- Les **cosmétiques** possédés s'équipent **un par slot** (hat / eyes / outfit / aura), et
-  `cosmetics.emoji` est ce qui les rend affichables. Les ancres SVG sont fixes → un cosmétique
-  tombe au même endroit sur tous les fruits.
+- Les **cosmétiques** possédés s'équipent **un par slot** (hat / eyes / outfit / arms / legs /
+  aura), et `cosmetics.emoji` est ce qui les rend affichables. Les ancres SVG sont fixes → un
+  cosmétique tombe au même endroit sur tous les fruits. **Catalogue : ~33 pièces** dans le seed
+  (tous les slots garnis, grille 100/250/500/1000) dont 5 **exclusives** `price_diamonds: nil`
+  (sources `event`/`rank`/`drop` : Noël, Halloween, médaille, loup…) — jamais en vente, mais
+  **tirables** par les cadeaux de streak et de ligue (comportement assumé, comme la Couronne).
+  Ajouter une pièce = une ligne dans le seed (slot existant + emoji), aucun code.
 
 Cet écran fait aussi office de **compte** (accès en tapant l'avatar du Hud) : **connecter/déconnecter
 Strava** (`StravaController#connect` / `#disconnect`, prop `strava_connected`) et **se déconnecter**
