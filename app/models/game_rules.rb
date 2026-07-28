@@ -11,6 +11,17 @@ module GameRules
   HEAL_COST   = 2
   BASE_POWER  = 10 # PV par action, × le multiplicateur de meute
 
+  # Échec critique (retour de la v1) : 1 attaque sur 10 rate — 0 dégât et le monstre
+  # mord 15 % du solde de l'attaquant (min 1, max 10 🍑 = au pire une sortie pleine).
+  # Calibrage : solde typique d'un actif ~8 🍑 → perte 1, soit ~+10 % sur le coût moyen
+  # d'une attaque (1,1 🍑 pour 10 PV) — l'attaque reste plus rentable que le soin (2 🍑).
+  # Le ratio sur le solde taxe les thésauriseurs (pas de plafond de porte-monnaie en v2).
+  # Volontairement NON multiplié par la jauge de meute : pénalité prévisible.
+  CRIT_FAIL_CHANCE = 0.10
+  CRIT_FAIL_RATIO  = 0.15
+  CRIT_FAIL_MIN    = 1
+  CRIT_FAIL_MAX    = 10
+
   # Pêches
   MAX_BALLS_PER_RUN = 10 # doublé les jours spéciaux (le multiplicateur s'applique après le plafond)
 

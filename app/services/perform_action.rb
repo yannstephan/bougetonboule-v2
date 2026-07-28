@@ -37,6 +37,7 @@ class PerformAction
     return err("Aucun adversaire") unless foe
     return err("Le monstre adverse est protégé 🛡️") if foe.protected?
     return err("L'adversaire est déjà vaincu") unless foe.alive?
+    return crit_fail(foe) if rand < GameRules::CRIT_FAIL_CHANCE
 
     dmg = power
     foe.update!(hp: [foe.hp - dmg, 0].max)
@@ -53,6 +54,21 @@ class PerformAction
     end
 
     ok("-#{dmg} PV infligés à #{foe.name} !")
+  end
+
+  # L'attaque rate : 0 dégât, le monstre mord 15 % du solde (min 1, max 10 🍑).
+  # Result ok: false uniquement pour que le flash s'affiche en rouge — les 🍑 sont bien perdues.
+  def crit_fail(foe)
+    loss = (@m.balls * GameRules::CRIT_FAIL_RATIO).round
+               .clamp(GameRules::CRIT_FAIL_MIN, GameRules::CRIT_FAIL_MAX)
+    loss = [loss, @m.balls].min
+    @m.update!(balls: @m.balls - loss)
+    Action.create!(game: @m.game, membership: @m, action_type: "attack", target: foe, amount: 0,
+                   description: "#{@m.user.firstname} s'est fait mordre par #{foe.name} (échec critique, -#{loss} 🍑)")
+    broadcast_combat("crit_failed", "💥 Échec critique !",
+                     self_body:   "#{foe.name} t'a mordu le petit boule : attaque ratée, -#{loss} 🍑.",
+                     others_body: "#{@m.user.firstname} s'est fait mordre le petit boule par #{foe.name} — attaque ratée, -#{loss} 🍑.")
+    err("💥 Échec critique ! #{foe.name} t'a mordu le petit boule : -#{loss} 🍑 et 0 dégât.")
   end
 
   def heal

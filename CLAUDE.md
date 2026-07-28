@@ -99,6 +99,10 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   (`masked: true`) pour ce viewer sur Hub et Combat — l'état (dessin) reste visible.
 - **🎉 Journées spéciales** : 5-6 par saison (`SpecialDay`, ×2). Seedées : Halloween 31/10 et
   Réveillon 24/12. Le multiplicateur s'applique après le plafond → plafond effectif doublé.
+- **💥 Échec critique** (retour v1) : 1 attaque sur 10 rate (`PerformAction#crit_fail`) — 0 dégât
+  et perte de **15 % du solde** (min 1, max 10 🍑), non multipliée par la meute. Taxe les
+  thésauriseurs (pas de plafond de porte-monnaie en v2) sans inverser l'économie attaque/soin
+  (coût moyen d'une attaque ~1,1 🍑 pour un actif). Flash rouge + notifs « morsure » aux deux camps.
 
 ### Les classements (`/ligue`)
 Un classement par partie, les deux clans mélangés, **pas de divisions** (elles ont existé une
@@ -176,9 +180,11 @@ description, durée, allure, dénivelé, **tracé du parcours** et photo. Les ch
 `trainings` (`title`, `description`, `moving_time`, `elapsed_time`, `elevation_gain`,
 `route_points`, `photo_url`) et remplis à l'import (`StravaActivityImportJob`).
 
-- Le **tracé** est dessiné en **SVG** (`components/RouteMap.jsx`) à partir de `route_points`
-  (`[[lat, lng], …]`) — pas de fond de carte, pas de service tiers (objectif ~5-6 €/mois). La
-  polyline Strava est décodée à l'import par le module `Polyline`.
+- Le **tracé** est affiché sur un **vrai fond de carte** (`components/RouteMap.jsx` : **Leaflet**
+  + tuiles **OpenStreetMap**, comme la v1) à partir de `route_points` (`[[lat, lng], …]`). Les
+  tuiles OSM sont gratuites (attribution obligatoire, incluse) — compatible objectif ~5-6 €/mois.
+  La polyline Strava est décodée à l'import par le module `Polyline`. `.route-map` garde
+  `z-index: 0` pour que les contrôles Leaflet passent sous la nav.
 - `TrainingPresenter` sérialise une sortie (résumé pour la liste, détail pour la page) — seul
   endroit qui formate dates, durées et allure.
 - Les **noms sont cliquables** vers le profil dans le chat et la ligue (et l'avatar au chat).

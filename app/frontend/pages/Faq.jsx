@@ -28,6 +28,7 @@ const SECTIONS = [
       'Depuis l\'écran Combat, tu dépenses tes pêches : attaquer coûte 1 pêche et retire 10 PV au monstre adverse ; soigner coûte 2 pêches et rend 10 PV au tien.',
       'Ces 10 PV sont multipliés par la jauge de meute de ton équipe (voir plus bas) : à meute +40 %, chaque attaque fait 14 PV.',
       'Un monstre protégé par un bouclier ne peut pas être attaqué tant que le bouclier tient.',
+      '💥 Échec critique : une attaque sur dix rate — le monstre te mord et tu perds 15 % de ton solde de pêches (au moins 1, au plus 10), sans infliger de dégât. Garder un gros magot rend la morsure plus douloureuse…',
       '💨 Second souffle : la première fois que ton monstre passe sous 25 % de ses PV, tes soins ne coûtent plus que 1 pêche pendant 7 jours. Une seule fois par saison — le baroud d\'honneur.',
     ],
   },
