@@ -43,7 +43,6 @@ Rails.application.routes.draw do
   get   "faq", to: "faq#show", as: :faq
 
   get   "notifications", to: "notifications#index", as: :notifications
-  post  "notifications/read_all", to: "notifications#read_all", as: :read_all_notifications
   post  "push_subscriptions", to: "push_subscriptions#create", as: :push_subscriptions
 
   # PWA

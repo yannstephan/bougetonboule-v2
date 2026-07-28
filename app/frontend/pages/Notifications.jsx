@@ -1,9 +1,6 @@
-import { Head, Link, router, usePage } from '@inertiajs/react'
+import { Head, Link, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import { enablePush } from '../lib/push'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
 
 const icon = (c) => ({
   attacked: '⚡', healed: '💚', streak: '🔥', chest: '🎁', message: '💬',
@@ -20,9 +17,6 @@ export default function Notifications({ notifications }) {
     setPushMsg(r.message)
   }
 
-  const readAll = () =>
-    router.post('/notifications/read_all', { authenticity_token: csrf() }, { preserveScroll: true })
-
   const important = notifications.filter((n) => n.importance === 'important')
   const secondary = notifications.filter((n) => n.importance !== 'important')
 
@@ -32,7 +26,6 @@ export default function Notifications({ notifications }) {
       <div className="subhead">
         <Link href="/" className="back">←</Link>
         <div className="ti">🔔 Notifications</div>
-        <button className="chat-tab" style={{ marginLeft: 'auto', flex: 'none' }} onClick={readAll}>Tout lire</button>
       </div>
 
       <main className="body">
