@@ -33,6 +33,7 @@ class StravaActivityImportJob < ApplicationJob
       ResolveRunEffects.call(training)   # piège à loup / jambe de bois (+ notifs importantes)
       training.save!
       credited = training.credit_balls!.to_i # verse les 🍑 (rien si la course est piégée)
+      DropChest.call(training)               # peut faire tomber un coffre (1/jour max, pity)
       lost = training.balls_credited_at ? training.score.to_i - credited : 0
 
       # Confirmation à soi-même (secondaire : pas urgent — le cas piégé a déjà sa notif

@@ -111,6 +111,13 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   `streak`/`streak_gift`). ~1 100 💎 max par saison parfaite → **prix boutique calés
   dessus : common ~100 · rare ~250 · epic ~500 · legendary 1000**. Notifs importantes
   (gain, gel, perte), jokers visibles sur la tuile 🔥 du Hub.
+- **🎁 Coffres** (`DropChest`, appelé à l'import après le crédit) : une course scorée a
+  15 % de chance de cacher un coffre — **max 1/jour** par participation, **pity** garanti
+  après 7 courses scorées sans drop. Rareté pondérée (60/25/12/3), contenu décidé **au drop**
+  (💎 15/30/60/120 + parfois un cosmétique non possédé, toujours pour un légendaire — c'est
+  par là qu'arrive l'Esprit du loup). Ouverture sur le **Hub** (`ChestCard`, 🎁 qui tremble
+  puis révélation via `flash[:chest]`) : `Chest#open!` idempotent (verrou + statut) crédite
+  et journalise dans `rewards` (period `chest-<id>`), doublon acquis entre-temps → +30 💎.
 - **💥 Échec critique** (retour v1) : 1 attaque sur 10 rate (`PerformAction#crit_fail`) — 0 dégât
   et perte de **15 % du solde** (min 1, max 10 🍑), non multipliée par la meute. Taxe les
   thésauriseurs (pas de plafond de porte-monnaie en v2) sans inverser l'économie attaque/soin
@@ -317,12 +324,10 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 
 ## Roadmap (à faire, ordre suggéré)
 
-1. **Coffres** — drop aléatoire à l'import d'une course (garde-fou : max 1/jour, pity),
-   ouverture animée (💎 + cosmétique), notif "coffre trouvé".
-2. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
-3. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
+1. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
+2. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
    en console, il n'y a pas d'écran pour rejoindre une équipe.
-4. **Déploiement** (Kamal, VPS) — y ajouter le **mot de passe oublié** (nécessite un SMTP,
+3. **Déploiement** (Kamal, VPS) — y ajouter le **mot de passe oublié** (nécessite un SMTP,
    ex. Brevo comme la v1) et une limitation des tentatives de connexion (rack-attack).
 
 ## Commandes utiles

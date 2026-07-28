@@ -28,6 +28,8 @@ Rails.application.routes.draw do
   get   "joueurs/:id", to: "profiles#show",  as: :player
   get   "courses/:id", to: "trainings#show", as: :training
 
+  post  "coffres/:id/ouvrir", to: "chests#open", as: :open_chest
+
   get   "boutique",           to: "shop#index",        as: :shop
   post  "boutique/items",     to: "shop#buy_item",     as: :buy_item
   post  "boutique/cosmetics", to: "shop#buy_cosmetic", as: :buy_cosmetic

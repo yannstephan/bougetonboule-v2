@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
       },
       vapid_public_key: Rails.application.config.x.vapid[:public_key],
       chat_unread: current_membership&.unread_messages_count || 0,
-      flash: { notice: flash.notice, alert: flash.alert }
+      flash: { notice: flash.notice, alert: flash.alert, chest: flash[:chest] }
     }
   end
 

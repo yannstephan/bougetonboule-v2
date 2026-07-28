@@ -82,6 +82,14 @@ const SECTIONS = [
     ],
   },
   {
+    q: '🎁 Les coffres',
+    a: [
+      'Chaque course importée peut cacher un coffre (une chance sur ~7, maximum un par jour). Et au bout de 7 courses sans rien trouver, le suivant est garanti — la malchance a une limite.',
+      'Quatre raretés : commun, rare, épique, légendaire. Plus c\'est rare, plus il y a de diamants dedans — et plus il y a de chances d\'y trouver un cosmétique que tu n\'as pas (toujours dans un légendaire).',
+      'Le coffre t\'attend sur le Hub : appuie sur « Ouvrir » pour découvrir ce qu\'il contient. Certains cosmétiques ne se trouvent QUE dans les coffres…',
+    ],
+  },
+  {
     q: '🏅 Le classement (Ligue)',
     a: [
       'Un seul classement par partie, les deux clans mélangés. Ton score = la somme des pêches de tes courses (les courses piégées comptent pour 0 — raison de plus pour garder une jambe de bois).',

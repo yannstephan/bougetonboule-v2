@@ -414,6 +414,24 @@ body{margin:0;background:var(--bg);color:var(--text);
 .tr-author-name{font-weight:800;font-size:14px}
 .tr-author-team{font-size:11px;font-weight:700}
 .tr-when{margin-left:auto;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chest-card{display:flex;align-items:center;gap:12px;margin:10px 14px 0;padding:12px 14px;
+  background:var(--surface);border:2px solid var(--line-2);border-radius:16px}
+.chest-card.rar-rare{border-color:var(--mint)}
+.chest-card.rar-epic{border-color:var(--violet)}
+.chest-card.rar-legendary{border-color:var(--citron)}
+.chest-emoji{font-size:30px}
+.chest-emoji.shaking{animation:chest-shake .7s ease-in-out}
+@keyframes chest-shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-12deg) scale(1.05)}
+  40%{transform:rotate(10deg) scale(1.1)}60%{transform:rotate(-8deg) scale(1.15)}80%{transform:rotate(6deg) scale(1.1)}}
+.chest-card.revealed{animation:chest-pop .45s cubic-bezier(.2,1.4,.4,1)}
+@keyframes chest-pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.chest-text{flex:1}
+.chest-title{font-weight:800;font-size:14px}
+.chest-sub{font-size:12px;color:var(--muted)}
+.chest-gains{font-size:13px;font-weight:700}
+.chest-btn{background:var(--citron);color:var(--citron-ink);border:0;border-radius:12px;
+  padding:10px 16px;font-weight:800;font-size:13px}
+@media (prefers-reduced-motion: reduce){.chest-emoji.shaking,.chest-card.revealed{animation:none}}
 .install-hint{display:flex;align-items:center;gap:10px;margin:10px 14px 0;padding:10px 12px;
   background:var(--surface);border:1px solid var(--line);border-radius:14px;font-size:13px}
 .install-hint .ih-icon{font-size:20px}

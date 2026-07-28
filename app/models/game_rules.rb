@@ -50,6 +50,18 @@ module GameRules
   STREAK_GIFT_FALLBACK   = 100 # 💎 si le joueur possède déjà tous les cosmétiques
   STREAK_JOKER_MAX       = 2
 
+  # Coffres (DropChest, à l'import d'une course scorée) : chance de drop, max 1/jour par
+  # participation, pity = garanti après 7 courses scorées sans coffre. Contenu tiré au drop :
+  # 💎 selon la rareté + parfois un cosmétique non possédé (toujours pour un légendaire —
+  # c'est par là qu'arrive l'Esprit du loup, source "drop"). Un actif médian (~3 courses/sem)
+  # touche ~0,5 coffre/sem → ~300 💎/saison, complément de la streak sans la concurrencer.
+  CHEST_DROP_CHANCE     = 0.15
+  CHEST_PITY_RUNS       = 7
+  CHEST_RARITY_WEIGHTS  = { "common" => 60, "rare" => 25, "epic" => 12, "legendary" => 3 }.freeze
+  CHEST_DIAMONDS        = { "common" => 15, "rare" => 30, "epic" => 60, "legendary" => 120 }.freeze
+  CHEST_COSMETIC_CHANCE = { "common" => 0.0, "rare" => 0.2, "epic" => 0.5, "legendary" => 1.0 }.freeze
+  CHEST_DUPE_DIAMONDS   = 30 # si le cosmétique du coffre a été acquis entre le drop et l'ouverture
+
   # Effets d'objets
   SHIELD_DURATION = 6.hours
   WIND_DURATION   = 12.hours

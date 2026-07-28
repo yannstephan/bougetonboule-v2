@@ -5,6 +5,7 @@ import Monster from '../components/Monster'
 import EffectBadges from '../components/EffectBadges'
 import Countdown from '../components/Countdown'
 import InstallHint from '../components/InstallHint'
+import ChestCard from '../components/ChestCard'
 
 const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
 
@@ -54,6 +55,7 @@ function GameView({ m }) {
           <span className="x2">🍑 ×{m.special_day.multiplier}</span>
         </div>
       )}
+      <ChestCard chest={m.next_chest} />
       <div className="boards">
         <TeamBoard team={mine} mine />
         <div className="boards-vs"><span>VS</span></div>
