@@ -38,6 +38,18 @@ module GameRules
   PACK_STEP           = 0.10
   PACK_MAX_LEVEL      = 10
 
+  # Streak hebdo (💎, jugée le lundi par WeeklyStreakJob) : au moins une course scorée
+  # dans la semaine → la série grandit et paie selon l'échelle (semaine 1 = 10 💎, puis
+  # 20/30/40/50, plateau à 50). Tous les 5 paliers : cosmétique tiré au sort (fallback
+  # 100 💎 si tout est possédé) + 1 joker (réserve max 2). Semaine ratée : un joker se
+  # consomme et gèle la série (rien gagné, rien perdu) — sans joker, retour à zéro.
+  # Les jokers ne s'achètent jamais (règle d'or). ~1 100 💎 max sur une saison parfaite
+  # de 24 semaines — les prix boutique (100/250/500/1000 par rareté) sont calés dessus.
+  STREAK_LADDER          = [10, 20, 30, 40, 50].freeze # 💎 par semaine, plateau ensuite
+  STREAK_MILESTONE_EVERY = 5   # toutes les 5 semaines : cadeau + joker
+  STREAK_GIFT_FALLBACK   = 100 # 💎 si le joueur possède déjà tous les cosmétiques
+  STREAK_JOKER_MAX       = 2
+
   # Effets d'objets
   SHIELD_DURATION = 6.hours
   WIND_DURATION   = 12.hours

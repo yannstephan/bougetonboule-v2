@@ -6,17 +6,19 @@ Game.update_all(winner_team_id: nil) # FK games → teams : à détacher avant d
  SpecialDay, Game, Event, UserCosmetic, Cosmetic, Item, User].each(&:delete_all)
 
 puts "Cosmétiques…"
+# Prix calés sur la streak hebdo (~1 100 💎 max sur une saison parfaite, voir GameRules) :
+# common ~100 · rare ~250 · epic ~500 · legendary 1000.
 Cosmetic.create!([
-  { name: "Haut-de-forme doré", slot: "hat",  rarity: "legendary", price_diamonds: 300, source: "shop",  emoji: "🎩" },
-  { name: "Casquette",          slot: "hat",  rarity: "rare",      price_diamonds: 90,  source: "shop",  emoji: "🧢" },
-  { name: "Bandeau",            slot: "hat",  rarity: "common",    price_diamonds: 40,  source: "shop",  emoji: "🎀" },
-  { name: "Lunettes de star",   slot: "eyes", rarity: "epic",      price_diamonds: 150, source: "shop",  emoji: "🕶️" },
-  { name: "Lunettes rondes",    slot: "eyes", rarity: "common",    price_diamonds: 45,  source: "shop",  emoji: "👓" },
-  { name: "Aura pêche",         slot: "aura", rarity: "common",    price_diamonds: 50,  source: "shop",  emoji: "✨" },
-  { name: "Aura de feu",        slot: "aura", rarity: "epic",      price_diamonds: 180, source: "shop",  emoji: "🔥" },
-  { name: "Baskets de course",  slot: "legs", rarity: "rare",      price_diamonds: 80,  source: "shop",  emoji: "👟" },
-  { name: "Gants de boxe",      slot: "arms", rarity: "rare",      price_diamonds: 85,  source: "shop",  emoji: "🥊" },
-  { name: "Couronne de Noël",   slot: "hat",  rarity: "legendary", price_diamonds: nil, source: "event", emoji: "👑" },
+  { name: "Haut-de-forme doré", slot: "hat",  rarity: "legendary", price_diamonds: 1000, source: "shop",  emoji: "🎩" },
+  { name: "Casquette",          slot: "hat",  rarity: "rare",      price_diamonds: 250,  source: "shop",  emoji: "🧢" },
+  { name: "Bandeau",            slot: "hat",  rarity: "common",    price_diamonds: 90,   source: "shop",  emoji: "🎀" },
+  { name: "Lunettes de star",   slot: "eyes", rarity: "epic",      price_diamonds: 500,  source: "shop",  emoji: "🕶️" },
+  { name: "Lunettes rondes",    slot: "eyes", rarity: "common",    price_diamonds: 100,  source: "shop",  emoji: "👓" },
+  { name: "Aura pêche",         slot: "aura", rarity: "common",    price_diamonds: 120,  source: "shop",  emoji: "✨" },
+  { name: "Aura de feu",        slot: "aura", rarity: "epic",      price_diamonds: 550,  source: "shop",  emoji: "🔥" },
+  { name: "Baskets de course",  slot: "legs", rarity: "rare",      price_diamonds: 240,  source: "shop",  emoji: "👟" },
+  { name: "Gants de boxe",      slot: "arms", rarity: "rare",      price_diamonds: 260,  source: "shop",  emoji: "🥊" },
+  { name: "Couronne de Noël",   slot: "hat",  rarity: "legendary", price_diamonds: nil,  source: "event", emoji: "👑" },
 ])
 
 puts "Objets (power-ups)…"
@@ -117,13 +119,15 @@ end
 DEMO_PASSWORD = "odyssea2027".freeze
 
 roster.each do |p|
-  user = User.create!(firstname: p[:name], diamonds: rand(80..320), password: DEMO_PASSWORD,
+  user = User.create!(firstname: p[:name], diamonds: rand(150..900), password: DEMO_PASSWORD,
                       email: "#{p[:name].downcase.tr('éèàï', 'eeai')}@btb.test")
   team = p[:team] == :exo ? exo : rouges
+  streak = [weeks_of_history, p[:runs] * 2].min
   # balls: 0 — le solde est ensuite crédité par les courses (credit_balls! dans seed_training!).
   m = Membership.create!(user:, game:, team:, fruit: p[:fruit], balls: 0,
-                         role: p[:role] || "player", weekly_streak: [weeks_of_history, p[:runs] * 2].min,
-                         best_streak: weeks_of_history, last_streak_week: week_start)
+                         role: p[:role] || "player", weekly_streak: streak,
+                         best_streak: weeks_of_history, last_streak_week: week_start,
+                         streak_jokers: streak >= GameRules::STREAK_MILESTONE_EVERY ? 1 : 0)
 
   # Historique : les semaines passées, en entier.
   weeks_of_history.downto(1) do |w|
@@ -147,6 +151,11 @@ Chest.create!(membership: first, rarity: "epic", reward_diamonds: 35,
               cosmetic: Cosmetic.find_by(name: "Haut-de-forme doré"))
 Notification.create!(user: first.user, game:, category: "chest", importance: "important",
                      title: "Tu as trouvé un coffre épique", body: "Ouvre-le pour tes récompenses !")
+if first.weekly_streak.positive?
+  Notification.create!(user: first.user, game:, category: "streak", importance: "important",
+                       title: "🔥 #{first.weekly_streak} semaines de course d'affilée !",
+                       body: "+#{GameRules::STREAK_LADDER[[first.weekly_streak, GameRules::STREAK_LADDER.size].min - 1]} 💎")
+end
 
 puts "Cosmétiques possédés…"
 # De quoi voir l'écran avatar rempli sans avoir à gagner un mois de classement.

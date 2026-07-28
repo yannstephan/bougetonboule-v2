@@ -67,8 +67,18 @@ const SECTIONS = [
     q: '💎 Les diamants, c\'est quoi ?',
     a: [
       'La deuxième monnaie, celle-ci est globale (elle te suit d\'une partie à l\'autre).',
-      'On en gagne avec les séries hebdo, les journées spéciales, les coffres et la fin de partie.',
+      'On en gagne surtout avec la série hebdo (voir ci-dessous), et aussi via les coffres, le classement et la fin de partie.',
       'On ne les dépense que sur des cosmétiques. Jamais de pêches, jamais d\'avantage de combat : c\'est la règle d\'or, aucun pay-to-win.',
+    ],
+  },
+  {
+    q: '🔥 La série hebdo (streak)',
+    a: [
+      'Cours au moins une fois par semaine (du lundi au dimanche) et ta série grandit. Chaque lundi, elle paie en diamants : 10 💎 la 1re semaine, puis 20, 30, 40 et 50 — et 50 💎 chaque semaine ensuite.',
+      '🎁 Toutes les 5 semaines de série (5, 10, 15…), palier bonus : un cosmétique tiré au hasard parmi ceux que tu n\'as pas (ou 100 💎 si tu as déjà tout) — et tu gagnes un joker.',
+      '🧊 Le joker (2 max en réserve) te sauve une semaine sans course : il se consomme et ta série est gelée au lieu de repartir à zéro. Blessure, vacances… tu ne perds pas tout.',
+      'Semaine sans course et sans joker : la série retombe à zéro. Les jokers ne s\'achètent pas — ils se courent.',
+      'Ta série est propre à chaque partie, mais les diamants gagnés sont à toi pour toujours.',
     ],
   },
   {

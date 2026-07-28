@@ -12,6 +12,10 @@ production:
   pack_level:
     class: PackLevelJob
     schedule: every monday at 4:40am
+  # Streak hebdo : le lundi matin, juge la semaine écoulée (course → 💎, sinon joker/reset).
+  weekly_streak:
+    class: WeeklyStreakJob
+    schedule: every monday at 4:50am
   # Monstre affamé (72h sans course → −50 PV/jour) + clôture de la partie à sa date de fin.
   famine_and_season_end:
     class: FamineJob

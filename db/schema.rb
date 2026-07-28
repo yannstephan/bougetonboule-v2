@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_28_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_28_120001) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -125,6 +125,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_28_120000) do
     t.integer "game_id", null: false
     t.date "last_streak_week"
     t.string "role", default: "player", null: false
+    t.integer "streak_jokers", default: 0, null: false
     t.integer "team_id", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false

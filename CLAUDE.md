@@ -103,6 +103,14 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   (`masked: true`) pour ce viewer sur Hub et Combat — l'état (dessin) reste visible.
 - **🎉 Journées spéciales** : 5-6 par saison (`SpecialDay`, ×2). Seedées : Halloween 31/10 et
   Réveillon 24/12. Le multiplicateur s'applique après le plafond → plafond effectif doublé.
+- **🔥 Streak hebdo** (`WeeklyStreakJob`, le lundi) : ≥ 1 course scorée dans la semaine →
+  série +1 et 💎 selon l'échelle 10/20/30/40/50 (plateau 50). **Tous les 5 paliers** :
+  cosmétique tiré au sort (fallback 100 💎) + **1 joker** 🧊 (max 2, jamais achetable).
+  Semaine ratée : un joker se consomme et **gèle** la série, sinon retour à zéro.
+  Doublement idempotent (`memberships.last_streak_week` + registre `rewards` source
+  `streak`/`streak_gift`). ~1 100 💎 max par saison parfaite → **prix boutique calés
+  dessus : common ~100 · rare ~250 · epic ~500 · legendary 1000**. Notifs importantes
+  (gain, gel, perte), jokers visibles sur la tuile 🔥 du Hub.
 - **💥 Échec critique** (retour v1) : 1 attaque sur 10 rate (`PerformAction#crit_fail`) — 0 dégât
   et perte de **15 % du solde** (min 1, max 10 🍑), non multipliée par la meute. Taxe les
   thésauriseurs (pas de plafond de porte-monnaie en v2) sans inverser l'économie attaque/soin
@@ -295,11 +303,12 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 
 1. **Coffres** — drop aléatoire à l'import d'une course (garde-fou : max 1/jour, pity),
    ouverture animée (💎 + cosmétique), notif "coffre trouvé".
-2. **Streak hebdo** — job hebdomadaire (Solid Queue `recurring.yml`) : +💎 par semaine courue, paliers.
-3. **PWA installable** — manifest + icône 🍑, activer les routes PWA (déjà stubbées).
-4. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
-5. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
+2. **PWA installable** — manifest + icône 🍑, activer les routes PWA (déjà stubbées).
+3. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
+4. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
    en console, il n'y a pas d'écran pour rejoindre une équipe.
+5. **Déploiement** (Kamal, VPS) — y ajouter le **mot de passe oublié** (nécessite un SMTP,
+   ex. Brevo comme la v1) et une limitation des tentatives de connexion (rack-attack).
 
 ## Commandes utiles
 

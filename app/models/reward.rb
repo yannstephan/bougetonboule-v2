@@ -1,5 +1,5 @@
 class Reward < ApplicationRecord
-  SOURCES = %w[streak special_day chest rank admin].freeze
+  SOURCES = %w[streak streak_gift special_day chest rank admin].freeze
   TYPES   = %w[diamonds cosmetic balls].freeze
 
   belongs_to :user
