@@ -19,6 +19,12 @@ export default function Avatar({ has_team, team, fruits, current_fruit, avatar, 
       { cosmetic_id: c.id, equipped: !c.equipped, authenticity_token: csrf() },
       { preserveScroll: true })
 
+  const logout = () => {
+    if (confirm('Se déconnecter de ce compte ?')) {
+      router.delete('/logout', { data: { authenticity_token: csrf() } })
+    }
+  }
+
   const bySlot = slots
     .map((slot) => [slot, cosmetics.filter((c) => c.slot === slot)])
     .filter(([, list]) => list.length > 0)
@@ -89,6 +95,7 @@ export default function Avatar({ has_team, team, fruits, current_fruit, avatar, 
         )}
 
         <Link href="/" className="btn primary">C'est bon !</Link>
+        <button type="button" className="btn-logout" onClick={logout}>Se déconnecter</button>
       </main>
     </div>
   )

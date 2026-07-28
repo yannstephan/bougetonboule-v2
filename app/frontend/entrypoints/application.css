@@ -66,6 +66,9 @@ body{margin:0;background:var(--bg);color:var(--text);
 .btn.strava{background:var(--strava);color:#fff}
 
 .hud-avatar{display:grid;place-items:center;flex:none;text-decoration:none}
+.btn-logout{align-self:center;background:none;border:none;color:var(--muted);font:inherit;font-weight:700;
+  font-size:13px;padding:8px 12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.btn-logout:hover{color:var(--crit)}
 
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:11px;
