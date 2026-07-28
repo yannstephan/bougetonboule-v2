@@ -96,8 +96,8 @@ def seed_route(distance_meters)
   end
 end
 
-# Une sortie, scorée avec la vraie règle du jeu (1 km = 1 🍑, plafond 10, × jour spécial),
-# enrichie des détails qu'on récupérerait de Strava (titre, temps, dénivelé, tracé).
+# Une sortie passée, scorée par TrainingScorer (plafond puis jours spéciaux/vents) puis créditée
+# en 🍑 — enrichie des détails qu'on récupérerait de Strava (titre, temps, dénivelé, tracé).
 def seed_training!(membership, day, distance_meters)
   km = distance_meters / 1000.0
   moving = (km * rand(290..360)).round
@@ -109,6 +109,7 @@ def seed_training!(membership, day, distance_meters)
   )
   TrainingScorer.call(training)
   training.save!
+  training.credit_balls! # verse les 🍑 à la participation, comme à l'import Strava réel
 end
 
 # Mot de passe commun aux joueurs de démo : on peut se connecter en tant que n'importe lequel
@@ -119,7 +120,8 @@ roster.each do |p|
   user = User.create!(firstname: p[:name], diamonds: rand(80..320), password: DEMO_PASSWORD,
                       email: "#{p[:name].downcase.tr('éèàï', 'eeai')}@btb.test")
   team = p[:team] == :exo ? exo : rouges
-  m = Membership.create!(user:, game:, team:, fruit: p[:fruit], balls: rand(4..18),
+  # balls: 0 — le solde est ensuite crédité par les courses (credit_balls! dans seed_training!).
+  m = Membership.create!(user:, game:, team:, fruit: p[:fruit], balls: 0,
                          role: p[:role] || "player", weekly_streak: [weeks_of_history, p[:runs] * 2].min,
                          best_streak: weeks_of_history, last_streak_week: week_start)
 
@@ -178,8 +180,8 @@ puts "Activité simulée (pour voir le feed de notifications)…"
 # notifications ressemble exactement à ce qu'on verrait en jouant : effets d'équipe, piège,
 # courses, messages. Se connecter en tant que Yann (yann@btb.test) montre le résultat complet.
 by_name = ->(n) { Membership.joins(:user).find_by(users: { firstname: n }) }
-yann, ines, lea = by_name["Yann"], by_name["Inès"], by_name["Léa"]
-max_m, chloe, theo = by_name["Max"], by_name["Chloé"], by_name["Théo"]
+yann, ines, lea, nico = by_name["Yann"], by_name["Inès"], by_name["Léa"], by_name["Nico"]
+max_m, chloe = by_name["Max"], by_name["Chloé"]
 
 before_id = Notification.maximum(:id) || 0
 
@@ -191,26 +193,50 @@ use_effect = lambda do |membership, effect_type, target: nil, target_team: nil|
                      target_id: target&.id, target_team:)
 end
 
+# Importe une course « maintenant » par tout le pipeline réel (scoring + résolution piège/jambe
+# de bois + crédit des 🍑 + notifications), exactement comme StravaActivityImportJob.
+seed_import = lambda do |membership, distance_meters|
+  km = distance_meters / 1000.0
+  moving = (km * rand(290..360)).round
+  t = membership.trainings.build(date: Time.current, distance_meters:, status: "verified",
+                                 title: RUN_TITLES.sample, moving_time: moving,
+                                 elapsed_time: moving + rand(0..200), elevation_gain: rand(4..120),
+                                 route_points: seed_route(distance_meters))
+  TrainingScorer.call(t)
+  ResolveRunEffects.call(t) # piège à loup / jambe de bois + notifs importantes aux deux camps
+  t.save!
+  t.credit_balls!           # rien n'est versé si la course est piégée (score 0)
+  gain = t.status == "trapped" ? "piégée 🐺 · 0 🍑" : "+#{t.score.to_i} 🍑"
+  others = game.memberships.includes(:user).where.not(id: membership.id).map(&:user)
+  Notification.broadcast(others, game:, category: "training_verified", title: "🏃 Nouvelle course",
+                         body: "#{membership.display_name} a couru #{t.distance_km.round(1)} km · #{gain}")
+  Notification.create!(user: membership.user, game:, category: "training_verified",
+                       title: "Course importée", body: "#{t.distance_km.round(1)} km · +#{t.score.to_i} pêches")
+end
+
 use_effect[max_m, "back_wind"]          # 🌬️ Max (rouges) : vent de dos → annonce secondaire à tous
 use_effect[ines, "shield"]              # 🛡️ Inès (exo) : bouclier sur King-Coco → secondaire à tous
-use_effect[chloe, "trap", target: yann] # 🐺 Chloé (rouges) : piège sur Yann → « a posé un piège » (cible cachée)
 use_effect[lea, "face_wind"]            # 🌪️ Léa (exo) : vent de face sur les rouges → notif importante aux victimes
-use_effect[theo, "smoke", target_team: "foe"] # 🌫️ Théo (rouges) enfume les exotiques → leurs PV vus en « ??? »
+# 🌫️ Hugo (exo) enfume les rouges : eux voient les PV en « ??? » (login max@btb.test),
+# le chip 🌫️ s'affiche sur leur board. Yann (exo) garde une vue complète.
+use_effect[by_name["Hugo"], "smoke", target_team: "foe"]
 
-# ⚔️ Une attaque qui fait passer Dracassis sous 25 % → déclenche son Second souffle
-# (notif importante aux rouges : soins à 1 🍑 pendant 7 jours).
-ines.update!(balls: [ines.balls, 2].max)
+# 🐺 Pièges à loup + 🦿 jambe de bois, résolus juste après à l'import d'une course (ResolveRunEffects).
+use_effect[yann, "wooden_leg"]           # Yann s'arme discrètement (rien n'est annoncé)
+use_effect[chloe, "trap", target: yann]  # Chloé piège Yann → sera déjoué par la jambe de bois
+use_effect[chloe, "trap", target: nico]  # Chloé piège Nico (sans jambe) → course annulée (0 🍑)
+
+# ⚔️ Deux attaques d'Inès sur Dracassis : la 1re le fait passer sous 25 % → Second souffle des rouges
+# (notif importante : soins à 1 🍑 pendant 7 jours). Puis un soin de Léa sur King-Coco.
 PerformAction.call(ines, action_type: "attack")
+PerformAction.call(ines, action_type: "attack")
+PerformAction.call(lea,  action_type: "heal")
 
-PerformAction.call(ines, action_type: "attack")  # ⚡ Inès (exo) frappe Dracassis → « -N PV » (secondaire)
-PerformAction.call(lea,  action_type: "heal")    # 💚 Léa (exo) soigne King-Coco → « +N PV » (secondaire)
-
-# Fil « X a couru N km · +N 🍑 » (secondaire), comme à l'import d'une course Strava.
-[[ines, 10.4, 10], [max_m, 7.2, 7], [lea, 5.8, 5]].each do |m, km, balls|
-  others = game.memberships.includes(:user).where.not(id: m.id).map(&:user)
-  Notification.broadcast(others, game:, category: "training_verified", title: "🏃 Nouvelle course",
-                         body: "#{m.display_name} a couru #{km} km · +#{balls} 🍑")
-end
+# 🏃 Courses importées par le pipeline complet — dont les deux issues d'un piège.
+seed_import[yann, 8_400]  # 🦿 piège déjoué → « Piège déjoué ! » (importante) à Yann, 🍑 sauvées
+seed_import[nico, 6_200]  # 🐺 piège refermé → « Course piégée ! » (importante) à Nico, 0 🍑
+seed_import[ines, 10_400] # course normale (exo, pas de vent)
+seed_import[max_m, 7_200] # course normale (rouges : vent de dos ×1,5 × vent de face ×0,75)
 
 # Message d'équipe = important (poussé) : n'arrive qu'aux coéquipiers de Léa (exo).
 # Le chat général ne notifie pas (on le suit en ouvrant le chat).
@@ -226,8 +252,11 @@ puts "OK — #{User.count} joueurs, #{Training.count} courses sur #{weeks_of_his
      "#{Team.count} équipes, #{Cosmetic.count} cosmétiques."
 Team.all.each do |t|
   km = Training.where(membership: t.memberships).sum(:distance_meters) / 1000.0
-  puts "   #{t.name} : #{t.memberships.count} joueurs, #{km.round} km cumulés"
+  puts "   #{t.name} : #{t.memberships.count} joueurs, #{km.round} km cumulés, " \
+       "#{t.total_balls} 🍑 en banque (créditées par les courses), meute +#{t.pack_percent} %"
 end
+puts "   Statuts de course : #{Training.group(:status).count} · #{Training.where.not(balls_credited_at: nil).count} créditées"
 puts "👉 Connexion démo : yann@btb.test / #{DEMO_PASSWORD} " \
-     "(Yann voit le feed complet — coffre, message d'équipe, vents, bouclier, piège, fumigène " \
-     "(PV adverses en « ??? »), second souffle de Dracassis, jauges de meute, courses)."
+     "(Yann/exo voit tout — vents, bouclier, chip 🌫️ sur les rouges, second souffle de Dracassis, " \
+     "jauge de meute, 🍑 créditées, sa course dont le piège a été déjoué). " \
+     "Se connecter en max@btb.test (rouges enfumés) pour voir les PV masqués en « ??? »."

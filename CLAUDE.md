@@ -309,14 +309,24 @@ Pour voir le jeu après `db:prepare` : crée un compte sur `/register`, puis en 
 et recharge le Hub.
 
 **Plus simple — se connecter en démo** : le seed donne à tous les joueurs le mot de passe
-`odyssea2027`. Connecte-toi avec **`yann@btb.test` / `odyssea2027`** pour tomber directement dans
-une partie remplie. Le seed **rejoue de vrais événements** (via `PerformAction`) pour peupler le
-feed de notifications : Yann y voit ses importantes (coffre, message d'équipe, fumigène reçu) et
-le fil d'activité (vents, bouclier, piège à loup, courses), des **effets d'équipe actifs** sur le
-Hud (dont les **jauges de meute** et le **second souffle** de Dracassis), les **PV adverses
-masqués « ??? »** (les exotiques sont enfumés), et une **pastille de messages non lus** sur
-l'onglet Chat. Reseeder (`bin/rails db:seed`) régénère tout ça.
-⚠️ Le seed doit détacher `games.winner_team_id` avant de supprimer les équipes (FK).
+`odyssea2027`. Connecte-toi avec **`yann@btb.test` / `odyssea2027`** (exotiques) pour tomber
+directement dans une partie remplie. Le seed **rejoue de vrais événements par le pipeline complet**
+(scoring → résolution piège/jambe → crédit des 🍑 → notifs, comme `StravaActivityImportJob`) :
+- les **🍑 sont créditées par les courses** (`credit_balls!`), pas fixées à la main — chaque
+  équipe a un vrai magot en banque et un solde par joueur cohérent avec son historique ;
+- **les deux issues d'un piège** sont montrées : la course de Yann est **piégée mais déjouée**
+  par sa jambe de bois (🍑 sauvées, notif importante), celle de Nico est **piégée** (0 🍑) ;
+- **effets actifs** sur le Hud : vents (dos/face), bouclier, **jauge de meute**, **second souffle**
+  de Dracassis (soins à 1 🍑), et le chip **🌫️ Enfumée** sur les rouges ;
+- **PV masqués « ??? »** visibles en se connectant en **`max@btb.test`** (les rouges sont enfumés ;
+  Yann/exo, lui, garde une vue complète) ;
+- le fil de notifications (importantes vs secondaires) et la **pastille de non-lus** du Chat.
+
+Reseeder (`bin/rails db:seed`) régénère tout ça. La **famine** (🍽️) et la **fin de partie** (🏁)
+ne sont pas forcées dans le seed : ce sont des jobs temporels et les déclencher abîmerait l'état
+de démo (équipe affamée / partie terminée).
+⚠️ Le seed doit détacher `games.winner_team_id` avant de supprimer les équipes, et vider
+`ConversationRead` en tête du nettoyage (FK).
 
 ### Secrets (optionnels — l'app tourne sans)
 `GOOGLE_CLIENT_ID/SECRET`, `STRAVA_CLIENT_ID/SECRET`, `STRAVA_VERIFY_TOKEN`,
