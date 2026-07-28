@@ -17,16 +17,21 @@ class Training < ApplicationRecord
 
   def distance_km = distance_meters.to_f / 1000
 
-  # Verse les 🍑 de la course à la participation. Idempotent (balls_credited_at) :
-  # la réconciliation quotidienne peut repasser sans jamais payer deux fois.
+  # Verse les 🍑 de la course à la participation, dans la limite du porte-monnaie
+  # (GameRules::WALLET_CAP) : l'excédent est perdu. Le score de la course reste entier —
+  # c'est lui que compte la ligue. Idempotent (balls_credited_at) : la réconciliation
+  # quotidienne peut repasser sans jamais payer deux fois.
+  # Retourne le nombre de 🍑 réellement versées (nil si rien n'était à verser).
   def credit_balls!
     return if balls_credited_at.present? || !status.in?(%w[verified protected]) || score.to_i.zero?
 
     with_lock do
       break if balls_credited_at.present?
 
-      membership.increment!(:balls, score.to_i)
+      credited = [score.to_i, GameRules::WALLET_CAP - membership.reload.balls].min.clamp(0, score.to_i)
+      membership.increment!(:balls, credited) if credited.positive?
       update!(balls_credited_at: Time.current)
+      credited
     end
   end
   def has_route? = route_points.present?

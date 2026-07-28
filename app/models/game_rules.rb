@@ -24,6 +24,10 @@ module GameRules
 
   # Pêches
   MAX_BALLS_PER_RUN = 10 # doublé les jours spéciaux (le multiplicateur s'applique après le plafond)
+  # Plafond de porte-monnaie (retour v1) : une course ne verse que jusqu'à 100 🍑 en poche,
+  # l'excédent est perdu (notifié). Le score de la course reste entier — la ligue le compte.
+  # Avec l'échec critique (15 % du solde), c'est la double peine des thésauriseurs.
+  WALLET_CAP = 100
 
   # Jauge de meute : +10 % permanents (attaques ET soins) par semaine où au moins
   # 5 coéquipiers ont chacun couru 10 km. Additif, plafonné à ×2 — jamais multiplicatif :

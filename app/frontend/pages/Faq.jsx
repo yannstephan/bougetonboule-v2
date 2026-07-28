@@ -19,6 +19,7 @@ const SECTIONS = [
       'Règle : 1 km couru = 1 pêche, avec un maximum de 10 pêches par sortie.',
       'Le plafond s\'applique d\'abord, les multiplicateurs ensuite. Exemple : une sortie de 15 km vaut 10 pêches ; avec un vent de dos actif, 10 × 1,5 = 15 pêches.',
       'Les journées spéciales (5-6 dans la saison, annoncées ou surprises) doublent tout : pêches ET plafond. 15 km un jour ×2 = 20 pêches, et avec un vent de dos… fais le calcul 😉',
+      'Ton porte-monnaie est plafonné à 100 pêches : une course ne remplit que jusqu\'à 100, le surplus est perdu (tu es prévenu). Le classement, lui, compte bien toutes les pêches de tes courses. Morale : dépense tes pêches !',
       'Tes pêches sont propres à chaque partie. Elles ne servent qu\'au combat et aux objets — jamais à acheter un avantage.',
     ],
   },

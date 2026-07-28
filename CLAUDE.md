@@ -38,6 +38,10 @@ Le seul « booster » (jauge de meute) se **gagne en courant à plusieurs** — 
 15 km = 10 🍑, ×1,5 avec un vent de dos = 15 🍑. Un jour spécial ×2 double aussi le plafond
 effectif. Les 🍑 sont **créditées à l'import** (`Training#credit_balls!`, idempotent) ; les
 courses sont auto-vérifiées (`status: "verified"`), `Training.scoring` = verified + protected.
+**Porte-monnaie plafonné à 100 🍑** (retour v1, `GameRules::WALLET_CAP`) : le crédit est tronqué
+au plafond, l'excédent est perdu (notif importante « dépense tes pêches ! ») — mais le **score de
+la course reste entier**, donc la ligue n'est jamais pénalisée. Avec l'échec critique (15 % du
+solde), thésauriser est doublement puni.
 
 ## Modèle de données (22 tables — voir db/schema.rb)
 
