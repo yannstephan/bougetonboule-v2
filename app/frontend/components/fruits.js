@@ -20,7 +20,7 @@ export const FRUITS = {
   // — Fruits rouges —
   fraise:          { shape: 'strawberry', body: '#f0325b', dark: '#c81e45', leaf: '#3aa76d', seed: '#ffe08a' },
   fraise_des_bois: { shape: 'strawberry', body: '#d81b4a', dark: '#a5153a', leaf: '#2e8b57', seed: '#ffe08a', small: true },
-  framboise:       { shape: 'berry',      body: '#e84370', dark: '#c0295a', drupTone: '#f06a90' },
+  cassis:          { shape: 'round',      body: '#3a2352', dark: '#22132f', crown: true, dusty: '#8f6fb0', shiny: true },
   cerise:          { shape: 'round',      body: '#c0182f', dark: '#8e1122', stem: '#3aa76d', longStem: true },
   mure:            { shape: 'berry',      body: '#5b2a6b', dark: '#3e1c4a', drupTone: '#7a3f8c' },
   myrtille:        { shape: 'round',      body: '#4a5aa8', dark: '#2f3d7e', crown: true, dusty: '#8f9cd0' },

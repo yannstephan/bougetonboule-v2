@@ -1,6 +1,6 @@
 // Monstres des deux clans d'Odyssea, en SVG plat (viewBox 100×100).
-//   - king-coco : roi noix de coco (Fruits exotiques)
-//   - dracassis : dragon cassis (Fruits rouges)
+//   - king-coco   : roi noix de coco (Fruits exotiques)
+//   - framboitrix : sorcière-framboise, clin d'œil à Bellatrix Lestrange (Fruits rouges)
 // Le `slug` vient du back (Monster#slug). Un monstre inconnu retombe sur un emoji.
 export default function Monster({ slug, name, size = 96, className = '' }) {
   const Draw = MONSTERS[slug]
@@ -44,43 +44,48 @@ function KingCoco() {
   )
 }
 
-// Dracassis : petit dragon aux écailles cassis, ailes membranées, museau fumant.
-function Dracassis() {
+// Framboitrix : sorcière-framboise (clin d'œil à Bellatrix Lestrange). Amas de drupéoles
+// magenta, chapeau pointu de sorcière penché, regard maléfique et rictus édenté.
+function Framboitrix() {
+  const rows = [
+    { y: 47, xs: [43, 50, 57] },
+    { y: 54, xs: [36, 43, 50, 57, 64] },
+    { y: 61, xs: [34, 42, 50, 58, 66] },
+    { y: 68, xs: [37, 44, 51, 58, 63] },
+    { y: 75, xs: [42, 50, 58] },
+    { y: 82, xs: [46, 54] }
+  ]
+  const drupes = rows.flatMap((r) => r.xs.map((x) => [x, r.y]))
   return (
     <g>
-      <ellipse cx="50" cy="88" rx="26" ry="5" fill="#000" opacity="0.12" />
-      {/* ailes */}
-      <path d="M24 52 C6 40 4 60 16 66 C10 70 18 76 28 68 Z" fill="#7b3f8c" stroke="#5b2c6f" strokeWidth="1.5" />
-      <path d="M76 52 C94 40 96 60 84 66 C90 70 82 76 72 68 Z" fill="#7b3f8c" stroke="#5b2c6f" strokeWidth="1.5" />
-      {/* corps */}
-      <circle cx="50" cy="56" r="30" fill="#5b2c6f" />
-      {/* ventre */}
-      <ellipse cx="50" cy="64" rx="16" ry="18" fill="#8e5aa0" />
-      {/* écailles crâne */}
-      <g fill="#3e1c4a">
-        <path d="M50 26 l-5 -12 l10 0 z" />
-        <path d="M38 30 l-4 -10 l8 1 z" />
-        <path d="M62 30 l4 -10 l-8 1 z" />
-      </g>
-      {/* cornes */}
-      <path d="M36 34 l-8 -10" stroke="#d6cfe4" strokeWidth="4" strokeLinecap="round" />
-      <path d="M64 34 l8 -10" stroke="#d6cfe4" strokeWidth="4" strokeLinecap="round" />
-      {/* yeux jaunes menaçants */}
-      <ellipse cx="40" cy="52" rx="7" ry="8" fill="#ffd93b" />
-      <ellipse cx="60" cy="52" rx="7" ry="8" fill="#ffd93b" />
-      <ellipse cx="40" cy="53" rx="2.4" ry="4.5" fill="#2b2333" />
-      <ellipse cx="60" cy="53" rx="2.4" ry="4.5" fill="#2b2333" />
-      <path d="M31 45 l12 4 M69 45 l-12 4" stroke="#2b1030" strokeWidth="2.4" strokeLinecap="round" />
-      {/* museau + crocs + fumée */}
-      <ellipse cx="50" cy="68" rx="12" ry="9" fill="#6b3a7e" />
-      <circle cx="45" cy="66" r="1.4" fill="#2b1030" />
-      <circle cx="55" cy="66" r="1.4" fill="#2b1030" />
-      <path d="M44 74 l2 5 l2 -5 Z M54 74 l2 5 l2 -5 Z" fill="#fff" />
-      <g fill="#c9b3d6" opacity="0.7">
-        <circle cx="40" cy="80" r="2.2" /><circle cx="36" cy="84" r="1.6" /><circle cx="60" cy="80" r="2.2" />
+      <ellipse cx="50" cy="90" rx="24" ry="4.5" fill="#000" opacity="0.12" />
+      {/* corps : amas de drupéoles */}
+      {drupes.map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r="5.4" fill="#d62d63" stroke="#a01e49" strokeWidth="0.8" />
+      ))}
+      {drupes.map(([x, y], i) => (
+        <circle key={`h${i}`} cx={x - 1.7} cy={y - 1.7} r="1.5" fill="#f79bb8" opacity="0.85" />
+      ))}
+      {/* yeux maléfiques (en amande, inclinés) */}
+      <ellipse cx="43" cy="59" rx="5.6" ry="6.6" fill="#fff" transform="rotate(-14 43 59)" />
+      <ellipse cx="57" cy="59" rx="5.6" ry="6.6" fill="#fff" transform="rotate(14 57 59)" />
+      <circle cx="44" cy="60" r="2.7" fill="#2b1030" />
+      <circle cx="56" cy="60" r="2.7" fill="#2b1030" />
+      <circle cx="43.2" cy="59" r="0.9" fill="#fff" />
+      <circle cx="55.2" cy="59" r="0.9" fill="#fff" />
+      {/* sourcils froncés + rictus édenté */}
+      <path d="M35 52 l12 4 M65 52 l-12 4" stroke="#3e0f28" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M42 71 Q50 77 58 71" fill="none" stroke="#3e0f28" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M47 72 l1.4 3.6 l1.4 -3.6 Z" fill="#fff" />
+      {/* chapeau de sorcière, penché */}
+      <g transform="rotate(-8 50 34)">
+        <ellipse cx="50" cy="37" rx="29" ry="6" fill="#241033" />
+        <path d="M41 38 L59 38 L55 8 Q54 4 51 8 Z" fill="#2e1440" stroke="#180a24" strokeWidth="1" strokeLinejoin="round" />
+        <path d="M42 33 Q50 36 57 32 L56 37 Q49 39 43 37 Z" fill="#c0295a" />
+        <circle cx="52.5" cy="6.5" r="2.1" fill="#c0295a" />
       </g>
     </g>
   )
 }
 
-const MONSTERS = { 'king-coco': KingCoco, dracassis: Dracassis }
+const MONSTERS = { 'king-coco': KingCoco, framboitrix: Framboitrix }

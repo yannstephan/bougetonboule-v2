@@ -13,7 +13,7 @@ C'est la v2 (front moderne) d'une app Rails existante jugée trop brouillonne.
 **Tout l'équilibrage vit dans `GameRules`** (app/models), calibré sur le dump de la saison v1.
 
 L'événement **Odyssea 2027** (mars 2027) oppose deux clans : **🌴 Fruits exotiques** (monstre
-**King-Coco**) vs **🍒 Fruits rouges** (monstre **Dracassis**). Chaque joueur choisit un
+**King-Coco**) vs **🍒 Fruits rouges** (monstre **Framboitrix**). Chaque joueur choisit un
 **fruit-avatar** dans la famille de son équipe (voir plus bas).
 
 ## Stack
@@ -144,8 +144,8 @@ en secours si pas de fruit).
 
 ### Les monstres
 Dessinés en SVG dans `components/Monster.jsx`, choisis par `Monster#slug` (`"King-Coco"` →
-`king-coco`). King-Coco (roi noix de coco) et Dracassis (dragon cassis) pour Odyssea. Un slug
-inconnu retombe sur un emoji 👾. En **Combat**, l'attaque secoue + flashe en rouge le monstre
+`king-coco`). King-Coco (roi noix de coco) et Framboitrix (sorcière-framboise, clin d'œil à
+Bellatrix Lestrange) pour Odyssea. Un slug inconnu retombe sur un emoji 👾. En **Combat**, l'attaque secoue + flashe en rouge le monstre
 adverse (💥 + « -N ») et le soin fait gonfler mon monstre avec une lueur verte (✨ + « +N »),
 piloté par état React dans `pages/Combat.jsx` (classes `.impact` / `.healpulse`, guard
 `prefers-reduced-motion`).
@@ -317,7 +317,7 @@ directement dans une partie remplie. Le seed **rejoue de vrais événements par 
 - **les deux issues d'un piège** sont montrées : la course de Yann est **piégée mais déjouée**
   par sa jambe de bois (🍑 sauvées, notif importante), celle de Nico est **piégée** (0 🍑) ;
 - **effets actifs** sur le Hud : vents (dos/face), bouclier, **jauge de meute**, **second souffle**
-  de Dracassis (soins à 1 🍑), et le chip **🌫️ Enfumée** sur les rouges ;
+  de Framboitrix (soins à 1 🍑), et le chip **🌫️ Enfumée** sur les rouges ;
 - **PV masqués « ??? »** visibles en se connectant en **`max@btb.test`** (les rouges sont enfumés ;
   Yann/exo, lui, garde une vue complète) ;
 - le fil de notifications (importantes vs secondaires) et la **pastille de non-lus** du Chat.

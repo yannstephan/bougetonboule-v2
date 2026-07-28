@@ -6,7 +6,7 @@ class Monster < ApplicationRecord
   validates :name, presence: true
 
   # Identifiant stable utilisé côté front pour choisir le dessin SVG (components/Monster.jsx).
-  # Dérivé du nom : "King-Coco" → "king-coco", "Dracassis" → "dracassis".
+  # Dérivé du nom : "King-Coco" → "king-coco", "Framboitrix" → "framboitrix".
   def slug = name.to_s.parameterize
 
   def protected? = protected_until.present? && protected_until.future?

@@ -36,14 +36,14 @@ event = Event.create!(name: "Odyssea Nantes", race_date: Time.zone.local(2027, 3
 game  = Game.create!(event:, name: "Partie Odyssea 2027", status: "active",
                      starts_at: 7.weeks.ago, ends_at: 8.weeks.from_now)
 
-# Le duel d'Odyssea 2027 : Fruits exotiques (King-Coco) vs Fruits rouges (Dracassis).
+# Le duel d'Odyssea 2027 : Fruits exotiques (King-Coco) vs Fruits rouges (Framboitrix).
 exo    = Team.create!(game:, name: "Fruits exotiques", color: "#f6b93b", fruit_family: "exotiques")
 rouges = Team.create!(game:, name: "Fruits rouges",    color: "#f0325b", fruit_family: "rouges")
 exo.update!(opponent: rouges); rouges.update!(opponent: exo)
 
 # PV calibrés pour une saison de ~24 semaines (voir GameRules::MONSTER_MAX_HP).
 Monster.create!(team: exo,    name: "King-Coco",  hp: 4_600, max_hp: GameRules::MONSTER_MAX_HP, state: "hurt")
-Monster.create!(team: rouges, name: "Dracassis",  hp: 2_510, max_hp: GameRules::MONSTER_MAX_HP, state: "hurt")
+Monster.create!(team: rouges, name: "Framboitrix",  hp: 2_510, max_hp: GameRules::MONSTER_MAX_HP, state: "hurt")
 
 # La jauge de meute (semaines où ≥5 coéquipiers ont couru ≥10 km) : quelques paliers déjà gagnés.
 exo.update!(pack_level: 3)
@@ -74,7 +74,7 @@ roster = [
   { name: "Hugo",  team: :exo,    runs: 1, km: 3..6,  fruit: "banane" },
   { name: "Max",   team: :rouges, runs: 3, km: 6..10, fruit: "cerise" },
   { name: "Chloé", team: :rouges, runs: 4, km: 8..13, fruit: "fraise" },
-  { name: "Sam",   team: :rouges, runs: 2, km: 4..8,  fruit: "framboise" },
+  { name: "Sam",   team: :rouges, runs: 2, km: 4..8,  fruit: "cassis" },
   { name: "Anaïs", team: :rouges, runs: 3, km: 5..12, fruit: "myrtille" },
   { name: "Théo",  team: :rouges, runs: 1, km: 9..15, fruit: "grenade" }
 ]
@@ -161,7 +161,7 @@ end
 puts "Messages…"
 general = game.general_conversation
 [["Yann", "Allez les exotiques, on a un mois à gagner 🌴"],
- ["Chloé", "Vous allez pleurer, Dracassis a faim 🍒"],
+ ["Chloé", "Vous allez pleurer, Framboitrix a faim 🍒"],
  ["Inès", "10 km ce matin, King-Coco vous salue 🥥"],
  ["Théo", "Qui court demain matin ?"]].each_with_index do |(name, body), i|
   m = Membership.joins(:user).find_by(users: { firstname: name })
@@ -226,7 +226,7 @@ use_effect[yann, "wooden_leg"]           # Yann s'arme discrètement (rien n'est
 use_effect[chloe, "trap", target: yann]  # Chloé piège Yann → sera déjoué par la jambe de bois
 use_effect[chloe, "trap", target: nico]  # Chloé piège Nico (sans jambe) → course annulée (0 🍑)
 
-# ⚔️ Deux attaques d'Inès sur Dracassis : la 1re le fait passer sous 25 % → Second souffle des rouges
+# ⚔️ Deux attaques d'Inès sur Framboitrix : la 1re le fait passer sous 25 % → Second souffle des rouges
 # (notif importante : soins à 1 🍑 pendant 7 jours). Puis un soin de Léa sur King-Coco.
 PerformAction.call(ines, action_type: "attack")
 PerformAction.call(ines, action_type: "attack")
@@ -242,7 +242,7 @@ seed_import[max_m, 7_200] # course normale (rouges : vent de dos ×1,5 × vent d
 # Le chat général ne notifie pas (on le suit en ouvrant le chat).
 Notification.broadcast(exo.memberships.includes(:user).where.not(id: lea.id).map(&:user),
                        game:, importance: "important", category: "message", title: "💬 Léa · équipe",
-                       body: "On concentre les attaques ce soir sur Dracassis ?")
+                       body: "On concentre les attaques ce soir sur Framboitrix ?")
 
 # Étale les horodatages sur les dernières heures pour un feed lisible (sinon tout à la même minute).
 fresh = Notification.where("id > ?", before_id).order(:id).to_a
@@ -257,6 +257,6 @@ Team.all.each do |t|
 end
 puts "   Statuts de course : #{Training.group(:status).count} · #{Training.where.not(balls_credited_at: nil).count} créditées"
 puts "👉 Connexion démo : yann@btb.test / #{DEMO_PASSWORD} " \
-     "(Yann/exo voit tout — vents, bouclier, chip 🌫️ sur les rouges, second souffle de Dracassis, " \
+     "(Yann/exo voit tout — vents, bouclier, chip 🌫️ sur les rouges, second souffle de Framboitrix, " \
      "jauge de meute, 🍑 créditées, sa course dont le piège a été déjoué). " \
      "Se connecter en max@btb.test (rouges enfumés) pour voir les PV masqués en « ??? »."

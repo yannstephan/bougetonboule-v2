@@ -7,7 +7,7 @@ const SECTIONS = [
     q: '🎯 C\'est quoi le but ?',
     a: [
       'Bouge Ton Boule est un jeu de course à pied entre amis. Deux clans s\'affrontent, chacun avec son monstre de 10 000 PV.',
-      'Pour l\'événement Odyssea 2027, c\'est 🌴 Fruits exotiques (monstre King-Coco) contre 🍒 Fruits rouges (monstre Dracassis).',
+      'Pour l\'événement Odyssea 2027, c\'est 🌴 Fruits exotiques (monstre King-Coco) contre 🍒 Fruits rouges (monstre Framboitrix).',
       'Tu cours, tu gagnes des pêches, tu t\'en sers pour attaquer le monstre adverse ou soigner le tien.',
       'La partie se termine de deux façons : si un monstre tombe à 0 PV, son équipe perd immédiatement. Sinon, au dernier jour de la saison, l\'équipe dont le monstre a le plus haut pourcentage de PV gagne. Il y a toujours un vainqueur (ou une égalité parfaite) — le suspense dure jusqu\'au bout.',
     ],

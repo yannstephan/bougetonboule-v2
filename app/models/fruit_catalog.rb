@@ -25,11 +25,11 @@ module FruitCatalog
     },
     "rouges" => {
       label: "Fruits rouges",
-      monster: "dracassis",
+      monster: "framboitrix",
       fruits: [
         { key: "fraise",          name: "Fraise" },
         { key: "fraise_des_bois", name: "Fraise des bois" },
-        { key: "framboise",       name: "Framboise" },
+        { key: "cassis",          name: "Cassis" },
         { key: "cerise",          name: "Cerise" },
         { key: "mure",            name: "Mûre" },
         { key: "myrtille",        name: "Myrtille" },
