@@ -1,3 +1,18 @@
-<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="256" cy="256" r="256" fill="red"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Icône PWA Bouge Ton Boule : pêche flat sur fond pêche (sujet dans la zone sûre "maskable") -->
+  <rect width="512" height="512" rx="112" fill="#ff7a59"/>
+  <!-- feuille -->
+  <path d="M256 132c46-38 92-40 108-36-8 34-42 66-96 70z" fill="#3f9d63"/>
+  <path d="M256 132c-8-40 6-72 20-88 18 16 22 56-4 92z" fill="#57b878"/>
+  <!-- corps de la pêche : deux lobes -->
+  <circle cx="196" cy="286" r="118" fill="#ffd9a8"/>
+  <circle cx="316" cy="286" r="118" fill="#ffc98e"/>
+  <!-- sillon -->
+  <path d="M256 180q-18 106 0 212" fill="none" stroke="#e8a05f" stroke-width="14" stroke-linecap="round"/>
+  <!-- joues + visage (clin d'œil aux fruits-avatars) -->
+  <circle cx="196" cy="316" r="16" fill="#ff9d76" opacity=".8"/>
+  <circle cx="316" cy="316" r="16" fill="#ff9d76" opacity=".8"/>
+  <circle cx="214" cy="272" r="11" fill="#40342f"/>
+  <circle cx="298" cy="272" r="11" fill="#40342f"/>
+  <path d="M234 306q22 18 44 0" fill="none" stroke="#40342f" stroke-width="10" stroke-linecap="round"/>
 </svg>

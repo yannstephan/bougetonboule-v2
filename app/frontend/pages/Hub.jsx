@@ -4,6 +4,7 @@ import PlayerAvatar from '../components/PlayerAvatar'
 import Monster from '../components/Monster'
 import EffectBadges from '../components/EffectBadges'
 import Countdown from '../components/Countdown'
+import InstallHint from '../components/InstallHint'
 
 const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
 
@@ -38,6 +39,7 @@ function GameView({ m }) {
   const finished = m.game?.status === 'finished'
   return (
     <main className="body">
+      <InstallHint />
       {finished && (
         <div className="specialday" style={{ background: 'var(--violet)' }}>
           🏁 Partie terminée · {m.game.winner ? `Victoire des ${m.game.winner} 🏆` : 'Égalité parfaite 🤝'}

@@ -282,6 +282,18 @@ quand une mécanique change**. Lien 📖 dans le **header du Hud** (à côté de
 Navigation par onglets : **Hub · Chat · ⚔️ Combat · Ligue · Boutique** (`components/BottomNav.jsx`),
 tous actifs.
 
+### PWA (installable)
+`PwaController` (maison) sert `/manifest.json` et `/service-worker` — **pas**
+`Rails::PwaController` : il rate le format du template `.js` (la requête d'enregistrement
+arrive en `Accept: */*` → MissingTemplate 500), d'où `formats:` explicites +
+`skip_forgery_protection` (l'anti-JSONP refuse de rendre du .js non-XHR, 422). Le template
+est `app/views/pwa/service-worker.js` (**avec tiret** — le nom que Rails cherche) : push
+Web (VAPID) + clic → ouvre l'app. Icône 🍑 flat : `public/icon.svg` (source) et `icon.png`
+512 (généré). Manifest aux couleurs de la charte (`#ff7a59`), `display: standalone`.
+`components/InstallHint.jsx` sur le Hub : guide iOS (Partager → écran d'accueil, requis pour
+recevoir les push sur iPhone) ou bouton natif `beforeinstallprompt` ailleurs, refus mémorisé
+en localStorage.
+
 ### Pièges connus
 - **`form.transform()` de `@inertiajs/react` ne retourne rien** (v3.6.1) : `form.transform(fn).post(…)`
   lève un TypeError et le formulaire ne part jamais, sans erreur visible. Appeler `transform`
@@ -307,11 +319,10 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 
 1. **Coffres** — drop aléatoire à l'import d'une course (garde-fou : max 1/jour, pity),
    ouverture animée (💎 + cosmétique), notif "coffre trouvé".
-2. **PWA installable** — manifest + icône 🍑, activer les routes PWA (déjà stubbées).
-3. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
-4. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
+2. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
+3. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
    en console, il n'y a pas d'écran pour rejoindre une équipe.
-5. **Déploiement** (Kamal, VPS) — y ajouter le **mot de passe oublié** (nécessite un SMTP,
+4. **Déploiement** (Kamal, VPS) — y ajouter le **mot de passe oublié** (nécessite un SMTP,
    ex. Brevo comme la v1) et une limitation des tentatives de connexion (rack-attack).
 
 ## Commandes utiles
