@@ -11,7 +11,8 @@ class ShopController < ApplicationController
       items: items_json(m),
       cosmetics: cosmetics_json,
       inventory: inventory_json(m),
-      opponents: opponents_json(m)
+      opponents: opponents_json(m),
+      team_names: m && { mine: m.team.name, foe: m.team.opponent&.name }
     }
   end
 
@@ -36,8 +37,8 @@ class ShopController < ApplicationController
     m = current_membership
     return redirect_to shop_path, alert: "Aucune partie active." unless m
 
-    result = PerformAction.call(m, action_type: "use_item",
-                                   item_id: params[:item_id], target_id: params[:target_id])
+    result = PerformAction.call(m, action_type: "use_item", item_id: params[:item_id],
+                                   target_id: params[:target_id], target_team: params[:target_team])
     flash[result.ok ? :notice : :alert] = result.message
     redirect_to shop_path
   end

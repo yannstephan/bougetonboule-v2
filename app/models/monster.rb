@@ -22,5 +22,24 @@ class Monster < ApplicationRecord
       else "healthy"
       end
     save!
+    maybe_trigger_second_wind!
+  end
+
+  private
+
+  # Second souffle : la première fois que le monstre passe sous 25 %, les soins de son
+  # équipe coûtent 1 🍑 pendant 7 jours. Une seule fois par partie (second_wind_until
+  # présent = déjà consommé, même expiré).
+  def maybe_trigger_second_wind!
+    return unless alive? && hp_ratio <= GameRules::SECOND_WIND_THRESHOLD
+    return if team.second_wind_until.present?
+
+    until_at = GameRules::SECOND_WIND_DURATION.from_now
+    team.update!(second_wind_until: until_at)
+    TeamEffect.create!(team:, kind: "second_wind", expires_at: until_at)
+    Notification.broadcast(team.memberships.includes(:user).map(&:user),
+                           game: team.game, importance: "important", category: "effect",
+                           title: "💨 Second souffle !",
+                           body: "#{name} est en danger : vos soins ne coûtent plus que 1 🍑 pendant 7 jours. Défendez-le !")
   end
 end

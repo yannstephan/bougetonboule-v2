@@ -2,27 +2,32 @@ import { Head, Link, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import BottomNav from '../components/BottomNav'
 import TargetPicker from '../components/TargetPicker'
+import TeamPicker from '../components/TeamPicker'
 
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
 
 const itemEmoji = (t) =>
-  ({ shield: '🛡️', trap: '🐺', back_wind: '🌬️', booster: '✖️', wooden_leg: '🦿' }[t] || '🎒')
+  ({ shield: '🛡️', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🌫️', wooden_leg: '🦿' }[t] || '🎒')
 const rarityLabel = { common: 'Commun', rare: 'Rare', epic: 'Épique', legendary: 'Légendaire' }
 
-export default function Boutique({ has_team, balls, items, cosmetics, inventory, opponents }) {
+export default function Boutique({ has_team, balls, items, cosmetics, inventory, opponents, team_names }) {
   const { auth, flash } = usePage().props
   const diamonds = auth.user?.diamonds ?? 0
   const [tab, setTab] = useState('items')
-  const [trapItem, setTrapItem] = useState(null) // objet piège en attente d'une cible
+  const [trapItem, setTrapItem] = useState(null)   // objet piège en attente d'une cible
+  const [smokeItem, setSmokeItem] = useState(null) // fumigène en attente d'une équipe
 
   const post = (url, data) => router.post(url, { ...data, authenticity_token: csrf() }, { preserveScroll: true })
   const buyItem = (id) => post('/boutique/items', { item_id: id })
   const buyCosmetic = (id) => post('/boutique/cosmetics', { cosmetic_id: id })
-  const useItem = (it) => (it.effect_type === 'trap'
-    ? setTrapItem(it)
-    : post('/boutique/use', { item_id: it.item_id }))
+  const useItem = (it) => {
+    if (it.effect_type === 'trap') return setTrapItem(it)
+    if (it.effect_type === 'smoke') return setSmokeItem(it)
+    post('/boutique/use', { item_id: it.item_id })
+  }
   const trapTarget = (targetId) => { post('/boutique/use', { item_id: trapItem.item_id, target_id: targetId }); setTrapItem(null) }
+  const smokeTeam = (which) => { post('/boutique/use', { item_id: smokeItem.item_id, target_team: which }); setSmokeItem(null) }
 
   return (
     <div className="shell">
@@ -53,6 +58,9 @@ export default function Boutique({ has_team, balls, items, cosmetics, inventory,
 
       {trapItem && (
         <TargetPicker opponents={opponents} onPick={trapTarget} onClose={() => setTrapItem(null)} />
+      )}
+      {smokeItem && (
+        <TeamPicker myTeam={team_names?.mine} foeTeam={team_names?.foe} onPick={smokeTeam} onClose={() => setSmokeItem(null)} />
       )}
 
       <BottomNav active="shop" />

@@ -15,7 +15,7 @@ class ProfilesController < ApplicationController
 
   def props(m)
     trainings = m.trainings.recent
-    verified = trainings.select { |t| t.status == "verified" }
+    scoring = trainings.select { |t| t.status.in?(%w[verified protected]) }
     {
       game: { id: m.game.id, name: m.game.name },
       player: {
@@ -26,9 +26,9 @@ class ProfilesController < ApplicationController
       },
       # Pas de solde de 🍑 ici : la réserve d'un joueur ne se voit que sur sa propre page d'accueil.
       stats: {
-        total_km: (verified.sum(&:distance_meters) / 1000.0).round(1),
+        total_km: (scoring.sum(&:distance_meters) / 1000.0).round(1),
         month_score: month_score(m),
-        trainings_count: verified.size
+        trainings_count: scoring.size
       },
       trainings: trainings.map { |t| TrainingPresenter.new(t).summary }
     }

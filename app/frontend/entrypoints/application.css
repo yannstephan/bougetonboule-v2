@@ -120,6 +120,8 @@ body{margin:0;background:var(--bg);color:var(--text);
 .bigbar>i.crit{background:var(--crit)}
 .bigbar>i.good{background:var(--good)}
 .bigbar>i.warn{background:var(--warn)}
+/* PV masqués par un fumigène : barre rayée neutre, pleine largeur */
+.bigbar>i.unknown{background:repeating-linear-gradient(45deg,var(--surface-3) 0 8px,var(--muted) 8px 10px);opacity:.45}
 .hp-num{font-variant-numeric:tabular-nums;font-size:12px;font-weight:800;margin-top:5px}
 .arena-scene{flex:1;position:relative;display:grid;place-items:center;overflow:hidden;background:var(--surface-2)}
 .foe-mon{font-size:110px;line-height:1;animation:hit 2.6s ease-in-out infinite}

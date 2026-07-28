@@ -7,8 +7,10 @@
 
 Jeu de **course à pied entre amis**. Chaque km couru (importé depuis **Strava**) rapporte
 **1 pêche 🍑** (max 10 / sortie). On dépense ses pêches pour **attaquer** le monstre de
-l'équipe adverse ou **soigner** le sien. Quand les PV d'un monstre tombent à 0, son équipe perd.
+l'équipe adverse (10 000 PV) ou **soigner** le sien. Un monstre à 0 PV = défaite immédiate ;
+sinon, à la date de fin de la partie, l'équipe au plus haut **% de PV** gagne (`FinishGame`).
 C'est la v2 (front moderne) d'une app Rails existante jugée trop brouillonne.
+**Tout l'équilibrage vit dans `GameRules`** (app/models), calibré sur le dump de la saison v1.
 
 L'événement **Odyssea 2027** (mars 2027) oppose deux clans : **🌴 Fruits exotiques** (monstre
 **King-Coco**) vs **🍒 Fruits rouges** (monstre **Dracassis**). Chaque joueur choisit un
@@ -30,6 +32,12 @@ L'événement **Odyssea 2027** (mars 2027) oppose deux clans : **🌴 Fruits exo
 | 💎 **Diamants** | streaks, jours spéciaux, coffres, fin de partie | **cosmétiques uniquement** | **globale** (`User.diamonds`) |
 
 On n'achète jamais de pêches ni d'avantage de combat. Les 💎 ne touchent qu'au cosmétique.
+Le seul « booster » (jauge de meute) se **gagne en courant à plusieurs** — jamais acheté.
+
+**Scoring d'une course** (`TrainingScorer`) : plafond d'abord, multiplicateurs ensuite —
+15 km = 10 🍑, ×1,5 avec un vent de dos = 15 🍑. Un jour spécial ×2 double aussi le plafond
+effectif. Les 🍑 sont **créditées à l'import** (`Training#credit_balls!`, idempotent) ; les
+courses sont auto-vérifiées (`status: "verified"`), `Training.scoring` = verified + protected.
 
 ## Modèle de données (22 tables — voir db/schema.rb)
 
@@ -58,6 +66,39 @@ cosmétiques/💎 sont **globaux**.
    refresh de token, job d'import ; reconciliation quotidienne en filet de sécurité
 7. **Classement** (`/ligue`) : deux classements, mensuel et général, récompense au 1er du mois
 8. **Avatar** (`/avatar`) : personnalisation + équipement des cosmétiques possédés
+9. **Mécaniques de saison** (voir section dédiée) : jauge de meute, monstre affamé, second
+   souffle, vent de face, fumigène, résolution des pièges au scoring, fin de partie
+
+### Mécaniques de saison (calibrées sur les données v1 — voir `GameRules`)
+
+La saison type dure ~24 semaines (1er oct → 15 mars). L'équilibrage vient de l'analyse du dump
+v1 : ~165 🍑/semaine pour 15 actifs, et une partie morte à mi-saison à cause d'un multiplicateur
+permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
+
+- **🐾 Jauge de meute** (`PackLevelJob`, le lundi) : semaine où **≥ 5 coéquipiers ont couru
+  ≥ 10 km chacun** → `teams.pack_level += 1`, soit **+10 % permanents** sur attaques ET soins.
+  **Additif, plafond ×2** (10 paliers), jamais multiplicatif, jamais achetable.
+  `Team#combat_multiplier` remplace l'ancienne colonne `teams.multiplier` (supprimée).
+- **🍽️ Monstre affamé** (`FamineJob`, quotidien) : équipe sans course depuis **72h** → son
+  monstre perd **50 PV/jour**, plancher à **5 %** des PV max (la famine ne tue pas, le coup
+  final reste aux joueurs). Chip d'avertissement 🍽️ sur le Hub dès 48h (`TeamEffectsPresenter`).
+- **💨 Second souffle** : premier passage d'un monstre **sous 25 %** → soins de son équipe à
+  **1 🍑 pendant 7 jours**, une fois par partie (`teams.second_wind_until`, déclenché dans
+  `Monster#refresh_state!`).
+- **🏁 Fin de partie** (`FinishGame`) : monstre à 0 (via une attaque) OU `ends_at` atteint
+  (via `FamineJob`) → `games.status = "finished"`, `winner_team_id` (nil = égalité au % de PV),
+  notification à tous, bannière sur le Hub, combat verrouillé (garde dans `PerformAction`).
+- **🐺 Résolution des pièges** (`ResolveRunEffects`, appelé à l'import) : le piège non résolu
+  le plus ancien visant le coureur se referme → course `trapped`, 0 🍑 — sauf jambe de bois
+  armée → course `protected`, 🍑 sauvées. Les `Action` concernées sont marquées `resolved_at`
+  (usage unique). Notifications importantes aux deux camps.
+- **🌬️/🌪️ Vents sur les courses** : appliqués par `TrainingScorer` à la **date réelle** de la
+  course (une course importée en retard est bien jugée) — dos ×1,5 / face ×0,75, 12h.
+- **🌫️ Fumigène** : `TeamEffect kind: "smoke"` 24h sur l'équipe **aveuglée** (choisie par le
+  poseur, sélecteur `TeamPicker`). `MonsterPresenter` masque alors hp/max_hp/percent
+  (`masked: true`) pour ce viewer sur Hub et Combat — l'état (dessin) reste visible.
+- **🎉 Journées spéciales** : 5-6 par saison (`SpecialDay`, ×2). Seedées : Halloween 31/10 et
+  Réveillon 24/12. Le multiplicateur s'applique après le plafond → plafond effectif doublé.
 
 ### Les classements (`/ligue`)
 Un classement par partie, les deux clans mélangés, **pas de divisions** (elles ont existé une
@@ -142,7 +183,10 @@ description, durée, allure, dénivelé, **tracé du parcours** et photo. Les ch
 Deux monnaies **étanches** (règle d'or, jamais de pay-to-win), servies par le service `Purchase` :
 - **Objets** (power-ups) en 🍑 pêches (`Membership.balls`, par partie) → déposés dans l'inventaire
   de la participation (`MembershipItem`, `used: false`). **À usage unique** : « Utiliser » réutilise
-  `PerformAction` (`use_item`) et consomme l'objet.
+  `PerformAction` (`use_item`) et consomme l'objet. Catalogue (prix calibrés sur ~10 🍑/sem
+  pour un actif médian) : **Jambe de bois 4** · **Vent de dos 4** · **Vent de face 4** ·
+  **Fumigène 4** · **Piège à loup 5** · **Bouclier 6** (6h). Le vent de face notifie ses
+  victimes nominativement (agressivité assumée) ; le fumigène choisit son équipe cible.
 - **Cosmétiques** en 💎 diamants (`User.diamonds`, global) → déposés dans l'armoire
   (`UserCosmetic`). On les **équipe / remet dans l'armoire** depuis l'écran avatar (`/avatar`).
   Seuls les cosmétiques `price_diamonds` non nul sont en vente (les récompenses ne le sont pas).
@@ -152,8 +196,9 @@ achats sont refusés proprement si monnaie insuffisante, cosmétique déjà poss
 
 ### Notifications — deux niveaux (`notifications.importance`)
 - **important** : poussé en Web Push **et** listé. Concerne le joueur directement — message dans
-  la **conversation d'équipe**, récompense (coffre, ligue, streak), et (à venir) « ma course a été
-  piégée / mon piège a réussi / mon piège a été déjoué ».
+  la **conversation d'équipe**, récompense (coffre, ligue, streak), « ma course a été piégée /
+  mon piège a réussi / mon piège a été déjoué », vent de face ou fumigène **reçu**, palier de
+  meute gagné, monstre affamé, second souffle, fin de partie.
 - **secondary** (défaut) : **listé seulement**, jamais poussé. L'activité des autres — « X a
   couru N km · +N 🍑 » (km **et** pêches gagnées), « X a activé un vent de dos jusqu'à… », « X a
   posé un piège à loup », et le **combat** : attaque (⚡ « -N PV ») et soin (💚 « +N PV »), avec
@@ -194,9 +239,8 @@ le bouclier du monstre (`monster.protected_until`), chacun avec son échéance. 
   voit qui est visé.
 - **Jambe de bois** (`wooden_leg`) : usage **silencieux** (rien n'est annoncé) ; elle ne se
   révélera dans les notifications qu'au moment où elle déjouera un piège.
-- ⚠️ **Les effets sur les courses ne sont pas encore résolus** (piège annulant les 🍑, jambe de
-  bois les protégeant) : les objets se posent et s'affichent, mais le scoring des `Training`
-  n'est pas encore touché. À faire avec les coffres/streak.
+- Les effets sur les courses sont **résolus à l'import** : pièges/jambes par
+  `ResolveRunEffects`, vents par `TrainingScorer` (voir « Mécaniques de saison »).
 
 ### La FAQ / règles (`/faq`)
 Page **statique** des règles du jeu (`FaqController#show` → `pages/Faq.jsx`), en sections
@@ -252,6 +296,8 @@ bin/rails webpush:keys              # génère les clés VAPID
 CALLBACK_URL=https://.../strava/webhook bin/rails strava:subscribe  # abonnement webhook (prod)
 
 bin/rails league:standings          # classements du mois et général, en console
+bin/rails runner PackLevelJob.perform_now   # juge la semaine écoulée (jauge de meute)
+bin/rails runner FamineJob.perform_now      # famine + clôture de saison (quotidien en prod)
 MONTH=2026-06 bin/rails league:award_month         # décerne la récompense d'un mois (test)
 ```
 
@@ -265,9 +311,12 @@ et recharge le Hub.
 **Plus simple — se connecter en démo** : le seed donne à tous les joueurs le mot de passe
 `odyssea2027`. Connecte-toi avec **`yann@btb.test` / `odyssea2027`** pour tomber directement dans
 une partie remplie. Le seed **rejoue de vrais événements** (via `PerformAction`) pour peupler le
-feed de notifications : Yann y voit ses importantes (coffre, message d'équipe) et le fil d'activité
-(vent de dos, bouclier, piège à loup, courses), des **effets d'équipe actifs** sur le Hud, et une
-**pastille de messages non lus** sur l'onglet Chat. Reseeder (`bin/rails db:seed`) régénère tout ça.
+feed de notifications : Yann y voit ses importantes (coffre, message d'équipe, fumigène reçu) et
+le fil d'activité (vents, bouclier, piège à loup, courses), des **effets d'équipe actifs** sur le
+Hud (dont les **jauges de meute** et le **second souffle** de Dracassis), les **PV adverses
+masqués « ??? »** (les exotiques sont enfumés), et une **pastille de messages non lus** sur
+l'onglet Chat. Reseeder (`bin/rails db:seed`) régénère tout ça.
+⚠️ Le seed doit détacher `games.winner_team_id` avant de supprimer les équipes (FK).
 
 ### Secrets (optionnels — l'app tourne sans)
 `GOOGLE_CLIENT_ID/SECRET`, `STRAVA_CLIENT_ID/SECRET`, `STRAVA_VERIFY_TOKEN`,

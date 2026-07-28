@@ -35,14 +35,20 @@ export default function Hub({ membership }) {
 function GameView({ m }) {
   const mine = m.my_team
   const foe = m.opponent
+  const finished = m.game?.status === 'finished'
   return (
     <main className="body">
-      {m.event?.race_at && (
+      {finished && (
+        <div className="specialday" style={{ background: 'var(--violet)' }}>
+          🏁 Partie terminée · {m.game.winner ? `Victoire des ${m.game.winner} 🏆` : 'Égalité parfaite 🤝'}
+        </div>
+      )}
+      {!finished && m.event?.race_at && (
         <Countdown raceAt={m.event.race_at} startAt={m.event.starts_at} name={m.event.name} location={m.event.location} />
       )}
-      {m.special_day && (
+      {!finished && m.special_day && (
         <div className="specialday">
-          🎄 Jour spécial · {m.special_day.name}
+          🎉 Jour spécial · {m.special_day.name}
           <span className="x2">🍑 ×{m.special_day.multiplier}</span>
         </div>
       )}
@@ -52,7 +58,7 @@ function GameView({ m }) {
         {foe ? <TeamBoard team={foe} /> : <div className="board board-empty">En attente d'un adversaire…</div>}
       </div>
 
-      <Link href="/combat" className="btn combat">⚔️ COMBATTRE</Link>
+      {!finished && <Link href="/combat" className="btn combat">⚔️ COMBATTRE</Link>}
       <div className="tiles">
         <div className="tile"><span className="ic">🔥</span><div><div className="tn">Série hebdo</div><div className="td">{m.weekly_streak} sem.</div></div></div>
         <div className="tile"><span className="ic">🎁</span><div><div className="tn">Coffres</div><div className="td">{m.sealed_chests} à ouvrir</div></div></div>
@@ -78,8 +84,12 @@ function TeamBoard({ team, mine = false }) {
         </div>
       </div>
       <div className="board-hp">
-        <div className="bigbar"><i className={hpClass(mon?.state)} style={{ width: `${mon?.percent ?? 0}%` }} /></div>
-        <div className="board-hpnum">{mon?.hp ?? '–'} / {mon?.max_hp ?? '–'} PV</div>
+        <div className="bigbar">
+          {mon?.masked
+            ? <i className="unknown" style={{ width: '100%' }} />
+            : <i className={hpClass(mon?.state)} style={{ width: `${mon?.percent ?? 0}%` }} />}
+        </div>
+        <div className="board-hpnum">{mon?.masked ? '??? PV 🌫️' : `${mon?.hp ?? '–'} / ${mon?.max_hp ?? '–'} PV`}</div>
       </div>
       <EffectBadges effects={team.effects} />
     </div>

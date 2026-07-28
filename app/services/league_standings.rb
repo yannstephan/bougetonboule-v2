@@ -51,7 +51,7 @@ class LeagueStandings
   private
 
   def period_stats(memberships)
-    Training.verified
+    Training.scoring
             .where(membership_id: memberships.map(&:id))
             .where(date: from.beginning_of_day..to.end_of_day)
             .group(:membership_id)
