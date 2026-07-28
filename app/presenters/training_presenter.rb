@@ -29,11 +29,60 @@ class TrainingPresenter
       elapsed: format_duration(@t.elapsed_time),
       route_points: @t.route_points || [],
       photo_url: @t.photo_url,
-      special_day: @t.special_day && { name: @t.special_day.name, multiplier: @t.special_day.multiplier.to_f }
+      special_day: @t.special_day && { name: @t.special_day.name, multiplier: @t.special_day.multiplier.to_f },
+      effects: effects_breakdown
     )
   end
 
   private
+
+  # Ce qui a influencé les 🍑 de cette course : piège à loup (subi ou déjoué), jour spécial,
+  # vents de dos/face actifs à l'heure de la sortie. Vide si la course a couru « normalement ».
+  def effects_breakdown
+    items = []
+
+    case @t.status
+    when "trapped"
+      items << { emoji: "🐺", label: "Course piégée", tone: "bad",
+                 detail: "Ta course du #{when_label} est tombée dans un piège à loup : 0 🍑." }
+    when "protected"
+      items << { emoji: "🦿", label: "Piège déjoué", tone: "good",
+                 detail: "Un piège à loup visait ta course du #{when_label} — ta jambe de bois l'a déjoué, pêches sauvées." }
+    end
+
+    if @t.special_day
+      items << { emoji: "🎉", label: "#{@t.special_day.name} · ×#{fmt(@t.special_day.multiplier)}", tone: "up",
+                 detail: "Jour spécial : pêches (et plafond) doublés." }
+    end
+
+    wind_effects.each do |e|
+      items << if e.kind == "back_wind"
+        { emoji: "🌬️", label: "Vent de dos · ×#{fmt(e.modifier)}", tone: "up",
+          detail: "Un vent de dos de ton équipe a boosté les pêches de cette course." }
+      else
+        { emoji: "🌪️", label: "Vent de face · ×#{fmt(e.modifier)}", tone: "down",
+          detail: "Un vent de face adverse a réduit les pêches de cette course." }
+      end
+    end
+
+    items
+  end
+
+  # Vents actifs sur l'équipe du coureur à l'heure réelle de la course (même règle que TrainingScorer).
+  def wind_effects
+    @t.membership.team.team_effects
+      .where(kind: %w[back_wind face_wind])
+      .where("created_at <= :at AND (expires_at IS NULL OR expires_at >= :at)", at: @t.date)
+      .order(:created_at)
+  end
+
+  def when_label = @t.date.strftime("%d/%m à %H:%M")
+
+  # 1.5 → "1,5", 2.0 → "2".
+  def fmt(n)
+    f = n.to_f
+    f == f.to_i ? f.to_i.to_s : f.to_s.tr(".", ",")
+  end
 
   def duration = format_duration(@t.moving_time)
 

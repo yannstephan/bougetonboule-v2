@@ -31,13 +31,6 @@ export default function Training({ training: t, author }) {
           <span className="tr-when">{t.day_label} · {t.time}</span>
         </Link>
 
-        {t.special_day && (
-          <div className="specialday">
-            🎉 Jour spécial · {t.special_day.name}
-            <span className="x2">🍑 ×{t.special_day.multiplier}</span>
-          </div>
-        )}
-
         <RouteMap points={t.route_points} height={200} />
 
         <div className="tr-stats">
@@ -51,6 +44,21 @@ export default function Training({ training: t, author }) {
           <span className="tr-balls">+{t.balls} 🍑</span>
           <span className={`run-chip ${chip.cls}`}>{chip.label}</span>
         </div>
+
+        {t.effects?.length > 0 && (
+          <div className="tr-effects">
+            <div className="tr-effects-h">Effets sur cette course</div>
+            {t.effects.map((e, i) => (
+              <div key={i} className={`tr-effect ${e.tone}`}>
+                <span className="tr-effect-ic">{e.emoji}</span>
+                <div>
+                  <div className="tr-effect-l">{e.label}</div>
+                  <div className="tr-effect-d">{e.detail}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {t.description && <p className="tr-desc">{t.description}</p>}
 
