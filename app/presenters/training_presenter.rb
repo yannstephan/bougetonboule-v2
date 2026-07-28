@@ -47,21 +47,21 @@ class TrainingPresenter
                  detail: "Ta course du #{when_label} est tombée dans un piège à loup : 0 🍑." }
     when "protected"
       items << { emoji: "🦿", label: "Piège déjoué", tone: "good",
-                 detail: "Un piège à loup visait ta course du #{when_label} — ta jambe de bois l'a déjoué, pêches sauvées." }
+                 detail: "Un piège à loup visait ta course du #{when_label} — ta jambe de bois l'a déjoué, boules sauvées." }
     end
 
     if @t.special_day
       items << { emoji: "🎉", label: "#{@t.special_day.name} · ×#{fmt(@t.special_day.multiplier)}", tone: "up",
-                 detail: "Jour spécial : pêches (et plafond) doublés." }
+                 detail: "Jour spécial : boules (et plafond) doublées." }
     end
 
     wind_effects.each do |e|
       items << if e.kind == "back_wind"
         { emoji: "🌬️", label: "Vent de dos · ×#{fmt(e.modifier)}", tone: "up",
-          detail: "Un vent de dos de ton équipe a boosté les pêches de cette course." }
+          detail: "Un vent de dos de ton équipe a boosté les boules de cette course." }
       else
         { emoji: "🌪️", label: "Vent de face · ×#{fmt(e.modifier)}", tone: "down",
-          detail: "Un vent de face adverse a réduit les pêches de cette course." }
+          detail: "Un vent de face adverse a réduit les boules de cette course." }
       end
     end
 

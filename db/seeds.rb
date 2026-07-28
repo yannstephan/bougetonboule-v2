@@ -55,10 +55,10 @@ puts "Objets (power-ups)…"
 # Le booster n'est plus un objet : c'est la jauge de meute (PackLevelJob), gagnée en courant.
 Item.create!([
   { name: "Jambe de bois", price: 4, description: "Déjoue le prochain piège sur ta course",             effect_type: "wooden_leg" },
-  { name: "Vent de dos",   price: 4, description: "×1,5 sur les pêches de l'équipe pendant 12h",        effect_type: "back_wind" },
-  { name: "Vent de face",  price: 4, description: "−25 % sur les pêches adverses pendant 12h",          effect_type: "face_wind" },
+  { name: "Vent de dos",   price: 4, description: "×1,5 sur les boules de l'équipe pendant 12h",        effect_type: "back_wind" },
+  { name: "Vent de face",  price: 4, description: "−25 % sur les boules adverses pendant 12h",          effect_type: "face_wind" },
   { name: "Fumigène",      price: 4, description: "Masque les PV des monstres à l'équipe visée (24h)",  effect_type: "smoke" },
-  { name: "Piège à loup",  price: 5, description: "Annule les pêches de la prochaine course d'un adversaire", effect_type: "trap" },
+  { name: "Piège à loup",  price: 5, description: "Annule les boules de la prochaine course d'un adversaire", effect_type: "trap" },
   { name: "Bouclier",      price: 6, description: "Monstre intouchable pendant 6h",                     effect_type: "shield" },
 ])
 
@@ -84,7 +84,7 @@ Conversation.create!(game:, kind: "general")
 Conversation.create!(game:, kind: "team", team: exo)
 Conversation.create!(game:, kind: "team", team: rouges)
 
-# Journées ×2 de la saison (pêches ET plafond doublés) — 2 fixées, les suivantes en cours de route.
+# Journées ×2 de la saison (boules ET plafond doublés) — 2 fixées, les suivantes en cours de route.
 SpecialDay.create!(game:, name: "Halloween",         date: Date.new(2026, 10, 31), multiplier: 2)
 SpecialDay.create!(game:, name: "Réveillon de Noël", date: Date.new(2026, 12, 24), multiplier: 2)
 
@@ -209,7 +209,7 @@ end
 game.conversations.team_chats.find_each do |conv|
   conv.team.memberships.limit(2).each_with_index do |m, i|
     Message.create!(conversation: conv, membership: m, created_at: (2 - i).hours.ago,
-                    body: i.zero? ? "On concentre les attaques ce soir ?" : "Ok, je garde mes pêches 🍑")
+                    body: i.zero? ? "On concentre les attaques ce soir ?" : "Ok, je garde mes boules 🍑")
   end
 end
 
@@ -250,7 +250,7 @@ seed_import = lambda do |membership, distance_meters|
   Notification.broadcast(others, game:, category: "training_verified", title: "🏃 Nouvelle course", link:,
                          body: "#{membership.display_name} a couru #{t.distance_km.round(1)} km · #{gain}")
   Notification.create!(user: membership.user, game:, category: "training_verified", link:,
-                       title: "Course importée", body: "#{t.distance_km.round(1)} km · +#{t.score.to_i} pêches")
+                       title: "Course importée", body: "#{t.distance_km.round(1)} km · +#{t.score.to_i} boules")
 end
 
 use_effect[max_m, "back_wind"]          # 🌬️ Max (rouges) : vent de dos → annonce secondaire à tous

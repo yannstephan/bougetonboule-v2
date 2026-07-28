@@ -70,7 +70,7 @@ export default function Boutique({ has_team, balls, items, cosmetics, inventory,
 
 function Items({ items, balls, hasTeam, onBuy }) {
   if (!hasTeam) {
-    return <p className="shop-empty">Rejoins une partie pour acheter des objets : ils s'achètent en 🍑 pêches, gagnées en courant.</p>
+    return <p className="shop-empty">Rejoins une partie pour acheter des objets : ils s'achètent en 🍑 boules, gagnées en courant.</p>
   }
   return (
     <div className="shop-list">

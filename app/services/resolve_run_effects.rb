@@ -1,6 +1,6 @@
 # Résout les objets « à retardement » au moment où une course arrive : le piège à loup
 # le plus ancien qui visait ce coureur se referme (0 🍑), sauf si une jambe de bois était
-# armée — elle le déjoue et la course garde ses pêches (statut "protected").
+# armée — elle le déjoue et la course garde ses boules (statut "protected").
 # Un piège / une jambe ne sert qu'une fois : l'action est marquée résolue.
 class ResolveRunEffects
   def self.call(training) = new(training).call
@@ -38,7 +38,7 @@ class ResolveRunEffects
           .where(created_at: ..@t.date).order(:created_at).first
   end
 
-  # Piège déjoué : la course garde ses pêches, la jambe de bois se révèle enfin.
+  # Piège déjoué : la course garde ses boules, la jambe de bois se révèle enfin.
   def foil!(trap, leg)
     now = Time.current
     trap.update!(resolved_at: now)

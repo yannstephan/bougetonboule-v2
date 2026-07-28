@@ -44,8 +44,8 @@ class StravaActivityImportJob < ApplicationJob
         importance: lost.positive? ? "important" : "secondary",
         link: "/courses/#{training.id}",
         body: [
-          "#{training.distance_km.round(1)} km · +#{credited} pêches",
-          ("#{lost} 🍑 perdues (plafond #{GameRules::WALLET_CAP}) — dépense tes pêches !" if lost.positive?),
+          "#{training.distance_km.round(1)} km · +#{credited} boules",
+          ("#{lost} 🍑 perdues (plafond #{GameRules::WALLET_CAP}) — dépense tes boules !" if lost.positive?),
         ].compact.join(" · ")
       )
       broadcast_run(membership, training)

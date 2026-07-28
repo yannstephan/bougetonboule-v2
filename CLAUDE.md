@@ -6,7 +6,9 @@
 ## Le concept
 
 Jeu de **course à pied entre amis**. Chaque km couru (importé depuis **Strava**) rapporte
-**1 pêche 🍑** (max 10 / sortie). On dépense ses pêches pour **attaquer** le monstre de
+**1 boule 🍑** (max 10 / sortie). ⚠️ **Vocabulaire** : la monnaie s'appelle la **boule**
+(féminin — c'est Bouge Ton Boule), illustrée par l'emoji pêche 🍑 — écrire « boules »,
+jamais « pêches », dans tous les textes joueurs. On dépense ses boules pour **attaquer** le monstre de
 l'équipe adverse (10 000 PV) ou **soigner** le sien. Un monstre à 0 PV = défaite immédiate ;
 sinon, à la date de fin de la partie, l'équipe au plus haut **% de PV** gagne (`FinishGame`).
 C'est la v2 (front moderne) d'une app Rails existante jugée trop brouillonne.
@@ -28,10 +30,10 @@ L'événement **Odyssea 2027** (mars 2027) oppose deux clans : **🌴 Fruits exo
 
 | Monnaie | Gagnée par | Dépensée en | Portée |
 |---|---|---|---|
-| 🍑 **Pêches** | **courir uniquement** (1/km, max 10) | combat + power-ups | **par partie** (`Membership.balls`) |
+| 🍑 **Boules** | **courir uniquement** (1/km, max 10) | combat + power-ups | **par partie** (`Membership.balls`) |
 | 💎 **Diamants** | streaks, jours spéciaux, coffres, fin de partie | **cosmétiques uniquement** | **globale** (`User.diamonds`) |
 
-On n'achète jamais de pêches ni d'avantage de combat. Les 💎 ne touchent qu'au cosmétique.
+On n'achète jamais de boules ni d'avantage de combat. Les 💎 ne touchent qu'au cosmétique.
 Le seul « booster » (jauge de meute) se **gagne en courant à plusieurs** — jamais acheté.
 
 **Scoring d'une course** (`TrainingScorer`) : plafond d'abord, multiplicateurs ensuite —
@@ -39,7 +41,7 @@ Le seul « booster » (jauge de meute) se **gagne en courant à plusieurs** — 
 effectif. Les 🍑 sont **créditées à l'import** (`Training#credit_balls!`, idempotent) ; les
 courses sont auto-vérifiées (`status: "verified"`), `Training.scoring` = verified + protected.
 **Porte-monnaie plafonné à 100 🍑** (retour v1, `GameRules::WALLET_CAP`) : le crédit est tronqué
-au plafond, l'excédent est perdu (notif importante « dépense tes pêches ! ») — mais le **score de
+au plafond, l'excédent est perdu (notif importante « dépense tes boules ! ») — mais le **score de
 la course reste entier**, donc la ligue n'est jamais pénalisée. Avec l'échec critique (15 % du
 solde), thésauriser est doublement puni.
 
@@ -217,7 +219,7 @@ description, durée, allure, dénivelé, **tracé du parcours** et photo. Les ch
 
 ### La boutique (`/boutique`)
 Deux monnaies **étanches** (règle d'or, jamais de pay-to-win), servies par le service `Purchase` :
-- **Objets** (power-ups) en 🍑 pêches (`Membership.balls`, par partie) → déposés dans l'inventaire
+- **Objets** (power-ups) en 🍑 boules (`Membership.balls`, par partie) → déposés dans l'inventaire
   de la participation (`MembershipItem`, `used: false`). **À usage unique** : « Utiliser » réutilise
   `PerformAction` (`use_item`) et consomme l'objet. Catalogue (prix calibrés sur ~10 🍑/sem
   pour un actif médian) : **Jambe de bois 4** · **Vent de dos 4** · **Vent de face 4** ·
@@ -236,7 +238,7 @@ achats sont refusés proprement si monnaie insuffisante, cosmétique déjà poss
   mon piège a réussi / mon piège a été déjoué », vent de face ou fumigène **reçu**, palier de
   meute gagné, monstre affamé, second souffle, fin de partie.
 - **secondary** (défaut) : **listé seulement**, jamais poussé. L'activité des autres — « X a
-  couru N km · +N 🍑 » (km **et** pêches gagnées), « X a activé un vent de dos jusqu'à… », « X a
+  couru N km · +N 🍑 » (km **et** boules gagnées), « X a activé un vent de dos jusqu'à… », « X a
   posé un piège à loup », et le **combat** : attaque (⚡ « -N PV ») et soin (💚 « +N PV »), avec
   les PV en jeu. `PerformAction#broadcast_combat` notifie **tout le monde, l'auteur inclus** :
   l'auteur reçoit une version à la 1re personne (« Tu as infligé… »), les autres la 3e (« X a
@@ -261,7 +263,7 @@ affiché en pastille sur l'onglet **Chat** (`components/BottomNav.jsx`). Ouvrir 
 ⚠️ Le seed doit vider `ConversationRead` en tête du nettoyage (FK vers membership/conversation).
 
 ### Profil : pas de solde de 🍑
-La réserve de pêches d'un joueur ne se voit **que sur sa propre page d'accueil** (le HUD), jamais
+La réserve de boules d'un joueur ne se voit **que sur sa propre page d'accueil** (le HUD), jamais
 sur la page profil d'un joueur.
 
 ### Effets d'objets (combat)
@@ -281,7 +283,7 @@ le bouclier du monstre (`monster.protected_until`), chacun avec son échéance. 
 
 ### La FAQ / règles (`/faq`)
 Page **statique** des règles du jeu (`FaqController#show` → `pages/Faq.jsx`), en sections
-repliables (`<details>`) : but, pêches, combat, objets, diamants, ligue, avatar, notifications,
+repliables (`<details>`) : but, boules, combat, objets, diamants, ligue, avatar, notifications,
 + un encadré « règle d'or ». **Aucun prop** : tout le contenu vit dans le tableau `SECTIONS` du
 composant — c'est le seul endroit qui décrit le fonctionnement côté joueur, **à mettre à jour
 quand une mécanique change**. Lien 📖 dans le **header du Hud** (à côté de la cloche 🔔).

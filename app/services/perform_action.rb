@@ -32,7 +32,7 @@ class PerformAction
   def err(msg) = Result.new(ok: false, message: msg)
 
   def attack
-    return err("Pas assez de pêches") if @m.balls < GameRules::ATTACK_COST
+    return err("Pas assez de boules") if @m.balls < GameRules::ATTACK_COST
     foe = team.opponent&.monster
     return err("Aucun adversaire") unless foe
     return err("Le monstre adverse est protégé 🛡️") if foe.protected?
@@ -73,7 +73,7 @@ class PerformAction
 
   def heal
     cost = team.heal_cost
-    return err("Pas assez de pêches") if @m.balls < cost
+    return err("Pas assez de boules") if @m.balls < cost
     mine = team.monster
     return err("#{mine.name} est déjà au maximum") if mine.hp >= mine.max_hp
 
@@ -137,7 +137,7 @@ class PerformAction
     Notification.broadcast(foe.memberships.includes(:user).map(&:user),
                            game: @m.game, importance: "important", category: "effect",
                            title: "🌪️ Vent de face !",
-                           body: "#{@m.user.firstname} souffle contre vous : −25 % de pêches jusqu'à #{until_at.strftime('%H:%M')}.")
+                           body: "#{@m.user.firstname} souffle contre vous : −25 % de boules jusqu'à #{until_at.strftime('%H:%M')}.")
     broadcast_effect("🌪️ #{@m.user.firstname} a lancé un vent de face sur #{foe.name}.", except_team: foe)
     ok("Vent de face lancé sur #{foe.name} !")
   end
