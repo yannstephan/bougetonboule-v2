@@ -115,9 +115,12 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   15 % de chance de cacher un coffre — **max 1/jour** par participation, **pity** garanti
   après 7 courses scorées sans drop. Rareté pondérée (60/25/12/3), contenu décidé **au drop**
   (💎 15/30/60/120 + parfois un cosmétique non possédé, toujours pour un légendaire — c'est
-  par là qu'arrive l'Esprit du loup). Ouverture sur le **Hub** (`ChestCard`, 🎁 qui tremble
-  puis révélation via `flash[:chest]`) : `Chest#open!` idempotent (verrou + statut) crédite
-  et journalise dans `rewards` (period `chest-<id>`), doublon acquis entre-temps → +30 💎.
+  par là qu'arrive l'Esprit du loup). Ouverture sur le **Hub** (`ChestCard`) en **modal
+  plein écran** : coffre SVG qui tremble → POST → au rechargement, `flash[:chest]` rouvre la
+  modal en mode révélation (couvercle sur charnière, **paillettes**, gains qui sortent en
+  chips). Pas de tuile « coffres » : la carte n'apparaît que s'il y a un coffre scellé.
+  `Chest#open!` idempotent (verrou + statut) crédite et journalise dans `rewards`
+  (period `chest-<id>`), doublon acquis entre-temps → +30 💎.
 - **💥 Échec critique** (retour v1) : 1 attaque sur 10 rate (`PerformAction#crit_fail`) — 0 dégât
   et perte de **15 % du solde** (min 1, max 10 🍑), non multipliée par la meute. Taxe les
   thésauriseurs (pas de plafond de porte-monnaie en v2) sans inverser l'économie attaque/soin
