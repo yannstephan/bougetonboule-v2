@@ -56,22 +56,20 @@ function Framboitrix() {
     { y: 82, xs: [46, 54] }
   ]
   const drupes = rows.flatMap((r) => r.xs.map((x) => [x, r.y]))
+  // Trois mèches ondulées de chaque côté [xDépart, yDépart, dérive, longueur, ondulations, ampleur, sens].
+  const locks = [
+    [37, 41, -15, 47, 3, 8, 1], [35, 44, -9, 46, 3, 7, -1], [34, 47, -4, 42, 3, 6, 1],
+    [63, 41, 15, 47, 3, 8, -1], [65, 44, 9, 46, 3, 7, 1], [66, 47, 4, 42, 3, 6, -1]
+  ].map((a) => wavyLock(...a))
   return (
     <g>
       <ellipse cx="50" cy="91" rx="24" ry="4.5" fill="#000" opacity="0.12" />
-      {/* cheveux sauvages de sorcière (Bellatrix) : masse sombre derrière l'amas, bas ondulé (boucles) */}
-      <path d="M50 33 C29 33 18 45 20 61 C20.5 70 23 80 28 88 C27 81 29 75 33 72
-               C31 80 35 85 40 86 C38 80 40 74 44 71 C43 81 47 87 50 87
-               C53 87 57 81 56 71 C60 74 62 80 60 86 C65 85 69 80 67 72
-               C71 75 73 81 72 88 C77 80 79.5 70 80 61 C82 45 71 33 50 33 Z"
-            fill="#1f1022" stroke="#140a16" strokeWidth="0.8" />
-      {/* mèches folles + reflets */}
-      <g stroke="#1f1022" strokeWidth="4.5" strokeLinecap="round" fill="none">
-        <path d="M24 50 C12 47 11 61 18 67" />
-        <path d="M76 50 C88 47 89 61 82 67" />
+      {/* cheveux de sorcière : trois mèches franchement ondulées de chaque côté, sous le chapeau */}
+      <g fill="none" stroke="#20101f" strokeWidth="6" strokeLinecap="round">
+        {locks.map((d, i) => <path key={i} d={d} />)}
       </g>
-      <g stroke="#3a2038" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.75">
-        <path d="M29 46 C25 57 27 70 33 80" /><path d="M71 46 C75 57 73 70 67 80" />
+      <g fill="none" stroke="#5a3355" strokeWidth="1.6" strokeLinecap="round" opacity="0.75">
+        {locks.map((d, i) => <path key={`s${i}`} d={d} />)}
       </g>
       {/* corps : amas de drupéoles */}
       {drupes.map(([x, y], i) => (
@@ -100,6 +98,22 @@ function Framboitrix() {
       </g>
     </g>
   )
+}
+
+// Une mèche de cheveux ondulée : descend de (x,y) sur `len`, dérive de `drift` en x, avec
+// `waves` ondulations d'ampleur `amp` (le signe `dir` donne le sens de la première vague).
+// Chaîne de courbes quadratiques dont le point de contrôle balance de part et d'autre.
+function wavyLock(x, y, drift, len, waves, amp, dir) {
+  const seg = len / waves
+  let d = `M${x} ${y}`
+  for (let i = 0; i < waves; i++) {
+    const cy = (y + seg * (i + 0.5)).toFixed(1)
+    const ny = (y + seg * (i + 1)).toFixed(1)
+    const nx = x + (drift * (i + 1)) / waves
+    const cx = (nx + dir * amp * (i % 2 === 0 ? 1 : -1)).toFixed(1)
+    d += ` Q${cx} ${cy} ${nx.toFixed(1)} ${ny}`
+  }
+  return d
 }
 
 const MONSTERS = { 'king-coco': KingCoco, framboitrix: Framboitrix }
