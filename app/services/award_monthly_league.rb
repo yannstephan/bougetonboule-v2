@@ -40,12 +40,14 @@ class AwardMonthlyLeague
                                                  fallback: FALLBACK_DIAMONDS)
   end
 
+  def prize_text(reward)
+    return "Tu remportes #{GrantReward.label(reward)} !" if reward.cosmetic
+
+    "Tu as déjà tous les cosmétiques — voilà #{reward.amount} 💎 à la place !"
+  end
+
   def notify(winner, reward)
-    prize = if reward.cosmetic
-              "Tu remportes #{reward.cosmetic.emoji} #{reward.cosmetic.name} !"
-            else
-              "Tu as déjà tous les cosmétiques — voilà #{reward.amount} 💎 à la place !"
-            end
+    prize = prize_text(reward)
 
     Notification.create!(
       user: winner.membership.user, game: @game, category: "league", importance: "important",

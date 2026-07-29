@@ -341,6 +341,9 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 bin/dev                 # Rails + Vite → http://localhost:3000
 bin/rails db:prepare    # crée + migre + seed
 bin/rails console
+bin/rails test          # la suite de tests (écrans, boucle de jeu, scoring, jobs)
+bin/rubocop             # style Ruby
+bin/ci                  # tout : style, audit gems, brakeman, tests, seed
 bin/rails webpush:keys              # génère les clés VAPID
 CALLBACK_URL=https://.../strava/webhook bin/rails strava:subscribe  # abonnement webhook (prod)
 
@@ -388,3 +391,26 @@ sont simplement inactifs.
 - Écrans = pages Inertia rendues via `render inertia: "Nom", props: {...}` (pas d'API JSON séparée).
 - Formulaires Inertia : inclure `authenticity_token` dans les données (CSRF).
 - Commits clairs ; garder le seed à jour quand le schéma change.
+- Style Ruby : `bin/rubocop` (omakase, sans espaces dans les crochets) doit rester vert.
+- Tests dans `test/` : `bin/rails test`. `test/support/game_world.rb` monte une partie jouable
+  (`create_game` / `create_player` / `create_training` / `sign_in_as`) — l'utiliser plutôt que
+  de recréer des fixtures à la main.
+
+### Où vit quoi (à réutiliser, pas à recopier)
+
+Le projet a dérivé une fois en dupliquant ces briques ; avant d'écrire du code qui ressemble à
+l'une d'elles, passer par elle.
+
+| Besoin | À utiliser |
+|---|---|
+| Une course entre dans le jeu (scoring, pièges, 🍑, coffre, notifs) | `RecordTraining` — le job Strava **et** le seed passent par là |
+| Offrir un cosmétique / des 💎 et le journaliser dans `rewards` | `GrantReward` (ligue, streak, coffres) |
+| Sérialiser un joueur (nom + avatar + équipe) | `MembershipPresenter` ; l'avatar seul → `AvatarPresenter` |
+| Formater une date pour un joueur (« Hier », « Juillet 2026 ») | `HumanDates` |
+| Les destinataires d'une notif d'équipe / de partie | `team.users`, `game.users` |
+| Les courses qui rapportent | `Training.scoring` / `training.scoring?` (jamais `%w[verified protected]` en dur) |
+| Les vents actifs au moment d'une course | `TeamEffect.winds_at(date)` |
+| Un cosmétique que le joueur n'a pas | `Cosmetic.unowned_by(user)` |
+| Verdict d'un service → flash + redirect | `ServiceResult` + `redirect_with(result, to:)` |
+| Un écran de jeu exige une partie | `before_action -> { require_membership("combattre") }` |
+| Côté React : jeton CSRF, emoji/libellés, en-tête, flash | `lib/csrf.js`, `lib/labels.js`, `components/SubHeader.jsx`, `components/Flash.jsx` |

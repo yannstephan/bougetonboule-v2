@@ -47,7 +47,7 @@ Cosmetic.create!([
   { name: "Bonnet du Réveillon", slot: "hat", rarity: "epic",      price_diamonds: nil,  source: "event", emoji: "🎅" },
   { name: "Citrouille maudite", slot: "hat",  rarity: "epic",      price_diamonds: nil,  source: "event", emoji: "🎃" },
   { name: "Médaille d'Odyssea", slot: "outfit", rarity: "legendary", price_diamonds: nil, source: "rank", emoji: "🏅" },
-  { name: "Esprit du loup",     slot: "aura", rarity: "legendary", price_diamonds: nil,  source: "drop",  emoji: "🐺" },
+  { name: "Esprit du loup",     slot: "aura", rarity: "legendary", price_diamonds: nil,  source: "drop",  emoji: "🐺" }
 ])
 
 puts "Objets (power-ups)…"
@@ -59,7 +59,7 @@ Item.create!([
   { name: "Vent de face",  price: 4, description: "−25 % sur les boules adverses pendant 12h",          effect_type: "face_wind" },
   { name: "Fumigène",      price: 4, description: "Masque les PV des monstres à l'équipe visée (24h)",  effect_type: "smoke" },
   { name: "Piège à loup",  price: 5, description: "Annule les boules de la prochaine course d'un adversaire", effect_type: "trap" },
-  { name: "Bouclier",      price: 6, description: "Monstre intouchable pendant 6h",                     effect_type: "shield" },
+  { name: "Bouclier",      price: 6, description: "Monstre intouchable pendant 6h",                     effect_type: "shield" }
 ])
 
 puts "Event + partie…"

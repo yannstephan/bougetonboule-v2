@@ -48,9 +48,9 @@ Rails.application.routes.draw do
   post  "push_subscriptions", to: "push_subscriptions#create", as: :push_subscriptions
 
   # PWA (contrôleur maison : Rails::PwaController rate le format du .js — voir PwaController)
-  get "service-worker" => "pwa#service_worker", as: :pwa_service_worker
-  get "manifest" => "pwa#manifest", as: :pwa_manifest
+  get "service-worker", to: "pwa#service_worker", as: :pwa_service_worker
+  get "manifest",       to: "pwa#manifest",       as: :pwa_manifest
 
-  get "up" => "rails/health#show", as: :rails_health_check
+  get "up", to: "rails/health#show", as: :rails_health_check
   root "hub#index"
 end
