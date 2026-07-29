@@ -1,4 +1,8 @@
 class Team < ApplicationRecord
+  # Effets à durée qu'on ne peut PAS empiler : un seul actif à la fois. On attend qu'il se
+  # termine avant d'en reposer un (sinon deux chantilly en même temps, deux vents, etc.).
+  DURATIONAL_ITEM_EFFECTS = %w[shield back_wind face_wind smoke].freeze
+
   belongs_to :game
   belongs_to :opponent, class_name: "Team", foreign_key: "opponent_id", optional: true
   has_one  :monster, dependent: :destroy
@@ -12,6 +16,18 @@ class Team < ApplicationRecord
   def total_balls = memberships.sum(:balls)
   def active_effects = team_effects.active
   def active_effect(kind) = active_effects.find_by(kind:)
+
+  # L'effet posé par cet objet est-il déjà en cours ? On refuse d'en poser un second tant
+  # qu'il tourne. shield/back_wind portent sur soi ; face_wind/smoke frappent l'adversaire.
+  def item_effect_active?(effect_type)
+    case effect_type
+    when "shield"    then monster&.protected? || false
+    when "back_wind" then active_effect("back_wind").present?
+    when "face_wind" then opponent&.active_effect("face_wind").present?
+    when "smoke"     then opponent&.active_effect("smoke").present?
+    else false
+    end
+  end
 
   # Multiplicateur de combat issu de la jauge de meute : +10 % par palier, plafonné à ×2.
   # Additif et gagné uniquement en courant (jamais acheté, jamais multiplicatif).

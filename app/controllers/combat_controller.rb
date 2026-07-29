@@ -23,7 +23,8 @@ class CombatController < ApplicationController
                          effects: TeamEffectsPresenter.call(foe),
                          monster: MonsterPresenter.call(foe.monster, viewer_team: m.team) },
       opponents: foe ? foe.memberships.includes(:user).map { |mem| { id: mem.id, name: mem.display_name } } : [],
-      items: m.owned_items.map { |i| { id: i.id, name: i.name, effect_type: i.effect_type } }
+      items: m.owned_items.map { |i| { id: i.id, name: i.name, effect_type: i.effect_type,
+                                       active: m.team.item_effect_active?(i.effect_type) } }
     }
   end
 

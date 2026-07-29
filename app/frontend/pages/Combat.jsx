@@ -109,8 +109,10 @@ export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team
           <span className="e">💚</span><span className="c">{heal_cost} 🍑</span>
         </button>
         {items.slice(0, 2).map((it) => (
-          <button key={it.id} className="gem-btn item" onClick={() => onItem(it)}>
-            <span className="e">{itemEmoji(it.effect_type)}</span><span className="c">objet</span>
+          <button key={it.id} className="gem-btn item" onClick={() => onItem(it)}
+                  disabled={it.active} title={it.active ? 'Déjà en cours' : undefined}>
+            <span className="e">{itemEmoji(it.effect_type)}</span>
+            <span className="c">{it.active ? 'en cours' : 'objet'}</span>
           </button>
         ))}
       </div>

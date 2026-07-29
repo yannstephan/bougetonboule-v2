@@ -93,7 +93,12 @@ class PerformAction
     mi = @m.membership_items.unused.find_by(item_id: @item_id)
     return err("Objet indisponible") unless mi
 
-    case mi.item.effect_type
+    effect = mi.item.effect_type
+    if Team::DURATIONAL_ITEM_EFFECTS.include?(effect) && team.item_effect_active?(effect)
+      return err(already_active_message(effect))
+    end
+
+    case effect
     when "shield"
       until_at = GameRules::SHIELD_DURATION.from_now
       team.monster.update!(protected_until: until_at)
@@ -121,6 +126,18 @@ class PerformAction
     else
       consume(mi, "#{@m.user.firstname} a utilisé #{mi.item.name}")
       ok("#{mi.item.name} utilisé !")
+    end
+  end
+
+  # Un effet à durée est déjà en cours : on refuse d'en poser un second (pas d'empilement),
+  # il faut attendre qu'il se termine. L'objet n'est pas consommé.
+  def already_active_message(effect)
+    case effect
+    when "shield"    then "Un saladier protège déjà #{team.monster.name} — attends qu'il se retire."
+    when "back_wind" then "Un vent de dos souffle déjà pour #{team.name} — attends qu'il retombe."
+    when "face_wind" then "Un vent de face souffle déjà sur #{team.opponent&.name} — attends qu'il retombe."
+    when "smoke"     then "#{team.opponent&.name} a déjà de la chantilly plein les yeux — attends que ça sèche."
+    else "Cet effet est déjà en cours — attends qu'il se termine."
     end
   end
 

@@ -7,6 +7,7 @@ class ShopController < ApplicationController
     m = current_membership
     render inertia: "Boutique", props: {
       has_team: m.present?,
+      initial_tab: %w[items cosmetics inventory].include?(params[:tab]) ? params[:tab] : "items",
       balls: m&.balls || 0,
       items: items_json(m),
       cosmetics: cosmetics_json,
@@ -81,7 +82,8 @@ class ShopController < ApplicationController
               .group_by(&:item_id).map do |_item_id, rows|
       item = rows.first.item
       { item_id: item.id, name: item.name, description: item.description,
-        effect_type: item.effect_type, count: rows.size }
+        effect_type: item.effect_type, count: rows.size,
+        active: membership.team.item_effect_active?(item.effect_type) }
     end
   end
 end

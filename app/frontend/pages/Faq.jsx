@@ -53,6 +53,7 @@ const SECTIONS = [
       '🥣 Saladier (6 🍑) : un saladier retourné sur ton monstre — il est intouchable pendant 6 h et tu le vois sous sa cloche. L\'arme anti-raid.',
       '🍦 Chantilly (4 🍑) : aveugle l\'équipe adverse pendant 24 h et tu choisis quel monstre barbouiller — le tien ou le sien. Elle en a plein les yeux dans son avatar, et ses PV s\'affichent « ??? ». Idéal pour cacher une offensive surprise.',
       'Les effets à durée (vents, saladier, chantilly) sont publics : tout le monde voit qu\'une équipe en a un, et jusqu\'à quand.',
+      'Pas d\'empilement : un effet à durée ne se relance pas tant qu\'il tourne (pas deux chantilly, deux vents ni deux saladiers en même temps). Attends qu\'il se termine pour en reposer un.',
     ],
   },
   {

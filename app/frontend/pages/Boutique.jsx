@@ -11,10 +11,10 @@ const itemEmoji = (t) =>
   ({ shield: '🥣', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🍦', wooden_leg: '🦿' }[t] || '🎒')
 const rarityLabel = { common: 'Commun', rare: 'Rare', epic: 'Épique', legendary: 'Légendaire' }
 
-export default function Boutique({ has_team, balls, items, cosmetics, inventory, opponents, team_names }) {
+export default function Boutique({ has_team, initial_tab, balls, items, cosmetics, inventory, opponents, team_names }) {
   const { auth, flash } = usePage().props
   const diamonds = auth.user?.diamonds ?? 0
-  const [tab, setTab] = useState('items')
+  const [tab, setTab] = useState(initial_tab || 'items')
   const [trapItem, setTrapItem] = useState(null)   // objet piège en attente d'une cible
   const [smokeItem, setSmokeItem] = useState(null) // chantilly en attente du monstre à barbouiller
 
@@ -125,9 +125,11 @@ function Inventory({ inventory, onUse }) {
               <span className="shop-emoji">{itemEmoji(it.effect_type)}</span>
               <div className="shop-info">
                 <div className="shop-name">{it.name}<span className="shop-own">×{it.count}</span></div>
-                <div className="shop-desc">{it.description}</div>
+                <div className="shop-desc">{it.active ? 'Déjà en cours — attends qu\'il se termine.' : it.description}</div>
               </div>
-              <button className="shop-use" onClick={() => onUse(it)}>Utiliser</button>
+              <button className="shop-use" onClick={() => onUse(it)} disabled={it.active}>
+                {it.active ? 'En cours' : 'Utiliser'}
+              </button>
             </div>
           ))}
         </div>
