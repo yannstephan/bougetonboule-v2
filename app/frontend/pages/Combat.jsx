@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Monster from '../components/Monster'
 import EffectBadges from '../components/EffectBadges'
 import TargetPicker from '../components/TargetPicker'
-import TeamPicker from '../components/TeamPicker'
+import MonsterPicker from '../components/MonsterPicker'
 
 const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
 const itemEmoji = (t) =>
@@ -48,7 +48,7 @@ export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team
     act('use_item', it.id)
   }
   const pickTarget = (id) => { act('use_item', trapItem.id, id); setTrapItem(null) }
-  const pickTeam = (which) => { act('use_item', smokeItem.id, null, which); setSmokeItem(null) }
+  const pickMask = (which) => { act('use_item', smokeItem.id, null, which); setSmokeItem(null) }
 
   return (
     <div className="shell">
@@ -117,7 +117,8 @@ export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team
         <TargetPicker opponents={opponents} onPick={pickTarget} onClose={() => setTrapItem(null)} />
       )}
       {smokeItem && (
-        <TeamPicker myTeam={my_team?.name} foeTeam={foe_team?.name} onPick={pickTeam} onClose={() => setSmokeItem(null)} />
+        <MonsterPicker myMonster={my_team?.monster?.name} foeMonster={foe_team?.monster?.name}
+                       foeTeam={foe_team?.name} onPick={pickMask} onClose={() => setSmokeItem(null)} />
       )}
     </div>
   )

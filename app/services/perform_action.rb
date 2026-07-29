@@ -142,20 +142,23 @@ class PerformAction
     ok("Vent de face lancé sur #{foe.name} !")
   end
 
-  # Fumigène : aveugle l'équipe choisie 24h — elle ne voit plus les PV des monstres.
+  # Fumigène : l'équipe adverse est TOUJOURS aveuglée 24h ; le poseur choisit QUEL monstre lui
+  # est masqué — le sien (`mine`) ou celui de l'adversaire (`foe`, défaut).
   def set_smoke(mi)
-    blinded = @target_team == "mine" ? team : team.opponent
-    return err("Choisis une équipe à enfumer.") unless blinded
+    foe = team.opponent
+    return err("Aucun adversaire à enfumer.") unless foe
 
+    masked_team = @target_team == "mine" ? team : foe
+    monster = masked_team.monster
     until_at = GameRules::SMOKE_DURATION.from_now
-    TeamEffect.create!(team: blinded, kind: "smoke", expires_at: until_at, created_by: @m)
-    consume(mi, "🌫️ #{@m.user.firstname} a enfumé #{blinded.name}")
-    Notification.broadcast(blinded.memberships.includes(:user).where.not(id: @m.id).map(&:user),
+    TeamEffect.create!(team: foe, kind: "smoke", masked_team:, expires_at: until_at, created_by: @m)
+    consume(mi, "🌫️ #{@m.user.firstname} a masqué les PV de #{monster.name} à #{foe.name}")
+    Notification.broadcast(foe.memberships.includes(:user).map(&:user),
                            game: @m.game, importance: "important", category: "effect",
                            title: "🌫️ Fumigène !",
-                           body: "#{@m.user.firstname} vous a enfumés : PV des monstres masqués jusqu'à #{until_at.strftime('%H:%M')}.")
-    broadcast_effect("🌫️ #{@m.user.firstname} a lancé un fumigène sur #{blinded.name}.", except_team: blinded)
-    ok("Fumigène lancé sur #{blinded.name} !")
+                           body: "#{@m.user.firstname} vous enfume : vous ne voyez plus les PV de #{monster.name} jusqu'à #{until_at.strftime('%H:%M')}.")
+    broadcast_effect("🌫️ #{@m.user.firstname} a masqué les PV de #{monster.name} pour #{foe.name}.", except_team: foe)
+    ok("Fumigène : PV de #{monster.name} masqués pour #{foe.name} !")
   end
 
   # Pose un piège sur un adversaire précis. La cible est enregistrée (résolution à l'import

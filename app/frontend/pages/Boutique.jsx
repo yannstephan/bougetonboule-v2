@@ -2,7 +2,7 @@ import { Head, Link, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import BottomNav from '../components/BottomNav'
 import TargetPicker from '../components/TargetPicker'
-import TeamPicker from '../components/TeamPicker'
+import MonsterPicker from '../components/MonsterPicker'
 
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
@@ -16,7 +16,7 @@ export default function Boutique({ has_team, balls, items, cosmetics, inventory,
   const diamonds = auth.user?.diamonds ?? 0
   const [tab, setTab] = useState('items')
   const [trapItem, setTrapItem] = useState(null)   // objet piège en attente d'une cible
-  const [smokeItem, setSmokeItem] = useState(null) // fumigène en attente d'une équipe
+  const [smokeItem, setSmokeItem] = useState(null) // fumigène en attente du monstre à masquer
 
   const post = (url, data) => router.post(url, { ...data, authenticity_token: csrf() }, { preserveScroll: true })
   const buyItem = (id) => post('/boutique/items', { item_id: id })
@@ -27,7 +27,7 @@ export default function Boutique({ has_team, balls, items, cosmetics, inventory,
     post('/boutique/use', { item_id: it.item_id })
   }
   const trapTarget = (targetId) => { post('/boutique/use', { item_id: trapItem.item_id, target_id: targetId }); setTrapItem(null) }
-  const smokeTeam = (which) => { post('/boutique/use', { item_id: smokeItem.item_id, target_team: which }); setSmokeItem(null) }
+  const smokeMask = (which) => { post('/boutique/use', { item_id: smokeItem.item_id, target_team: which }); setSmokeItem(null) }
 
   return (
     <div className="shell">
@@ -60,7 +60,8 @@ export default function Boutique({ has_team, balls, items, cosmetics, inventory,
         <TargetPicker opponents={opponents} onPick={trapTarget} onClose={() => setTrapItem(null)} />
       )}
       {smokeItem && (
-        <TeamPicker myTeam={team_names?.mine} foeTeam={team_names?.foe} onPick={smokeTeam} onClose={() => setSmokeItem(null)} />
+        <MonsterPicker myMonster={team_names?.mine_monster} foeMonster={team_names?.foe_monster}
+                       foeTeam={team_names?.foe} onPick={smokeMask} onClose={() => setSmokeItem(null)} />
       )}
 
       <BottomNav active="shop" />

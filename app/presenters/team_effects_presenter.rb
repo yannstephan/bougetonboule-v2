@@ -19,8 +19,10 @@ class TeamEffectsPresenter
   end
 
   def call
-    effects = @team.active_effects.includes(created_by: :user).map do |e|
-      chip(e.kind, e.expires_at, e.created_by&.display_name)
+    effects = @team.active_effects.includes(created_by: :user, masked_team: :monster).map do |e|
+      # Le fumigène précise QUEL monstre est masqué à cette équipe.
+      label = ("#{e.masked_team&.monster&.name} masqué" if e.kind == "smoke")
+      chip(e.kind, e.expires_at, e.created_by&.display_name, label)
     end
     if @team.monster&.protected?
       effects << chip("shield", @team.monster.protected_until, nil)
@@ -46,12 +48,12 @@ class TeamEffectsPresenter
     chips
   end
 
-  def chip(kind, expires_at, by)
+  def chip(kind, expires_at, by, label = nil)
     meta = KINDS[kind] || { emoji: "✨", name: kind.to_s.humanize }
     {
       kind: kind,
       emoji: meta[:emoji],
-      name: meta[:name],
+      name: label || meta[:name],
       until: expires_at&.strftime("%H:%M"),
       remaining: remaining(expires_at),
       by: by

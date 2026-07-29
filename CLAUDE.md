@@ -100,9 +100,12 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   (usage unique). Notifications importantes aux deux camps.
 - **🌬️/🌪️ Vents sur les courses** : appliqués par `TrainingScorer` à la **date réelle** de la
   course (une course importée en retard est bien jugée) — dos ×1,5 / face ×0,75, 12h.
-- **🌫️ Fumigène** : `TeamEffect kind: "smoke"` 24h sur l'équipe **aveuglée** (choisie par le
-  poseur, sélecteur `TeamPicker`). `MonsterPresenter` masque alors hp/max_hp/percent
-  (`masked: true`) pour ce viewer sur Hub et Combat — l'état (dessin) reste visible.
+- **🌫️ Fumigène** : `TeamEffect kind: "smoke"` 24h. L'**équipe adverse est toujours aveuglée**
+  (colonne `team_id`) ; le poseur choisit **quel monstre** lui masquer — le sien ou celui de
+  l'adversaire (`team_effects.masked_team_id`, sélecteur `MonsterPicker`, param `target_team`
+  `mine`/`foe`). `Team#smoke_masks?(monster_team_id)` → `MonsterPresenter` masque **ce monstre**
+  (hp/max_hp/percent nil, `masked: true`) pour l'équipe visée sur Hub et Combat ; l'autre monstre
+  et le dessin restent visibles. Le chip 🌫️ indique « <monstre> masqué ».
 - **🎉 Journées spéciales** : 5-6 par saison (`SpecialDay`, ×2). Seedées : Halloween 31/10 et
   Réveillon 24/12. Le multiplicateur s'applique après le plafond → plafond effectif doublé.
 - **🔥 Streak hebdo** (`WeeklyStreakJob`, le lundi) : ≥ 1 course scorée dans la semaine →
@@ -224,7 +227,8 @@ Deux monnaies **étanches** (règle d'or, jamais de pay-to-win), servies par le 
   `PerformAction` (`use_item`) et consomme l'objet. Catalogue (prix calibrés sur ~10 🍑/sem
   pour un actif médian) : **Jambe de bois 4** · **Vent de dos 4** · **Vent de face 4** ·
   **Fumigène 4** · **Piège à loup 5** · **Bouclier 6** (6h). Le vent de face notifie ses
-  victimes nominativement (agressivité assumée) ; le fumigène choisit son équipe cible.
+  victimes nominativement (agressivité assumée) ; le fumigène aveugle toujours l'adversaire et
+  choisit quel monstre lui masquer.
 - **Cosmétiques** en 💎 diamants (`User.diamonds`, global) → déposés dans l'armoire
   (`UserCosmetic`). On les **équipe / remet dans l'armoire** depuis l'écran avatar (`/avatar`).
   Seuls les cosmétiques `price_diamonds` non nul sont en vente (les récompenses ne le sont pas).

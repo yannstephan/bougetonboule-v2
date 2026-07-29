@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_28_120001) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_29_120000) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -218,9 +218,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_28_120001) do
     t.integer "created_by_id"
     t.datetime "expires_at"
     t.string "kind", null: false
+    t.integer "masked_team_id"
     t.decimal "modifier", precision: 5, scale: 2
     t.integer "team_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["masked_team_id"], name: "index_team_effects_on_masked_team_id"
     t.index ["team_id"], name: "index_team_effects_on_team_id"
   end
 
@@ -321,6 +323,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_28_120001) do
   add_foreign_key "rewards", "users"
   add_foreign_key "special_days", "games"
   add_foreign_key "team_effects", "teams"
+  add_foreign_key "team_effects", "teams", column: "masked_team_id"
   add_foreign_key "teams", "games"
   add_foreign_key "trainings", "memberships"
   add_foreign_key "trainings", "special_days"

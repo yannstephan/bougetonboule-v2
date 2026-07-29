@@ -50,7 +50,7 @@ const SECTIONS = [
       '🌬️ Vent de dos (4 🍑) : ×1,5 sur les boules de toute ton équipe pendant 12 h. À déclencher avant les sorties du week-end !',
       '🌪️ Vent de face (4 🍑) : −25 % sur les boules de l\'équipe adverse pendant 12 h. Les victimes sont prévenues — c\'est une déclaration de guerre assumée.',
       '🛡️ Bouclier (6 🍑) : ton monstre est intouchable pendant 6 h. L\'arme anti-raid.',
-      '🌫️ Fumigène (4 🍑) : aveugle l\'équipe de ton choix pendant 24 h — elle ne voit plus les PV des monstres (affichés « ??? »). Idéal avant une offensive surprise.',
+      '🌫️ Fumigène (4 🍑) : aveugle l\'équipe adverse pendant 24 h et tu choisis quel monstre lui masquer — le tien ou le sien (PV affichés « ??? »). Idéal pour cacher une offensive surprise.',
       'Les effets à durée (vents, bouclier, fumée) sont publics : tout le monde voit qu\'une équipe en a un, et jusqu\'à quand.',
     ],
   },

@@ -12,7 +12,8 @@ class ShopController < ApplicationController
       cosmetics: cosmetics_json,
       inventory: inventory_json(m),
       opponents: opponents_json(m),
-      team_names: m && { mine: m.team.name, foe: m.team.opponent&.name }
+      team_names: m && { mine: m.team.name, foe: m.team.opponent&.name,
+                         mine_monster: m.team.monster&.name, foe_monster: m.team.opponent&.monster&.name }
     }
   end
 
