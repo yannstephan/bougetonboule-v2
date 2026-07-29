@@ -85,27 +85,33 @@ function Cosmetic({ slot, worn, at }) {
   }
   if (!at) return null
 
-  // Une pièce dessinée contient déjà sa paire (deux chaussures de face) : on ne la duplique pas.
-  if (drawn) {
+  // Un dessin `pair` contient déjà les deux pièces (les chaussures de face) : il occupe
+  // toute la largeur, garde l'ancre dédiée du slot (`at.art`) et n'est jamais dupliqué.
+  if (drawn?.pair) {
     const a = { ...at, ...(at.art || {}) }
     return (
       <span className={`fav-slot fav-${slot}`} style={pin(a.x, a.y, drawn.em || a.em)}>
-        <svg viewBox="0 0 100 100" className="fav-art" role="presentation">{drawn.node}</svg>
+        <Art node={drawn.node} />
       </span>
     )
   }
 
-  // Sinon, les paires (gants) sont un seul emoji rendu deux fois, le droit en miroir.
-  if (at.spread) {
-    return (
-      <>
-        <span className={`fav-slot fav-${slot}`} style={pin(at.x - at.spread, at.y, at.em)}>{emoji}</span>
-        <span className={`fav-slot fav-mirror fav-${slot}`} style={pin(at.x + at.spread, at.y, at.em)}>{emoji}</span>
-      </>
-    )
-  }
-  return <span className={`fav-slot fav-${slot}`} style={pin(at.x, at.y, at.em)}>{emoji}</span>
+  // Sinon, un slot symétrique pose la pièce de chaque côté, la droite en miroir.
+  // ⚠️ La pièce doit représenter UNE main : 🧤 est déjà une paire et donnait quatre mains
+  // — d'où le dessin `mitten`. Un emoji-paire dans un slot symétrique est un bug de contenu.
+  const em = drawn?.em || at.em
+  const draw = (x, mirror) => (
+    <span key={x} className={`fav-slot fav-${slot} ${mirror ? 'fav-mirror' : ''}`} style={pin(x, at.y, em)}>
+      {drawn ? <Art node={drawn.node} /> : emoji}
+    </span>
+  )
+  if (at.spread) return <>{draw(at.x - at.spread, false)}{draw(at.x + at.spread, true)}</>
+  return draw(at.x, false)
 }
+
+const Art = ({ node }) => (
+  <svg viewBox="0 0 100 100" className="fav-art" role="presentation">{node}</svg>
+)
 
 // Position d'une pièce : son centre tombe sur (x, y) — le CSS recentre avec translate(-50%,-50%),
 // ce qui rend le placement indépendant des métriques capricieuses des glyphes emoji.

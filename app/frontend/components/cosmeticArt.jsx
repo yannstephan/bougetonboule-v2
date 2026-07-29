@@ -7,9 +7,9 @@
 //   2. les visages entiers — 🤠 🧐 🎅 collent une deuxième tête sur celle du fruit.
 // Ces pièces portent une clé `cosmetics.art` et sont dessinées ici, à plat, dans la charte.
 //
-// Une entrée = { em, node } : `em` la taille relative à l'avatar (les paires sont larges,
-// donc plus grandes qu'un emoji), `node` le contenu d'un viewBox 0 0 100 100 centré.
-// Les pièces dessinées ne se dupliquent JAMAIS (elles contiennent déjà la paire).
+// Une entrée = { em, pair, node } : `em` la taille relative à l'avatar (les paires sont
+// larges, donc plus grandes qu'un emoji), `node` le contenu d'un viewBox 0 0 100 100 centré,
+// `pair` quand le dessin contient DÉJÀ les deux pièces — il n'est alors jamais dupliqué.
 
 // ————— Chaussures, vues de face —————
 
@@ -87,6 +87,18 @@ const BucketHat = () => (
   </g>
 )
 
+// ————— Gants —————
+
+// Une moufle, UNE seule main : le slot `hands` la reflète de chaque côté. L'emoji 🧤
+// représente déjà une paire — reflété, il donnait quatre mains.
+const Mitten = ({ body, cuff, thumb }) => (
+  <g>
+    <rect x="26" y="44" width="20" height="24" rx="10" fill={thumb} />
+    <rect x="38" y="28" width="42" height="42" rx="18" fill={body} />
+    <rect x="32" y="64" width="52" height="16" rx="8" fill={cuff} />
+  </g>
+)
+
 // ————— Cou —————
 
 // Nœud papillon : 🎀 servait déjà de bandeau, deux pièces au même glyphe se confondaient.
@@ -111,12 +123,16 @@ const Monocle = () => (
   </g>
 )
 
+// `pair: true` = le dessin contient DÉJÀ les deux pièces (les chaussures), il n'est donc
+// jamais dupliqué. Sans ce drapeau, une pièce d'un slot symétrique (les gants) est posée
+// de chaque côté, la droite en miroir.
 export const COSMETIC_ART = {
-  sneakers: { node: <Pair body="#ff7a59" sole="#ffffff" tongue="#ffb59f" /> },
-  trail: { node: <Pair body="#8a5a2b" sole="#3f2d1c" tongue="#c98a4b" lace="#f6c945" shaft={7} /> },
-  ballet: { node: <Pair as={Flat} body="#ff9fc0" sole="#e6749b" trim="#ffd6e5" /> },
-  skates: { node: <Pair as={Skate} body="#f2b100" sole="#fff3cc" tongue="#ffe08a" wheel="#4a4360" /> },
-  boots7: { node: <Pair body="#6c5ce7" sole="#f6c945" tongue="#a99bff" lace="#f6c945" shaft={15} /> },
+  sneakers: { pair: true, node: <Pair body="#ff7a59" sole="#ffffff" tongue="#ffb59f" /> },
+  trail: { pair: true, node: <Pair body="#8a5a2b" sole="#3f2d1c" tongue="#c98a4b" lace="#f6c945" shaft={7} /> },
+  ballet: { pair: true, node: <Pair as={Flat} body="#ff9fc0" sole="#e6749b" trim="#ffd6e5" /> },
+  skates: { pair: true, node: <Pair as={Skate} body="#f2b100" sole="#fff3cc" tongue="#ffe08a" wheel="#4a4360" /> },
+  boots7: { pair: true, node: <Pair body="#6c5ce7" sole="#f6c945" tongue="#a99bff" lace="#f6c945" shaft={15} /> },
+  mitten: { em: 0.32, node: <Mitten body="#5f8cbb" cuff="#ff7a59" thumb="#41668f" /> },
   bowtie: { em: 0.26, node: <BowTie /> },
   cowboy_hat: { em: 0.46, node: <CowboyHat /> },
   santa_hat: { em: 0.46, node: <SantaHat /> },

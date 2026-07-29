@@ -358,6 +358,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 .shop-list{display:flex;flex-direction:column;gap:9px}
 .shop-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);
   border-radius:var(--r);padding:11px 12px}
+.shop-card.armed{border-style:dashed;background:transparent}
 .shop-emoji{font-size:28px;flex:none;width:38px;text-align:center}
 .shop-info{flex:1;min-width:0}
 .shop-name{font-weight:800;font-size:14px;display:flex;align-items:center;gap:7px}
@@ -418,6 +419,8 @@ body{margin:0;background:var(--bg);color:var(--text);
 .run-chip.wait{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
 .run-chip.no{background:color-mix(in srgb,var(--crit) 16%,transparent);color:var(--crit)}
 .run-balls{font-weight:800;font-size:13px;font-variant-numeric:tabular-nums;flex:none;color:var(--peach)}
+/* Pourquoi une sortie n'a pas compté, sous la ligne de stats */
+.run-why{font-size:11px;color:var(--crit);margin-top:3px;line-height:1.35}
 
 /* détail d'une sortie */
 .tr-author{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);

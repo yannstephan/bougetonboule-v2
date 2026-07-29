@@ -36,10 +36,14 @@ L'événement **Odyssea 2027** (mars 2027) oppose deux clans : **🌴 Fruits exo
 On n'achète jamais de boules ni d'avantage de combat. Les 💎 ne touchent qu'au cosmétique.
 Le seul « booster » (jauge de meute) se **gagne en courant à plusieurs** — jamais acheté.
 
-**Scoring d'une course** (`TrainingScorer`) : plafond d'abord, multiplicateurs ensuite —
-15 km = 10 🍑, ×1,5 avec un vent de dos = 15 🍑. Un jour spécial ×2 double aussi le plafond
-effectif. Les 🍑 sont **créditées à l'import** (`Training#credit_balls!`, idempotent) ; les
-courses sont auto-vérifiées (`status: "verified"`), `Training.scoring` = verified + protected.
+**Scoring d'une course** (`TrainingScorer`) : plafonds d'abord, multiplicateurs ensuite —
+15 km = 10 🍑, ×1,5 avec un vent de dos = 15 🍑. Un jour spécial ×2 double aussi les plafonds
+effectifs. **Deux plafonds sur la base** : 10 🍑 par course (`MAX_BALLS_PER_RUN`) et 10 🍑 par
+jour et par participation (`MAX_BALLS_PER_DAY`, mémorisé dans `trainings.base_balls`) — couper
+une sortie de 20 km en deux ne rapporte rien de plus, ni en boules ni en ligue.
+Les 🍑 sont **créditées à l'import** (`Training#credit_balls!`, idempotent) ; les courses sont
+jugées automatiquement (voir « Contrôle des courses importées »), `Training.scoring` = verified
++ protected.
 **Porte-monnaie plafonné à 100 🍑** (retour v1, `GameRules::WALLET_CAP`) : le crédit est tronqué
 au plafond, l'excédent est perdu (notif importante « dépense tes boules ! ») — mais le **score de
 la course reste entier**, donc la ligue n'est jamais pénalisée. Avec l'échec critique (15 % du
@@ -136,6 +140,44 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   thésauriseurs (pas de plafond de porte-monnaie en v2) sans inverser l'économie attaque/soin
   (coût moyen d'une attaque ~1,1 🍑 pour un actif). Flash rouge + notifs « morsure » aux deux camps.
 
+### Contrôle des courses importées (anti-triche)
+**Aucune validation humaine** : `TrainingPolicy` (app/services) juge chaque course à l'import et
+tranche seul — elle compte, ou elle est **rejetée** avec une raison lisible par le joueur
+(`trainings.rejection_reason`). Une course rejetée est **conservée mais inerte** : 0 🍑, aucun
+piège consommé, aucun coffre, absente du feed public ; seul le coureur reçoit une notif
+importante avec la raison, et la sortie affiche le motif sur son profil et sa page.
+
+Tous les seuils sont dans `GameRules` (bloc anti-triche). Les contrôles, dans l'ordre :
+1. **Nature** — `sport_type` dans `ALLOWED_SPORT_TYPES` (Run/TrailRun/VirtualRun/Treadmill —
+   on lit `sport_type`, pas `type` qui range TrailRun et VirtualRun sous « Run ») ;
+   `manual` (saisie à la main) et `flagged` (signalée par Strava) refusés.
+2. **Preuve d'effort sur tapis** — course **sans tracé GPS** : il faut la fréquence cardiaque
+   (`HEARTRATE_RANGE`) **ou** au moins une photo. Le contrôle est automatique (« il y a une
+   photo »), la dissuasion est **sociale** : la photo est visible de tous sur la sortie.
+3. **Effort plausible** — 2 à 80 km, allure entre **3:00 et 9:30 /km** (sur `moving_time`),
+   durée obligatoire.
+4. **Fenêtre** — pas plus de 7 jours (`IMPORT_WINDOW`), pas dans le futur (+1 h de tolérance),
+   dans la période de la partie. Connecter Strava en cours de saison ne déverse pas l'historique.
+5. **Unicité** — activité déjà importée par **un autre joueur** refusée (le même joueur peut la
+   faire compter dans plusieurs parties) ; **doublon montre + téléphone** : deux sorties qui se
+   recouvrent, c'est la plus longue qui reste (`ImportTraining#supersede_shorter_duplicates`).
+   Index unique sur `users.strava_uid` : un athlète Strava = un joueur.
+
+**Cycle de vie complet** (`Strava::WebhooksController`) : `create`/`update` → `ImportTraining`
+(re-juge tout : sport corrigé = la course sort, photo ajoutée = elle entre et crédite),
+`delete` → `StravaActivityRevokeJob`. `RevokeTraining` reprend les 🍑 réellement versées
+(`trainings.credited_balls`, plancher à 0 — jamais de solde négatif), efface le score,
+supprime un coffre encore scellé et **réarme le piège à loup** que la course avait fait claquer
+(`actions.resolved_training_id`) — sinon il suffirait de publier une vraie sortie, de la
+supprimer, puis de courir. `StravaSyncJob` sert de filet dans les deux sens : il réimporte les
+courses récentes et **retire** celles que Strava n'a plus (sauf si l'appel API a échoué).
+
+Côté joueur : l'**allure est affichée partout** (liste des sorties, feed de notifs, page de la
+sortie), un chip **quota du jour** apparaît sur le Hub dès qu'on a couru, la page d'une sortie
+explique le plafond journalier atteint, et la FAQ a une section « ✅ Quelles courses comptent ? »
+(en français courant, sans jargon technique). ⚠️ `config.time_zone = "Europe/Paris"` : le quota
+journalier et les jours spéciaux tombent sur le bon jour.
+
 ### Les classements (`/ligue`)
 Un classement par partie, les deux clans mélangés, **pas de divisions** (elles ont existé une
 journée puis ont été retirées — ne pas les réintroduire sans demander). Deux périodes :
@@ -186,12 +228,18 @@ un plancher), les chaussures sous la vraie base. L'aura est une **couronne de 6 
 (un seul gros avalait l'avatar). Sous **44 px** (chat, ligue, listes) seuls aura/lunettes/chapeau
 sont rendus — sinon c'est une bouillie d'emojis.
 **Emoji par défaut, SVG quand l'emoji ne peut pas** (`cosmetics.art` → `components/cosmeticArt.jsx`) :
-deux familles d'emojis ne marchent pas sur un avatar-fruit — les **chaussures** (👟 🥾 🛼 sont des
-godasses *uniques* vues de *profil*, on veut une paire de face) et les **visages entiers** (🤠 🧐 🎅
-colleraient une deuxième tête sur celle du fruit). Ces pièces portent une clé `art` et sont
-dessinées à plat : `sneakers`/`trail`/`ballet`/`skates`/`boots7` (les 5 paires), `cowboy_hat`,
-`santa_hat`, `bucket_hat`, `monocle`, `bowtie`. Une pièce dessinée **contient déjà sa paire** →
-jamais dupliquée, et le slot `shoes` lui donne sa propre ancre (`at.art`, plus large qu'un emoji).
+trois familles d'emojis ne marchent pas sur un avatar-fruit —
+1. les **chaussures** (👟 🥾 🛼 sont des godasses *uniques* vues de *profil*, on veut une paire de face) ;
+2. les **visages entiers** (🤠 🧐 🎅 colleraient une deuxième tête sur celle du fruit) ;
+3. les **emojis déjà pairs dans un slot symétrique** — 🧤 est une paire de gants, reflété de chaque
+   côté il donnait **quatre mains** (d'où le dessin `mitten`, une seule moufle).
+
+Ces pièces portent une clé `art` et sont dessinées à plat : `sneakers`/`trail`/`ballet`/`skates`/
+`boots7` (les 5 paires de chaussures), `mitten`, `cowboy_hat`, `santa_hat`, `bucket_hat`,
+`monocle`, `bowtie`. **`pair: true`** sur une entrée = le dessin contient déjà les deux pièces →
+jamais dupliqué, et le slot `shoes` lui donne sa propre ancre (`at.art`, plus large qu'un emoji).
+Sans ce drapeau, la pièce (dessinée ou emoji) est posée **de chaque côté, la droite en miroir** :
+une pièce d'un slot symétrique doit donc représenter **UNE** main.
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
@@ -381,7 +429,8 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 
 ## Roadmap (à faire, ordre suggéré)
 
-1. **Admin de partie** — créer Event/Game/Teams, valider les courses `pending`.
+1. **Admin de partie** — créer Event/Game/Teams (la validation manuelle des courses n'existe
+   pas : le contrôle anti-triche est 100 % automatique, voir la section dédiée).
 2. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
    en console, il n'y a pas d'écran pour rejoindre une équipe.
 3. **Déploiement** (Kamal, VPS) — y ajouter le **mot de passe oublié** (nécessite un SMTP,
@@ -422,6 +471,8 @@ directement dans une partie remplie. Le seed **rejoue de vrais événements par 
   `wear` 3 — bien amochée), et le chip **🍦 Chantilly** sur les rouges ;
 - **PV masqués « ??? »** + **chantilly dans les yeux de Framboitrix** en se connectant en
   **`max@btb.test`** (les rouges sont barbouillés ; Yann/exo, lui, garde une vue complète) ;
+- **deux courses refusées** par le contrôle anti-triche (tapis sans preuve de Léa, balade à
+  10:59/km de Nico) : notif importante avec le motif, sortie visible mais à 0 🍑 ;
 - le fil de notifications (importantes vs secondaires) et la **pastille de non-lus** du Chat.
 
 Reseeder (`bin/rails db:seed`) régénère tout ça. La **famine** (🍽️) et la **fin de partie** (🏁)

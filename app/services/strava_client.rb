@@ -48,9 +48,20 @@ class StravaClient
 
   def activity(id) = get("#{API_BASE}/activities/#{id}")
 
+  # Toutes les activités récentes de l'athlète — nil si l'appel a échoué (le filet de
+  # sécurité doit pouvoir faire la différence entre « rien » et « on ne sait pas »).
+  def recent_activities(after: 7.days.ago)
+    get("#{API_BASE}/athlete/activities?after=#{after.to_i}&per_page=100")
+  end
+
+  # Les seules activités susceptibles de compter (le tri fin est fait par TrainingPolicy).
   def recent_runs(after: 7.days.ago)
-    (get("#{API_BASE}/athlete/activities?after=#{after.to_i}&per_page=50") || [])
-      .select { |a| a["type"] == "Run" }
+    (recent_activities(after:) || []).select { |a| self.class.running?(a) }
+  end
+
+  def self.running?(activity)
+    sport = activity["sport_type"].presence || activity["type"]
+    GameRules::ALLOWED_SPORT_TYPES.include?(sport)
   end
 
   private

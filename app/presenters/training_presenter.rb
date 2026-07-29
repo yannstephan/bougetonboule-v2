@@ -15,6 +15,10 @@ class TrainingPresenter
       km: @t.distance_km.round(2),
       balls: @t.score.to_f.round(1),
       status: @t.status,
+      # L'allure est affichée partout (et pas seulement sur la page d'une sortie) : c'est
+      # elle qui décide si une course compte.
+      pace: pace,
+      rejection_reason: @t.rejection_reason,
       duration: duration,
       has_route: @t.has_route?,
       has_photo: @t.has_photo?
@@ -24,7 +28,6 @@ class TrainingPresenter
   def detail
     summary.merge(
       description: @t.description,
-      pace: pace,
       elevation: @t.elevation_gain&.to_f,
       elapsed: format_duration(@t.elapsed_time),
       route_points: @t.route_points || [],
@@ -42,12 +45,21 @@ class TrainingPresenter
     items = []
 
     case @t.status
+    when "rejected"
+      items << { emoji: "🚫", label: "Course non comptée", tone: "bad",
+                 detail: @t.rejection_reason.presence || "Cette course ne rapporte pas de boules." }
     when "trapped"
       items << { emoji: "🐺", label: "Course piégée", tone: "bad",
                  detail: "Ta course du #{when_label} est tombée dans un piège à loup : 0 🍑." }
     when "protected"
       items << { emoji: "🦿", label: "Piège déjoué", tone: "good",
                  detail: "Un piège à loup visait ta course du #{when_label} — ta jambe de bois l'a déjoué, boules sauvées." }
+    end
+
+    if (lost = daily_cap_loss).positive?
+      items << { emoji: "🧢", label: "Plafond du jour atteint", tone: "down",
+                 detail: "Le quota est de #{GameRules::MAX_BALLS_PER_DAY} boules par jour : " \
+                         "#{lost} boule#{'s' if lost > 1} de cette sortie n'ont pas compté." }
     end
 
     if @t.special_day
@@ -66,6 +78,14 @@ class TrainingPresenter
     end
 
     items
+  end
+
+  # Boules perdues parce que le quota journalier était déjà entamé par une autre sortie
+  # (0 pour une course qui ne comptait pas de toute façon).
+  def daily_cap_loss
+    return 0 unless @t.status.in?(%w[verified protected])
+
+    [@t.distance_km.floor, GameRules::MAX_BALLS_PER_RUN].min - @t.base_balls.to_i
   end
 
   # Vents actifs sur l'équipe du coureur à l'heure réelle de la course (même règle que TrainingScorer).

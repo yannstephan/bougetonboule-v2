@@ -22,6 +22,7 @@ class HubController < ApplicationController
       weekly_streak: m.weekly_streak,
       streak_jokers: m.streak_jokers,
       month_rank: month_rank(m),
+      day_quota: day_quota(m, special),
       bag_count: m.membership_items.unused.count,
       next_chest: m.chests.sealed.order(:created_at).first&.then { |c| { id: c.id, rarity: c.rarity } },
       special_day: special && { name: special.name, multiplier: special.multiplier.to_f },
@@ -46,6 +47,17 @@ class HubController < ApplicationController
 
     { name: event.name, location: event.location,
       race_at: event.race_date.iso8601, starts_at: game.starts_at&.iso8601 }
+  end
+
+  # Ce que les courses du jour ont déjà rapporté sur le quota journalier, exprimé en boules
+  # gagnées (un jour spécial ×2 double le quota comme le reste). Rien à afficher tant que le
+  # joueur n'a pas couru aujourd'hui.
+  def day_quota(m, special)
+    used = m.trainings.scoring.where(date: Time.zone.now.all_day).sum(:base_balls)
+    return if used.zero?
+
+    factor = special&.multiplier || 1
+    { used: (used * factor).round, cap: (GameRules::MAX_BALLS_PER_DAY * factor).round }
   end
 
   # Rang du mois, seulement si le joueur a couru — sinon on l'invite à courir.

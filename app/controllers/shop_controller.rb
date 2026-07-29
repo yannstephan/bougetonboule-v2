@@ -12,6 +12,7 @@ class ShopController < ApplicationController
       items: items_json(m),
       cosmetics: cosmetics_json,
       inventory: inventory_json(m),
+      armed: armed_effects_json(m),
       opponents: opponents_json(m),
       team_names: m && { mine: m.team.name, foe: m.team.opponent&.name,
                          mine_monster: m.team.monster&.name, foe_monster: m.team.opponent&.monster&.name }
@@ -72,6 +73,22 @@ class ShopController < ApplicationController
     return [] unless foe
 
     foe.memberships.includes(:user).map { |m| { id: m.id, name: m.display_name } }
+  end
+
+  # Objets « à retardement » posés et pas encore résolus : jambe de bois armée (sur soi) et
+  # pièges à loup en attente (avec la cible). Ils ont quitté le sac mais restent en jeu.
+  def armed_effects_json(membership)
+    return [] unless membership
+
+    Action.joins(:item)
+          .where(items: { effect_type: %w[wooden_leg trap] }, resolved_at: nil, membership: membership)
+          .includes(:item)
+          .recent
+          .map do |a|
+      { effect_type: a.item.effect_type,
+        target: a.target.is_a?(Membership) ? a.target.display_name : nil,
+        placed_at: a.created_at.strftime("%-d/%-m à %H:%M") }
+    end
   end
 
   # Objets possédés (non utilisés), regroupés par type avec leur nombre.
