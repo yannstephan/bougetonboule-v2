@@ -12,7 +12,7 @@ export default function EffectBadges({ effects, label }) {
             <span className="fx-e">{e.emoji}</span>
             <span className="fx-t">
               {e.name}
-              {e.until && <b> · jusqu'à {e.until}{e.remaining ? ` (${e.remaining})` : ''}</b>}
+              {e.until && <b> · {e.until}{e.remaining ? ` (${e.remaining})` : ''}</b>}
             </span>
           </span>
         ))}

@@ -54,21 +54,38 @@ class TeamEffectsPresenter
       kind: kind,
       emoji: meta[:emoji],
       name: label || meta[:name],
-      until: expires_at&.strftime("%H:%M"),
+      until: until_label(expires_at),
       remaining: remaining(expires_at),
       by: by
     }
   end
 
-  # "2h15" ou "40 min" — nil si pas d'échéance ou déjà expiré.
+  # Échéance lisible, consciente du jour : "jusqu'à 10:17" (aujourd'hui), "jusqu'à demain 10:17",
+  # sinon "jusqu'au 5/8 à 10:17" — pour ne pas afficher qu'une heure sur un effet de plusieurs jours.
+  def until_label(at)
+    return nil unless at
+
+    time = at.strftime("%H:%M")
+    case at.to_date
+    when Date.current  then "jusqu'à #{time}"
+    when Date.tomorrow then "jusqu'à demain #{time}"
+    else "jusqu'au #{at.strftime('%-d/%-m')} à #{time}"
+    end
+  end
+
+  # Temps restant, conscient des jours : "6 j 23 h", "2h15" ou "40 min". nil si expiré.
   def remaining(expires_at)
     return nil unless expires_at
 
     secs = (expires_at - Time.current).to_i
     return nil if secs <= 0
 
-    h = secs / 3600
+    d = secs / 86_400
+    h = (secs % 86_400) / 3600
     m = (secs % 3600) / 60
-    h.positive? ? "#{h}h#{format('%02d', m)}" : "#{m} min"
+    if d.positive? then h.positive? ? "#{d} j #{h} h" : "#{d} j"
+    elsif h.positive? then "#{h}h#{format('%02d', m)}"
+    else "#{m} min"
+    end
   end
 end
