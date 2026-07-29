@@ -216,13 +216,18 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* cosmétiques : chaque pièce est CENTRÉE sur un point (left/top en % + recentrage), calculé
    par FruitAvatar depuis la silhouette du fruit. Ici ne restent que l'empilement et le
    miroir — les coordonnées, elles, dépendent du fruit porté. */
-.fav-slot{position:absolute;transform:translate(-50%,-50%);line-height:1;pointer-events:none;
-  white-space:nowrap}
-.fav-mirror{transform:translate(-50%,-50%) scaleX(-1)}
+.fav-slot{position:absolute;--lift:0em;transform:translate(-50%,calc(-50% - var(--lift)));
+  line-height:1;pointer-events:none;white-space:nowrap}
+.fav-mirror{transform:translate(-50%,calc(-50% - var(--lift))) scaleX(-1)}
+/* Un glyphe emoji ne remplit pas sa boîte de ligne : il pend sous le centre. Recentrer la
+   BOÎTE posait donc toutes les pièces trop bas (lunettes sous les yeux, gants au menton).
+   On remonte le glyphe d'une fraction de sa propre taille — les dessins SVG, eux, sont
+   déjà centrés dans leur viewBox et n'ont pas besoin de correction. */
+.fav-glyph{--lift:.115em}
 /* pièces dessinées (cosmeticArt.jsx) : un SVG à la place du glyphe emoji */
 .fav-art{display:block;width:1em;height:1em;overflow:visible}
 .cos-art{display:block;width:1em;height:1em}
-.fav-aura{z-index:0;opacity:.72}
+.fav-aura{z-index:0;opacity:.5}
 .fav-shoes{z-index:2}
 .fav-sidekick{z-index:2}
 .fav-hands{z-index:3}
@@ -277,8 +282,37 @@ body{margin:0;background:var(--bg);color:var(--text);
 .lg-rules{font-size:11px;line-height:1.45;color:var(--muted);margin:2px 0 0}
 
 /* avatar */
-.av-stage{display:grid;place-items:center;padding:22px 0;background:var(--surface-2);
+/* Écran avatar : l'aperçu et la barre d'emplacements restent visibles pendant qu'on
+   fouille un rayon — on juge le rendu sans faire l'aller-retour avec le haut de page. */
+.av-sticky{position:sticky;top:0;z-index:5;margin:-14px -14px 0;padding:14px 14px 8px;
+  background:var(--bg);display:flex;flex-direction:column;gap:10px}
+.av-stage{display:grid;place-items:center;padding:16px 0;background:var(--surface-2);
   border:1px solid var(--line);border-radius:var(--r)}
+.av-tabs{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.av-tabs::-webkit-scrollbar{display:none}
+.av-tab{position:relative;flex:none;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px;padding:7px 10px;cursor:pointer;font:inherit;color:var(--muted);
+  display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px}
+.av-tab .ic{font-size:19px;line-height:1}
+.av-tab .tn{font-size:9px;font-weight:700}
+.av-tab.on{border-color:var(--peach);color:var(--peach);
+  background:color-mix(in srgb,var(--peach) 10%,var(--surface))}
+.av-tab .dot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--mint)}
+
+/* Le rayon d'un emplacement : des cartes assez grandes pour reconnaître la pièce. */
+.av-rack{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.av-card{position:relative;background:var(--surface);border:2px solid var(--line);border-radius:12px;
+  padding:10px 6px;cursor:pointer;font:inherit;color:var(--text);display:flex;flex-direction:column;
+  align-items:center;gap:5px}
+.av-card .e{font-size:32px;line-height:1}
+.av-card .n{font-size:10px;font-weight:600;color:var(--muted);text-align:center;line-height:1.25}
+.av-card .tick{position:absolute;top:4px;right:6px;font-size:11px;color:var(--peach);font-weight:900}
+.av-card.on{border-color:var(--peach);background:color-mix(in srgb,var(--peach) 10%,var(--surface))}
+.av-card.bare{border-style:dashed;color:var(--muted)}
+.av-card.rare{border-color:color-mix(in srgb,var(--mint) 45%,var(--line))}
+.av-card.epic{border-color:color-mix(in srgb,var(--violet) 45%,var(--line))}
+.av-card.legendary{border-color:color-mix(in srgb,var(--citron) 60%,var(--line))}
+.av-card.on.rare,.av-card.on.epic,.av-card.on.legendary{border-color:var(--peach)}
 .av-sec h2{margin:0 0 8px;font-size:13px;font-weight:800}
 .av-sec{display:flex;flex-direction:column}
 .av-grid{display:flex;flex-wrap:wrap;gap:8px}

@@ -7,9 +7,10 @@
 //   2. les visages entiers — 🤠 🧐 🎅 collent une deuxième tête sur celle du fruit.
 // Ces pièces portent une clé `cosmetics.art` et sont dessinées ici, à plat, dans la charte.
 //
-// Une entrée = { em, pair, node } : `em` la taille relative à l'avatar (les paires sont
-// larges, donc plus grandes qu'un emoji), `node` le contenu d'un viewBox 0 0 100 100 centré,
-// `pair` quand le dessin contient DÉJÀ les deux pièces — il n'est alors jamais dupliqué.
+// Une entrée = { em, pair, view, node } : `em` la taille relative à l'avatar (les paires
+// sont larges, donc plus grandes qu'un emoji), `node` le contenu d'un viewBox 0 0 100 100
+// centré, `pair` quand le dessin contient DÉJÀ les deux pièces (jamais dupliqué alors),
+// `view` le recadrage de la vignette de catalogue.
 
 // ————— Chaussures, vues de face —————
 
@@ -126,18 +127,22 @@ const Monocle = () => (
 // `pair: true` = le dessin contient DÉJÀ les deux pièces (les chaussures), il n'est donc
 // jamais dupliqué. Sans ce drapeau, une pièce d'un slot symétrique (les gants) est posée
 // de chaque côté, la droite en miroir.
+//
+// `view` = un viewBox RECADRÉ sur le dessin, utilisé par la vignette (armoire, boutique) :
+// sur l'avatar la pièce occupe une petite zone d'un carré de 100, mais dans une case de
+// catalogue elle doit remplir la case comme le fait un emoji.
 export const COSMETIC_ART = {
-  sneakers: { pair: true, node: <Pair body="#ff7a59" sole="#ffffff" tongue="#ffb59f" /> },
-  trail: { pair: true, node: <Pair body="#8a5a2b" sole="#3f2d1c" tongue="#c98a4b" lace="#f6c945" shaft={7} /> },
-  ballet: { pair: true, node: <Pair as={Flat} body="#ff9fc0" sole="#e6749b" trim="#ffd6e5" /> },
-  skates: { pair: true, node: <Pair as={Skate} body="#f2b100" sole="#fff3cc" tongue="#ffe08a" wheel="#4a4360" /> },
-  boots7: { pair: true, node: <Pair body="#6c5ce7" sole="#f6c945" tongue="#a99bff" lace="#f6c945" shaft={15} /> },
-  mitten: { em: 0.32, node: <Mitten body="#5f8cbb" cuff="#ff7a59" thumb="#41668f" /> },
-  bowtie: { em: 0.26, node: <BowTie /> },
-  cowboy_hat: { em: 0.46, node: <CowboyHat /> },
-  santa_hat: { em: 0.46, node: <SantaHat /> },
-  bucket_hat: { em: 0.44, node: <BucketHat /> },
-  monocle: { em: 0.44, node: <Monocle /> },
+  sneakers: { view: '8 38 84 42', pair: true, node: <Pair body="#ff7a59" sole="#ffffff" tongue="#ffb59f" /> },
+  trail: { view: '8 33 84 47', pair: true, node: <Pair body="#8a5a2b" sole="#3f2d1c" tongue="#c98a4b" lace="#f6c945" shaft={7} /> },
+  ballet: { view: '8 40 84 36', pair: true, node: <Pair as={Flat} body="#ff9fc0" sole="#e6749b" trim="#ffd6e5" /> },
+  skates: { view: '8 33 84 47', pair: true, node: <Pair as={Skate} body="#f2b100" sole="#fff3cc" tongue="#ffe08a" wheel="#4a4360" /> },
+  boots7: { view: '8 25 84 55', pair: true, node: <Pair body="#6c5ce7" sole="#f6c945" tongue="#a99bff" lace="#f6c945" shaft={15} /> },
+  mitten: { view: '22 24 66 60', em: 0.32, node: <Mitten body="#5f8cbb" cuff="#ff7a59" thumb="#41668f" /> },
+  bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },
+  cowboy_hat: { view: '8 30 84 52', em: 0.46, node: <CowboyHat /> },
+  santa_hat: { view: '18 22 79 62', em: 0.46, node: <SantaHat /> },
+  bucket_hat: { view: '10 34 80 48', em: 0.44, node: <BucketHat /> },
+  monocle: { view: '51 21 50 75', em: 0.44, node: <Monocle /> },
 }
 
 export const artFor = (key) => (key ? COSMETIC_ART[key] : null)
@@ -148,7 +153,7 @@ export function CosmeticIcon({ art, emoji, className = '', style }) {
   if (!drawn) return <span className={className} style={style}>{emoji || '🎁'}</span>
   return (
     <span className={className} style={style}>
-      <svg viewBox="0 0 100 100" className="cos-art" role="presentation">{drawn.node}</svg>
+      <svg viewBox={drawn.view || '0 0 100 100'} className="cos-art" role="presentation">{drawn.node}</svg>
     </span>
   )
 }

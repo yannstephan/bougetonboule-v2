@@ -15,13 +15,22 @@ import { artFor } from './cosmeticArt'
 //
 // Ajouter un slot = une entrée dans ANCHORS + un z-index CSS (.fav-<slot>). Aucun autre
 // code : une fois le slot connu, un nouveau cosmétique n'est qu'une ligne en base.
+// Ligne des yeux du visage commun (voir <Face />) : la référence de tout ce qui se
+// pose sur la figure, quel que soit le fruit.
+const EYE_LINE = 52
+
 const BACK_SLOTS = ['aura']
 const FRONT_SLOTS = ['shoes', 'sidekick', 'hands', 'neck', 'eyes', 'hat']
 
-// L'aura n'est pas un gros emoji derrière le fruit (il l'avalait) mais une couronne de
-// petits, en halo. Points choisis symétriques et hors de l'axe vertical, pour ne buter
-// ni sur le chapeau ni sur les chaussures.
-const AURA_HALO = [[12, 38], [29, 20], [71, 20], [88, 38], [88, 74], [12, 74]]
+// L'aura vit DERRIÈRE le fruit : une couronne de petits emojis, assez rapprochée pour que
+// la silhouette en cache une partie (z-index 0 < .fav-svg), et translucide. Un seul gros
+// emoji avalait l'avatar ; une couronne trop large flottait à côté au lieu d'être derrière.
+const AURA_RADIUS = 33
+const AURA_ANGLES = [-155, -120, -60, -25, 25, 155] // symétriques, hors de l'axe vertical
+const AURA_HALO = AURA_ANGLES.map((deg) => {
+  const rad = (deg * Math.PI) / 180
+  return [50 + AURA_RADIUS * Math.cos(rad), EYE_LINE + 2 + AURA_RADIUS * Math.sin(rad)]
+})
 
 // En dessous de cette taille (chat, ligue, listes), l'avatar ne fait plus que quelques
 // dizaines de pixels : on n'y garde que les pièces lisibles, sinon c'est une bouillie
@@ -31,18 +40,23 @@ const COMPACT_SLOTS = ['aura', 'eyes', 'hat']
 
 // Ancres en unités du viewBox (0-100), centre de la pièce. `em` = taille relative à
 // l'avatar, `spread` = écart symétrique pour les paires (gants, chaussures).
+//
+// Tout ce qui touche au visage se cale sur la LIGNE DES YEUX (y=52, commune à tous les
+// fruits) plutôt que sur la silhouette : lunettes dessus, gants juste en dessous. Seuls
+// le chapeau, le cou, les chaussures et l'accessoire suivent le fruit (crâne / base /
+// largeur), et de près — une pièce qui s'éloigne fait paraître l'avatar plus petit.
 function anchors({ top, bottom, half, hatX }) {
-  const side = Math.max(half, 22) + 3 // les gants ne remontent jamais sur les joues
+  const side = Math.max(half, 22) + 2 // les gants ne remontent jamais sur les joues
   return {
-    hat: { x: hatX, y: top - 7, em: 0.36 },
-    eyes: { x: 50, y: 53, em: 0.34 },
-    neck: { x: 50, y: Math.max(bottom - 7, 76), em: 0.2 },
-    hands: { x: 50, y: 68, em: 0.22, spread: side },
+    hat: { x: hatX, y: top - 3, em: 0.36 },
+    eyes: { x: 50, y: EYE_LINE, em: 0.34 },
+    neck: { x: 50, y: Math.min(Math.max(bottom - 9, 72), 78), em: 0.2 },
+    hands: { x: 50, y: EYE_LINE + 6, em: 0.22, spread: side },
     // `art` : une paire dessinée est bien plus large qu'un emoji, elle a sa propre ancre.
-    shoes: { x: 50, y: Math.min(bottom + 5, 92), em: 0.22, spread: 10,
-             art: { y: Math.min(bottom, 88), em: 0.41 } },
+    shoes: { x: 50, y: Math.min(bottom + 2, 90), em: 0.22, spread: 10,
+             art: { y: Math.min(bottom - 3, 86), em: 0.4 } },
     // en bas à droite, sous les gants et à l'écart des chaussures (qui restent centrées)
-    sidekick: { x: Math.min(Math.max(50 + half + 11, 76), 87), y: bottom - 1, em: 0.26 },
+    sidekick: { x: Math.min(Math.max(50 + half + 10, 75), 85), y: bottom - 5, em: 0.26 },
   }
 }
 
@@ -78,7 +92,7 @@ function Cosmetic({ slot, worn, at }) {
     return (
       <>
         {AURA_HALO.map(([x, y], i) => (
-          <span key={i} className="fav-slot fav-aura" style={pin(x, y, 0.22)}>{emoji}</span>
+          <span key={i} className="fav-slot fav-glyph fav-aura" style={pin(x, y, 0.22)}>{emoji}</span>
         ))}
       </>
     )
@@ -101,7 +115,8 @@ function Cosmetic({ slot, worn, at }) {
   // — d'où le dessin `mitten`. Un emoji-paire dans un slot symétrique est un bug de contenu.
   const em = drawn?.em || at.em
   const draw = (x, mirror) => (
-    <span key={x} className={`fav-slot fav-${slot} ${mirror ? 'fav-mirror' : ''}`} style={pin(x, at.y, em)}>
+    <span key={x} style={pin(x, at.y, em)}
+          className={`fav-slot fav-${slot} ${drawn ? '' : 'fav-glyph'} ${mirror ? 'fav-mirror' : ''}`}>
       {drawn ? <Art node={drawn.node} /> : emoji}
     </span>
   )

@@ -218,15 +218,26 @@ ni jambes** : `hat` chapeau · `eyes` lunettes · `neck` nœud pap'/cravate/éch
 fruit · `sidekick` accessoire posé à côté (animal, gourde, barre…) · `aura` halo en fond.
 Un seul cosmétique par slot ; `cosmetics.emoji` est ce qui les rend affichables.
 
-**Les ancres suivent la silhouette**, elles ne sont plus fixes : chaque fruit déclare un `box`
-dans `components/fruits.js` — `top` (ligne du crâne), `bottom` (ligne du sol), `half`
-(demi-largeur), `hatX` optionnel. `FruitAvatar` en déduit les positions (`anchors()`), et chaque
-pièce est **centrée** sur son point (`translate(-50%,-50%)`), ce qui évite les métriques
-capricieuses des glyphes emoji. Résultat : le chapeau se pose sur le sommet **réel** (banane,
-carambole, ananas compris), les gants tombent à la vraie largeur (jamais sur les joues, grâce à
-un plancher), les chaussures sous la vraie base. L'aura est une **couronne de 6 petits emojis**
-(un seul gros avalait l'avatar). Sous **44 px** (chat, ligue, listes) seuls aura/lunettes/chapeau
-sont rendus — sinon c'est une bouillie d'emojis.
+**Deux références, jamais des ancres fixes.** Tout ce qui touche au visage se cale sur la
+**ligne des yeux** (`EYE_LINE = 52`, commune à tous les fruits) : lunettes dessus, gants juste
+en dessous. Le reste suit la **silhouette**, déclarée par chaque fruit dans `components/fruits.js`
+via `box` — `top` (ligne du crâne), `bottom` (ligne du sol), `half` (demi-largeur), `hatX`
+optionnel : le chapeau se pose sur le sommet **réel** (banane, carambole, ananas compris), les
+chaussures sous la vraie base, les gants à la vraie largeur (jamais sur les joues, grâce à un
+plancher). `FruitAvatar#anchors()` en déduit les positions et chaque pièce est **centrée** sur
+son point. Les pièces restent **serrées autour du fruit** : une pièce qui s'éloigne fait paraître
+l'avatar plus petit dans un cadre de taille fixe.
+
+⚠️ **Un glyphe emoji pend sous le centre de sa boîte de ligne** : recentrer la boîte posait donc
+toutes les pièces trop bas (lunettes sous les yeux, gants au menton). La classe `.fav-glyph`
+remonte le glyphe de `.115em` de sa propre taille ; les dessins SVG, déjà centrés dans leur
+viewBox, n'y touchent pas.
+
+L'**aura** est une couronne de 6 petits emojis **derrière** le fruit (`z-index` 0 < `.fav-svg`),
+assez rapprochée (rayon 33) pour que la silhouette en masque une partie, et translucide (`.5`) —
+un seul gros emoji avalait l'avatar, une couronne trop large flottait à côté au lieu d'être
+derrière. Sous **44 px** (chat, ligue, listes) seuls aura/lunettes/chapeau sont rendus — sinon
+c'est une bouillie d'emojis.
 **Emoji par défaut, SVG quand l'emoji ne peut pas** (`cosmetics.art` → `components/cosmeticArt.jsx`) :
 trois familles d'emojis ne marchent pas sur un avatar-fruit —
 1. les **chaussures** (👟 🥾 🛼 sont des godasses *uniques* vues de *profil*, on veut une paire de face) ;
@@ -249,6 +260,12 @@ catalogue reste en emoji, et le sera par défaut.
   assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
   aucun code — sauf si elle a besoin d'un dessin, alors + une entrée dans `COSMETIC_ART`.
   Ajouter un **slot** = une entrée dans `anchors()` + un z-index CSS `.fav-<slot>`.
+- **L'écran est un vestiaire, pas une liste** : l'aperçu de l'avatar et la barre d'emplacements
+  restent **collés en haut** (`.av-sticky`) pendant qu'on fouille — on juge le rendu sans faire
+  l'aller-retour. Un onglet par emplacement (+ « Fruit »), une pastille verte quand quelque
+  chose y est équipé, et le rayon n'affiche **que** les pièces de l'emplacement choisi, avec une
+  case « Retirer » quand on porte quelque chose. Empiler les 45 pièces d'un coup obligeait à
+  scroller entre la pièce et l'avatar.
 - Le seed crée **`vitrine@btb.test`**, un compte qui **possède les 45 pièces** (et ne court pas,
   donc ne fausse ni la ligue ni la meute) : `/avatar` liste tout le catalogue, slot par slot,
   pour juger le rendu d'un coup d'œil.
