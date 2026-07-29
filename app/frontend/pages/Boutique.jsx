@@ -11,7 +11,7 @@ const itemEmoji = (t) =>
   ({ shield: '🥣', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🍦', wooden_leg: '🦿' }[t] || '🎒')
 const rarityLabel = { common: 'Commun', rare: 'Rare', epic: 'Épique', legendary: 'Légendaire' }
 
-export default function Boutique({ has_team, initial_tab, balls, items, cosmetics, inventory, opponents, team_names }) {
+export default function Boutique({ has_team, initial_tab, balls, items, cosmetics, inventory, armed, opponents, team_names }) {
   const { auth, flash } = usePage().props
   const diamonds = auth.user?.diamonds ?? 0
   const [tab, setTab] = useState(initial_tab || 'items')
@@ -53,7 +53,7 @@ export default function Boutique({ has_team, initial_tab, balls, items, cosmetic
       <main className="body">
         {tab === 'items' && <Items items={items} balls={balls} hasTeam={has_team} onBuy={buyItem} />}
         {tab === 'cosmetics' && <Cosmetics cosmetics={cosmetics} diamonds={diamonds} onBuy={buyCosmetic} />}
-        {tab === 'inventory' && <Inventory inventory={inventory} onUse={useItem} />}
+        {tab === 'inventory' && <Inventory inventory={inventory} armed={armed} onUse={useItem} />}
       </main>
 
       {trapItem && (
@@ -112,9 +112,32 @@ function Cosmetics({ cosmetics, diamonds, onBuy }) {
   )
 }
 
-function Inventory({ inventory, onUse }) {
+function Inventory({ inventory, armed = [], onUse }) {
   return (
     <>
+      {armed.length > 0 && (
+        <>
+          <h2 className="shop-h2">En préparation</h2>
+          <div className="shop-list">
+            {armed.map((a, i) => (
+              <div key={i} className="shop-card armed">
+                <span className="shop-emoji">{itemEmoji(a.effect_type)}</span>
+                <div className="shop-info">
+                  <div className="shop-name">
+                    {a.effect_type === 'wooden_leg' ? 'Jambe de bois' : 'Piège à loup'}
+                  </div>
+                  <div className="shop-desc">
+                    {a.effect_type === 'wooden_leg'
+                      ? 'Armée — elle déjouera un piège sur ta prochaine course.'
+                      : `Posé sur ${a.target || '?'} — se referme à sa prochaine course.`}
+                    {a.placed_at ? ` · ${a.placed_at}` : ''}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
       <h2 className="shop-h2">Objets à utiliser</h2>
       {inventory.length === 0 ? (
         <p className="shop-empty">Ton sac est vide. Achète des objets dans l'onglet 🍑.</p>
