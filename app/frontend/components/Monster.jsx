@@ -20,7 +20,9 @@ export default function Monster({ slug, name, size = 96, className = '',
       {Draw
         ? (
           <svg viewBox="0 0 100 100" className="mon-svg">
-            {/* Sous le saladier, le monstre rentre la tête dans les épaules pour tenir dessous. */}
+            {/* Le bord arrière du saladier passe DERRIÈRE le monstre (il est dedans), le reste
+                de la cloche par-dessus. Sous le saladier, il rentre la tête dans les épaules. */}
+            {shielded && <BowlBack />}
             <g transform={shielded ? 'translate(50 90) scale(.74) translate(-50 -90)' : undefined}>
               <Draw wear={w} />
               {creamed && eyes && <Cream eyes={eyes} />}
@@ -301,14 +303,26 @@ function CreamSwirl({ cx, cy, r }) {
   )
 }
 
+// Bord arrière du saladier (la moitié haute de l'ouverture) : le monstre est DEDANS, donc ce
+// bord-là passe derrière lui. Dessiné avant le monstre, la cloche vient par-dessus.
+function BowlBack() {
+  return (
+    <g className="mon-bowl">
+      <path d="M2 90 A48 6.5 0 0 1 98 90 Z" fill="#bfe6ff" opacity="0.45" />
+      <path d="M2 90 A48 6.5 0 0 1 98 90" fill="none" stroke="#79c9ef" strokeWidth="2.6" opacity="0.9" />
+    </g>
+  )
+}
+
 // 🥣 Saladier retourné : cloche translucide posée sur le monstre, plus rien ne l'atteint.
+// Seul le bord AVANT est ici — l'arrière est passé derrière le monstre (BowlBack).
 function SaladBowl() {
   return (
     <g className="mon-bowl">
       <path d="M2 90 A48 72 0 0 1 98 90 Z" fill="#bfe6ff" opacity="0.3" />
-      <ellipse cx="50" cy="90" rx="48" ry="6.5" fill="#bfe6ff" opacity="0.45" />
+      <path d="M2 90 A48 6.5 0 0 0 98 90 Z" fill="#bfe6ff" opacity="0.45" />
       <path d="M2 90 A48 72 0 0 1 98 90" fill="none" stroke="#79c9ef" strokeWidth="2.6" opacity="0.9" />
-      <ellipse cx="50" cy="90" rx="48" ry="6.5" fill="none" stroke="#79c9ef" strokeWidth="2.6" opacity="0.9" />
+      <path d="M2 90 A48 6.5 0 0 0 98 90" fill="none" stroke="#79c9ef" strokeWidth="2.6" opacity="0.9" />
       {/* le pied du saladier, en l'air puisqu'il est retourné */}
       <ellipse cx="50" cy="19.5" rx="11" ry="3.2" fill="none" stroke="#79c9ef" strokeWidth="2.2" opacity="0.9" />
       {/* reflets sur le verre */}
