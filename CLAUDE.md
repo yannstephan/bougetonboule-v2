@@ -165,17 +165,31 @@ Ananas dans une partie et Fraise dans une autre. On ne peut le personnaliser **q
 - `FruitCatalog` (app/models) = source de vérité : deux familles (`exotiques` / `rouges`), chacune
   une liste de fruits `{ key, name }`. `teams.fruit_family` fixe la famille d'une équipe.
 - La **clé** du fruit est partagée avec le front : `components/FruitAvatar.jsx` dessine chaque
-  fruit en **SVG** (silhouette + visage commun + ancres cosmétiques fixes, pas d'assets). Toute
-  clé ajoutée dans le catalogue Ruby doit avoir son pendant visuel dans `components/fruits.js`.
+  fruit en **SVG** (silhouette + visage commun, pas d'assets). Toute clé ajoutée dans le
+  catalogue Ruby doit avoir son pendant visuel dans `components/fruits.js`.
 - Choix **partageable** : plusieurs coéquipiers peuvent prendre le même fruit ; l'écran indique
   « déjà : X » sous chaque fruit. Le fruit doit appartenir à la famille de l'équipe (validé).
-- Les **cosmétiques** possédés s'équipent **un par slot** (hat / eyes / outfit / arms / legs /
-  aura), et `cosmetics.emoji` est ce qui les rend affichables. Les ancres SVG sont fixes → un
-  cosmétique tombe au même endroit sur tous les fruits. **Catalogue : ~33 pièces** dans le seed
-  (tous les slots garnis, grille 100/250/500/1000) dont 5 **exclusives** `price_diamonds: nil`
-  (sources `event`/`rank`/`drop` : Noël, Halloween, médaille, loup…) — jamais en vente, mais
-  **tirables** par les cadeaux de streak et de ligue (comportement assumé, comme la Couronne).
-  Ajouter une pièce = une ligne dans le seed (slot existant + emoji), aucun code.
+
+**Les 7 emplacements** (`Cosmetic::SLOTS`) — l'avatar est une **tête** de fruit, donc **ni tenue
+ni jambes** : `hat` chapeau · `eyes` lunettes · `neck` nœud pap'/cravate/écharpe/collier ·
+`hands` gants (un de chaque côté, le droit en miroir) · `shoes` paire de chaussures sous le
+fruit · `sidekick` accessoire posé à côté (animal, gourde, barre…) · `aura` halo en fond.
+Un seul cosmétique par slot ; `cosmetics.emoji` est ce qui les rend affichables.
+
+**Les ancres suivent la silhouette**, elles ne sont plus fixes : chaque fruit déclare un `box`
+dans `components/fruits.js` — `top` (ligne du crâne), `bottom` (ligne du sol), `half`
+(demi-largeur), `hatX` optionnel. `FruitAvatar` en déduit les positions (`anchors()`), et chaque
+pièce est **centrée** sur son point (`translate(-50%,-50%)`), ce qui évite les métriques
+capricieuses des glyphes emoji. Résultat : le chapeau se pose sur le sommet **réel** (banane,
+carambole, ananas compris), les gants tombent à la vraie largeur (jamais sur les joues, grâce à
+un plancher), les chaussures sous la vraie base. L'aura est une **couronne de 6 petits emojis**
+(un seul gros avalait l'avatar). Sous **44 px** (chat, ligue, listes) seuls aura/lunettes/chapeau
+sont rendus — sinon c'est une bouillie d'emojis.
+- **Catalogue : 31 pièces** dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 5
+  **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween, médaille,
+  loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue (comportement
+  assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
+  aucun code. Ajouter un **slot** = une entrée dans `anchors()` + un z-index CSS `.fav-<slot>`.
 
 Cet écran fait aussi office de **compte** (accès en tapant l'avatar du Hud) : **connecter/déconnecter
 Strava** (`StravaController#connect` / `#disconnect`, prop `strava_connected`) et **se déconnecter**

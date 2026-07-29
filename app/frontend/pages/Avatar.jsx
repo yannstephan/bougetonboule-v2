@@ -5,8 +5,8 @@ import PlayerAvatar from '../components/PlayerAvatar'
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
 
-const slotLabel = { base: 'Base', hat: 'Chapeau', eyes: 'Yeux', outfit: 'Tenue',
-  arms: 'Bras', legs: 'Jambes', aura: 'Aura' }
+const slotLabel = { hat: 'Chapeau', eyes: 'Lunettes', neck: 'Cou',
+  hands: 'Gants', shoes: 'Chaussures', sidekick: 'Accessoire', aura: 'Aura' }
 
 export default function Avatar({ has_team, strava_connected, team, fruits, current_fruit, avatar, cosmetics, slots }) {
   const { flash } = usePage().props

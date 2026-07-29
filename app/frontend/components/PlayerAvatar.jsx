@@ -16,7 +16,11 @@ function Placeholder({ avatar, size, showCosmetics }) {
   return (
     <span className="fav" style={{ width: size, height: size, fontSize: size }}>
       <span className="fav-blank">{avatar.initial || '🍑'}</span>
-      {showCosmetics && avatar.cosmetics?.hat && <span className="fav-hat">{avatar.cosmetics.hat}</span>}
+      {showCosmetics && avatar.cosmetics?.hat && (
+        <span className="fav-slot fav-hat" style={{ left: '50%', top: '18%', fontSize: '.36em' }}>
+          {avatar.cosmetics.hat}
+        </span>
+      )}
     </span>
   )
 }

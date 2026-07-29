@@ -1,45 +1,97 @@
-import { fruitParams } from './fruits'
+import { fruitParams, fruitBox } from './fruits'
 
 // Avatar-fruit : une silhouette SVG (par fruit) + un visage partagé (mêmes yeux/nez/bouche
-// pour tous) + des cosmétiques posés à des ancres fixes. Comme le visage et les ancres ne
-// bougent pas d'un fruit à l'autre, un chapeau ou des lunettes gagnés tombent toujours au
-// bon endroit, quel que soit le fruit.
+// pour tous) + des cosmétiques posés à des ancres calculées.
 //
-// viewBox 100×100, corps centré autour de (50,55), visage autour de (50,54).
-// Slots dessinés DERRIÈRE le fruit (aura) puis DEVANT (ordre d'empilement du bas vers le haut).
-// Ajouter un slot cosmétique = une entrée ici + son ancre CSS (.fav-<slot>). Aucun autre code :
-// une fois le slot connu, un nouveau cosmétique n'est qu'une ligne en base (Cosmetic + emoji).
+// L'avatar n'est qu'une TÊTE : pas de tenue ni de jambes. Les six emplacements sont
+// chapeau · lunettes · cou (nœud pap' / écharpe / collier) · gants (un de chaque côté) ·
+// chaussures (une paire, sous le fruit) · accessoire (posé à côté) · aura (en fond).
+//
+// Le visage est fixe (viewBox 100×100, yeux sur la ligne y=52), donc lunettes et cou
+// s'ancrent en dur. Tout le reste suit la silhouette du fruit via `box` (voir fruits.js) :
+// une banane et un durian n'ont ni le même sommet, ni la même largeur, ni la même base —
+// le chapeau se pose donc sur le crâne réel et les gants à la vraie largeur.
+//
+// Ajouter un slot = une entrée dans ANCHORS + un z-index CSS (.fav-<slot>). Aucun autre
+// code : une fois le slot connu, un nouveau cosmétique n'est qu'une ligne en base.
 const BACK_SLOTS = ['aura']
-const FRONT_SLOTS = ['legs', 'outfit', 'arms', 'eyes', 'hat']
+const FRONT_SLOTS = ['shoes', 'sidekick', 'hands', 'neck', 'eyes', 'hat']
+
+// L'aura n'est pas un gros emoji derrière le fruit (il l'avalait) mais une couronne de
+// petits, en halo. Points choisis symétriques et hors de l'axe vertical, pour ne buter
+// ni sur le chapeau ni sur les chaussures.
+const AURA_HALO = [[12, 38], [29, 20], [71, 20], [88, 38], [88, 74], [12, 74]]
+
+// En dessous de cette taille (chat, ligue, listes), l'avatar ne fait plus que quelques
+// dizaines de pixels : on n'y garde que les pièces lisibles, sinon c'est une bouillie
+// d'emojis. Le rendu complet reste sur le Hub et l'écran avatar.
+const COMPACT_BELOW = 44
+const COMPACT_SLOTS = ['aura', 'eyes', 'hat']
+
+// Ancres en unités du viewBox (0-100), centre de la pièce. `em` = taille relative à
+// l'avatar, `spread` = écart symétrique pour les paires (gants, chaussures).
+function anchors({ top, bottom, half, hatX }) {
+  const side = Math.max(half, 22) + 3 // les gants ne remontent jamais sur les joues
+  return {
+    hat: { x: hatX, y: top - 7, em: 0.36 },
+    eyes: { x: 50, y: 53, em: 0.34 },
+    neck: { x: 50, y: Math.max(bottom - 7, 76), em: 0.2 },
+    hands: { x: 50, y: 68, em: 0.22, spread: side },
+    shoes: { x: 50, y: Math.min(bottom + 5, 92), em: 0.22, spread: 10 },
+    // en bas à droite, sous les gants et à l'écart des chaussures (qui restent centrées)
+    sidekick: { x: Math.min(Math.max(50 + half + 11, 76), 87), y: bottom - 1, em: 0.26 },
+  }
+}
 
 export default function FruitAvatar({ fruit, size = 96, cosmetics = {}, showCosmetics = true, face = true }) {
   const p = fruitParams(fruit)
-  const worn = (slots) => (showCosmetics ? slots.filter((s) => cosmetics[s]) : [])
+  const at = anchors(fruitBox(fruit))
+  const worn = (slots) => {
+    if (!showCosmetics) return []
+    const kept = size < COMPACT_BELOW ? slots.filter((s) => COMPACT_SLOTS.includes(s)) : slots
+    return kept.filter((s) => cosmetics[s])
+  }
 
   return (
     <span className="fav" style={{ width: size, height: size, fontSize: size }}>
-      {worn(BACK_SLOTS).map((s) => <Cosmetic key={s} slot={s} emoji={cosmetics[s]} />)}
+      {worn(BACK_SLOTS).map((s) => <Cosmetic key={s} slot={s} emoji={cosmetics[s]} at={at[s]} />)}
       <svg viewBox="0 0 100 100" className="fav-svg" role="img" aria-label={fruit || 'fruit'}>
         <Body p={p} />
         {face && <Face />}
       </svg>
-      {worn(FRONT_SLOTS).map((s) => <Cosmetic key={s} slot={s} emoji={cosmetics[s]} />)}
+      {worn(FRONT_SLOTS).map((s) => <Cosmetic key={s} slot={s} emoji={cosmetics[s]} at={at[s]} />)}
     </span>
   )
 }
 
-// Un cosmétique posé à son ancre. Les bras sont symétriques : un emoji, rendu à gauche et à droite.
-function Cosmetic({ slot, emoji }) {
-  if (slot === 'arms') {
+// Un cosmétique posé à son ancre. Les paires (gants, chaussures) sont un seul emoji rendu
+// deux fois, le droit en miroir — deux baskets nez vers l'extérieur se lisent comme des pieds.
+function Cosmetic({ slot, emoji, at }) {
+  if (slot === 'aura') {
     return (
       <>
-        <span className="fav-arm fav-arm-l">{emoji}</span>
-        <span className="fav-arm fav-arm-r">{emoji}</span>
+        {AURA_HALO.map(([x, y], i) => (
+          <span key={i} className="fav-slot fav-aura" style={pin(x, y, 0.22)}>{emoji}</span>
+        ))}
       </>
     )
   }
-  return <span className={`fav-${slot}`}>{emoji}</span>
+  if (!at) return null
+
+  if (at.spread) {
+    return (
+      <>
+        <span className={`fav-slot fav-${slot}`} style={pin(at.x - at.spread, at.y, at.em)}>{emoji}</span>
+        <span className={`fav-slot fav-mirror fav-${slot}`} style={pin(at.x + at.spread, at.y, at.em)}>{emoji}</span>
+      </>
+    )
+  }
+  return <span className={`fav-slot fav-${slot}`} style={pin(at.x, at.y, at.em)}>{emoji}</span>
 }
+
+// Position d'une pièce : son centre tombe sur (x, y) — le CSS recentre avec translate(-50%,-50%),
+// ce qui rend le placement indépendant des métriques capricieuses des glyphes emoji.
+const pin = (x, y, em) => ({ left: `${x}%`, top: `${y}%`, fontSize: `${em}em` })
 
 // Visage commun à tous les fruits.
 function Face() {
@@ -129,8 +181,10 @@ const Berry = ({ p }) => {
   )
 }
 
+// Recentrée (translate) pour que le ventre du croissant passe derrière le visage partagé :
+// sans ça les yeux flottaient dans le vide, à droite de la banane.
 const Banana = ({ p }) => (
-  <g>
+  <g transform="translate(11 -1)">
     <path d="M26 34 C22 58 34 80 62 82 C74 82 80 76 80 74 C74 78 60 74 48 62 C36 50 36 40 40 32 C34 30 28 30 26 34 Z"
           fill={p.body} stroke={p.dark} strokeWidth="1.5" />
     <path d="M60 80 l6 4" stroke={p.tip} strokeWidth="4" strokeLinecap="round" />

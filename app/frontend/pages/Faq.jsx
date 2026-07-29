@@ -95,7 +95,8 @@ const SECTIONS = [
     a: [
       'Ton avatar est un fruit, choisi dans la famille de ton équipe. Tu ne peux le personnaliser qu\'une fois affecté à une équipe.',
       'Plusieurs coéquipiers peuvent prendre le même fruit — l\'écran indique qui a déjà choisi quoi.',
-      'Les cosmétiques (chapeau, lunettes, tenue, bras, jambes, aura) s\'achètent en 💎 ou se gagnent, puis s\'équipent un par emplacement depuis l\'écran Avatar.',
+      'Ton fruit n\'est qu\'une tête : les cosmétiques se posent autour. Sept emplacements — chapeau, lunettes, cou (nœud pap\', écharpe, collier…), gants, chaussures, accessoire posé à côté, et l\'aura en fond.',
+      'Ils s\'achètent en 💎 ou se gagnent, puis s\'équipent un par emplacement depuis l\'écran Avatar.',
       'Certaines pièces ne sont jamais en vente : elles ne se gagnent que par les coffres, les séries, la ligue ou les événements de la saison. L\'🐺 Esprit du loup, par exemple, ne sort que des coffres…',
     ],
   },
