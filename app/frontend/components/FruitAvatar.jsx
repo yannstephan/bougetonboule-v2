@@ -113,15 +113,18 @@ function Cosmetic({ slot, worn, at }) {
   }
 
   // Sinon, un slot symétrique pose la pièce de chaque côté, la droite en miroir.
-  // ⚠️ La pièce doit représenter UNE main : 🧤 est déjà une paire et donnait quatre mains
-  // — d'où le dessin `mitten`. Un emoji-paire dans un slot symétrique est un bug de contenu.
+  // ⚠️ La pièce doit représenter UN bras : 🧤 et 🐾 sont déjà des paires et en donnaient
+  // quatre — d'où les dessins `mitten` et `paw`. Un emoji-paire dans un slot symétrique
+  // est un bug de contenu. `single` = la pièce ne se porte que d'un côté (une baguette).
   const em = drawn?.em || at.em
+  const glyph = drawn?.emoji || emoji
   const draw = (x, mirror) => (
     <span key={x} style={pin(x, at.y, em)}
-          className={`fav-slot fav-${slot} ${drawn ? '' : 'fav-glyph'} ${mirror ? 'fav-mirror' : ''}`}>
-      {drawn ? <Art node={drawn.node} /> : emoji}
+          className={`fav-slot fav-${slot} ${drawn?.node ? '' : 'fav-glyph'} ${mirror ? 'fav-mirror' : ''}`}>
+      {drawn?.node ? <Art node={drawn.node} /> : glyph}
     </span>
   )
+  if (at.spread && drawn?.single) return draw(at.x + at.spread, false)
   if (at.spread) return <>{draw(at.x - at.spread, false)}{draw(at.x + at.spread, true)}</>
   return draw(at.x, false)
 }

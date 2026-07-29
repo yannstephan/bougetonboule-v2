@@ -63,6 +63,17 @@ const Skate = ({ x, body, sole, tongue, wheel }) => (
 
 // ————— Chapeaux (brim autour de y=72, la ligne du crâne du fruit) —————
 
+// Haut-de-forme DORÉ : 🎩 est noir et bleu, le nom promettait de l'or.
+const GoldHat = () => (
+  <g>
+    <path d="M33 70 V26 q0 -7 17 -7 q17 0 17 7 V70 z" fill="#f6c945" />
+    <ellipse cx="50" cy="26" rx="17" ry="5.5" fill="#ffe08a" />
+    <rect x="32" y="53" width="36" height="10" rx="2" fill="#8a6d1b" />
+    <ellipse cx="50" cy="71" rx="36" ry="8" fill="#c9930a" />
+    <ellipse cx="50" cy="69" rx="36" ry="8" fill="#f6c945" />
+  </g>
+)
+
 const CowboyHat = () => (
   <g>
     <path d="M12 72 q38 -14 76 0 q-38 12 -76 0 z" fill="#a9743f" />
@@ -90,6 +101,18 @@ const BucketHat = () => (
 
 // ————— Gants —————
 
+// Une patte, UNE seule : 🐾 est déjà une paire d'empreintes, reflété il en faisait quatre.
+const Paw = ({ color, pad }) => (
+  <g fill={color}>
+    <ellipse cx="50" cy="62" rx="21" ry="16" />
+    <ellipse cx="29" cy="41" rx="8" ry="10.5" />
+    <ellipse cx="43" cy="32" rx="8" ry="11.5" />
+    <ellipse cx="57" cy="32" rx="8" ry="11.5" />
+    <ellipse cx="71" cy="41" rx="8" ry="10.5" />
+    <ellipse cx="50" cy="62" rx="11" ry="8" fill={pad} />
+  </g>
+)
+
 // Une moufle, UNE seule main : le slot `hands` la reflète de chaque côté. L'emoji 🧤
 // représente déjà une paire — reflété, il donnait quatre mains.
 const Mitten = ({ body, cuff, thumb }) => (
@@ -102,6 +125,29 @@ const Mitten = ({ body, cuff, thumb }) => (
 
 // ————— Cou —————
 
+// Dossard : le numéro de course, en aplats (pas de texte, illisible en vignette).
+const Bib = () => (
+  <g>
+    <rect x="21" y="26" width="58" height="49" rx="6" fill="#ffffff" stroke="#d6cfe4" strokeWidth="2.5" />
+    <rect x="28" y="33" width="44" height="8" rx="3" fill="#ff7a59" />
+    <g fill="#252333">
+      <rect x="30" y="47" width="9" height="19" rx="2" />
+      <rect x="45" y="47" width="9" height="19" rx="2" />
+      <rect x="60" y="47" width="9" height="19" rx="2" />
+    </g>
+  </g>
+)
+
+// Bandana noué autour du cou.
+const Bandana = () => (
+  <g>
+    <path d="M14 32 Q50 47 86 32 L50 84 Z" fill="#f0325b" />
+    <path d="M14 32 Q50 47 86 32" stroke="#c81e45" strokeWidth="6" fill="none" strokeLinecap="round" />
+    <circle cx="50" cy="43" r="6" fill="#c81e45" />
+  </g>
+)
+
+
 // Nœud papillon : 🎀 servait déjà de bandeau, deux pièces au même glyphe se confondaient.
 const BowTie = () => (
   <g>
@@ -111,7 +157,26 @@ const BowTie = () => (
   </g>
 )
 
-// ————— Lunettes —————
+// ————— Lunettes (le verre tombe sur l'œil, à droite de la boîte) —————
+
+// Cache-œil : la lanière traverse, la pièce couvre l'œil droit du fruit.
+const EyePatch = () => (
+  <g>
+    <path d="M2 32 Q50 22 98 38" stroke="#2b2333" strokeWidth="5" fill="none" strokeLinecap="round" />
+    <path d="M60 34 h38 v20 a19 16 0 0 1 -38 0 z" fill="#2b2333" />
+    <path d="M66 42 h26" stroke="#5b5470" strokeWidth="3" strokeLinecap="round" />
+  </g>
+)
+
+// Visière : un bandeau plein sur les deux yeux, verre menthe.
+const Visor = () => (
+  <g>
+    <rect x="5" y="33" width="90" height="31" rx="15" fill="#2b2333" />
+    <rect x="12" y="40" width="76" height="16" rx="8" fill="#2fd6a3" />
+    <rect x="18" y="43" width="22" height="5" rx="2.5" fill="#eafff7" opacity="0.7" />
+  </g>
+)
+
 
 // Monocle : le verre tombe sur l'œil DROIT du fruit (à droite de la boîte), chaînette en
 // contrebas. L'emoji 🧐 est un visage entier — il aurait collé une tête sur la tête.
@@ -131,12 +196,25 @@ const Monocle = () => (
 // `view` = un viewBox RECADRÉ sur le dessin, utilisé par la vignette (armoire, boutique) :
 // sur l'avatar la pièce occupe une petite zone d'un carré de 100, mais dans une case de
 // catalogue elle doit remplir la case comme le fait un emoji.
+// `single: true` = la pièce ne se porte QUE d'un côté (une baguette se tient d'une main) :
+// le slot symétrique la pose une seule fois, à droite, sans miroir.
+//
+// Une entrée peut aussi porter `emoji` au lieu de `node` : le glyphe est alors rendu tel
+// quel, mais avec les drapeaux de mise en page ci-dessus — c'est ce qui permet de dire
+// « cet emoji-là ne se duplique pas » sans le dessiner.
 export const COSMETIC_ART = {
   sneakers: { view: '8 38 84 42', pair: true, node: <Pair body="#ff7a59" sole="#ffffff" tongue="#ffb59f" /> },
   trail: { view: '8 33 84 47', pair: true, node: <Pair body="#8a5a2b" sole="#3f2d1c" tongue="#c98a4b" lace="#f6c945" shaft={7} /> },
   ballet: { view: '8 40 84 36', pair: true, node: <Pair as={Flat} body="#ff9fc0" sole="#e6749b" trim="#ffd6e5" /> },
   skates: { view: '8 33 84 47', pair: true, node: <Pair as={Skate} body="#f2b100" sole="#fff3cc" tongue="#ffe08a" wheel="#4a4360" /> },
   boots7: { view: '8 25 84 55', pair: true, node: <Pair body="#6c5ce7" sole="#f6c945" tongue="#a99bff" lace="#f6c945" shaft={15} /> },
+  paw: { view: '18 20 66 60', em: 0.3, node: <Paw color="#6c5ce7" pad="#a99bff" /> },
+  wand: { single: true, em: 0.28, emoji: '🪄' },
+  gold_hat: { view: '12 16 76 64', em: 0.46, node: <GoldHat /> },
+  eyepatch: { view: '0 20 100 50', em: 0.34, node: <EyePatch /> },
+  visor: { view: '2 29 96 39', em: 0.34, node: <Visor /> },
+  bib: { view: '17 22 66 57', em: 0.26, node: <Bib /> },
+  bandana: { view: '10 26 80 62', em: 0.3, node: <Bandana /> },
   mitten: { view: '22 24 66 60', em: 0.32, node: <Mitten body="#5f8cbb" cuff="#ff7a59" thumb="#41668f" /> },
   bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },
   cowboy_hat: { view: '8 30 84 52', em: 0.46, node: <CowboyHat /> },
@@ -150,7 +228,7 @@ export const artFor = (key) => (key ? COSMETIC_ART[key] : null)
 // Vignette d'un cosmétique (armoire, boutique) : le dessin s'il y en a un, sinon l'emoji.
 export function CosmeticIcon({ art, emoji, className = '', style }) {
   const drawn = artFor(art)
-  if (!drawn) return <span className={className} style={style}>{emoji || '🎁'}</span>
+  if (!drawn?.node) return <span className={className} style={style}>{drawn?.emoji || emoji || '🎁'}</span>
   return (
     <span className={className} style={style}>
       <svg viewBox={drawn.view || '0 0 100 100'} className="cos-art" role="presentation">{drawn.node}</svg>

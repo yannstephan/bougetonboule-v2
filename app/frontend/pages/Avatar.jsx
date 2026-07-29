@@ -14,7 +14,7 @@ const TABS = {
   hat: { label: 'Chapeau', icon: '🎩' },
   eyes: { label: 'Lunettes', icon: '👓' },
   neck: { label: 'Cou', icon: '🧣' },
-  hands: { label: 'Gants', icon: '🥊' },
+  hands: { label: 'Bras', icon: '🦾' },
   shoes: { label: 'Chaussures', icon: '👟' },
   sidekick: { label: 'Accessoire', icon: '🐕' },
   aura: { label: 'Aura', icon: '✨' },

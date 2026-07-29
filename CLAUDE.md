@@ -214,8 +214,9 @@ Ananas dans une partie et Fraise dans une autre. On ne peut le personnaliser **q
 
 **Les 7 emplacements** (`Cosmetic::SLOTS`) — l'avatar est une **tête** de fruit, donc **ni tenue
 ni jambes** : `hat` chapeau · `eyes` lunettes · `neck` nœud pap'/cravate/écharpe/collier ·
-`hands` gants (un de chaque côté, le droit en miroir) · `shoes` paire de chaussures sous le
-fruit · `sidekick` accessoire posé à côté (animal, gourde, barre…) · `aura` halo en fond.
+`hands` **bras** (gants, bras mécanique, baguette — un de chaque côté, le droit en miroir ;
+libellé joueur « Bras », clé `hands`) · `shoes` paire de chaussures sous le fruit ·
+`sidekick` accessoire posé à côté (animal, gourde, barre…) · `aura` halo en fond.
 Un seul cosmétique par slot ; `cosmetics.emoji` est ce qui les rend affichables.
 
 **Deux références, jamais des ancres fixes.** Tout ce qui touche au visage se cale sur la
@@ -246,15 +247,23 @@ trois familles d'emojis ne marchent pas sur un avatar-fruit —
    côté il donnait **quatre mains** (d'où le dessin `mitten`, une seule moufle).
 
 Ces pièces portent une clé `art` et sont dessinées à plat : `sneakers`/`trail`/`ballet`/`skates`/
-`boots7` (les 5 paires de chaussures), `mitten`, `cowboy_hat`, `santa_hat`, `bucket_hat`,
-`monocle`, `bowtie`. **`pair: true`** sur une entrée = le dessin contient déjà les deux pièces →
-jamais dupliqué, et le slot `shoes` lui donne sa propre ancre (`at.art`, plus large qu'un emoji).
-Sans ce drapeau, la pièce (dessinée ou emoji) est posée **de chaque côté, la droite en miroir** :
-une pièce d'un slot symétrique doit donc représenter **UNE** main.
+`boots7` (les 5 paires de chaussures), `mitten`, `paw`, `gold_hat` (🎩 est noir et bleu, le nom
+promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `monocle`, `eyepatch`, `visor`,
+`bowtie`, `bib`, `bandana`.
+
+Trois drapeaux de mise en page, sur l'entrée `COSMETIC_ART` :
+- **`pair: true`** — le dessin contient déjà les deux pièces (chaussures) → jamais dupliqué, et
+  le slot `shoes` lui donne sa propre ancre (`at.art`, plus large qu'un emoji) ;
+- **`single: true`** — la pièce ne se porte que d'un côté (la baguette magique) ;
+- sans drapeau, la pièce est posée **de chaque côté, la droite en miroir** : elle doit donc
+  représenter **UN** bras. C'est la règle que violaient 🧤 et 🐾 (déjà des paires → quatre mains).
+
+Une entrée peut porter **`emoji` au lieu de `node`** : le glyphe est rendu tel quel, mais avec
+les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas » sans le dessiner.
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
-- **Catalogue : 45 pièces** dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 6
+- **Catalogue : 62 pièces** dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
   **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween, médaille,
   loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue (comportement
   assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
@@ -264,9 +273,9 @@ catalogue reste en emoji, et le sera par défaut.
   restent **collés en haut** (`.av-sticky`) pendant qu'on fouille — on juge le rendu sans faire
   l'aller-retour. Un onglet par emplacement (+ « Fruit »), une pastille verte quand quelque
   chose y est équipé, et le rayon n'affiche **que** les pièces de l'emplacement choisi, avec une
-  case « Retirer » quand on porte quelque chose. Empiler les 45 pièces d'un coup obligeait à
+  case « Retirer » quand on porte quelque chose. Empiler tout le catalogue d'un coup obligeait à
   scroller entre la pièce et l'avatar.
-- Le seed crée **`vitrine@btb.test`**, un compte qui **possède les 45 pièces** (et ne court pas,
+- Le seed crée **`vitrine@btb.test`**, un compte qui **possède les 62 pièces** (et ne court pas,
   donc ne fausse ni la ligue ni la meute) : `/avatar` liste tout le catalogue, slot par slot,
   pour juger le rendu d'un coup d'œil.
 
