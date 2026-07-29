@@ -8,7 +8,6 @@ class AvatarsController < ApplicationController
       strava_connected: current_user.strava_connected?,
       team: team_json,
       fruits: fruits_json,
-      current_fruit: @membership&.fruit,
       avatar: AvatarPresenter.new(current_user, membership: @membership).as_json,
       cosmetics: owned_cosmetics,
       slots: Cosmetic::SLOTS

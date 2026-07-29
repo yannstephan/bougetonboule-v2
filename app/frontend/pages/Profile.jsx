@@ -1,22 +1,13 @@
 import { Head, Link } from '@inertiajs/react'
 import PlayerAvatar from '../components/PlayerAvatar'
-
-const statusChip = {
-  verified: { label: 'Validée', cls: 'ok' },
-  pending: { label: 'En attente', cls: 'wait' },
-  rejected: { label: 'Rejetée', cls: 'no' },
-  trapped: { label: 'Piégée', cls: 'no' },
-  protected: { label: 'Protégée', cls: 'wait' },
-}
+import SubHeader from '../components/SubHeader'
+import { statusChip } from '../lib/labels'
 
 export default function Profile({ player, stats, trainings }) {
   return (
     <div className="shell">
       <Head title={player.name} />
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">Profil</div>
-      </div>
+      <SubHeader title="Profil" />
 
       <main className="body">
         <div className="pf-head">
@@ -56,7 +47,7 @@ function Stat({ value, label }) {
 }
 
 function Run({ t }) {
-  const chip = statusChip[t.status] || statusChip.pending
+  const chip = statusChip(t.status)
   return (
     <Link href={`/courses/${t.id}`} className="run">
       <div className="run-day">

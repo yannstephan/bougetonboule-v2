@@ -1,10 +1,8 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
+import { Head, Link, useForm } from '@inertiajs/react'
+import { csrf } from '../../lib/csrf'
+import Flash from '../../components/Flash'
 
 export default function Login() {
-  const { flash } = usePage().props
   const form = useForm({ email: '', password: '', authenticity_token: csrf() })
   const submit = (e) => { e.preventDefault(); form.post('/login') }
 
@@ -16,8 +14,7 @@ export default function Login() {
         <h1>Bouge Ton Boule</h1>
         <p className="sub">Connecte-toi pour rejoindre la bataille</p>
 
-        {flash?.alert && <div className="flash err">{flash.alert}</div>}
-        {flash?.notice && <div className="flash ok">{flash.notice}</div>}
+        <Flash />
 
         <form onSubmit={submit}>
           <input className="field" type="email" placeholder="Email" autoComplete="email" required

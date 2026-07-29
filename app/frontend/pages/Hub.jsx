@@ -6,8 +6,7 @@ import EffectBadges from '../components/EffectBadges'
 import Countdown from '../components/Countdown'
 import InstallHint from '../components/InstallHint'
 import ChestCard from '../components/ChestCard'
-
-const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
+import { familyEmoji, hpClass } from '../lib/labels'
 
 export default function Hub({ membership }) {
   const { auth } = usePage().props
@@ -70,9 +69,6 @@ function GameView({ m }) {
     </main>
   )
 }
-
-// État de santé → couleur de la barre de PV (même code pour les deux équipes, pas de « nous/eux »).
-const hpClass = (state) => ({ healthy: 'good', hurt: 'warn', critical: 'crit', defeated: 'crit' }[state] || 'good')
 
 function TeamBoard({ team, mine = false }) {
   const mon = team.monster

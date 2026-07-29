@@ -3,16 +3,13 @@ import { useState } from 'react'
 import BottomNav from '../components/BottomNav'
 import TargetPicker from '../components/TargetPicker'
 import TeamPicker from '../components/TeamPicker'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
-
-const itemEmoji = (t) =>
-  ({ shield: '🛡️', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🌫️', wooden_leg: '🦿' }[t] || '🎒')
-const rarityLabel = { common: 'Commun', rare: 'Rare', epic: 'Épique', legendary: 'Légendaire' }
+import SubHeader from '../components/SubHeader'
+import Flash from '../components/Flash'
+import { csrf } from '../lib/csrf'
+import { itemEmoji, rarityLabel } from '../lib/labels'
 
 export default function Boutique({ has_team, balls, items, cosmetics, inventory, opponents, team_names }) {
-  const { auth, flash } = usePage().props
+  const { auth } = usePage().props
   const diamonds = auth.user?.diamonds ?? 0
   const [tab, setTab] = useState('items')
   const [trapItem, setTrapItem] = useState(null)   // objet piège en attente d'une cible
@@ -32,17 +29,14 @@ export default function Boutique({ has_team, balls, items, cosmetics, inventory,
   return (
     <div className="shell">
       <Head title="Boutique" />
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">🛒 Boutique</div>
+      <SubHeader title="🛒 Boutique">
         <span className="shop-wallet">
           <span className="curr">🍑 {balls}</span>
           <span className="curr">💎 {diamonds}</span>
         </span>
-      </div>
+      </SubHeader>
 
-      {flash?.notice && <div className="flash ok" style={{ margin: '10px 14px 0' }}>{flash.notice}</div>}
-      {flash?.alert && <div className="flash err" style={{ margin: '10px 14px 0' }}>{flash.alert}</div>}
+      <Flash inset />
 
       <div className="chat-tabs">
         <button className={`chat-tab ${tab === 'items' ? 'on' : ''}`} onClick={() => setTab('items')}>🍑 Objets</button>
@@ -97,7 +91,7 @@ function Cosmetics({ cosmetics, diamonds, onBuy }) {
         <div key={c.id} className={`shop-cos ${c.rarity}`}>
           <span className="shop-cos-emoji">{c.emoji || '🎁'}</span>
           <div className="shop-cos-name">{c.name}</div>
-          <div className="shop-cos-rarity">{rarityLabel[c.rarity] || c.rarity}</div>
+          <div className="shop-cos-rarity">{rarityLabel(c.rarity)}</div>
           {c.owned ? (
             <Link href="/avatar" className="shop-owned">{c.equipped ? '✓ Équipé' : 'Dans l\'armoire'}</Link>
           ) : (

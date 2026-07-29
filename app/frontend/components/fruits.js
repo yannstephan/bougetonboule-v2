@@ -2,7 +2,7 @@
 // le back décide quels fruits une équipe propose, le front sait les dessiner.
 //
 // shape = silhouette SVG (voir FruitAvatar.jsx). Le reste = palette à plat.
-export const FRUITS = {
+const FRUITS = {
   // — Fruits exotiques —
   ananas:    { shape: 'pineapple', body: '#f6b93b', dark: '#e58e26', leaf: '#3aa76d' },
   mangue:    { shape: 'oval',      body: '#f79f1f', dark: '#e17055', light: '#ffd45e', stem: '#3aa76d' },
@@ -31,9 +31,7 @@ export const FRUITS = {
   sureau:          { shape: 'berry',      body: '#33224a', dark: '#1e1430', drupTone: '#4a3568' },
 }
 
-export const FRUIT_KEYS = Object.keys(FRUITS)
-
 // Palette de secours quand une clé n'a pas (encore) de rendu dédié.
-export const FALLBACK_FRUIT = { shape: 'round', body: '#ff7a59', dark: '#e0603f' }
+const FALLBACK_FRUIT = { shape: 'round', body: '#ff7a59', dark: '#e0603f' }
 
 export const fruitParams = (key) => FRUITS[key] || FALLBACK_FRUIT

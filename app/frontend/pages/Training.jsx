@@ -1,25 +1,16 @@
 import { Head, Link } from '@inertiajs/react'
 import PlayerAvatar from '../components/PlayerAvatar'
 import RouteMap from '../components/RouteMap'
-
-const statusChip = {
-  verified: { label: 'Validée', cls: 'ok' },
-  pending: { label: 'En attente de validation', cls: 'wait' },
-  rejected: { label: 'Rejetée', cls: 'no' },
-  trapped: { label: 'Piégée', cls: 'no' },
-  protected: { label: 'Protégée', cls: 'wait' },
-}
+import SubHeader from '../components/SubHeader'
+import { statusChip } from '../lib/labels'
 
 export default function Training({ training: t, author }) {
-  const chip = statusChip[t.status] || statusChip.pending
+  const chip = statusChip(t.status)
 
   return (
     <div className="shell">
       <Head title={t.title} />
-      <div className="subhead">
-        <Link href={`/joueurs/${author.id}`} className="back">←</Link>
-        <div className="ti">{t.title}</div>
-      </div>
+      <SubHeader title={t.title} back={`/joueurs/${author.id}`} />
 
       <main className="body">
         <Link href={`/joueurs/${author.id}`} className="tr-author">

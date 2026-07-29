@@ -1,10 +1,13 @@
 import { Head, Link, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import { enablePush } from '../lib/push'
+import SubHeader from '../components/SubHeader'
 
+// Une icône par catégorie de notification (Notification::CATEGORIES côté back).
 const icon = (c) => ({
-  attacked: '⚡', healed: '💚', streak: '🔥', chest: '🎁', message: '💬',
-  special_day: '🎄', training_verified: '✅', game_start: '🎮', league: '🏅', trap: '🐺', effect: '✨',
+  attacked: '⚡', healed: '💚', crit_failed: '💥', effect: '✨', trap: '🐺',
+  chest: '🎁', streak: '🔥', league: '🏅', training_verified: '✅', message: '💬',
+  pack: '🐾', famine: '🍽️', game_over: '🏁',
 }[c] || '🔔')
 
 export default function Notifications({ notifications }) {
@@ -23,10 +26,7 @@ export default function Notifications({ notifications }) {
   return (
     <div className="shell">
       <Head title="Notifications" />
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">🔔 Notifications</div>
-      </div>
+      <SubHeader title="🔔 Notifications" />
 
       <main className="body">
         <div className="push-cta">

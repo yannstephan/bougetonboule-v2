@@ -1,10 +1,8 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
+import { Head, Link, useForm } from '@inertiajs/react'
+import { csrf } from '../../lib/csrf'
+import Flash from '../../components/Flash'
 
 export default function Register() {
-  const { flash } = usePage().props
   const form = useForm({ firstname: '', email: '', password: '', authenticity_token: csrf() })
   const submit = (e) => { e.preventDefault(); form.post('/register') }
 
@@ -16,7 +14,7 @@ export default function Register() {
         <h1>Rejoins le jeu</h1>
         <p className="sub">Transforme tes runs en batailles entre potes</p>
 
-        {flash?.alert && <div className="flash err">{flash.alert}</div>}
+        <Flash />
 
         <form onSubmit={submit}>
           <input className="field" type="text" placeholder="Prénom" required

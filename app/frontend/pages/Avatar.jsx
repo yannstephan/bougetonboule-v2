@@ -1,16 +1,14 @@
-import { Head, Link, router, usePage } from '@inertiajs/react'
+import { Head, Link, router } from '@inertiajs/react'
 import FruitAvatar from '../components/FruitAvatar'
 import PlayerAvatar from '../components/PlayerAvatar'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
+import SubHeader from '../components/SubHeader'
+import Flash from '../components/Flash'
+import { csrf } from '../lib/csrf'
 
 const slotLabel = { base: 'Base', hat: 'Chapeau', eyes: 'Yeux', outfit: 'Tenue',
   arms: 'Bras', legs: 'Jambes', aura: 'Aura' }
 
-export default function Avatar({ has_team, strava_connected, team, fruits, current_fruit, avatar, cosmetics, slots }) {
-  const { flash } = usePage().props
-
+export default function Avatar({ has_team, strava_connected, team, fruits, avatar, cosmetics, slots }) {
   const pickFruit = (key) =>
     router.patch('/avatar', { fruit: key, authenticity_token: csrf() }, { preserveScroll: true })
 
@@ -38,14 +36,10 @@ export default function Avatar({ has_team, strava_connected, team, fruits, curre
   return (
     <div className="shell">
       <Head title="Mon avatar" />
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">🎨 Mon avatar</div>
-      </div>
+      <SubHeader title="🎨 Mon avatar" />
 
       <main className="body">
-        {flash?.notice && <div className="flash ok">{flash.notice}</div>}
-        {flash?.alert && <div className="flash err">{flash.alert}</div>}
+        <Flash />
 
         <div className="av-stage">
           <PlayerAvatar avatar={avatar} size={128} />

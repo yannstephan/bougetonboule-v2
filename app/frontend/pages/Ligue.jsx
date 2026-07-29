@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react'
 import { useState } from 'react'
 import BottomNav from '../components/BottomNav'
 import PlayerAvatar from '../components/PlayerAvatar'
+import SubHeader from '../components/SubHeader'
 
 const ordinal = (n) => (n === 1 ? '1er' : `${n}e`)
 const medal = (rank) => ({ 1: '🥇', 2: '🥈', 3: '🥉' }[rank] || null)
@@ -13,11 +14,9 @@ export default function Ligue({ month, overall, last_winner, balls }) {
   return (
     <div className="shell">
       <Head title="Classement" />
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">🏅 Classement</div>
+      <SubHeader title="🏅 Classement">
         <span className="curr" style={{ marginLeft: 'auto' }}>🍑 {balls}</span>
-      </div>
+      </SubHeader>
 
       <div className="chat-tabs">
         <button className={`chat-tab ${tab === 'month' ? 'on' : ''}`} onClick={() => setTab('month')}>

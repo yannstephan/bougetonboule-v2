@@ -1,9 +1,8 @@
 import { Head, Link, router, useForm } from '@inertiajs/react'
 import { useEffect, useRef, useState } from 'react'
 import PlayerAvatar from '../components/PlayerAvatar'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
+import SubHeader from '../components/SubHeader'
+import { csrf } from '../lib/csrf'
 
 export default function Chat({ conversations }) {
   const [active, setActive] = useState(0)
@@ -36,10 +35,7 @@ export default function Chat({ conversations }) {
   return (
     <div className="shell">
       <Head title="Chat" />
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">💬 Chat</div>
-      </div>
+      <SubHeader title="💬 Chat" />
 
       <div className="chat-tabs">
         {conversations.map((c, i) => (

@@ -1,4 +1,5 @@
-import { Head, Link } from '@inertiajs/react'
+import { Head } from '@inertiajs/react'
+import SubHeader from '../components/SubHeader'
 
 // Règles du jeu. Statique : le seul endroit qui décrit le fonctionnement actuel côté joueur.
 // À garder à jour quand une mécanique change (voir CLAUDE.md).
@@ -112,10 +113,7 @@ export default function Faq() {
   return (
     <div className="shell">
       <Head title="Règles du jeu" />
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">📖 Règles du jeu</div>
-      </div>
+      <SubHeader title="📖 Règles du jeu" />
 
       <main className="body">
         <div className="faq-hero">

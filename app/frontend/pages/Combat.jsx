@@ -1,16 +1,14 @@
-import { Head, Link, router, usePage } from '@inertiajs/react'
+import { Head, router } from '@inertiajs/react'
 import { useState } from 'react'
 import Monster from '../components/Monster'
 import EffectBadges from '../components/EffectBadges'
 import TargetPicker from '../components/TargetPicker'
 import TeamPicker from '../components/TeamPicker'
-
-const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
-const itemEmoji = (t) =>
-  ({ shield: '🛡️', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🌫️', wooden_leg: '🦿' }[t] || '🎒')
+import SubHeader from '../components/SubHeader'
+import Flash from '../components/Flash'
+import { familyEmoji, itemEmoji } from '../lib/labels'
 
 export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team, items, opponents }) {
-  const { flash } = usePage().props
   const [floats, setFloats] = useState([]) // nombres flottants { id, type:'dmg'|'heal', text }
   const [hitFoe, setHitFoe] = useState(false)   // monstre adverse encaisse un coup
   const [healMine, setHealMine] = useState(false) // mon monstre est soigné
@@ -53,15 +51,12 @@ export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team
   return (
     <div className="shell">
       <Head title="Combat" />
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">⚔️ Combat</div>
+      <SubHeader title="⚔️ Combat">
         {multiplier > 1 && <span className="curr" title="Jauge de meute">🐾 ×{multiplier}</span>}
         <span className="curr" style={{ marginLeft: multiplier > 1 ? 0 : 'auto' }}>🍑 {balls}</span>
-      </div>
+      </SubHeader>
 
-      {flash?.notice && <div className="flash ok" style={{ margin: '10px 14px 0' }}>{flash.notice}</div>}
-      {flash?.alert && <div className="flash err" style={{ margin: '10px 14px 0' }}>{flash.alert}</div>}
+      <Flash inset />
 
       {foe ? (
         <>
