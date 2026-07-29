@@ -19,7 +19,8 @@ const SECTIONS = [
     a: [
       'Depuis l\'écran Combat, tu dépenses tes boules : attaquer coûte 1 boule et retire 10 PV au monstre adverse ; soigner coûte 2 boules et rend 10 PV au tien.',
       'Ces 10 PV sont multipliés par la jauge de meute de ton équipe (voir plus bas) : à meute +40 %, chaque attaque fait 14 PV.',
-      'Un monstre protégé par un bouclier ne peut pas être attaqué tant que le bouclier tient.',
+      'Un monstre coiffé d\'un saladier ne peut pas être attaqué tant que le saladier tient.',
+      '🩹 Les monstres encaissent : la première fois qu\'ils passent sous 75 %, 50 % puis 25 % de leurs PV, leur dessin s\'abîme d\'un cran (couronne de travers, coque fendue, drupéoles perdues, regard qui part en vrille). Les cicatrices sont définitives — un soin remonte les PV, pas la façade.',
       '💥 Échec critique : une attaque sur dix rate — le monstre te mord et tu perds 15 % de ton solde de boules (au moins 1, au plus 10), sans infliger de dégât. Garder un gros magot rend la morsure plus douloureuse…',
       '💨 Second souffle : la première fois que ton monstre passe sous 25 % de ses PV, tes soins ne coûtent plus que 1 boule pendant 7 jours. Une seule fois par saison — le baroud d\'honneur.',
     ],
@@ -49,9 +50,9 @@ const SECTIONS = [
       '🦿 Jambe de bois (4 🍑) : déjoue le prochain piège sur ta course — tu gardes tes boules. Discrète : personne n\'est prévenu tant qu\'elle n\'a pas servi.',
       '🌬️ Vent de dos (4 🍑) : ×1,5 sur les boules de toute ton équipe pendant 12 h. À déclencher avant les sorties du week-end !',
       '🌪️ Vent de face (4 🍑) : −25 % sur les boules de l\'équipe adverse pendant 12 h. Les victimes sont prévenues — c\'est une déclaration de guerre assumée.',
-      '🛡️ Bouclier (6 🍑) : ton monstre est intouchable pendant 6 h. L\'arme anti-raid.',
-      '🌫️ Fumigène (4 🍑) : aveugle l\'équipe adverse pendant 24 h et tu choisis quel monstre lui masquer — le tien ou le sien (PV affichés « ??? »). Idéal pour cacher une offensive surprise.',
-      'Les effets à durée (vents, bouclier, fumée) sont publics : tout le monde voit qu\'une équipe en a un, et jusqu\'à quand.',
+      '🥣 Saladier (6 🍑) : un saladier retourné sur ton monstre — il est intouchable pendant 6 h et tu le vois sous sa cloche. L\'arme anti-raid.',
+      '🍦 Chantilly (4 🍑) : aveugle l\'équipe adverse pendant 24 h et tu choisis quel monstre barbouiller — le tien ou le sien. Elle en a plein les yeux dans son avatar, et ses PV s\'affichent « ??? ». Idéal pour cacher une offensive surprise.',
+      'Les effets à durée (vents, saladier, chantilly) sont publics : tout le monde voit qu\'une équipe en a un, et jusqu\'à quand.',
     ],
   },
   {
@@ -100,7 +101,7 @@ const SECTIONS = [
   {
     q: '🔔 Les notifications',
     a: [
-      '« Pour toi » : ce qui te concerne directement — message d\'équipe, récompense, palier de meute, monstre affamé, vent de face ou fumigène reçu, et tout ce qui touche aux pièges (ta course piégée, ton piège réussi ou déjoué). Ce sont les seules poussées sur ton téléphone.',
+      '« Pour toi » : ce qui te concerne directement — message d\'équipe, récompense, palier de meute, monstre affamé, vent de face ou chantilly reçue, et tout ce qui touche aux pièges (ta course piégée, ton piège réussi ou déjoué). Ce sont les seules poussées sur ton téléphone.',
       '« Activité de la partie » : le reste, en fil d\'activité (X a couru et ce que ça lui rapporte, X a activé un vent de dos, un piège a été posé…). Listé, mais jamais poussé.',
       'Le chat général ne crée pas de notification : les messages non lus (équipe + général) sont signalés par une pastille sur l\'onglet Chat.',
       'Active les notifications push depuis l\'écran 🔔 pour recevoir les alertes « Pour toi ».',

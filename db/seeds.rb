@@ -57,9 +57,9 @@ Item.create!([
   { name: "Jambe de bois", price: 4, description: "Déjoue le prochain piège sur ta course",             effect_type: "wooden_leg" },
   { name: "Vent de dos",   price: 4, description: "×1,5 sur les boules de l'équipe pendant 12h",        effect_type: "back_wind" },
   { name: "Vent de face",  price: 4, description: "−25 % sur les boules adverses pendant 12h",          effect_type: "face_wind" },
-  { name: "Fumigène",      price: 4, description: "Masque les PV d'un monstre aux yeux de l'équipe adverse (24h)", effect_type: "smoke" },
+  { name: "Chantilly",     price: 4, description: "Chantilly plein les yeux : masque les PV d'un monstre à l'équipe adverse (24h)", effect_type: "smoke" },
   { name: "Piège à loup",  price: 5, description: "Annule les boules de la prochaine course d'un adversaire", effect_type: "trap" },
-  { name: "Bouclier",      price: 6, description: "Monstre intouchable pendant 6h",                     effect_type: "shield" },
+  { name: "Saladier",      price: 6, description: "Saladier retourné sur ton monstre : intouchable pendant 6h", effect_type: "shield" },
 ])
 
 puts "Event + partie…"
@@ -254,11 +254,12 @@ seed_import = lambda do |membership, distance_meters|
 end
 
 use_effect[max_m, "back_wind"]          # 🌬️ Max (rouges) : vent de dos → annonce secondaire à tous
-use_effect[ines, "shield"]              # 🛡️ Inès (exo) : bouclier sur King-Coco → secondaire à tous
+use_effect[ines, "shield"]              # 🥣 Inès (exo) : saladier sur King-Coco → secondaire à tous
 use_effect[lea, "face_wind"]            # 🌪️ Léa (exo) : vent de face sur les rouges → notif importante aux victimes
-# 🌫️ Hugo (exo) enfume les rouges et masque LEUR monstre (Framboitrix, target_team "foe") :
-# les rouges voient les PV de Framboitrix en « ??? » (login max@btb.test) mais toujours ceux de
-# King-Coco ; le chip 🌫️ « Framboitrix masqué » s'affiche sur leur board. Yann (exo) voit tout.
+# 🍦 Hugo (exo) barbouille les rouges et masque LEUR monstre (Framboitrix, target_team "foe") :
+# les rouges voient les PV de Framboitrix en « ??? » et son avatar la chantilly plein les yeux
+# (login max@btb.test), mais toujours les PV de King-Coco ; le chip 🍦 « Framboitrix masqué »
+# s'affiche sur leur board. Yann (exo) voit tout, Framboitrix propre comme un sou neuf.
 use_effect[by_name["Hugo"], "smoke", target_team: "foe"]
 
 # 🐺 Pièges à loup + 🦿 jambe de bois, résolus juste après à l'import d'une course (ResolveRunEffects).
@@ -297,6 +298,7 @@ Team.all.each do |t|
 end
 puts "   Statuts de course : #{Training.group(:status).count} · #{Training.where.not(balls_credited_at: nil).count} créditées"
 puts "👉 Connexion démo : yann@btb.test / #{DEMO_PASSWORD} " \
-     "(Yann/exo voit tout — vents, bouclier, chip 🌫️ sur les rouges, second souffle de Framboitrix, " \
-     "jauge de meute, 🍑 créditées, sa course dont le piège a été déjoué). " \
-     "Se connecter en max@btb.test (rouges enfumés) pour voir les PV masqués en « ??? »."
+     "(Yann/exo voit tout — vents, saladier 🥣 sur King-Coco, chip 🍦 sur les rouges, second souffle " \
+     "de Framboitrix, jauge de meute, 🍑 créditées, sa course dont le piège a été déjoué). " \
+     "Se connecter en max@btb.test (rouges barbouillés) pour voir les PV masqués en « ??? » et " \
+     "Framboitrix la chantilly plein les yeux."

@@ -7,7 +7,7 @@ import MonsterPicker from '../components/MonsterPicker'
 
 const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
 const itemEmoji = (t) =>
-  ({ shield: '🛡️', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🌫️', wooden_leg: '🦿' }[t] || '🎒')
+  ({ shield: '🥣', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🍦', wooden_leg: '🦿' }[t] || '🎒')
 
 export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team, items, opponents }) {
   const { flash } = usePage().props
@@ -15,11 +15,11 @@ export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team
   const [hitFoe, setHitFoe] = useState(false)   // monstre adverse encaisse un coup
   const [healMine, setHealMine] = useState(false) // mon monstre est soigné
   const [trapItem, setTrapItem] = useState(null)   // objet piège en attente d'une cible
-  const [smokeItem, setSmokeItem] = useState(null) // fumigène en attente d'une équipe
+  const [smokeItem, setSmokeItem] = useState(null) // chantilly en attente d'un monstre à barbouiller
   const foe = foe_team?.monster
   const mine = my_team?.monster
   const dmg = Math.round(10 * multiplier)
-  // Si notre équipe est enfumée, mine.hp est masqué (null) : on affiche le soin théorique.
+  // Si notre équipe est barbouillée, mine.hp est masqué (null) : on affiche le soin théorique.
   const healAmt = mine && !mine.masked ? Math.min(dmg, mine.max_hp - mine.hp) : dmg
 
   const float = (type, text) => {
@@ -66,14 +66,14 @@ export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team
       {foe ? (
         <>
           <div className="cbt-top">
-            <div className="cbt-enemy-name">{familyEmoji(foe_team?.fruit_family)} {foe.name}{foe.protected ? ' 🛡️' : ''}</div>
+            <div className="cbt-enemy-name">{familyEmoji(foe_team?.fruit_family)} {foe.name}{foe.protected ? ' 🥣' : ''}</div>
             <div className="bigbar">
               {foe.masked
                 ? <i className="unknown" style={{ width: '100%' }} />
                 : <i className="crit" style={{ width: `${foe.percent}%` }} />}
             </div>
             <div className="hp-num" style={{ color: 'var(--crit)' }}>
-              {foe.masked ? '??? PV 🌫️' : `${foe.hp} / ${foe.max_hp} PV`}
+              {foe.masked ? '??? PV 🍦' : `${foe.hp} / ${foe.max_hp} PV`}
             </div>
             <EffectBadges effects={foe_team?.effects} />
           </div>
@@ -81,10 +81,12 @@ export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team
             {floats.map((f) => <div key={f.id} className={f.type === 'heal' ? 'heal-float' : 'dmg'}>{f.text}</div>)}
             {hitFoe && <div className="burst">💥</div>}
             <Monster slug={foe.slug} name={foe.name} size={130}
+                     wear={foe.wear} creamed={foe.masked} shielded={foe.protected}
                      className={`foe-mon-svg ${hitFoe ? 'impact' : ''}`} />
             {mine && (
               <>
                 <Monster slug={mine.slug} name={mine.name} size={54}
+                         wear={mine.wear} creamed={mine.masked} shielded={mine.protected}
                          className={`my-corner-svg ${healMine ? 'healpulse' : ''}`} />
                 {healMine && <div className="heal-spark">✨</div>}
               </>

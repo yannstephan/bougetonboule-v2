@@ -7,8 +7,8 @@ class TeamEffectsPresenter
   KINDS = {
     "back_wind"   => { emoji: "🌬️", name: "Vent de dos" },
     "face_wind"   => { emoji: "🌪️", name: "Vent de face" },
-    "shield"      => { emoji: "🛡️", name: "Bouclier" },
-    "smoke"       => { emoji: "🌫️", name: "Enfumée" },
+    "shield"      => { emoji: "🥣", name: "Saladier" },
+    "smoke"       => { emoji: "🍦", name: "Chantilly" },
     "second_wind" => { emoji: "💨", name: "Second souffle" }
   }.freeze
 

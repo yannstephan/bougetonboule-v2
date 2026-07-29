@@ -79,7 +79,8 @@ function TeamBoard({ team, mine = false }) {
   return (
     <div className={`board ${mine ? 'mine' : ''}`} style={mine ? { borderColor: team.color } : undefined}>
       <div className="board-top">
-        <Monster slug={mon?.slug} name={mon?.name} size={92} />
+        <Monster slug={mon?.slug} name={mon?.name} size={92}
+                 wear={mon?.wear} creamed={mon?.masked} shielded={mon?.protected} />
         <div className="board-id">
           <div className="board-team">{familyEmoji(team.fruit_family)} {team.name}{mine && <span className="board-you">toi</span>}</div>
           <div className="board-mon">{mon?.name}</div>
@@ -91,7 +92,7 @@ function TeamBoard({ team, mine = false }) {
             ? <i className="unknown" style={{ width: '100%' }} />
             : <i className={hpClass(mon?.state)} style={{ width: `${mon?.percent ?? 0}%` }} />}
         </div>
-        <div className="board-hpnum">{mon?.masked ? '??? PV 🌫️' : `${mon?.hp ?? '–'} / ${mon?.max_hp ?? '–'} PV`}</div>
+        <div className="board-hpnum">{mon?.masked ? '??? PV 🍦' : `${mon?.hp ?? '–'} / ${mon?.max_hp ?? '–'} PV`}</div>
       </div>
       <EffectBadges effects={team.effects} />
     </div>
