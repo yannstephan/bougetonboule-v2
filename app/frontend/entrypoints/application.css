@@ -230,6 +230,11 @@ body{margin:0;background:var(--bg);color:var(--text);
 .stage-mon{animation:bob 4s ease-in-out infinite}
 .foe-mon-svg{animation:hit 2.6s ease-in-out infinite}
 .my-corner-svg{position:absolute;bottom:10px;left:14px}
+/* Usure : à partir du 2e palier de PV franchi, le monstre tangue de plus en plus. */
+.mon.wear2 .mon-svg{animation:groggy 4.2s ease-in-out infinite}
+.mon.wear3 .mon-svg{animation:groggy 2.6s ease-in-out infinite}
+@keyframes groggy{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+@media (prefers-reduced-motion:reduce){.mon.wear2 .mon-svg,.mon.wear3 .mon-svg{animation:none}}
 
 /* ligue */
 .lg-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);

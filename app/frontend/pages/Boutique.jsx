@@ -8,7 +8,7 @@ const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
 
 const itemEmoji = (t) =>
-  ({ shield: '🛡️', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🌫️', wooden_leg: '🦿' }[t] || '🎒')
+  ({ shield: '🥣', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🍦', wooden_leg: '🦿' }[t] || '🎒')
 const rarityLabel = { common: 'Commun', rare: 'Rare', epic: 'Épique', legendary: 'Légendaire' }
 
 export default function Boutique({ has_team, balls, items, cosmetics, inventory, opponents, team_names }) {
@@ -16,7 +16,7 @@ export default function Boutique({ has_team, balls, items, cosmetics, inventory,
   const diamonds = auth.user?.diamonds ?? 0
   const [tab, setTab] = useState('items')
   const [trapItem, setTrapItem] = useState(null)   // objet piège en attente d'une cible
-  const [smokeItem, setSmokeItem] = useState(null) // fumigène en attente du monstre à masquer
+  const [smokeItem, setSmokeItem] = useState(null) // chantilly en attente du monstre à barbouiller
 
   const post = (url, data) => router.post(url, { ...data, authenticity_token: csrf() }, { preserveScroll: true })
   const buyItem = (id) => post('/boutique/items', { item_id: id })

@@ -14,6 +14,10 @@ class Monster < ApplicationRecord
   def hp_ratio = max_hp.to_i.zero? ? 0.0 : (hp.to_f / max_hp)
   def hp_percent = (hp_ratio * 100).round
 
+  # Usure visible du monstre (0 → 3) : nombre de paliers de PV franchis (75 / 50 / 25 %).
+  # Le dessin s'abîme d'un cran à chaque palier (components/Monster.jsx).
+  def self.wear_for(ratio) = GameRules::MONSTER_WEAR_THRESHOLDS.count { |t| ratio <= t }
+
   def refresh_state!
     self.state =
       if hp <= 0 then "defeated"
@@ -21,6 +25,9 @@ class Monster < ApplicationRecord
       elsif hp_ratio <= 0.50 then "hurt"
       else "healthy"
       end
+    # Cliquet : l'usure ne redescend jamais. Un palier franchi une fois laisse ses cicatrices,
+    # même si l'équipe remonte les PV à bloc ensuite.
+    self.wear = [wear.to_i, self.class.wear_for(hp_ratio)].max
     save!
     maybe_trigger_second_wind!
   end

@@ -53,7 +53,7 @@ ses 🍑/streak/courses **et son fruit-avatar** (`memberships.fruit`) sont **par
 cosmétiques/💎 sont **globaux**.
 
 - **Compte** : `User`, `Avatar`, `Cosmetic`, `UserCosmetic`, `PushSubscription`, `Notification`
-- **Partie** : `Event`, `Game`, `Team`, `Monster` (PV), `TeamEffect` (vent/bouclier), `SpecialDay`
+- **Partie** : `Event`, `Game`, `Team`, `Monster` (PV + `wear`), `TeamEffect` (vent/saladier), `SpecialDay`
 - **Participation** : `Membership`, `Training` (course Strava scorée)
 - **Combat/éco** : `Item`, `MembershipItem`, `Action` (attaque/soin/objet, cible polymorphe),
   `Chest` (coffre), `Reward` (registre des gains)
@@ -66,14 +66,14 @@ cosmétiques/💎 sont **globaux**.
 2. Les 21 modèles + migration + seed de démo (partie jouable)
 3. **Sync Strava** (scorer 1km=1🍑 plafond 10 × jour spécial ; d'abord polling, puis webhooks)
 4. **Auth** email/mdp + **Google** ; écrans **Login / Register / Hub**
-5. **Combat** (service `PerformAction` : attaque/soin/objet, PV, bouclier, vent), **Chat**
+5. **Combat** (service `PerformAction` : attaque/soin/objet, PV, saladier, vent), **Chat**
    (partie + équipe), **Notifications + Web Push** (VAPID, service worker)
 6. **Strava temps réel** : Webhook Events API (`/strava/webhook` verify + event), OAuth connect,
    refresh de token, job d'import ; reconciliation quotidienne en filet de sécurité
 7. **Classement** (`/ligue`) : deux classements, mensuel et général, récompense au 1er du mois
 8. **Avatar** (`/avatar`) : personnalisation + équipement des cosmétiques possédés
 9. **Mécaniques de saison** (voir section dédiée) : jauge de meute, monstre affamé, second
-   souffle, vent de face, fumigène, résolution des pièges au scoring, fin de partie
+   souffle, vent de face, chantilly, résolution des pièges au scoring, fin de partie
 
 ### Mécaniques de saison (calibrées sur les données v1 — voir `GameRules`)
 
@@ -100,12 +100,17 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   (usage unique). Notifications importantes aux deux camps.
 - **🌬️/🌪️ Vents sur les courses** : appliqués par `TrainingScorer` à la **date réelle** de la
   course (une course importée en retard est bien jugée) — dos ×1,5 / face ×0,75, 12h.
-- **🌫️ Fumigène** : `TeamEffect kind: "smoke"` 24h. L'**équipe adverse est toujours aveuglée**
-  (colonne `team_id`) ; le poseur choisit **quel monstre** lui masquer — le sien ou celui de
-  l'adversaire (`team_effects.masked_team_id`, sélecteur `MonsterPicker`, param `target_team`
-  `mine`/`foe`). `Team#smoke_masks?(monster_team_id)` → `MonsterPresenter` masque **ce monstre**
-  (hp/max_hp/percent nil, `masked: true`) pour l'équipe visée sur Hub et Combat ; l'autre monstre
-  et le dessin restent visibles. Le chip 🌫️ indique « <monstre> masqué ».
+- **🍦 Chantilly** (ex-Fumigène ; `effect_type`/`TeamEffect kind` restent `"smoke"`) : 24h.
+  L'**équipe adverse est toujours aveuglée** (colonne `team_id`) ; le poseur choisit **quel
+  monstre** lui masquer — le sien ou celui de l'adversaire (`team_effects.masked_team_id`,
+  sélecteur `MonsterPicker`, param `target_team` `mine`/`foe`). `Team#smoke_masks?(monster_team_id)`
+  → `MonsterPresenter` masque **ce monstre** (hp/max_hp/percent nil, `masked: true`) pour l'équipe
+  visée sur Hub et Combat, et le front lui colle de la **chantilly dans les yeux** (`creamed`) :
+  même condition que les « ??? », donc seule l'équipe aveuglée voit le monstre barbouillé.
+  L'autre monstre et le dessin restent visibles. Le chip 🍦 indique « <monstre> masqué ».
+- **🥣 Saladier** (ex-Bouclier ; `effect_type` reste `"shield"`) : `monster.protected_until` 6h,
+  intouchable. Le front (`protected`) pose un **saladier translucide retourné** par-dessus le
+  monstre — visible de tous, sur le Hub comme en Combat.
 - **🎉 Journées spéciales** : 5-6 par saison (`SpecialDay`, ×2). Seedées : Halloween 31/10 et
   Réveillon 24/12. Le multiplicateur s'applique après le plafond → plafond effectif doublé.
 - **🔥 Streak hebdo** (`WeeklyStreakJob`, le lundi) : ≥ 1 course scorée dans la semaine →
@@ -184,7 +189,21 @@ en secours si pas de fruit).
 ### Les monstres
 Dessinés en SVG dans `components/Monster.jsx`, choisis par `Monster#slug` (`"King-Coco"` →
 `king-coco`). King-Coco (roi noix de coco) et Framboitrix (sorcière-framboise, clin d'œil à
-Bellatrix Lestrange) pour Odyssea. Un slug inconnu retombe sur un emoji 👾. En **Combat**, l'attaque secoue + flashe en rouge le monstre
+Bellatrix Lestrange) pour Odyssea. Un slug inconnu retombe sur un emoji 👾.
+
+**Le dessin évolue**, piloté par trois props que sert `MonsterPresenter` :
+- **`wear` 0→3 — l'usure** : à chaque **premier** passage sous **75 / 50 / 25 %** des PV, le
+  monstre prend un cran (`monsters.wear`, calculé dans `Monster#refresh_state!` via
+  `GameRules::MONSTER_WEAR_THRESHOLDS`). **Cliquet** : `wear` ne redescend jamais — un soin
+  remonte les PV, pas la façade, et la barre de vie reste la seule info exacte. King-Coco se
+  fend (chair blanche visible), sa couronne glisse et perd ses pierres, ses yeux passent
+  mi-clos puis en croix ; Framboitrix perd ses drupéoles (elles roulent à ses pieds), sa
+  crinière retombe, son chapeau se déchire et ses yeux partent en vrille. Pansement et goutte
+  de sueur communs. Au-delà du 2e palier, le monstre **tangue** (`.mon.wear2/.wear3`, guard
+  `prefers-reduced-motion`).
+- **`creamed`** : chantilly plein les yeux tant que l'effet dure (= `masked`, donc pour la seule
+  équipe aveuglée, celle qui voit « ??? »).
+- **`shielded`** : saladier translucide retourné (= `protected`), le monstre se tasse dessous. En **Combat**, l'attaque secoue + flashe en rouge le monstre
 adverse (💥 + « -N ») et le soin fait gonfler mon monstre avec une lueur verte (✨ + « +N »),
 piloté par état React dans `pages/Combat.jsx` (classes `.impact` / `.healpulse`, guard
 `prefers-reduced-motion`).
@@ -226,9 +245,10 @@ Deux monnaies **étanches** (règle d'or, jamais de pay-to-win), servies par le 
   de la participation (`MembershipItem`, `used: false`). **À usage unique** : « Utiliser » réutilise
   `PerformAction` (`use_item`) et consomme l'objet. Catalogue (prix calibrés sur ~10 🍑/sem
   pour un actif médian) : **Jambe de bois 4** · **Vent de dos 4** · **Vent de face 4** ·
-  **Fumigène 4** · **Piège à loup 5** · **Bouclier 6** (6h). Le vent de face notifie ses
-  victimes nominativement (agressivité assumée) ; le fumigène aveugle toujours l'adversaire et
-  choisit quel monstre lui masquer.
+  **Chantilly 4** · **Piège à loup 5** · **Saladier 6** (6h). Le vent de face notifie ses
+  victimes nominativement (agressivité assumée) ; la chantilly aveugle toujours l'adversaire et
+  choisit quel monstre barbouiller. ⚠️ Seuls les **libellés** ont changé (ex-Fumigène /
+  ex-Bouclier) : les `effect_type` restent `smoke` et `shield` dans tout le code.
 - **Cosmétiques** en 💎 diamants (`User.diamonds`, global) → déposés dans l'armoire
   (`UserCosmetic`). On les **équipe / remet dans l'armoire** depuis l'écran avatar (`/avatar`).
   Seuls les cosmétiques `price_diamonds` non nul sont en vente (les récompenses ne le sont pas).
@@ -239,7 +259,7 @@ achats sont refusés proprement si monnaie insuffisante, cosmétique déjà poss
 ### Notifications — deux niveaux (`notifications.importance`)
 - **important** : poussé en Web Push **et** listé. Concerne le joueur directement — message dans
   la **conversation d'équipe**, récompense (coffre, ligue, streak), « ma course a été piégée /
-  mon piège a réussi / mon piège a été déjoué », vent de face ou fumigène **reçu**, palier de
+  mon piège a réussi / mon piège a été déjoué », vent de face ou chantilly **reçue**, palier de
   meute gagné, monstre affamé, second souffle, fin de partie.
 - **secondary** (défaut) : **listé seulement**, jamais poussé. L'activité des autres — « X a
   couru N km · +N 🍑 » (km **et** boules gagnées), « X a activé un vent de dos jusqu'à… », « X a
@@ -273,7 +293,7 @@ sur la page profil d'un joueur.
 ### Effets d'objets (combat)
 `PerformAction` (`use_item`) applique les effets. **Les effets à durée sont publics** :
 `TeamEffectsPresenter` liste, pour une équipe, ses `TeamEffect` actifs (vent de dos/de face) +
-le bouclier du monstre (`monster.protected_until`), chacun avec son échéance. Affichés par
+le saladier du monstre (`monster.protected_until`), chacun avec son échéance. Affichés par
 `components/EffectBadges.jsx` sur le **Hub** (les deux clans) et en **Combat**.
 
 - **Piège à loup** (`trap`) : on **choisit un adversaire** (`components/TargetPicker.jsx`, dans le
@@ -369,10 +389,11 @@ directement dans une partie remplie. Le seed **rejoue de vrais événements par 
   équipe a un vrai magot en banque et un solde par joueur cohérent avec son historique ;
 - **les deux issues d'un piège** sont montrées : la course de Yann est **piégée mais déjouée**
   par sa jambe de bois (🍑 sauvées, notif importante), celle de Nico est **piégée** (0 🍑) ;
-- **effets actifs** sur le Hud : vents (dos/face), bouclier, **jauge de meute**, **second souffle**
-  de Framboitrix (soins à 1 🍑), et le chip **🌫️ Enfumée** sur les rouges ;
-- **PV masqués « ??? »** visibles en se connectant en **`max@btb.test`** (les rouges sont enfumés ;
-  Yann/exo, lui, garde une vue complète) ;
+- **effets actifs** sur le Hud : vents (dos/face), **saladier** 🥣 retourné sur King-Coco,
+  **jauge de meute**, **second souffle** de Framboitrix (soins à 1 🍑, donc elle est déjà à
+  `wear` 3 — bien amochée), et le chip **🍦 Chantilly** sur les rouges ;
+- **PV masqués « ??? »** + **chantilly dans les yeux de Framboitrix** en se connectant en
+  **`max@btb.test`** (les rouges sont barbouillés ; Yann/exo, lui, garde une vue complète) ;
 - le fil de notifications (importantes vs secondaires) et la **pastille de non-lus** du Chat.
 
 Reseeder (`bin/rails db:seed`) régénère tout ça. La **famine** (🍽️) et la **fin de partie** (🏁)

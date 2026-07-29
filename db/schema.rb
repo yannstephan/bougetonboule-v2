@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_29_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_29_140001) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -155,6 +155,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_120000) do
     t.string "state", default: "healthy", null: false
     t.integer "team_id", null: false
     t.datetime "updated_at", null: false
+    t.integer "wear", default: 0, null: false
     t.index ["team_id"], name: "index_monsters_on_team_id", unique: true
   end
 

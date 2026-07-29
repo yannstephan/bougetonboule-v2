@@ -35,7 +35,7 @@ class PerformAction
     return err("Pas assez de boules") if @m.balls < GameRules::ATTACK_COST
     foe = team.opponent&.monster
     return err("Aucun adversaire") unless foe
-    return err("Le monstre adverse est protégé 🛡️") if foe.protected?
+    return err("Le monstre adverse est sous saladier 🥣") if foe.protected?
     return err("L'adversaire est déjà vaincu") unless foe.alive?
     return crit_fail(foe) if rand < GameRules::CRIT_FAIL_CHANCE
 
@@ -97,9 +97,9 @@ class PerformAction
     when "shield"
       until_at = GameRules::SHIELD_DURATION.from_now
       team.monster.update!(protected_until: until_at)
-      consume(mi, "🛡️ #{@m.user.firstname} a protégé #{team.monster.name}")
-      broadcast_effect("🛡️ #{@m.user.firstname} a activé un bouclier jusqu'à #{until_at.strftime('%H:%M')}.")
-      ok("Bouclier activé (#{GameRules::SHIELD_DURATION.in_hours.round}h) !")
+      consume(mi, "🥣 #{@m.user.firstname} a retourné un saladier sur #{team.monster.name}")
+      broadcast_effect("🥣 #{@m.user.firstname} a posé un saladier jusqu'à #{until_at.strftime('%H:%M')}.")
+      ok("Saladier posé (#{GameRules::SHIELD_DURATION.in_hours.round}h) !")
     when "back_wind"
       until_at = GameRules::WIND_DURATION.from_now
       TeamEffect.create!(team:, kind: "back_wind", modifier: GameRules::BACK_WIND_MODIFIER,
@@ -142,23 +142,24 @@ class PerformAction
     ok("Vent de face lancé sur #{foe.name} !")
   end
 
-  # Fumigène : l'équipe adverse est TOUJOURS aveuglée 24h ; le poseur choisit QUEL monstre lui
-  # est masqué — le sien (`mine`) ou celui de l'adversaire (`foe`, défaut).
+  # Chantilly : l'équipe adverse est TOUJOURS aveuglée 24h ; le poseur choisit QUEL monstre lui
+  # est masqué — le sien (`mine`) ou celui de l'adversaire (`foe`, défaut). Le monstre visé se
+  # retrouve la chantilly plein les yeux dans son avatar, le temps de l'effet.
   def set_smoke(mi)
     foe = team.opponent
-    return err("Aucun adversaire à enfumer.") unless foe
+    return err("Aucun adversaire à barbouiller.") unless foe
 
     masked_team = @target_team == "mine" ? team : foe
     monster = masked_team.monster
     until_at = GameRules::SMOKE_DURATION.from_now
     TeamEffect.create!(team: foe, kind: "smoke", masked_team:, expires_at: until_at, created_by: @m)
-    consume(mi, "🌫️ #{@m.user.firstname} a masqué les PV de #{monster.name} à #{foe.name}")
+    consume(mi, "🍦 #{@m.user.firstname} a collé de la chantilly dans les yeux de #{monster.name}")
     Notification.broadcast(foe.memberships.includes(:user).map(&:user),
                            game: @m.game, importance: "important", category: "effect",
-                           title: "🌫️ Fumigène !",
-                           body: "#{@m.user.firstname} vous enfume : vous ne voyez plus les PV de #{monster.name} jusqu'à #{until_at.strftime('%H:%M')}.")
-    broadcast_effect("🌫️ #{@m.user.firstname} a masqué les PV de #{monster.name} pour #{foe.name}.", except_team: foe)
-    ok("Fumigène : PV de #{monster.name} masqués pour #{foe.name} !")
+                           title: "🍦 Chantilly !",
+                           body: "#{@m.user.firstname} barbouille #{monster.name} de chantilly : vous ne voyez plus ses PV jusqu'à #{until_at.strftime('%H:%M')}.")
+    broadcast_effect("🍦 #{@m.user.firstname} a collé de la chantilly dans les yeux de #{monster.name} pour #{foe.name}.", except_team: foe)
+    ok("Chantilly : #{monster.name} en a plein les yeux, PV masqués pour #{foe.name} !")
   end
 
   # Pose un piège sur un adversaire précis. La cible est enregistrée (résolution à l'import

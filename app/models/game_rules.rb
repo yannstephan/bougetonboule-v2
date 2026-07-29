@@ -4,6 +4,9 @@
 module GameRules
   # Monstres
   MONSTER_MAX_HP = 10_000 # tuable dans les dernières semaines seulement
+  # Paliers d'usure : à chaque passage sous 75 / 50 / 25 % des PV, le monstre prend un cran
+  # d'usure (dessin de plus en plus mal en point). Cliquet : jamais rendu par un soin.
+  MONSTER_WEAR_THRESHOLDS = [0.75, 0.50, 0.25].freeze
 
   # Combat — le soin coûte le double : l'attaque doit rester plus rentable
   # que la défense pour garantir que la partie se décide.

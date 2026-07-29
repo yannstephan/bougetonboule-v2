@@ -21,7 +21,7 @@ class Team < ApplicationRecord
   def second_wind_active? = second_wind_until.present? && second_wind_until.future?
   def heal_cost = second_wind_active? ? GameRules::SECOND_WIND_HEAL_COST : GameRules::HEAL_COST
 
-  # Enfumée : un ou plusieurs fumigènes actifs masquent, à cette équipe, les PV du/des monstre(s)
+  # Chantilly (kind "smoke") : un ou plusieurs pots actifs masquent, à cette équipe, les PV du/des monstre(s)
   # ciblé(s). `smoke_masks?(team_id)` = ce monstre (celui de l'équipe `team_id`) m'est-il caché ?
   def smoke_effects = active_effects.where(kind: "smoke")
   def smoke_masks?(monster_team_id) = smoke_effects.exists?(masked_team_id: monster_team_id)
