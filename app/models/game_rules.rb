@@ -27,6 +27,11 @@ module GameRules
 
   # Boules
   MAX_BALLS_PER_RUN = 10 # doublé les jours spéciaux (le multiplicateur s'applique après le plafond)
+  # Plafond JOURNALIER, par participation, sur les boules de base (avant jour spécial et
+  # vents) : découper sa sortie de 20 km en deux sur la montre ne rapporte rien de plus,
+  # ni en boules ni en ligue (c'est le score de la course qui est tronqué). Un jour spécial
+  # ×2 double aussi ce plafond, puisque le multiplicateur s'applique après.
+  MAX_BALLS_PER_DAY = 10
   # Plafond de porte-monnaie (retour v1) : une course ne verse que jusqu'à 100 🍑 en poche,
   # l'excédent est perdu (notifié). Le score de la course reste entier — la ligue le compte.
   # Avec l'échec critique (15 % du solde), c'est la double peine des thésauriseurs.
@@ -83,4 +88,43 @@ module GameRules
   FAMINE_AFTER         = 72.hours
   FAMINE_HP_PER_DAY    = 50
   FAMINE_FLOOR_RATIO   = 0.05
+
+  # ---------------------------------------------------------------------------
+  # Contrôle des courses importées (anti-triche) — appliqué par TrainingPolicy.
+  # Tout est automatique : une course passe ou elle est rejetée, jamais de file
+  # d'attente. Une course rejetée est conservée (avec sa raison) mais inerte :
+  # 0 🍑, aucun piège consommé, aucun coffre, absente du feed public.
+  # ---------------------------------------------------------------------------
+  # Types Strava acceptés. On lit `sport_type` (moderne) : `type` range TrailRun et
+  # VirtualRun sous "Run", ce qui rendait le filtre inopérant. Le tapis est autorisé
+  # (voir la preuve d'effort plus bas).
+  ALLOWED_SPORT_TYPES = %w[Run TrailRun VirtualRun Treadmill].freeze
+
+  # Distance : sous 2 km ça ne compte pas (et ça ne peut donc pas servir d'appât pour
+  # faire claquer un piège à loup avant la vraie sortie) ; au-delà de 80 km c'est une
+  # aberration (personne ne peut la repêcher à la main, donc le plafond est large).
+  MIN_DISTANCE_KM = 2
+  MAX_DISTANCE_KM = 80
+
+  # Allure (secondes / km, sur le temps de mouvement) : entre 4:00 et 9:30 au km.
+  # Plus lent, c'est de la marche ; plus rapide, ce n'est plus de la course à pied
+  # (vélo ou voiture enregistrés en "Run").
+  MIN_PACE_SECONDS = 240
+  MAX_PACE_SECONDS = 570
+
+  # Fenêtre d'antériorité : une course de plus de 7 jours ne rentre pas (sinon connecter
+  # Strava en cours de saison déverserait tout l'historique). Petite tolérance dans le
+  # futur pour les montres mal réglées.
+  IMPORT_WINDOW     = 7.days
+  FUTURE_TOLERANCE  = 1.hour
+
+  # Course sans tracé GPS (tapis, virtuelle) : il faut une preuve d'effort — soit la
+  # fréquence cardiaque (moyenne plausible), soit au moins une photo (l'écran du tapis),
+  # visible de tous sur la page de la course.
+  HEARTRATE_RANGE = (90..210).freeze
+
+  # Doublon montre + téléphone : deux courses d'une même participation qui se recouvrent
+  # dans le temps. Comparaison volontairement limitée à un même joueur — deux coéquipiers
+  # qui courent ensemble ont des statistiques quasi identiques.
+  DUPLICATE_OVERLAP_GRACE = 2.minutes
 end

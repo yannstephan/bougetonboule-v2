@@ -1,6 +1,6 @@
 class Notification < ApplicationRecord
-  CATEGORIES = %w[attacked healed streak special_day chest message training_verified game_start
-                  league trap effect].freeze
+  CATEGORIES = %w[attacked healed streak special_day chest message training_verified
+                  training_rejected game_start league trap effect].freeze
   # important = poussé en Web Push + listé ; secondary = listé seulement (jamais poussé).
   IMPORTANCE = %w[important secondary].freeze
 

@@ -10,8 +10,23 @@ const SECTIONS = [
       'Règle : 1 km couru = 1 boule, avec un maximum de 10 boules par sortie.',
       'Le plafond s\'applique d\'abord, les multiplicateurs ensuite. Exemple : une sortie de 15 km vaut 10 boules ; avec un vent de dos actif, 10 × 1,5 = 15 boules.',
       'Les journées spéciales (5-6 dans la saison, annoncées ou surprises) doublent tout : boules ET plafond. 15 km un jour ×2 = 20 boules, et avec un vent de dos… fais le calcul 😉',
+      'Il y a aussi un plafond par jour : 10 boules, quelle que soit la façon dont tu découpes tes sorties. Deux fois 10 km dans la journée rapportent donc 10 boules, pas 20 (le plafond du jour double lui aussi les jours spéciaux).',
       'Ton porte-monnaie est plafonné à 100 boules : une course ne remplit que jusqu\'à 100, le surplus est perdu (tu es prévenu). Le classement, lui, compte bien toutes les boules de tes courses. Morale : dépense tes boules !',
       'Tes boules sont propres à chaque partie. Elles ne servent qu\'au combat et aux objets — jamais à acheter un avantage.',
+    ],
+  },
+  {
+    q: '✅ Quelles courses comptent ?',
+    a: [
+      'Le jeu accepte les courses à pied, dehors ou sur tapis, importées automatiquement depuis Strava. Tout est vérifié par le jeu, tout de suite : une course compte, ou elle ne compte pas — et si elle ne compte pas, tu reçois une notification qui t\'explique exactement pourquoi.',
+      'Ce n\'est pas une course à pied ? Vélo, marche, randonnée, natation… ça ne rapporte rien. Et une sortie ajoutée à la main sur Strava (sans montre ni téléphone) ne compte jamais.',
+      'Trop courte ou trop longue : il faut au moins 2 km, et pas plus de 80 km.',
+      'L\'allure doit rester entre 4:00 et 9:30 au kilomètre. Plus lent, c\'est de la marche ; plus rapide, ce n\'est plus de la course à pied. Ton allure est affichée sur chacune de tes sorties.',
+      'Sur tapis (ou en salle), il n\'y a pas de tracé GPS : ajoute ta fréquence cardiaque, ou à défaut une photo de l\'écran avec tes stats. Photo visible par tout le monde sur ta sortie — pas de triche discrète 😇',
+      'Les courses de plus de 7 jours n\'entrent plus dans la partie : connecter Strava en cours de saison ne déverse pas tout ton historique.',
+      'Une même sortie ne compte qu\'une fois : deux enregistrements qui se chevauchent (la montre ET le téléphone), c\'est le plus long qui est retenu. Et une même activité ne peut pas être réclamée par deux joueurs.',
+      'Un compte Strava = un joueur. Impossible de brancher celui d\'un ami qui court plus que toi.',
+      'Si tu modifies ta sortie sur Strava après coup, le jeu s\'adapte : tu ajoutes la photo qui manquait et elle est comptée, tu la changes en sortie vélo et les boules repartent. Si tu la supprimes, elle est retirée du jeu — et le piège à loup qu\'elle avait fait claquer est réarmé, bien tenté 🐺',
     ],
   },
   {

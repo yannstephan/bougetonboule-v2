@@ -1,7 +1,10 @@
 # Résout les objets « à retardement » au moment où une course arrive : le piège à loup
 # le plus ancien qui visait ce coureur se referme (0 🍑), sauf si une jambe de bois était
 # armée — elle le déjoue et la course garde ses boules (statut "protected").
-# Un piège / une jambe ne sert qu'une fois : l'action est marquée résolue.
+# Un piège / une jambe ne sert qu'une fois : l'action est marquée résolue, en mémorisant
+# QUELLE course l'a consommée — si cette course est révoquée plus tard (supprimée sur
+# Strava), RevokeTraining réarme l'objet.
+# À appeler sur une course déjà enregistrée : c'est son id qui sert de trace.
 class ResolveRunEffects
   def self.call(training) = new(training).call
 
@@ -41,8 +44,8 @@ class ResolveRunEffects
   # Piège déjoué : la course garde ses boules, la jambe de bois se révèle enfin.
   def foil!(trap, leg)
     now = Time.current
-    trap.update!(resolved_at: now)
-    leg.update!(resolved_at: now)
+    trap.update!(resolved_at: now, resolved_training: @t)
+    leg.update!(resolved_at: now, resolved_training: @t)
     @t.status = "protected"
 
     notify(@m.user, importance: "important", title: "🦿 Piège déjoué !",
@@ -57,9 +60,10 @@ class ResolveRunEffects
   # Piège refermé : 0 🍑. La victime ne voit pas qui l'a piégée (l'annonce de pose était
   # déjà anonyme côté cible) ; le piégeur, lui, est félicité nominativement.
   def snap!(trap)
-    trap.update!(resolved_at: Time.current)
+    trap.update!(resolved_at: Time.current, resolved_training: @t)
     @t.status = "trapped"
     @t.score = 0
+    @t.base_balls = 0 # une course piégée ne rapporte rien : elle ne mange pas le quota du jour
 
     notify(@m.user, importance: "important", title: "🐺 Course piégée !",
            body: "Ta course de #{km} km est tombée dans un piège à loup : 0 🍑 cette fois. Venge-toi !")

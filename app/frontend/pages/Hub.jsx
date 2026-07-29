@@ -66,6 +66,20 @@ function GameView({ m }) {
       <div className="tiles">
         <div className="tile"><span className="ic">🔥</span><div><div className="tn">Série hebdo</div><div className="td">{m.weekly_streak} sem.{m.streak_jokers > 0 ? ` · 🧊×${m.streak_jokers}` : ''}</div></div></div>
         <Link href="/ligue" className="tile"><span className="ic">🏅</span><div><div className="tn">Classement</div><div className="td">{m.month_rank ? `${m.month_rank}e ce mois-ci` : 'Cours pour entrer'}</div></div></Link>
+        {m.day_quota && (
+          <div className="tile" style={{ gridColumn: '1 / -1' }}>
+            <span className="ic">🧢</span>
+            <div>
+              <div className="tn">Quota du jour</div>
+              <div className="td">
+                {m.day_quota.used} / {m.day_quota.cap} 🍑
+                {m.day_quota.used >= m.day_quota.cap
+                  ? ' · plafond atteint, garde le reste pour demain'
+                  : ' gagnées aujourd’hui'}
+              </div>
+            </div>
+          </div>
+        )}
         <Link href="/boutique?tab=inventory" className="tile" style={{ gridColumn: '1 / -1' }}><span className="ic">🎒</span><div><div className="tn">Mon sac</div><div className="td">{m.bag_count > 0 ? `${m.bag_count} objet${m.bag_count > 1 ? 's' : ''} à utiliser` : 'Vide — passe à la boutique'}</div></div></Link>
       </div>
     </main>

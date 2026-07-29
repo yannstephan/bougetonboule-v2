@@ -21,7 +21,9 @@ module BougetonbouleV2
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    # Tout le jeu se joue à l'heure française : le quota journalier de boules, les journées
+    # spéciales et les échéances d'effets doivent tomber sur le bon jour pour les joueurs.
+    config.time_zone = "Europe/Paris"
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

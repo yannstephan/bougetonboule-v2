@@ -4,7 +4,7 @@ import PlayerAvatar from '../components/PlayerAvatar'
 const statusChip = {
   verified: { label: 'Validée', cls: 'ok' },
   pending: { label: 'En attente', cls: 'wait' },
-  rejected: { label: 'Rejetée', cls: 'no' },
+  rejected: { label: 'Non comptée', cls: 'no' },
   trapped: { label: 'Piégée', cls: 'no' },
   protected: { label: 'Protégée', cls: 'wait' },
 }
@@ -66,8 +66,9 @@ function Run({ t }) {
       <div className="run-main">
         <div className="run-title">{t.title}{t.has_route && <span className="run-ic" title="Tracé dispo">🗺️</span>}{t.has_photo && <span className="run-ic" title="Photo">📷</span>}</div>
         <div className="run-sub">
-          {t.km} km{t.duration ? ` · ${t.duration}` : ''} · <span className={`run-chip ${chip.cls}`}>{chip.label}</span>
+          {t.km} km{t.duration ? ` · ${t.duration}` : ''}{t.pace ? ` · ${t.pace}` : ''} · <span className={`run-chip ${chip.cls}`}>{chip.label}</span>
         </div>
+        {t.status === 'rejected' && t.rejection_reason && <div className="run-why">{t.rejection_reason}</div>}
       </div>
       <div className="run-balls">+{t.balls} 🍑</div>
     </Link>

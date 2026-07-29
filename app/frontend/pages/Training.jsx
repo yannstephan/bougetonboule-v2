@@ -4,8 +4,8 @@ import RouteMap from '../components/RouteMap'
 
 const statusChip = {
   verified: { label: 'Validée', cls: 'ok' },
-  pending: { label: 'En attente de validation', cls: 'wait' },
-  rejected: { label: 'Rejetée', cls: 'no' },
+  pending: { label: 'En attente', cls: 'wait' },
+  rejected: { label: 'Non comptée', cls: 'no' },
   trapped: { label: 'Piégée', cls: 'no' },
   protected: { label: 'Protégée', cls: 'wait' },
 }

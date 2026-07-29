@@ -11,13 +11,19 @@ class Strava::WebhooksController < ApplicationController
     end
   end
 
-  # Réception d'un event : répondre vite (200), traiter en asynchrone
+  # Réception d'un event : répondre vite (200), traiter en asynchrone.
+  # - create / update : (ré)importer l'activité. Une course modifiée après coup est re-jugée
+  #   — sport corrigé en vélo = elle sort du jeu, photo du tapis ajoutée = elle y entre.
+  # - delete : la course est retirée (🍑 reprises, piège réarmé).
   def event
-    if params[:object_type] == "activity" && params[:aspect_type] == "create"
-      StravaActivityImportJob.perform_later(
-        owner_id:    params[:owner_id].to_s,
-        activity_id: params[:object_id].to_s
-      )
+    if params[:object_type] == "activity"
+      owner_id = params[:owner_id].to_s
+      activity_id = params[:object_id].to_s
+
+      case params[:aspect_type]
+      when "create", "update" then StravaActivityImportJob.perform_later(owner_id:, activity_id:)
+      when "delete"           then StravaActivityRevokeJob.perform_later(owner_id:, activity_id:)
+      end
     end
     head :ok
   end

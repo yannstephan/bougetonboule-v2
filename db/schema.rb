@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_29_140001) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_29_180000) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -20,12 +20,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_140001) do
     t.integer "item_id"
     t.integer "membership_id", null: false
     t.datetime "resolved_at"
+    t.integer "resolved_training_id"
     t.bigint "target_id"
     t.string "target_type"
     t.datetime "updated_at", null: false
     t.index ["game_id"], name: "index_actions_on_game_id"
     t.index ["item_id"], name: "index_actions_on_item_id"
     t.index ["membership_id"], name: "index_actions_on_membership_id"
+    t.index ["resolved_training_id"], name: "index_actions_on_resolved_training_id"
     t.index ["target_type", "target_id"], name: "index_actions_on_target_type_and_target_id"
   end
 
@@ -242,23 +244,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_140001) do
   end
 
   create_table "trainings", force: :cascade do |t|
+    t.decimal "average_heartrate", precision: 5, scale: 1
     t.datetime "balls_credited_at"
+    t.integer "base_balls", default: 0, null: false
     t.datetime "created_at", null: false
+    t.integer "credited_balls", default: 0, null: false
     t.datetime "date", null: false
     t.text "description"
     t.integer "distance_meters", default: 0, null: false
     t.integer "elapsed_time"
     t.decimal "elevation_gain", precision: 7, scale: 1
+    t.boolean "flagged", default: false, null: false
+    t.boolean "has_heartrate", default: false, null: false
+    t.boolean "manual", default: false, null: false
     t.integer "membership_id", null: false
     t.integer "moving_time"
+    t.integer "photo_count", default: 0, null: false
     t.string "photo_url"
+    t.string "rejection_reason"
     t.json "route_points"
     t.decimal "score", precision: 6, scale: 1, default: "0.0", null: false
     t.integer "special_day_id"
+    t.string "sport_type"
     t.string "status", default: "pending", null: false
     t.string "strava_activity_id"
     t.string "title"
+    t.boolean "trainer", default: false, null: false
     t.datetime "updated_at", null: false
+    t.index ["membership_id", "strava_activity_id"], name: "index_trainings_on_membership_and_activity", unique: true
     t.index ["membership_id"], name: "index_trainings_on_membership_id"
     t.index ["special_day_id"], name: "index_trainings_on_special_day_id"
     t.index ["strava_activity_id"], name: "index_trainings_on_strava_activity_id"
@@ -294,11 +307,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_140001) do
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
+    t.index ["strava_uid"], name: "index_users_on_strava_uid", unique: true
   end
 
   add_foreign_key "actions", "games"
   add_foreign_key "actions", "items"
   add_foreign_key "actions", "memberships"
+  add_foreign_key "actions", "trainings", column: "resolved_training_id"
   add_foreign_key "chests", "cosmetics"
   add_foreign_key "chests", "memberships"
   add_foreign_key "chests", "trainings"

@@ -136,7 +136,8 @@ def seed_training!(membership, day, distance_meters)
     membership:, date: day.to_time + rand(7..19).hours, distance_meters:, status: "verified",
     title: RUN_TITLES.sample, description: RUN_NOTES.sample,
     moving_time: moving, elapsed_time: moving + rand(0..280),
-    elevation_gain: rand(4..180), route_points: seed_route(distance_meters)
+    elevation_gain: rand(4..180), route_points: seed_route(distance_meters),
+    sport_type: "Run", has_heartrate: true, average_heartrate: rand(132..168)
   )
   TrainingScorer.call(training)
   training.save!
@@ -239,10 +240,12 @@ seed_import = lambda do |membership, distance_meters|
   t = membership.trainings.build(date: Time.current, distance_meters:, status: "verified",
                                  title: RUN_TITLES.sample, moving_time: moving,
                                  elapsed_time: moving + rand(0..200), elevation_gain: rand(4..120),
-                                 route_points: seed_route(distance_meters))
+                                 route_points: seed_route(distance_meters),
+                                 sport_type: "Run", has_heartrate: true, average_heartrate: rand(132..168))
   TrainingScorer.call(t)
+  t.save!                   # la course a besoin d'un id : le piège mémorise qui l'a consommé
   ResolveRunEffects.call(t) # piège à loup / jambe de bois + notifs importantes aux deux camps
-  t.save!
+  t.save! if t.changed?
   t.credit_balls!           # rien n'est versé si la course est piégée (score 0)
   gain = t.status == "trapped" ? "piégée 🐺 · 0 🍑" : "+#{t.score.to_i} 🍑"
   link = "/courses/#{t.id}"
@@ -278,6 +281,25 @@ seed_import[yann, 8_400]  # 🦿 piège déjoué → « Piège déjoué ! » (im
 seed_import[nico, 6_200]  # 🐺 piège refermé → « Course piégée ! » (importante) à Nico, 0 🍑
 seed_import[ines, 10_400] # course normale (exo, pas de vent)
 seed_import[max_m, 7_200] # course normale (rouges : vent de dos ×1,5 × vent de face ×0,75)
+
+# 🚫 Deux sorties refusées par le contrôle anti-triche : personne ne valide à la main,
+# TrainingPolicy tranche à l'import et le coureur reçoit la raison. La sortie reste visible
+# sur son profil, avec le motif — mais elle ne rapporte rien et ne déclenche aucun piège.
+seed_rejected = lambda do |membership, attrs|
+  t = membership.trainings.build(date: 2.hours.ago, status: "verified", sport_type: "Run", **attrs)
+  verdict = TrainingPolicy.call(t)
+  t.assign_attributes(status: "rejected", rejection_reason: verdict.message, score: 0, base_balls: 0)
+  t.save!
+  Notification.create!(user: membership.user, game:, category: "training_rejected", importance: "important",
+                       title: "Course non comptée", link: "/courses/#{t.id}",
+                       body: "#{t.distance_km.round(1)} km · #{verdict.message}")
+end
+
+# Tapis sans preuve : ni cardio ni photo → « ajoute ta fréquence cardiaque ou une photo ».
+seed_rejected[lea, { title: "Tapis de la salle", distance_meters: 5_400, moving_time: 1_950, trainer: true }]
+# Trop lente (10:58 /km) : c'est de la marche.
+seed_rejected[nico, { title: "Balade digestive", distance_meters: 4_100, moving_time: 2_700,
+                      route_points: seed_route(4_100), has_heartrate: true, average_heartrate: 96 }]
 
 # Message d'équipe = important (poussé) : n'arrive qu'aux coéquipiers de Léa (exo).
 # Le chat général ne notifie pas (on le suit en ouvrant le chat).

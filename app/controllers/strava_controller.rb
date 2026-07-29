@@ -7,16 +7,20 @@ class StravaController < ApplicationController
 
   def callback
     token = StravaClient.exchange_code(params[:code])
-    if token && token["access_token"]
-      current_user.update!(
-        strava_uid:           token.dig("athlete", "id")&.to_s,
-        strava_token:         token["access_token"],
-        strava_refresh_token: token["refresh_token"],
-        strava_expires_at:    Time.zone.at(token["expires_at"].to_i)
-      )
+    return redirect_to root_path, alert: "Connexion Strava échouée." unless token && token["access_token"]
+
+    connected = current_user.update(
+      strava_uid:           token.dig("athlete", "id")&.to_s,
+      strava_token:         token["access_token"],
+      strava_refresh_token: token["refresh_token"],
+      strava_expires_at:    Time.zone.at(token["expires_at"].to_i)
+    )
+
+    if connected
       redirect_to root_path, notice: "Compte Strava connecté ! Tes courses s'importeront automatiquement."
     else
-      redirect_to root_path, alert: "Connexion Strava échouée."
+      # Un compte Strava = un joueur : il est déjà relié à un autre joueur de l'app.
+      redirect_to root_path, alert: "Ce compte Strava est déjà utilisé par un autre joueur."
     end
   end
 
