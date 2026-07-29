@@ -40,7 +40,7 @@ class PerformAction
     return crit_fail(foe) if rand < GameRules::CRIT_FAIL_CHANCE
 
     dmg = power
-    foe.update!(hp: [foe.hp - dmg, 0].max)
+    foe.update!(hp: [ foe.hp - dmg, 0 ].max)
     foe.refresh_state!
     @m.update!(balls: @m.balls - GameRules::ATTACK_COST)
     Action.create!(game: @m.game, membership: @m, action_type: "attack", target: foe, amount: dmg,
@@ -61,7 +61,7 @@ class PerformAction
   def crit_fail(foe)
     loss = (@m.balls * GameRules::CRIT_FAIL_RATIO).round
                .clamp(GameRules::CRIT_FAIL_MIN, GameRules::CRIT_FAIL_MAX)
-    loss = [loss, @m.balls].min
+    loss = [ loss, @m.balls ].min
     @m.update!(balls: @m.balls - loss)
     Action.create!(game: @m.game, membership: @m, action_type: "attack", target: foe, amount: 0,
                    description: "#{@m.user.firstname} s'est fait mordre par #{foe.name} (échec critique, -#{loss} 🍑)")
@@ -77,7 +77,7 @@ class PerformAction
     mine = team.monster
     return err("#{mine.name} est déjà au maximum") if mine.hp >= mine.max_hp
 
-    amt = [power, mine.max_hp - mine.hp].min
+    amt = [ power, mine.max_hp - mine.hp ].min
     mine.update!(hp: mine.hp + amt)
     mine.refresh_state!
     @m.update!(balls: @m.balls - cost)

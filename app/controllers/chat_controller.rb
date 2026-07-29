@@ -27,7 +27,7 @@ class ChatController < ApplicationController
 
   def messages_json(conversation, me)
     scope = conversation.messages.chronological
-                        .includes(membership: [:team, :user])
+                        .includes(membership: [ :team, :user ])
     scope.last(60).map do |msg|
       author = msg.membership
       { id: msg.id, body: msg.body,

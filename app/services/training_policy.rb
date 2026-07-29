@@ -175,7 +175,7 @@ class TrainingPolicy
     other.date < finish - grace && @t.date < other_finish - grace
   end
 
-  def duration(training) = [training.elapsed_time.to_i, training.moving_time.to_i, 1].max.seconds
+  def duration(training) = [ training.elapsed_time.to_i, training.moving_time.to_i, 1 ].max.seconds
 
   # --- Utilitaires ------------------------------------------------------------
 

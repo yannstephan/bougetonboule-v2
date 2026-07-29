@@ -39,7 +39,7 @@ class CreateGameSchema < ActiveRecord::Migration[8.1]
       t.datetime :acquired_at
       t.timestamps
     end
-    add_index :user_cosmetics, [:user_id, :cosmetic_id], unique: true
+    add_index :user_cosmetics, [ :user_id, :cosmetic_id ], unique: true
 
     create_table :push_subscriptions do |t|
       t.references :user, null: false, foreign_key: true
@@ -119,7 +119,7 @@ class CreateGameSchema < ActiveRecord::Migration[8.1]
       t.string  :role, null: false, default: "player"  # player / admin
       t.timestamps
     end
-    add_index :memberships, [:user_id, :game_id], unique: true
+    add_index :memberships, [ :user_id, :game_id ], unique: true
 
     create_table :trainings do |t|
       t.references :membership, null: false, foreign_key: true
@@ -161,7 +161,7 @@ class CreateGameSchema < ActiveRecord::Migration[8.1]
       t.text    :description
       t.timestamps
     end
-    add_index :actions, [:target_type, :target_id]
+    add_index :actions, [ :target_type, :target_id ]
 
     create_table :chests do |t|
       t.references :membership, null: false, foreign_key: true

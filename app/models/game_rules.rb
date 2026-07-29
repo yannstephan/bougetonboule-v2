@@ -6,7 +6,7 @@ module GameRules
   MONSTER_MAX_HP = 10_000 # tuable dans les dernières semaines seulement
   # Paliers d'usure : à chaque passage sous 75 / 50 / 25 % des PV, le monstre prend un cran
   # d'usure (dessin de plus en plus mal en point). Cliquet : jamais rendu par un soin.
-  MONSTER_WEAR_THRESHOLDS = [0.75, 0.50, 0.25].freeze
+  MONSTER_WEAR_THRESHOLDS = [ 0.75, 0.50, 0.25 ].freeze
 
   # Combat — le soin coûte le double : l'attaque doit rester plus rentable
   # que la défense pour garantir que la partie se décide.
@@ -53,7 +53,7 @@ module GameRules
   # consomme et gèle la série (rien gagné, rien perdu) — sans joker, retour à zéro.
   # Les jokers ne s'achètent jamais (règle d'or). ~1 100 💎 max sur une saison parfaite
   # de 24 semaines — les prix boutique (100/250/500/1000 par rareté) sont calés dessus.
-  STREAK_LADDER          = [10, 20, 30, 40, 50].freeze # 💎 par semaine, plateau ensuite
+  STREAK_LADDER          = [ 10, 20, 30, 40, 50 ].freeze # 💎 par semaine, plateau ensuite
   STREAK_MILESTONE_EVERY = 5   # toutes les 5 semaines : cadeau + joker
   STREAK_GIFT_FALLBACK   = 100 # 💎 si le joueur possède déjà tous les cosmétiques
   STREAK_JOKER_MAX       = 2

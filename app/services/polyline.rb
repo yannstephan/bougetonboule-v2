@@ -17,7 +17,7 @@ module Polyline
       lng_delta, index = next_value(encoded, index)
       lat += lat_delta
       lng += lng_delta
-      points << [lat / 1e5, lng / 1e5]
+      points << [ lat / 1e5, lng / 1e5 ]
     end
     points
   rescue StandardError => e
@@ -37,6 +37,6 @@ module Polyline
       break if byte < 0x20
     end
     value = (result & 1).zero? ? (result >> 1) : ~(result >> 1)
-    [value, index]
+    [ value, index ]
   end
 end

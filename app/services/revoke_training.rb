@@ -43,7 +43,7 @@ class RevokeTraining
     Notification.create!(
       user: @t.membership.user, game: @t.membership.game, category: "training_rejected",
       importance: "important", title: "Course retirée", link: "/courses/#{@t.id}",
-      body: [@reason, ("#{taken} 🍑 reprises." if taken.positive?)].compact.join(" ")
+      body: [ @reason, ("#{taken} 🍑 reprises." if taken.positive?) ].compact.join(" ")
     )
   end
 end

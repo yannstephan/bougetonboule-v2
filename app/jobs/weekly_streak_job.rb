@@ -42,25 +42,25 @@ class WeeklyStreakJob < ApplicationJob
 
   def reward(m, game)
     streak = m.weekly_streak + 1
-    diamonds = GameRules::STREAK_LADDER[[streak, GameRules::STREAK_LADDER.size].min - 1]
+    diamonds = GameRules::STREAK_LADDER[[ streak, GameRules::STREAK_LADDER.size ].min - 1]
     milestone = (streak % GameRules::STREAK_MILESTONE_EVERY).zero?
 
     # update_columns : le job ne possède que ces compteurs — il ne doit pas revalider
     # le reste du membership (un fruit retiré du catalogue ne doit pas casser les streaks).
-    m.update_columns(weekly_streak: streak, best_streak: [streak, m.best_streak].max,
+    m.update_columns(weekly_streak: streak, best_streak: [ streak, m.best_streak ].max,
                      last_streak_week: @week_start,
-                     streak_jokers: milestone ? [m.streak_jokers + 1, GameRules::STREAK_JOKER_MAX].min : m.streak_jokers)
+                     streak_jokers: milestone ? [ m.streak_jokers + 1, GameRules::STREAK_JOKER_MAX ].min : m.streak_jokers)
     m.user.increment!(:diamonds, diamonds)
     Reward.create!(user: m.user, membership: m, amount: diamonds,
                    reward_type: "diamonds", source: "streak", period: @period)
     gift = milestone ? grant_gift(m, game) : nil
 
-    extra = [milestone ? "🎁 #{gift}" : nil,
-             milestone ? "🧊 +1 joker (#{m.streak_jokers} en réserve)" : nil].compact.join(" · ")
+    extra = [ milestone ? "🎁 #{gift}" : nil,
+             milestone ? "🧊 +1 joker (#{m.streak_jokers} en réserve)" : nil ].compact.join(" · ")
     Notification.create!(
       user: m.user, game:, category: "streak", importance: "important",
       title: "🔥 #{streak} semaine#{"s" if streak > 1} de course d'affilée !",
-      body: ["+#{diamonds} 💎", extra.presence].compact.join(" · ")
+      body: [ "+#{diamonds} 💎", extra.presence ].compact.join(" · ")
     )
   end
 
