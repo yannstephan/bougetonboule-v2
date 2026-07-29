@@ -28,9 +28,17 @@ export default function FruitAvatar({ fruit, size = 96, cosmetics = {}, showCosm
   )
 }
 
-// Un cosmétique posé à son ancre. Les bras sont symétriques : un emoji, rendu à gauche et à droite.
+// Emojis de bras qui représentent DÉJÀ une paire (gants) : on les pose une seule fois, centrés,
+// au lieu de les refléter à gauche ET à droite — sinon on obtient deux mains de chaque côté.
+const PAIR_ARM_EMOJIS = ['🧤']
+
+// Un cosmétique posé à son ancre. Les bras sont symétriques : un emoji, rendu à gauche et à droite
+// (sauf un emoji-paire, posé une seule fois).
 function Cosmetic({ slot, emoji }) {
   if (slot === 'arms') {
+    if (PAIR_ARM_EMOJIS.includes(emoji)) {
+      return <span className="fav-arm fav-arm-pair">{emoji}</span>
+    }
     return (
       <>
         <span className="fav-arm fav-arm-l">{emoji}</span>

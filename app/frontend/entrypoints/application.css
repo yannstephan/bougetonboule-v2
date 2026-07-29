@@ -223,6 +223,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 .fav-arm{position:absolute;top:.46em;z-index:2;font-size:.3em}
 .fav-arm-l{left:-.03em;transform:scaleX(-1)}
 .fav-arm-r{right:-.03em}
+.fav-arm-pair{left:50%;transform:translateX(-50%)}
 
 /* monstres SVG */
 .mon{position:relative;display:inline-grid;place-items:center;flex:none;line-height:1}
@@ -352,6 +353,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 .shop-list{display:flex;flex-direction:column;gap:9px}
 .shop-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);
   border-radius:var(--r);padding:11px 12px}
+.shop-card.armed{border-style:dashed;background:transparent}
 .shop-emoji{font-size:28px;flex:none;width:38px;text-align:center}
 .shop-info{flex:1;min-width:0}
 .shop-name{font-weight:800;font-size:14px;display:flex;align-items:center;gap:7px}
