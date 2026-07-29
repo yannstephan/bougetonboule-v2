@@ -61,7 +61,7 @@ class ShopController < ApplicationController
             .sort_by { |c| [RARITY_ORDER.index(c.rarity) || 99, c.price_diamonds] }
             .map do |c|
       uc = owned[c.id]
-      { id: c.id, name: c.name, slot: c.slot, rarity: c.rarity, emoji: c.emoji,
+      { id: c.id, name: c.name, slot: c.slot, rarity: c.rarity, emoji: c.emoji, art: c.art,
         price: c.price_diamonds, owned: uc.present?, equipped: uc&.equipped || false }
     end
   end

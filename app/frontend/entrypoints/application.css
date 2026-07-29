@@ -219,6 +219,9 @@ body{margin:0;background:var(--bg);color:var(--text);
 .fav-slot{position:absolute;transform:translate(-50%,-50%);line-height:1;pointer-events:none;
   white-space:nowrap}
 .fav-mirror{transform:translate(-50%,-50%) scaleX(-1)}
+/* pièces dessinées (cosmeticArt.jsx) : un SVG à la place du glyphe emoji */
+.fav-art{display:block;width:1em;height:1em;overflow:visible}
+.cos-art{display:block;width:1em;height:1em}
 .fav-aura{z-index:0;opacity:.72}
 .fav-shoes{z-index:2}
 .fav-sidekick{z-index:2}

@@ -1,4 +1,5 @@
 import FruitAvatar from './FruitAvatar'
+import { CosmeticIcon } from './cosmeticArt'
 
 // Avatar d'un joueur, utilisé partout (Hub, chat, classement, écran avatar).
 // Sans fruit choisi (joueur pas encore en équipe), on affiche une pastille neutre
@@ -17,9 +18,9 @@ function Placeholder({ avatar, size, showCosmetics }) {
     <span className="fav" style={{ width: size, height: size, fontSize: size }}>
       <span className="fav-blank">{avatar.initial || '🍑'}</span>
       {showCosmetics && avatar.cosmetics?.hat && (
-        <span className="fav-slot fav-hat" style={{ left: '50%', top: '18%', fontSize: '.36em' }}>
-          {avatar.cosmetics.hat}
-        </span>
+        <CosmeticIcon art={avatar.cosmetics.hat.art} emoji={avatar.cosmetics.hat.emoji}
+                      className="fav-slot fav-hat"
+                      style={{ left: '50%', top: '18%', fontSize: '.36em' }} />
       )}
     </span>
   )

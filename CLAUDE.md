@@ -185,11 +185,25 @@ carambole, ananas compris), les gants tombent à la vraie largeur (jamais sur le
 un plancher), les chaussures sous la vraie base. L'aura est une **couronne de 6 petits emojis**
 (un seul gros avalait l'avatar). Sous **44 px** (chat, ligue, listes) seuls aura/lunettes/chapeau
 sont rendus — sinon c'est une bouillie d'emojis.
-- **Catalogue : 31 pièces** dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 5
+**Emoji par défaut, SVG quand l'emoji ne peut pas** (`cosmetics.art` → `components/cosmeticArt.jsx`) :
+deux familles d'emojis ne marchent pas sur un avatar-fruit — les **chaussures** (👟 🥾 🛼 sont des
+godasses *uniques* vues de *profil*, on veut une paire de face) et les **visages entiers** (🤠 🧐 🎅
+colleraient une deuxième tête sur celle du fruit). Ces pièces portent une clé `art` et sont
+dessinées à plat : `sneakers`/`trail`/`ballet`/`skates`/`boots7` (les 5 paires), `cowboy_hat`,
+`santa_hat`, `bucket_hat`, `monocle`, `bowtie`. Une pièce dessinée **contient déjà sa paire** →
+jamais dupliquée, et le slot `shoes` lui donne sa propre ancre (`at.art`, plus large qu'un emoji).
+`CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
+catalogue reste en emoji, et le sera par défaut.
+
+- **Catalogue : 45 pièces** dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 6
   **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween, médaille,
   loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue (comportement
   assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
-  aucun code. Ajouter un **slot** = une entrée dans `anchors()` + un z-index CSS `.fav-<slot>`.
+  aucun code — sauf si elle a besoin d'un dessin, alors + une entrée dans `COSMETIC_ART`.
+  Ajouter un **slot** = une entrée dans `anchors()` + un z-index CSS `.fav-<slot>`.
+- Le seed crée **`vitrine@btb.test`**, un compte qui **possède les 45 pièces** (et ne court pas,
+  donc ne fausse ni la ligue ni la meute) : `/avatar` liste tout le catalogue, slot par slot,
+  pour juger le rendu d'un coup d'œil.
 
 Cet écran fait aussi office de **compte** (accès en tapant l'avatar du Hud) : **connecter/déconnecter
 Strava** (`StravaController#connect` / `#disconnect`, prop `strava_connected`) et **se déconnecter**

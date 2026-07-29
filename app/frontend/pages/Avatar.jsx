@@ -1,6 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react'
 import FruitAvatar from '../components/FruitAvatar'
 import PlayerAvatar from '../components/PlayerAvatar'
+import { CosmeticIcon } from '../components/cosmeticArt'
 
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
@@ -88,7 +89,7 @@ export default function Avatar({ has_team, strava_connected, team, fruits, curre
                       {list.map((c) => (
                         <button key={c.id} className={`av-chip ${c.rarity} ${c.equipped ? 'on' : ''}`}
                                 title={c.name} onClick={() => toggleCosmetic(c)}>
-                          <span className="e">{c.emoji || '🎁'}</span>
+                          <CosmeticIcon art={c.art} emoji={c.emoji} className="e" />
                           <span className="n">{c.name}</span>
                         </button>
                       ))}

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import BottomNav from '../components/BottomNav'
 import TargetPicker from '../components/TargetPicker'
 import MonsterPicker from '../components/MonsterPicker'
+import { CosmeticIcon } from '../components/cosmeticArt'
 
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
@@ -96,7 +97,7 @@ function Cosmetics({ cosmetics, diamonds, onBuy }) {
     <div className="shop-grid">
       {cosmetics.map((c) => (
         <div key={c.id} className={`shop-cos ${c.rarity}`}>
-          <span className="shop-cos-emoji">{c.emoji || '🎁'}</span>
+          <CosmeticIcon art={c.art} emoji={c.emoji} className="shop-cos-emoji" />
           <div className="shop-cos-name">{c.name}</div>
           <div className="shop-cos-rarity">{rarityLabel[c.rarity] || c.rarity}</div>
           {c.owned ? (

@@ -1,4 +1,5 @@
 import { fruitParams, fruitBox } from './fruits'
+import { artFor } from './cosmeticArt'
 
 // Avatar-fruit : une silhouette SVG (par fruit) + un visage partagé (mêmes yeux/nez/bouche
 // pour tous) + des cosmétiques posés à des ancres calculées.
@@ -37,7 +38,9 @@ function anchors({ top, bottom, half, hatX }) {
     eyes: { x: 50, y: 53, em: 0.34 },
     neck: { x: 50, y: Math.max(bottom - 7, 76), em: 0.2 },
     hands: { x: 50, y: 68, em: 0.22, spread: side },
-    shoes: { x: 50, y: Math.min(bottom + 5, 92), em: 0.22, spread: 10 },
+    // `art` : une paire dessinée est bien plus large qu'un emoji, elle a sa propre ancre.
+    shoes: { x: 50, y: Math.min(bottom + 5, 92), em: 0.22, spread: 10,
+             art: { y: Math.min(bottom, 88), em: 0.41 } },
     // en bas à droite, sous les gants et à l'écart des chaussures (qui restent centrées)
     sidekick: { x: Math.min(Math.max(50 + half + 11, 76), 87), y: bottom - 1, em: 0.26 },
   }
@@ -54,19 +57,23 @@ export default function FruitAvatar({ fruit, size = 96, cosmetics = {}, showCosm
 
   return (
     <span className="fav" style={{ width: size, height: size, fontSize: size }}>
-      {worn(BACK_SLOTS).map((s) => <Cosmetic key={s} slot={s} emoji={cosmetics[s]} at={at[s]} />)}
+      {worn(BACK_SLOTS).map((s) => <Cosmetic key={s} slot={s} worn={cosmetics[s]} at={at[s]} />)}
       <svg viewBox="0 0 100 100" className="fav-svg" role="img" aria-label={fruit || 'fruit'}>
         <Body p={p} />
         {face && <Face />}
       </svg>
-      {worn(FRONT_SLOTS).map((s) => <Cosmetic key={s} slot={s} emoji={cosmetics[s]} at={at[s]} />)}
+      {worn(FRONT_SLOTS).map((s) => <Cosmetic key={s} slot={s} worn={cosmetics[s]} at={at[s]} />)}
     </span>
   )
 }
 
-// Un cosmétique posé à son ancre. Les paires (gants, chaussures) sont un seul emoji rendu
-// deux fois, le droit en miroir — deux baskets nez vers l'extérieur se lisent comme des pieds.
-function Cosmetic({ slot, emoji, at }) {
+// Un cosmétique posé à son ancre. Une pièce est soit un emoji, soit un dessin SVG
+// (`art`, voir cosmeticArt.jsx) — le back sérialise { emoji, art }, mais on accepte aussi
+// une simple chaîne pour rester compatible avec un appelant qui ne passe qu'un emoji.
+function Cosmetic({ slot, worn, at }) {
+  const { emoji, art } = typeof worn === 'string' ? { emoji: worn } : (worn || {})
+  const drawn = artFor(art)
+
   if (slot === 'aura') {
     return (
       <>
@@ -78,6 +85,17 @@ function Cosmetic({ slot, emoji, at }) {
   }
   if (!at) return null
 
+  // Une pièce dessinée contient déjà sa paire (deux chaussures de face) : on ne la duplique pas.
+  if (drawn) {
+    const a = { ...at, ...(at.art || {}) }
+    return (
+      <span className={`fav-slot fav-${slot}`} style={pin(a.x, a.y, drawn.em || a.em)}>
+        <svg viewBox="0 0 100 100" className="fav-art" role="presentation">{drawn.node}</svg>
+      </span>
+    )
+  }
+
+  // Sinon, les paires (gants) sont un seul emoji rendu deux fois, le droit en miroir.
   if (at.spread) {
     return (
       <>
