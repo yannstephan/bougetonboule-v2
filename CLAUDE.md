@@ -154,8 +154,8 @@ Tous les seuils sont dans `GameRules` (bloc anti-triche). Les contrôles, dans l
 2. **Preuve d'effort sur tapis** — course **sans tracé GPS** : il faut la fréquence cardiaque
    (`HEARTRATE_RANGE`) **ou** au moins une photo. Le contrôle est automatique (« il y a une
    photo »), la dissuasion est **sociale** : la photo est visible de tous sur la sortie.
-3. **Effort plausible** — 2 à 80 km, allure entre **4:00 et 9:30 /km** (sur `moving_time`),
-   durée obligatoire. Un coureur très rapide est donc rejeté : c'est assumé, il le voit.
+3. **Effort plausible** — 2 à 80 km, allure entre **3:00 et 9:30 /km** (sur `moving_time`),
+   durée obligatoire.
 4. **Fenêtre** — pas plus de 7 jours (`IMPORT_WINDOW`), pas dans le futur (+1 h de tolérance),
    dans la période de la partie. Connecter Strava en cours de saison ne déverse pas l'historique.
 5. **Unicité** — activité déjà importée par **un autre joueur** refusée (le même joueur peut la

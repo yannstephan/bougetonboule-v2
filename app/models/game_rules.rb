@@ -106,10 +106,10 @@ module GameRules
   MIN_DISTANCE_KM = 2
   MAX_DISTANCE_KM = 80
 
-  # Allure (secondes / km, sur le temps de mouvement) : entre 4:00 et 9:30 au km.
+  # Allure (secondes / km, sur le temps de mouvement) : entre 3:00 et 9:30 au km.
   # Plus lent, c'est de la marche ; plus rapide, ce n'est plus de la course à pied
-  # (vélo ou voiture enregistrés en "Run").
-  MIN_PACE_SECONDS = 240
+  # (vélo ou voiture enregistrés en "Run") — 3:00 laisse passer les séances rapides.
+  MIN_PACE_SECONDS = 180
   MAX_PACE_SECONDS = 570
 
   # Fenêtre d'antériorité : une course de plus de 7 jours ne rentre pas (sinon connecter

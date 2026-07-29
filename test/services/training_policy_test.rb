@@ -36,9 +36,13 @@ class TrainingPolicyTest < ActiveSupport::TestCase
     assert_equal :too_slow, TrainingPolicy.call(build_training(moving_time: 4_800)).code
   end
 
+  test "une séance rapide passe (3:20 /km)" do
+    assert TrainingPolicy.call(build_training(moving_time: 1_600)).ok?
+  end
+
   test "refuse une allure de vélo" do
-    # 8 km en 24 min = 3:00 /km
-    assert_equal :too_fast, TrainingPolicy.call(build_training(moving_time: 1_440)).code
+    # 8 km en 20 min = 2:30 /km
+    assert_equal :too_fast, TrainingPolicy.call(build_training(moving_time: 1_200)).code
   end
 
   test "refuse une course sans durée" do

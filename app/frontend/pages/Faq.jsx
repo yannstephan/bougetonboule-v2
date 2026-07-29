@@ -21,7 +21,7 @@ const SECTIONS = [
       'Le jeu accepte les courses à pied, dehors ou sur tapis, importées automatiquement depuis Strava. Tout est vérifié par le jeu, tout de suite : une course compte, ou elle ne compte pas — et si elle ne compte pas, tu reçois une notification qui t\'explique exactement pourquoi.',
       'Ce n\'est pas une course à pied ? Vélo, marche, randonnée, natation… ça ne rapporte rien. Et une sortie ajoutée à la main sur Strava (sans montre ni téléphone) ne compte jamais.',
       'Trop courte ou trop longue : il faut au moins 2 km, et pas plus de 80 km.',
-      'L\'allure doit rester entre 4:00 et 9:30 au kilomètre. Plus lent, c\'est de la marche ; plus rapide, ce n\'est plus de la course à pied. Ton allure est affichée sur chacune de tes sorties.',
+      'L\'allure doit rester entre 3:00 et 9:30 au kilomètre. Plus lent, c\'est de la marche ; plus rapide, ce n\'est plus de la course à pied. Ton allure est affichée sur chacune de tes sorties.',
       'Sur tapis (ou en salle), il n\'y a pas de tracé GPS : ajoute ta fréquence cardiaque, ou à défaut une photo de l\'écran avec tes stats. Photo visible par tout le monde sur ta sortie — pas de triche discrète 😇',
       'Les courses de plus de 7 jours n\'entrent plus dans la partie : connecter Strava en cours de saison ne déverse pas tout ton historique.',
       'Une même sortie ne compte qu\'une fois : deux enregistrements qui se chevauchent (la montre ET le téléphone), c\'est le plus long qui est retenu. Et une même activité ne peut pas être réclamée par deux joueurs.',
