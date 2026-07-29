@@ -74,6 +74,6 @@ class ResolveRunEffects
   end
 
   def others_than(*memberships)
-    @m.game.memberships.includes(:user).where.not(id: memberships.map(&:id)).map(&:user)
+    @m.game.users.where.not(memberships: { id: memberships.map(&:id) })
   end
 end

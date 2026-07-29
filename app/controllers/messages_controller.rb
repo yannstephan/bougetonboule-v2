@@ -22,7 +22,7 @@ class MessagesController < ApplicationController
   def notify_participants(conv, sender, message)
     return unless conv.kind == "team"
 
-    recipients = conv.team.memberships.includes(:user).where.not(id: sender.id).map(&:user)
+    recipients = conv.team.users.where.not(memberships: { id: sender.id })
     Notification.broadcast(recipients, game: conv.game, category: "message", importance: "important",
                            title: "💬 #{sender.display_name} · équipe",
                            body: message.body.truncate(90))

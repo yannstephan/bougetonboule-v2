@@ -37,7 +37,7 @@ class Monster < ApplicationRecord
     until_at = GameRules::SECOND_WIND_DURATION.from_now
     team.update!(second_wind_until: until_at)
     TeamEffect.create!(team:, kind: "second_wind", expires_at: until_at)
-    Notification.broadcast(team.memberships.includes(:user).map(&:user),
+    Notification.broadcast(team.users,
                            game: team.game, importance: "important", category: "effect",
                            title: "💨 Second souffle !",
                            body: "#{name} est en danger : vos soins ne coûtent plus que 1 🍑 pendant 7 jours. Défendez-le !")

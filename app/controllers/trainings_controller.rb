@@ -11,11 +11,7 @@ class TrainingsController < ApplicationController
 
     render inertia: "Training", props: {
       training: TrainingPresenter.new(training).detail,
-      author: {
-        id: m.id, name: m.display_name,
-        avatar: AvatarPresenter.new(m.user, membership: m).as_json,
-        team: { name: m.team.name, color: m.team.color }
-      }
+      author: MembershipPresenter.call(m)
     }
   end
 end

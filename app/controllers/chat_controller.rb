@@ -1,14 +1,10 @@
 class ChatController < ApplicationController
   before_action :require_authentication
+  before_action -> { require_membership("discuter") }
 
   def show
     m = current_membership
-    return redirect_to root_path, alert: "Rejoins une partie pour discuter." unless m
-    convs = [
-      m.game.conversations.general.first,
-      m.game.conversations.team_chats.find_by(team_id: m.team_id)
-    ].compact
-    props = { conversations: convs.map { |c| conv_json(c, m) } }
+    props = { conversations: m.conversations.map { |c| conv_json(c, m) } }
     # Ouvrir le chat vaut lecture : la pastille de l'onglet retombe à zéro (calculée après, dans le
     # partage Inertia, donc déjà 0 sur cette page).
     m.mark_conversations_read!
@@ -17,37 +13,23 @@ class ChatController < ApplicationController
 
   private
 
-  def conv_json(c, m)
+  def conv_json(conversation, me)
     {
-      id: c.id, kind: c.kind,
-      label: c.kind == "general" ? "Partie" : "Mon équipe",
-      messages: messages_json(c, m)
+      id: conversation.id, kind: conversation.kind,
+      label: conversation.kind == "general" ? "Partie" : "Mon équipe",
+      messages: messages_json(conversation, me)
     }
   end
 
   def messages_json(conversation, me)
-    scope = conversation.messages.chronological
-                        .includes(membership: [:team, :user])
+    scope = conversation.messages.chronological.includes(membership: [:team, :user])
     scope.last(60).map do |msg|
-      author = msg.membership
       { id: msg.id, body: msg.body,
-        membership_id: author.id,
-        author: author.display_name,
-        avatar: AvatarPresenter.new(author.user, membership: author).as_json,
-        team: { name: author.team.name, color: author.team.color },
+        author: MembershipPresenter.call(msg.membership),
         mine: msg.membership_id == me.id,
         at: msg.created_at.strftime("%H:%M"),
         on: msg.created_at.strftime("%d/%m/%Y"),
-        day_label: day_label(msg.created_at) }
-    end
-  end
-
-  # Sépare visuellement les journées dans le fil.
-  def day_label(time)
-    case time.to_date
-    when Date.current      then "Aujourd'hui"
-    when Date.yesterday    then "Hier"
-    else time.strftime("%d/%m/%Y")
+        day_label: HumanDates.day_label(msg.created_at) }
     end
   end
 end

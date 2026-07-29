@@ -1,6 +1,8 @@
 class Notification < ApplicationRecord
-  CATEGORIES = %w[attacked healed streak special_day chest message training_verified game_start
-                  league trap effect].freeze
+  # Sert à choisir l'icône côté front (pages/Notifications.jsx) : toute catégorie ajoutée ici
+  # doit y avoir son emoji, sinon elle retombe sur 🔔.
+  CATEGORIES = %w[attacked healed crit_failed effect trap chest streak league
+                  training_verified message pack famine game_over].freeze
   # important = poussé en Web Push + listé ; secondary = listé seulement (jamais poussé).
   IMPORTANCE = %w[important secondary].freeze
 
@@ -8,6 +10,7 @@ class Notification < ApplicationRecord
   belongs_to :game, optional: true
 
   validates :importance, inclusion: { in: IMPORTANCE }
+  validates :category, inclusion: { in: CATEGORIES }
 
   # On ne pousse QUE les notifications importantes. Les secondaires (activité des autres) ne
   # remontent que dans la liste, sans notification push.
@@ -22,7 +25,6 @@ class Notification < ApplicationRecord
   end
 
   def read? = read_at.present?
-  def read! = update(read_at: Time.current)
   def important? = importance == "important"
 
   private

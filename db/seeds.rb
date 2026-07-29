@@ -231,26 +231,16 @@ use_effect = lambda do |membership, effect_type, target: nil, target_team: nil|
                      target_id: target&.id, target_team:)
 end
 
-# Importe une course « maintenant » par tout le pipeline réel (scoring + résolution piège/jambe
-# de bois + crédit des 🍑 + notifications), exactement comme StravaActivityImportJob.
+# Importe une course « maintenant » par le pipeline réel — le même service que le job
+# d'import Strava : scoring, résolution piège/jambe de bois, crédit des 🍑, coffre, notifs.
 seed_import = lambda do |membership, distance_meters|
-  km = distance_meters / 1000.0
-  moving = (km * rand(290..360)).round
-  t = membership.trainings.build(date: Time.current, distance_meters:, status: "verified",
-                                 title: RUN_TITLES.sample, moving_time: moving,
-                                 elapsed_time: moving + rand(0..200), elevation_gain: rand(4..120),
-                                 route_points: seed_route(distance_meters))
-  TrainingScorer.call(t)
-  ResolveRunEffects.call(t) # piège à loup / jambe de bois + notifs importantes aux deux camps
-  t.save!
-  t.credit_balls!           # rien n'est versé si la course est piégée (score 0)
-  gain = t.status == "trapped" ? "piégée 🐺 · 0 🍑" : "+#{t.score.to_i} 🍑"
-  link = "/courses/#{t.id}"
-  others = game.memberships.includes(:user).where.not(id: membership.id).map(&:user)
-  Notification.broadcast(others, game:, category: "training_verified", title: "🏃 Nouvelle course", link:,
-                         body: "#{membership.display_name} a couru #{t.distance_km.round(1)} km · #{gain}")
-  Notification.create!(user: membership.user, game:, category: "training_verified", link:,
-                       title: "Course importée", body: "#{t.distance_km.round(1)} km · +#{t.score.to_i} boules")
+  moving = (distance_meters / 1000.0 * rand(290..360)).round
+  RecordTraining.call(
+    membership.trainings.build(date: Time.current, distance_meters:, status: "verified",
+                               title: RUN_TITLES.sample, moving_time: moving,
+                               elapsed_time: moving + rand(0..200), elevation_gain: rand(4..120),
+                               route_points: seed_route(distance_meters))
+  )
 end
 
 use_effect[max_m, "back_wind"]          # 🌬️ Max (rouges) : vent de dos → annonce secondaire à tous

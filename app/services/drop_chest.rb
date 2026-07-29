@@ -14,7 +14,7 @@ class DropChest
   end
 
   def call
-    return unless @t.status.in?(%w[verified protected]) && @t.score.to_i.positive?
+    return unless @t.scoring? && @t.score.to_i.positive?
     return if @m.chests.where(created_at: Date.current.all_day).exists?
     return unless rand < GameRules::CHEST_DROP_CHANCE || pity?
 
@@ -37,7 +37,7 @@ class DropChest
   # Courses scorées depuis le dernier coffre (ou depuis toujours s'il n'y en a jamais eu).
   def pity?
     since = @m.chests.maximum(:created_at)
-    runs = @m.trainings.where(status: %w[verified protected]).where(score: 1..)
+    runs = @m.trainings.scoring.where(score: 1..)
     runs = runs.where(created_at: since..) if since
     runs.count >= GameRules::CHEST_PITY_RUNS
   end
@@ -54,6 +54,6 @@ class DropChest
   def maybe_cosmetic(rarity)
     return nil unless rand < GameRules::CHEST_COSMETIC_CHANCE.fetch(rarity)
 
-    Cosmetic.where.not(id: @m.user.user_cosmetics.select(:cosmetic_id)).order("RANDOM()").first
+    Cosmetic.unowned_by(@m.user).order("RANDOM()").first
   end
 end

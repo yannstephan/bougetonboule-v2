@@ -7,6 +7,7 @@ class Chest < ApplicationRecord
   belongs_to :cosmetic, optional: true
 
   validates :rarity, inclusion: { in: RARITIES }
+  validates :status, inclusion: { in: STATUSES }
 
   scope :sealed, -> { where(status: "sealed") }
 
@@ -20,28 +21,27 @@ class Chest < ApplicationRecord
       break nil unless sealed?
 
       update!(status: "opened", opened_at: Time.current)
-      user = membership.user
-      gains = []
-
-      user.increment!(:diamonds, reward_diamonds)
-      Reward.create!(user:, membership:, amount: reward_diamonds, reward_type: "diamonds",
-                     source: "chest", period: "chest-#{id}")
-      gains << "+#{reward_diamonds} 💎"
-
-      if cosmetic
-        if user.user_cosmetics.exists?(cosmetic_id: cosmetic.id)
-          # Acquis entre le drop et l'ouverture : compensation en 💎 plutôt qu'un doublon.
-          user.increment!(:diamonds, GameRules::CHEST_DUPE_DIAMONDS)
-          gains << "+#{GameRules::CHEST_DUPE_DIAMONDS} 💎 (tu avais déjà #{cosmetic.name})"
-        else
-          UserCosmetic.create!(user:, cosmetic:, acquired_at: Time.current, source_game: membership.game)
-          Reward.create!(user:, membership:, cosmetic:, reward_type: "cosmetic",
-                         source: "chest", period: "chest-#{id}-cosmetic")
-          gains << "#{cosmetic.emoji} #{cosmetic.name}"
-        end
-      end
-
+      gains = [GrantReward.label(give_diamonds(reward_diamonds, "chest-#{id}"))]
+      gains << cosmetic_gain if cosmetic
       gains
+    end
+  end
+
+  private
+
+  def give_diamonds(amount, period)
+    GrantReward.give_diamonds(membership, amount, source: "chest", period:)
+  end
+
+  # Le cosmétique du coffre — sauf s'il a été acquis entre le drop et l'ouverture :
+  # dans ce cas c'est une compensation en 💎, pas un doublon.
+  def cosmetic_gain
+    if membership.user.user_cosmetics.exists?(cosmetic_id:)
+      give_diamonds(GameRules::CHEST_DUPE_DIAMONDS, "chest-#{id}-dupe")
+      "+#{GameRules::CHEST_DUPE_DIAMONDS} 💎 (tu avais déjà #{cosmetic.name})"
+    else
+      GrantReward.label(GrantReward.give_cosmetic(membership, cosmetic,
+                                                  source: "chest", period: "chest-#{id}-cosmetic"))
     end
   end
 end

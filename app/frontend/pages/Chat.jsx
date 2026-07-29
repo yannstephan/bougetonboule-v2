@@ -68,16 +68,17 @@ export default function Chat({ conversations }) {
 
 function Message({ msg, prev }) {
   const newDay = prev?.day_label !== msg.day_label
+  const author = msg.author
 
   return (
     <>
       {newDay && <div className="chat-day">{msg.day_label}</div>}
       <div className={`msg ${msg.mine ? 'me' : ''}`}>
-        <Link href={`/joueurs/${msg.membership_id}`}><PlayerAvatar avatar={msg.avatar} size={30} /></Link>
+        <Link href={`/joueurs/${author.id}`}><PlayerAvatar avatar={author.avatar} size={30} /></Link>
         <div className="msg-body">
           <span className="who">
-            <Link href={`/joueurs/${msg.membership_id}`} className="who-link">{msg.mine ? 'Toi' : msg.author}</Link>
-            <i style={{ color: msg.team.color }}>{msg.team.name}</i>
+            <Link href={`/joueurs/${author.id}`} className="who-link">{msg.mine ? 'Toi' : author.name}</Link>
+            <i style={{ color: author.team.color }}>{author.team.name}</i>
           </span>
           <div className="bub">{msg.body}</div>
           <span className="tm" title={`${msg.on} à ${msg.at}`}>{msg.on} · {msg.at}</span>

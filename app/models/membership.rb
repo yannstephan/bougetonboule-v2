@@ -16,25 +16,26 @@ class Membership < ApplicationRecord
   validates :role, inclusion: { in: ROLES }
   validate :fruit_belongs_to_team_family
 
-  def admin? = role == "admin"
   def owned_items = membership_items.unused.includes(:item).map(&:item)
 
   def display_name = user.firstname.presence || user.email.to_s.split("@").first
   def fruit_name = FruitCatalog.name_for(fruit)
-  def fruit_chosen? = fruit.present?
 
-  # Les deux conversations d'une participation : le chat général + le chat de son équipe.
+  # Les deux conversations d'une participation : le chat général puis celui de son équipe
+  # (ordre alphabétique des `kind` — c'est l'ordre des onglets du chat).
   def conversations
-    game.conversations.where("kind = 'general' OR (kind = 'team' AND team_id = ?)", team_id)
+    game.conversations.general.or(game.conversations.team_chats.where(team_id:)).order(:kind)
   end
 
   # Nombre de messages des autres (équipe + général) postés depuis ma dernière lecture.
   # Alimente la pastille de l'onglet Chat.
   def unread_messages_count
     last_read = conversation_reads.pluck(:conversation_id, :last_read_at).to_h
-    conversations.sum do |c|
-      others = c.messages.where.not(membership_id: id)
-      (last_read[c.id] ? others.where("messages.created_at > ?", last_read[c.id]) : others).count
+    conversations.sum do |conv|
+      scope = conv.messages.where.not(membership_id: id)
+      # where.not(… <= dernière lecture) : strictement postérieur, sans SQL à la main.
+      scope = scope.where.not(created_at: ..last_read[conv.id]) if last_read[conv.id]
+      scope.count
     end
   end
 

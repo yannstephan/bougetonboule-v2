@@ -1,8 +1,6 @@
 class ShopController < ApplicationController
   before_action :require_authentication
 
-  RARITY_ORDER = %w[common rare epic legendary].freeze
-
   def index
     m = current_membership
     render inertia: "Boutique", props: {
@@ -18,18 +16,15 @@ class ShopController < ApplicationController
 
   # Achat d'un objet en 🍑 (dépend de la participation).
   def buy_item
-    item = Item.find(params[:item_id])
-    result = Purchase.item(current_membership, item)
-    flash[result.ok ? :notice : :alert] = result.message
-    redirect_to shop_path
+    result = Purchase.item(current_membership, Item.find(params[:item_id]))
+    redirect_with result, to: shop_path
   end
 
   # Achat d'un cosmétique en 💎 (global).
   def buy_cosmetic
-    cosmetic = Cosmetic.find(params[:cosmetic_id])
-    result = Purchase.cosmetic(current_user, cosmetic, source_game: current_membership&.game)
-    flash[result.ok ? :notice : :alert] = result.message
-    redirect_to shop_path
+    result = Purchase.cosmetic(current_user, Cosmetic.find(params[:cosmetic_id]),
+                               source_game: current_membership&.game)
+    redirect_with result, to: shop_path
   end
 
   # Utiliser un objet de l'inventaire (à usage unique) — réutilise la logique de combat.
@@ -39,8 +34,7 @@ class ShopController < ApplicationController
 
     result = PerformAction.call(m, action_type: "use_item", item_id: params[:item_id],
                                    target_id: params[:target_id], target_team: params[:target_team])
-    flash[result.ok ? :notice : :alert] = result.message
-    redirect_to shop_path
+    redirect_with result, to: shop_path
   end
 
   private
@@ -56,7 +50,7 @@ class ShopController < ApplicationController
   def cosmetics_json
     owned = current_user.user_cosmetics.includes(:cosmetic).index_by(&:cosmetic_id)
     Cosmetic.purchasable
-            .sort_by { |c| [RARITY_ORDER.index(c.rarity) || 99, c.price_diamonds] }
+            .sort_by { |c| [Cosmetic::RARITIES.index(c.rarity) || 99, c.price_diamonds] }
             .map do |c|
       uc = owned[c.id]
       { id: c.id, name: c.name, slot: c.slot, rarity: c.rarity, emoji: c.emoji,
@@ -69,7 +63,7 @@ class ShopController < ApplicationController
     foe = membership&.team&.opponent
     return [] unless foe
 
-    foe.memberships.includes(:user).map { |m| { id: m.id, name: m.display_name } }
+    MembershipPresenter.options(foe.memberships.includes(:user))
   end
 
   # Objets possédés (non utilisés), regroupés par type avec leur nombre.

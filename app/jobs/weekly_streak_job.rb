@@ -36,7 +36,7 @@ class WeeklyStreakJob < ApplicationJob
   end
 
   def ran?(m)
-    m.trainings.where(status: %w[verified protected]).where(score: 1..)
+    m.trainings.scoring.where(score: 1..)
      .where(date: @week_start.beginning_of_day..(@week_start + 6).end_of_day).exists?
   end
 
@@ -50,10 +50,8 @@ class WeeklyStreakJob < ApplicationJob
     m.update_columns(weekly_streak: streak, best_streak: [streak, m.best_streak].max,
                      last_streak_week: @week_start,
                      streak_jokers: milestone ? [m.streak_jokers + 1, GameRules::STREAK_JOKER_MAX].min : m.streak_jokers)
-    m.user.increment!(:diamonds, diamonds)
-    Reward.create!(user: m.user, membership: m, amount: diamonds,
-                   reward_type: "diamonds", source: "streak", period: @period)
-    gift = milestone ? grant_gift(m, game) : nil
+    GrantReward.give_diamonds(m, diamonds, source: "streak", period: @period)
+    gift = milestone ? grant_gift(m) : nil
 
     extra = [milestone ? "🎁 #{gift}" : nil,
              milestone ? "🧊 +1 joker (#{m.streak_jokers} en réserve)" : nil].compact.join(" · ")
@@ -66,20 +64,12 @@ class WeeklyStreakJob < ApplicationJob
 
   # Palier des 5 semaines : un cosmétique pas encore possédé, tiré au sort — comme la
   # récompense de ligue. Inventaire complet → 💎 de repli. Retourne le texte pour la notif.
-  def grant_gift(m, game)
-    cosmetic = Cosmetic.where.not(id: m.user.user_cosmetics.select(:cosmetic_id)).order("RANDOM()").first
+  def grant_gift(m)
+    reward = GrantReward.draw_cosmetic(m, source: "streak_gift", period: @period,
+                                          fallback: GameRules::STREAK_GIFT_FALLBACK)
+    return GrantReward.label(reward) if reward.cosmetic
 
-    if cosmetic
-      UserCosmetic.create!(user: m.user, cosmetic:, acquired_at: Time.current, source_game: game)
-      Reward.create!(user: m.user, membership: m, cosmetic:, period: @period,
-                     reward_type: "cosmetic", source: "streak_gift")
-      "#{cosmetic.emoji} #{cosmetic.name}"
-    else
-      m.user.increment!(:diamonds, GameRules::STREAK_GIFT_FALLBACK)
-      Reward.create!(user: m.user, membership: m, amount: GameRules::STREAK_GIFT_FALLBACK,
-                     period: @period, reward_type: "diamonds", source: "streak_gift")
-      "+#{GameRules::STREAK_GIFT_FALLBACK} 💎 (tu as déjà tous les cosmétiques !)"
-    end
+    "#{GrantReward.label(reward)} (tu as déjà tous les cosmétiques !)"
   end
 
   def freeze(m, game)

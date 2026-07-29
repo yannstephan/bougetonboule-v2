@@ -4,6 +4,8 @@ class Team < ApplicationRecord
   has_one  :monster, dependent: :destroy
   has_one  :conversation, dependent: :nullify
   has_many :memberships, dependent: :destroy
+  has_many :users, through: :memberships
+  has_many :trainings, through: :memberships
   has_many :team_effects, dependent: :destroy
 
   validates :name, presence: true
@@ -25,7 +27,7 @@ class Team < ApplicationRecord
   def blinded? = active_effect("smoke").present?
 
   # Dernière course qui compte (pour la famine et l'avertissement du Hub).
-  def last_run_at = Training.scoring.where(membership: memberships).maximum(:date)
+  def last_run_at = trainings.scoring.maximum(:date)
 
   def fruits = FruitCatalog.fruits_for(fruit_family)
   def fruit_keys = FruitCatalog.keys_for(fruit_family)

@@ -4,7 +4,7 @@ class Strava::WebhooksController < ApplicationController
 
   # Strava valide l'abonnement avec un GET contenant hub.challenge
   def verify
-    if params["hub.verify_token"] == verify_token
+    if params["hub.verify_token"] == StravaClient.verify_token
       render json: { "hub.challenge" => params["hub.challenge"] }
     else
       head :forbidden
@@ -20,11 +20,5 @@ class Strava::WebhooksController < ApplicationController
       )
     end
     head :ok
-  end
-
-  private
-
-  def verify_token
-    Rails.application.credentials.dig(:strava, :verify_token) || ENV["STRAVA_VERIFY_TOKEN"] || "btb-verify"
   end
 end

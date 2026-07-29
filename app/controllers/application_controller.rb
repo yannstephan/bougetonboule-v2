@@ -33,4 +33,18 @@ class ApplicationController < ActionController::Base
       .joins(:game).where(games: { status: "active" })
       .includes(:game, team: :monster).first
   end
+
+  # Les écrans de jeu n'ont aucun sens hors d'une partie : on renvoie au Hub, seul écran
+  # qui sache accueillir un joueur sans équipe.
+  def require_membership(reason)
+    return if current_membership
+
+    redirect_to root_path, alert: "Rejoins une partie pour #{reason}."
+  end
+
+  # Le verdict d'un service (PerformAction, Purchase) : vert si ça a marché, rouge sinon.
+  def redirect_with(result, to:)
+    flash[result.ok ? :notice : :alert] = result.message
+    redirect_to to
+  end
 end

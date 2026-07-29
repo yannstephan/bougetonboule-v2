@@ -1,8 +1,6 @@
 # Applique une action de combat (attaque / soin / objet) pour une participation.
 # Les coûts, durées et modificateurs vivent dans GameRules.
 class PerformAction
-  Result = Struct.new(:ok, :message, keyword_init: true)
-
   def self.call(membership, **kwargs) = new(membership, **kwargs).call
 
   def initialize(membership, action_type:, item_id: nil, target_id: nil, target_team: nil)
@@ -27,9 +25,10 @@ class PerformAction
   private
 
   def team = @m.team
+  def who  = @m.display_name # comme partout ailleurs : prénom, ou début de l'email à défaut
   def power = (GameRules::BASE_POWER * team.combat_multiplier).round
-  def ok(msg)  = Result.new(ok: true, message: msg)
-  def err(msg) = Result.new(ok: false, message: msg)
+  def ok(msg)  = ServiceResult.ok(msg)
+  def err(msg) = ServiceResult.err(msg)
 
   def attack
     return err("Pas assez de boules") if @m.balls < GameRules::ATTACK_COST
@@ -44,10 +43,10 @@ class PerformAction
     foe.refresh_state!
     @m.update!(balls: @m.balls - GameRules::ATTACK_COST)
     Action.create!(game: @m.game, membership: @m, action_type: "attack", target: foe, amount: dmg,
-                   description: "#{@m.user.firstname} a attaqué #{foe.name} (-#{dmg} PV)")
+                   description: "#{who} a attaqué #{foe.name} (-#{dmg} PV)")
     broadcast_combat("attacked", "⚡ Attaque sur #{foe.name}",
                      self_body:   "Tu as infligé -#{dmg} PV à #{foe.name}.",
-                     others_body: "#{@m.user.firstname} a infligé -#{dmg} PV à #{foe.name}.")
+                     others_body: "#{who} a infligé -#{dmg} PV à #{foe.name}.")
     unless foe.alive?
       FinishGame.call(@m.game, winner: team)
       return ok("💥 #{foe.name} est vaincu — victoire des #{team.name} !")
@@ -64,10 +63,10 @@ class PerformAction
     loss = [loss, @m.balls].min
     @m.update!(balls: @m.balls - loss)
     Action.create!(game: @m.game, membership: @m, action_type: "attack", target: foe, amount: 0,
-                   description: "#{@m.user.firstname} s'est fait mordre par #{foe.name} (échec critique, -#{loss} 🍑)")
+                   description: "#{who} s'est fait mordre par #{foe.name} (échec critique, -#{loss} 🍑)")
     broadcast_combat("crit_failed", "💥 Échec critique !",
                      self_body:   "#{foe.name} t'a mordu le petit boule : attaque ratée, -#{loss} 🍑.",
-                     others_body: "#{@m.user.firstname} s'est fait mordre le petit boule par #{foe.name} — attaque ratée, -#{loss} 🍑.")
+                     others_body: "#{who} s'est fait mordre le petit boule par #{foe.name} — attaque ratée, -#{loss} 🍑.")
     err("💥 Échec critique ! #{foe.name} t'a mordu le petit boule : -#{loss} 🍑 et 0 dégât.")
   end
 
@@ -82,10 +81,10 @@ class PerformAction
     mine.refresh_state!
     @m.update!(balls: @m.balls - cost)
     Action.create!(game: @m.game, membership: @m, action_type: "heal", target: mine, amount: amt,
-                   description: "#{@m.user.firstname} a soigné #{mine.name} (+#{amt} PV)")
+                   description: "#{who} a soigné #{mine.name} (+#{amt} PV)")
     broadcast_combat("healed", "💚 Soin sur #{mine.name}",
                      self_body:   "Tu as rendu +#{amt} PV à #{mine.name}.",
-                     others_body: "#{@m.user.firstname} a rendu +#{amt} PV à #{mine.name}.")
+                     others_body: "#{who} a rendu +#{amt} PV à #{mine.name}.")
     ok("+#{amt} PV restaurés sur #{mine.name} !")
   end
 
@@ -97,15 +96,15 @@ class PerformAction
     when "shield"
       until_at = GameRules::SHIELD_DURATION.from_now
       team.monster.update!(protected_until: until_at)
-      consume(mi, "🛡️ #{@m.user.firstname} a protégé #{team.monster.name}")
-      broadcast_effect("🛡️ #{@m.user.firstname} a activé un bouclier jusqu'à #{until_at.strftime('%H:%M')}.")
+      consume(mi, "🛡️ #{who} a protégé #{team.monster.name}")
+      broadcast_effect("🛡️ #{who} a activé un bouclier jusqu'à #{until_at.strftime('%H:%M')}.")
       ok("Bouclier activé (#{GameRules::SHIELD_DURATION.in_hours.round}h) !")
     when "back_wind"
       until_at = GameRules::WIND_DURATION.from_now
       TeamEffect.create!(team:, kind: "back_wind", modifier: GameRules::BACK_WIND_MODIFIER,
                          expires_at: until_at, created_by: @m)
       consume(mi, "🌬️ Vent de dos activé pour #{team.name}")
-      broadcast_effect("🌬️ #{@m.user.firstname} a activé un vent de dos jusqu'à #{until_at.strftime('%H:%M')}.")
+      broadcast_effect("🌬️ #{who} a activé un vent de dos jusqu'à #{until_at.strftime('%H:%M')}.")
       ok("Vent de dos activé !")
     when "face_wind"
       set_face_wind(mi)
@@ -116,10 +115,10 @@ class PerformAction
     when "wooden_leg"
       # Se protège d'un piège sur la prochaine course. Silencieux : rien n'est annoncé
       # tant que ça n'a pas déjoué un piège (résolution à l'import de la course).
-      consume(mi, "🦿 #{@m.user.firstname} a chaussé une jambe de bois")
+      consume(mi, "🦿 #{who} a chaussé une jambe de bois")
       ok("Jambe de bois prête : elle déjouera un piège sur ta prochaine course.")
     else
-      consume(mi, "#{@m.user.firstname} a utilisé #{mi.item.name}")
+      consume(mi, "#{who} a utilisé #{mi.item.name}")
       ok("#{mi.item.name} utilisé !")
     end
   end
@@ -133,12 +132,12 @@ class PerformAction
     until_at = GameRules::WIND_DURATION.from_now
     TeamEffect.create!(team: foe, kind: "face_wind", modifier: GameRules::FACE_WIND_MODIFIER,
                        expires_at: until_at, created_by: @m)
-    consume(mi, "🌪️ #{@m.user.firstname} a lancé un vent de face sur #{foe.name}")
-    Notification.broadcast(foe.memberships.includes(:user).map(&:user),
+    consume(mi, "🌪️ #{who} a lancé un vent de face sur #{foe.name}")
+    Notification.broadcast(foe.users,
                            game: @m.game, importance: "important", category: "effect",
                            title: "🌪️ Vent de face !",
-                           body: "#{@m.user.firstname} souffle contre vous : −25 % de boules jusqu'à #{until_at.strftime('%H:%M')}.")
-    broadcast_effect("🌪️ #{@m.user.firstname} a lancé un vent de face sur #{foe.name}.", except_team: foe)
+                           body: "#{who} souffle contre vous : −25 % de boules jusqu'à #{until_at.strftime('%H:%M')}.")
+    broadcast_effect("🌪️ #{who} a lancé un vent de face sur #{foe.name}.", except_team: foe)
     ok("Vent de face lancé sur #{foe.name} !")
   end
 
@@ -149,12 +148,12 @@ class PerformAction
 
     until_at = GameRules::SMOKE_DURATION.from_now
     TeamEffect.create!(team: blinded, kind: "smoke", expires_at: until_at, created_by: @m)
-    consume(mi, "🌫️ #{@m.user.firstname} a enfumé #{blinded.name}")
-    Notification.broadcast(blinded.memberships.includes(:user).where.not(id: @m.id).map(&:user),
+    consume(mi, "🌫️ #{who} a enfumé #{blinded.name}")
+    Notification.broadcast(blinded.users.where.not(memberships: { id: @m.id }),
                            game: @m.game, importance: "important", category: "effect",
                            title: "🌫️ Fumigène !",
-                           body: "#{@m.user.firstname} vous a enfumés : PV des monstres masqués jusqu'à #{until_at.strftime('%H:%M')}.")
-    broadcast_effect("🌫️ #{@m.user.firstname} a lancé un fumigène sur #{blinded.name}.", except_team: blinded)
+                           body: "#{who} vous a enfumés : PV des monstres masqués jusqu'à #{until_at.strftime('%H:%M')}.")
+    broadcast_effect("🌫️ #{who} a lancé un fumigène sur #{blinded.name}.", except_team: blinded)
     ok("Fumigène lancé sur #{blinded.name} !")
   end
 
@@ -164,7 +163,7 @@ class PerformAction
     target = team.opponent&.memberships&.includes(:user)&.find_by(id: @target_id)
     return err("Choisis un adversaire à piéger.") unless target
 
-    consume(mi, "🐺 #{@m.user.firstname} a posé un piège à loup", target:)
+    consume(mi, "🐺 #{who} a posé un piège à loup", target:)
     announce_trap
     ok("Piège à loup posé sur #{target.display_name} !")
   end
@@ -174,14 +173,14 @@ class PerformAction
   def announce_trap
     Notification.broadcast(other_players, game: @m.game, category: "trap",
                            title: "🐺 Piège à loup",
-                           body: "#{@m.user.firstname} a posé un piège à loup.")
+                           body: "#{who} a posé un piège à loup.")
   end
 
   # Annonce secondaire d'un effet d'équipe — feed d'activité, pas de push.
   # except_team : équipe déjà prévenue par une notification importante dédiée.
   def broadcast_effect(body, except_team: nil)
     recipients = other_players
-    recipients -= except_team.memberships.includes(:user).map(&:user) if except_team
+    recipients -= except_team.users if except_team
     Notification.broadcast(recipients, game: @m.game, category: "effect",
                            title: "✨ Effet d'équipe", body:)
   end
@@ -195,7 +194,7 @@ class PerformAction
   end
 
   def other_players
-    @m.game.memberships.includes(:user).where.not(id: @m.id).map(&:user)
+    @m.game.users.where.not(memberships: { id: @m.id }).to_a
   end
 
   def consume(mi, description, target: nil)

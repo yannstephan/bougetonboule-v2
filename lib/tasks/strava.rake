@@ -4,10 +4,9 @@ namespace :strava do
   desc "Crée l'abonnement webhook (CALLBACK_URL=https://ton-domaine/strava/webhook)"
   task subscribe: :environment do
     require "net/http"
-    verify = Rails.application.credentials.dig(:strava, :verify_token) || ENV["STRAVA_VERIFY_TOKEN"] || "btb-verify"
     res = Net::HTTP.post_form(URI(SUB_URL),
       "client_id" => StravaClient.client_id, "client_secret" => StravaClient.client_secret,
-      "callback_url" => ENV.fetch("CALLBACK_URL"), "verify_token" => verify)
+      "callback_url" => ENV.fetch("CALLBACK_URL"), "verify_token" => StravaClient.verify_token)
     puts res.code, res.body
   end
 

@@ -9,6 +9,10 @@ class StravaClient
   def self.client_id     = creds(:client_id, "STRAVA_CLIENT_ID")
   def self.client_secret = creds(:client_secret, "STRAVA_CLIENT_SECRET")
 
+  # Secret partagé avec Strava : il valide l'abonnement webhook (rake strava:subscribe)
+  # puis chaque GET de vérification (Strava::WebhooksController#verify).
+  def self.verify_token = creds(:verify_token, "STRAVA_VERIFY_TOKEN") || "btb-verify"
+
   def self.creds(key, env)
     Rails.application.credentials.dig(:strava, key) || ENV[env]
   end

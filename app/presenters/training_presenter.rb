@@ -69,12 +69,7 @@ class TrainingPresenter
   end
 
   # Vents actifs sur l'équipe du coureur à l'heure réelle de la course (même règle que TrainingScorer).
-  def wind_effects
-    @t.membership.team.team_effects
-      .where(kind: %w[back_wind face_wind])
-      .where("created_at <= :at AND (expires_at IS NULL OR expires_at >= :at)", at: @t.date)
-      .order(:created_at)
-  end
+  def wind_effects = @t.membership.team.team_effects.winds_at(@t.date)
 
   def when_label = @t.date.strftime("%d/%m à %H:%M")
 
@@ -104,11 +99,5 @@ class TrainingPresenter
     format("%d:%02d /km", secs / 60, secs % 60)
   end
 
-  def day_label
-    case @t.date.to_date
-    when Date.current then "Aujourd'hui"
-    when Date.yesterday then "Hier"
-    else @t.date.strftime("%d/%m/%Y")
-    end
-  end
+  def day_label = HumanDates.day_label(@t.date)
 end

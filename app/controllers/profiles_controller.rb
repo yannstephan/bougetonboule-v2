@@ -15,15 +15,12 @@ class ProfilesController < ApplicationController
 
   def props(m)
     trainings = m.trainings.recent
-    scoring = trainings.select { |t| t.status.in?(%w[verified protected]) }
+    scoring = trainings.select(&:scoring?)
     {
       game: { id: m.game.id, name: m.game.name },
-      player: {
-        id: m.id, name: m.display_name, fruit_name: m.fruit_name,
-        avatar: AvatarPresenter.new(m.user, membership: m).as_json,
-        team: { name: m.team.name, color: m.team.color, family: m.team.fruit_family },
-        is_me: m.user_id == current_user.id
-      },
+      player: MembershipPresenter.call(m).merge(
+        fruit_name: m.fruit_name, is_me: m.user_id == current_user.id
+      ),
       # Pas de solde de 🍑 ici : la réserve d'un joueur ne se voit que sur sa propre page d'accueil.
       stats: {
         total_km: (scoring.sum(&:distance_meters) / 1000.0).round(1),

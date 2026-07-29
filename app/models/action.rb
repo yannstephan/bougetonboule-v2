@@ -7,8 +7,4 @@ class Action < ApplicationRecord
   belongs_to :target, polymorphic: true, optional: true
 
   validates :action_type, inclusion: { in: ACTION_TYPES }
-
-  alias_method :creator, :membership
-
-  scope :recent, -> { order(created_at: :desc) }
 end
