@@ -222,19 +222,15 @@ const Berry = ({ p }) => {
   )
 }
 
-// Banane de FACE : un croissant large et peu creusé, dont le ventre passe derrière le
-// visage partagé. L'ancienne était un croissant en diagonale vu de profil — le visage
-// tombait à côté du corps, et les cosmétiques avec.
+// Le croissant d'origine, simplement élargi (scale en x autour du centre) et recentré
+// pour que son ventre passe derrière le visage partagé — sans ça les yeux flottaient
+// à côté du corps, et les cosmétiques avec.
 const Banana = ({ p }) => (
-  <g>
-    <path d="M14 24 C6 52 20 90 50 90 C80 90 94 52 86 24 C83 32 70 40 50 40 C30 40 17 32 14 24 Z"
-          fill={p.body} stroke={p.dark} strokeWidth="1.6" strokeLinejoin="round" />
-    <path d="M27 50 C28 70 36 84 50 86" fill="none" stroke={p.dark} strokeOpacity="0.28"
-          strokeWidth="2.6" strokeLinecap="round" />
-    <path d="M73 50 C72 70 64 84 50 86" fill="none" stroke={p.dark} strokeOpacity="0.16"
-          strokeWidth="2.2" strokeLinecap="round" />
-    <circle cx="14.5" cy="24" r="3.6" fill={p.tip} />
-    <circle cx="85.5" cy="24" r="3.6" fill={p.tip} />
+  <g transform="translate(50 56) scale(1.2 1) translate(-50 -56) translate(8 -1)">
+    <path d="M26 34 C22 58 34 80 62 82 C74 82 80 76 80 74 C74 78 60 74 48 62 C36 50 36 40 40 32 C34 30 28 30 26 34 Z"
+          fill={p.body} stroke={p.dark} strokeWidth="1.4" />
+    <path d="M60 80 l6 4" stroke={p.tip} strokeWidth="4" strokeLinecap="round" />
+    <path d="M40 32 l-2 -6" stroke={p.tip} strokeWidth="4" strokeLinecap="round" />
   </g>
 )
 

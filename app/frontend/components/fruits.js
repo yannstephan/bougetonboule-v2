@@ -17,7 +17,7 @@ export const FRUITS = {
   ananas:    { shape: 'pineapple', body: '#f6b93b', dark: '#e58e26', leaf: '#3aa76d', box: BOX(34, 88, 25) },
   mangue:    { shape: 'oval',      body: '#f79f1f', dark: '#e17055', light: '#ffd45e', stem: '#3aa76d', box: BOX(25, 88, 24) },
   papaye:    { shape: 'pear',      body: '#f0932b', dark: '#e58e26', light: '#ffb84d', stem: '#3aa76d', box: BOX(27, 88, 15) },
-  banane:    { shape: 'banana',    body: '#ffd93b', dark: '#e0a80c', tip: '#7a5a12', box: BOX(30, 90, 32) },
+  banane:    { shape: 'banana',    body: '#ffd93b', dark: '#e0a80c', tip: '#7a5a12', box: BOX(31, 84, 30, 46) },
   passion:   { shape: 'round',     body: '#7b4397', dark: '#5b2c6f', stem: '#8a6d3b', box: BOX(27, 86, 30) },
   litchi:    { shape: 'round',     body: '#e8556d', dark: '#c0392b', bumpy: true, stem: '#8a6d3b', box: BOX(27, 86, 30) },
   kiwi:      { shape: 'oval',      body: '#8a6d3b', dark: '#6b5327', fuzzy: true, light: '#a3854a', box: BOX(25, 88, 24) },
