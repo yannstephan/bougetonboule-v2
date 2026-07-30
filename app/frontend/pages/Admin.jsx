@@ -103,25 +103,44 @@ function SpecialDays({ days, today }) {
 }
 
 function SeasonalShop({ cosmetics }) {
-  const [onlyDated, setOnlyDated] = useState(false)
-  const list = onlyDated ? cosmetics.filter((c) => c.available_from || c.available_until) : cosmetics
+  const [scope, setScope] = useState('all')
+  const [query, setQuery] = useState('')
+
+  const dated = cosmetics.filter((c) => c.available_from || c.available_until)
+  const q = query.trim().toLowerCase()
+  const list = (scope === 'dated' ? dated : cosmetics)
+    .filter((c) => !q || c.name.toLowerCase().includes(q))
 
   return (
     <section className="av-sec">
       <h2>Fenêtres de disponibilité</h2>
       <p className="av-hint">
-        Laisse les deux dates vides pour une pièce permanente. Hors fenêtre, elle disparaît de la
-        boutique <em>et</em> des tirages (coffre, série, ligue) — mais reste acquise à ceux qui
-        l'ont déjà.
+        Une pièce sans date est en vente toute l'année. Poser une date la fait entrer dans la
+        boutique de saison : hors de sa fenêtre elle disparaît de la boutique <em>et</em> des
+        tirages (coffre, série, ligue) — mais reste acquise à ceux qui l'ont déjà.
       </p>
-      <label className="adm-check">
-        <input type="checkbox" checked={onlyDated} onChange={(e) => setOnlyDated(e.target.checked)} />
-        N'afficher que les pièces datées
-      </label>
 
-      <div className="adm-list">
-        {list.map((c) => <CosmeticRow key={c.id} c={c} />)}
+      {/* Filtre d'AFFICHAGE seulement : il ne touche à aucune pièce. */}
+      <div className="adm-filter">
+        <div className="adm-scope">
+          <button className={scope === 'all' ? 'on' : ''} onClick={() => setScope('all')}>
+            Tout le catalogue · {cosmetics.length}
+          </button>
+          <button className={scope === 'dated' ? 'on' : ''} onClick={() => setScope('dated')}>
+            Déjà datées · {dated.length}
+          </button>
+        </div>
+        <input className="field" type="search" placeholder="Chercher une pièce…" value={query}
+               onChange={(e) => setQuery(e.target.value)} />
       </div>
+
+      {list.length === 0 ? (
+        <p className="av-empty">Aucune pièce ne correspond.</p>
+      ) : (
+        <div className="adm-list">
+          {list.map((c) => <CosmeticRow key={c.id} c={c} />)}
+        </div>
+      )}
     </section>
   )
 }
