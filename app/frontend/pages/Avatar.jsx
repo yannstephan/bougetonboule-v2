@@ -20,7 +20,7 @@ const TABS = {
   aura: { label: 'Aura', icon: '✨' },
 }
 
-export default function Avatar({ has_team, strava_connected, team, fruits, current_fruit, avatar, cosmetics, slots }) {
+export default function Avatar({ has_team, strava_connected, is_admin, team, fruits, current_fruit, avatar, cosmetics, slots }) {
   const { flash } = usePage().props
 
   const pickFruit = (key) =>
@@ -127,6 +127,10 @@ export default function Avatar({ has_team, strava_connected, team, fruits, curre
             </>
           )}
         </section>
+
+        {is_admin && (
+          <Link href="/admin" className="btn ghost">🛠️ Organisation de la partie</Link>
+        )}
 
         <Link href="/" className="btn primary">C'est bon !</Link>
         <button type="button" className="btn-logout" onClick={logout}>Se déconnecter</button>

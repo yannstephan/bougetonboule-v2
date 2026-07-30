@@ -64,6 +64,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 .btn.combat{background:var(--mint);color:var(--mint-ink);font-size:17px}
 .btn.primary{background:var(--peach);color:#fff;width:100%}
 .btn.strava{background:var(--strava);color:#fff}
+.btn.ghost{background:var(--surface);border:1px solid var(--line-2);color:var(--muted);font-size:13px}
 
 .hud-avatar{display:grid;place-items:center;flex:none;text-decoration:none}
 .btn-logout{align-self:center;background:none;border:none;color:var(--muted);font:inherit;font-weight:700;
@@ -622,3 +623,36 @@ body{margin:0;background:var(--bg);color:var(--text);
 .faq-gold-ic{font-size:24px;flex:none}
 .faq-gold-t{font-weight:800;font-size:13px}
 .faq-gold-b{font-size:12px;color:var(--muted);line-height:1.45;margin-top:2px}
+
+/* Back-office organisateur (/admin) : dense et sans fioriture, ce n'est pas un écran de jeu. */
+.adm-tabs{display:flex;gap:8px}
+.adm-tab{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;
+  font:inherit;font-weight:700;font-size:12px;color:var(--muted);cursor:pointer}
+.adm-tab.on{border-color:var(--peach);color:var(--peach);
+  background:color-mix(in srgb,var(--peach) 10%,var(--surface))}
+.adm-form{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.adm-form .field{margin:0}
+.adm-row{display:flex;gap:8px;align-items:center}
+.adm-row .field{margin:0;flex:1;min-width:0}
+.adm-check{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-bottom:10px}
+.adm-list{display:flex;flex-direction:column;gap:8px}
+.adm-item{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r);padding:10px 12px}
+.adm-item.past{opacity:.55}
+.adm-mult{background:var(--citron);color:var(--citron-ink);border-radius:999px;padding:3px 9px;
+  font-weight:900;font-size:12px;flex:none}
+.adm-info{flex:1;min-width:0}
+.adm-name{font-weight:800;font-size:13px}
+.adm-sub{font-size:11px;color:var(--muted)}
+.adm-del{background:none;border:none;color:var(--faint);font-size:15px;cursor:pointer;padding:4px 6px}
+.adm-del:hover{color:var(--crit)}
+.adm-cos{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;
+  display:flex;flex-direction:column;gap:8px}
+.adm-cos-head{display:flex;align-items:center;gap:10px}
+.adm-cos-icon{font-size:26px;line-height:1;flex:none;width:32px;text-align:center}
+.adm-live{background:var(--violet);color:#fff;border-radius:999px;padding:2px 8px;font-size:9px;font-weight:800}
+.adm-date{flex:1;min-width:0;display:flex;align-items:center;gap:5px}
+.adm-date>span{font-size:11px;font-weight:700;color:var(--faint);flex:none}
+.adm-save{background:var(--mint);color:var(--mint-ink);border:none;border-radius:10px;padding:9px 14px;
+  font:inherit;font-weight:800;font-size:12px;cursor:pointer;flex:none}
+.adm-save:disabled{background:var(--surface-3);color:var(--faint);cursor:default}

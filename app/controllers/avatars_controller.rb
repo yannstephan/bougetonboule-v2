@@ -6,6 +6,7 @@ class AvatarsController < ApplicationController
     render inertia: "Avatar", props: {
       has_team: @membership.present?,
       strava_connected: current_user.strava_connected?,
+      is_admin: @membership&.admin? || false,
       team: team_json,
       fruits: fruits_json,
       current_fruit: @membership&.fruit,

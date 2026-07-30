@@ -426,7 +426,7 @@ quand une mécanique change**. Lien 📖 dans le **header du Hud** (à côté de
 
 ### Écrans React existants (app/frontend/pages)
 `Hub`, `Combat`, `Chat`, `Ligue`, `Avatar`, `Boutique`, `Profile`, `Training`, `Notifications`,
-`Faq`, `auth/Login`, `auth/Register`.
+`Faq`, `Admin`, `auth/Login`, `auth/Register`.
 Navigation par onglets : **Hub · Chat · ⚔️ Combat · Ligue · Boutique** (`components/BottomNav.jsx`),
 tous actifs.
 
@@ -463,9 +463,27 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 - Schéma BDD : https://claude.ai/code/artifact/3711a673-bfcb-4368-a42d-27b3a0ea751e
 - Plan de démarrage : https://claude.ai/code/artifact/cb6fd930-ef35-4163-8164-a8e48dff3238
 
+### Back-office de l'organisateur (`/admin`)
+Réservé au joueur dont la participation est `role: "admin"` (`Membership#admin?`) ; un autre
+joueur est renvoyé à l'accueil, et le lien n'apparaît que pour lui, en bas de l'écran compte.
+Il ne couvre **que les deux réglages qui se pilotent par des dates** et qu'on veut changer sans
+redéployer : les **journées ×2** (ajout/suppression) et les **fenêtres de la boutique de saison**
+(deux champs date par cosmétique, vides = pièce permanente). Une borne de fin court jusqu'au
+**bout de sa journée**, sinon la pièce expirerait à minuit pile. Le reste du contenu (créer une
+partie, des équipes) reste au seed.
+
+Les mêmes réglages en ligne de commande, pour le jour où on est en SSH (`lib/tasks/season.rake`) :
+```bash
+bin/rails season:show                                              # état des lieux
+NAME=Halloween DATE=2026-10-31 bin/rails season:special_day        # journée ×2
+NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
+NAMES='Parasol' bin/rails season:close                             # redevient permanent
+```
+
 ## Roadmap (à faire, ordre suggéré)
 
-1. **Admin de partie** — créer Event/Game/Teams (la validation manuelle des courses n'existe
+1. **Admin de partie** — créer Event/Game/Teams depuis l'app (l'écran `/admin` existe déjà pour
+   les journées spéciales et la boutique de saison ; la validation manuelle des courses n'existe
    pas : le contrôle anti-triche est 100 % automatique, voir la section dédiée).
 2. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
    en console, il n'y a pas d'écran pour rejoindre une équipe.
@@ -485,6 +503,10 @@ bin/rails league:standings          # classements du mois et général, en conso
 bin/rails runner PackLevelJob.perform_now   # juge la semaine écoulée (jauge de meute)
 bin/rails runner FamineJob.perform_now      # famine + clôture de saison (quotidien en prod)
 MONTH=2026-06 bin/rails league:award_month         # décerne la récompense d'un mois (test)
+
+bin/rails season:show                              # journées ×2 + fenêtres de la boutique
+NAME=Halloween DATE=2026-10-31 bin/rails season:special_day
+NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
 ```
 
 ⚠️ **Vite 8 exige Node ≥ 20.12** (`node:util#styleText`). Node 16 fait planter `bin/dev` avec
