@@ -30,10 +30,14 @@ class CosmeticSeasonalTest < ActiveSupport::TestCase
     assert_not_includes Cosmetic.available, piece
   end
 
+  # ⚠️ days_left compte des JOURS DE CALENDRIER, pas des heures : « encore 1 jour » veut dire
+  # « ça ferme demain ». Les bornes sont donc posées en dates, jamais en `n.hours.from_now`
+  # — sinon le test bascule d'un jour dès qu'il tourne après 22 h.
   test "days_left compte les jours restants et plafonne à 0" do
-    assert_equal 3, cosmetic(available_until: 3.days.from_now).days_left
-    assert_equal 0, cosmetic(available_until: 2.hours.from_now).days_left
-    assert_equal 0, cosmetic(available_until: 1.day.ago).days_left
+    assert_equal 3, cosmetic(available_until: 3.days.from_now.end_of_day).days_left
+    assert_equal 1, cosmetic(available_until: Date.tomorrow.end_of_day).days_left
+    assert_equal 0, cosmetic(available_until: Time.current.end_of_day).days_left
+    assert_equal 0, cosmetic(available_until: 1.day.ago).days_left, "une fenêtre close plafonne à 0"
   end
 
   test "l'achat d'une pièce hors fenêtre est refusé" do
