@@ -64,6 +64,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 .btn.combat{background:var(--mint);color:var(--mint-ink);font-size:17px}
 .btn.primary{background:var(--peach);color:#fff;width:100%}
 .btn.strava{background:var(--strava);color:#fff}
+.btn.ghost{background:var(--surface);border:1px solid var(--line-2);color:var(--muted);font-size:13px}
 
 .hud-avatar{display:grid;place-items:center;flex:none;text-decoration:none}
 .btn-logout{align-self:center;background:none;border:none;color:var(--muted);font:inherit;font-weight:700;
@@ -213,17 +214,27 @@ body{margin:0;background:var(--bg);color:var(--text);
 .fav{position:relative;display:inline-grid;place-items:center;flex:none;line-height:1}
 .fav-svg{position:relative;z-index:1;width:100%;height:100%;display:block}
 .fav-blank{z-index:1;font-weight:800;color:var(--muted)}
-/* cosmétiques : ancres fixes en em (le conteneur porte font-size = taille px), donc un
-   cosmétique tombe au même endroit sur tous les fruits, quelle que soit la taille. */
-.fav-aura{position:absolute;inset:0;z-index:0;display:grid;place-items:center;font-size:.95em;opacity:.5}
-.fav-hat{position:absolute;left:50%;top:-.06em;transform:translateX(-50%);z-index:3;font-size:.42em}
-.fav-eyes{position:absolute;left:50%;top:.4em;transform:translateX(-50%);z-index:3;font-size:.34em}
-.fav-outfit{position:absolute;left:50%;top:.52em;transform:translateX(-50%);z-index:3;font-size:.32em}
-.fav-legs{position:absolute;left:50%;bottom:-.05em;transform:translateX(-50%);z-index:3;font-size:.34em}
-.fav-arm{position:absolute;top:.46em;z-index:2;font-size:.3em}
-.fav-arm-l{left:-.03em;transform:scaleX(-1)}
-.fav-arm-r{right:-.03em}
-.fav-arm-pair{left:50%;transform:translateX(-50%)}
+/* cosmétiques : chaque pièce est CENTRÉE sur un point (left/top en % + recentrage), calculé
+   par FruitAvatar depuis la silhouette du fruit. Ici ne restent que l'empilement et le
+   miroir — les coordonnées, elles, dépendent du fruit porté. */
+.fav-slot{position:absolute;--lift:0em;transform:translate(-50%,calc(-50% - var(--lift)));
+  line-height:1;pointer-events:none;white-space:nowrap}
+.fav-mirror{transform:translate(-50%,calc(-50% - var(--lift))) scaleX(-1)}
+/* Un glyphe emoji ne remplit pas sa boîte de ligne : il pend sous le centre. Recentrer la
+   BOÎTE posait donc toutes les pièces trop bas (lunettes sous les yeux, gants au menton).
+   On remonte le glyphe d'une fraction de sa propre taille — les dessins SVG, eux, sont
+   déjà centrés dans leur viewBox et n'ont pas besoin de correction. */
+.fav-glyph{--lift:.115em}
+/* pièces dessinées (cosmeticArt.jsx) : un SVG à la place du glyphe emoji */
+.fav-art{display:block;width:1em;height:1em;overflow:visible}
+.cos-art{display:block;width:1em;height:1em}
+.fav-aura{z-index:0;opacity:.5}
+.fav-shoes{z-index:2}
+.fav-sidekick{z-index:2}
+.fav-hands{z-index:3}
+.fav-neck{z-index:4}
+.fav-eyes{z-index:5}
+.fav-hat{z-index:6}
 
 /* monstres SVG */
 .mon{position:relative;display:inline-grid;place-items:center;flex:none;line-height:1}
@@ -272,8 +283,37 @@ body{margin:0;background:var(--bg);color:var(--text);
 .lg-rules{font-size:11px;line-height:1.45;color:var(--muted);margin:2px 0 0}
 
 /* avatar */
-.av-stage{display:grid;place-items:center;padding:22px 0;background:var(--surface-2);
+/* Écran avatar : l'aperçu et la barre d'emplacements restent visibles pendant qu'on
+   fouille un rayon — on juge le rendu sans faire l'aller-retour avec le haut de page. */
+.av-sticky{position:sticky;top:0;z-index:5;margin:-14px -14px 0;padding:14px 14px 8px;
+  background:var(--bg);display:flex;flex-direction:column;gap:10px}
+.av-stage{display:grid;place-items:center;padding:16px 0;background:var(--surface-2);
   border:1px solid var(--line);border-radius:var(--r)}
+.av-tabs{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.av-tabs::-webkit-scrollbar{display:none}
+.av-tab{position:relative;flex:none;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px;padding:7px 10px;cursor:pointer;font:inherit;color:var(--muted);
+  display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px}
+.av-tab .ic{font-size:19px;line-height:1}
+.av-tab .tn{font-size:9px;font-weight:700}
+.av-tab.on{border-color:var(--peach);color:var(--peach);
+  background:color-mix(in srgb,var(--peach) 10%,var(--surface))}
+.av-tab .dot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--mint)}
+
+/* Le rayon d'un emplacement : des cartes assez grandes pour reconnaître la pièce. */
+.av-rack{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.av-card{position:relative;background:var(--surface);border:2px solid var(--line);border-radius:12px;
+  padding:10px 6px;cursor:pointer;font:inherit;color:var(--text);display:flex;flex-direction:column;
+  align-items:center;gap:5px}
+.av-card .e{font-size:32px;line-height:1}
+.av-card .n{font-size:10px;font-weight:600;color:var(--muted);text-align:center;line-height:1.25}
+.av-card .tick{position:absolute;top:4px;right:6px;font-size:11px;color:var(--peach);font-weight:900}
+.av-card.on{border-color:var(--peach);background:color-mix(in srgb,var(--peach) 10%,var(--surface))}
+.av-card.bare{border-style:dashed;color:var(--muted)}
+.av-card.rare{border-color:color-mix(in srgb,var(--mint) 45%,var(--line))}
+.av-card.epic{border-color:color-mix(in srgb,var(--violet) 45%,var(--line))}
+.av-card.legendary{border-color:color-mix(in srgb,var(--citron) 60%,var(--line))}
+.av-card.on.rare,.av-card.on.epic,.av-card.on.legendary{border-color:var(--peach)}
 .av-sec h2{margin:0 0 8px;font-size:13px;font-weight:800}
 .av-sec{display:flex;flex-direction:column}
 .av-grid{display:flex;flex-wrap:wrap;gap:8px}
@@ -370,6 +410,17 @@ body{margin:0;background:var(--bg);color:var(--text);
 .shop-use:active{transform:translateY(1px)}
 
 .shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* Boutique de saison : un encadré à part, en tête du rayon cosmétiques. Le violet (--violet,
+   la couleur « saison » de la charte) le distingue du catalogue permanent d'un coup d'œil. */
+.shop-season{border:1.5px solid color-mix(in srgb,var(--violet) 45%,var(--line));border-radius:var(--r);
+  background:color-mix(in srgb,var(--violet) 7%,var(--surface));padding:11px;margin-bottom:12px;
+  display:flex;flex-direction:column;gap:10px}
+.shop-season-head{display:flex;flex-direction:column;gap:3px}
+.shop-season-head .t{font-weight:800;font-size:14px;color:var(--violet)}
+.shop-season-head .s{font-size:11px;color:var(--muted);line-height:1.35}
+.shop-cos.season{position:relative;padding-top:22px}
+.shop-cos-left{position:absolute;top:6px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  background:var(--violet);color:#fff;border-radius:999px;padding:2px 8px;font-size:9px;font-weight:800}
 .shop-cos{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:13px 10px;
   display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
 .shop-cos.rare{border-color:color-mix(in srgb,var(--mint) 45%,var(--line))}
@@ -572,3 +623,42 @@ body{margin:0;background:var(--bg);color:var(--text);
 .faq-gold-ic{font-size:24px;flex:none}
 .faq-gold-t{font-weight:800;font-size:13px}
 .faq-gold-b{font-size:12px;color:var(--muted);line-height:1.45;margin-top:2px}
+
+/* Back-office organisateur (/admin) : dense et sans fioriture, ce n'est pas un écran de jeu. */
+.adm-tabs{display:flex;gap:8px}
+.adm-tab{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;
+  font:inherit;font-weight:700;font-size:12px;color:var(--muted);cursor:pointer}
+.adm-tab.on{border-color:var(--peach);color:var(--peach);
+  background:color-mix(in srgb,var(--peach) 10%,var(--surface))}
+.adm-form{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.adm-form .field{margin:0}
+.adm-row{display:flex;gap:8px;align-items:center}
+.adm-row .field{margin:0;flex:1;min-width:0}
+.adm-filter{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.adm-filter .field{margin:0}
+.adm-scope{display:flex;gap:6px}
+.adm-scope>button{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:8px;font:inherit;font-weight:700;font-size:11px;color:var(--muted);cursor:pointer}
+.adm-scope>button.on{border-color:var(--violet);color:var(--violet);
+  background:color-mix(in srgb,var(--violet) 10%,var(--surface))}
+.adm-list{display:flex;flex-direction:column;gap:8px}
+.adm-item{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r);padding:10px 12px}
+.adm-item.past{opacity:.55}
+.adm-mult{background:var(--citron);color:var(--citron-ink);border-radius:999px;padding:3px 9px;
+  font-weight:900;font-size:12px;flex:none}
+.adm-info{flex:1;min-width:0}
+.adm-name{font-weight:800;font-size:13px}
+.adm-sub{font-size:11px;color:var(--muted)}
+.adm-del{background:none;border:none;color:var(--faint);font-size:15px;cursor:pointer;padding:4px 6px}
+.adm-del:hover{color:var(--crit)}
+.adm-cos{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;
+  display:flex;flex-direction:column;gap:8px}
+.adm-cos-head{display:flex;align-items:center;gap:10px}
+.adm-cos-icon{font-size:26px;line-height:1;flex:none;width:32px;text-align:center}
+.adm-live{background:var(--violet);color:#fff;border-radius:999px;padding:2px 8px;font-size:9px;font-weight:800}
+.adm-date{flex:1;min-width:0;display:flex;align-items:center;gap:5px}
+.adm-date>span{font-size:11px;font-weight:700;color:var(--faint);flex:none}
+.adm-save{background:var(--mint);color:var(--mint-ink);border:none;border-radius:10px;padding:9px 14px;
+  font:inherit;font-weight:800;font-size:12px;cursor:pointer;flex:none}
+.adm-save:disabled{background:var(--surface-3);color:var(--faint);cursor:default}

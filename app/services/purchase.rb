@@ -21,6 +21,7 @@ class Purchase
   # Achète un cosmétique, déposé dans l'armoire (globale) du joueur.
   def self.cosmetic(user, cosmetic, source_game: nil)
     return err("Ce cosmétique n'est pas en vente.") if cosmetic.price_diamonds.nil?
+    return err("#{cosmetic.name} n'est plus disponible.") unless cosmetic.available?
     return err("Tu possèdes déjà #{cosmetic.name}.") if user.user_cosmetics.exists?(cosmetic_id: cosmetic.id)
     return err("Pas assez de diamants 💎") if user.diamonds < cosmetic.price_diamonds
 

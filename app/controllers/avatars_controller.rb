@@ -6,6 +6,7 @@ class AvatarsController < ApplicationController
     render inertia: "Avatar", props: {
       has_team: @membership.present?,
       strava_connected: current_user.strava_connected?,
+      is_admin: @membership&.admin? || false,
       team: team_json,
       fruits: fruits_json,
       current_fruit: @membership&.fruit,
@@ -75,7 +76,8 @@ class AvatarsController < ApplicationController
   def owned_cosmetics
     current_user.user_cosmetics.includes(:cosmetic).map do |uc|
       { id: uc.cosmetic.id, name: uc.cosmetic.name, slot: uc.cosmetic.slot,
-        rarity: uc.cosmetic.rarity, emoji: uc.cosmetic.emoji, equipped: uc.equipped }
+        rarity: uc.cosmetic.rarity, emoji: uc.cosmetic.emoji, art: uc.cosmetic.art,
+        equipped: uc.equipped }
     end
   end
 end

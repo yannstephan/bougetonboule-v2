@@ -67,7 +67,7 @@ class WeeklyStreakJob < ApplicationJob
   # Palier des 5 semaines : un cosmétique pas encore possédé, tiré au sort — comme la
   # récompense de ligue. Inventaire complet → 💎 de repli. Retourne le texte pour la notif.
   def grant_gift(m, game)
-    cosmetic = Cosmetic.where.not(id: m.user.user_cosmetics.select(:cosmetic_id)).order("RANDOM()").first
+    cosmetic = Cosmetic.available.where.not(id: m.user.user_cosmetics.select(:cosmetic_id)).order("RANDOM()").first
 
     if cosmetic
       UserCosmetic.create!(user: m.user, cosmetic:, acquired_at: Time.current, source_game: game)

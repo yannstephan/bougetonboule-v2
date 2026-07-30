@@ -44,6 +44,12 @@ Rails.application.routes.draw do
 
   get   "faq", to: "faq#show", as: :faq
 
+  # Back-office de l'organisateur (Membership#admin?) : journées spéciales + boutique de saison
+  get    "admin",                  to: "admin#show",                as: :admin
+  post   "admin/journees",         to: "admin#create_special_day",  as: :admin_special_days
+  delete "admin/journees/:id",     to: "admin#destroy_special_day", as: :admin_special_day
+  patch  "admin/cosmetiques/:id",  to: "admin#update_cosmetic",     as: :admin_cosmetic
+
   get   "notifications", to: "notifications#index", as: :notifications
   post  "push_subscriptions", to: "push_subscriptions#create", as: :push_subscriptions
 

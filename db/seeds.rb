@@ -6,48 +6,115 @@ Game.update_all(winner_team_id: nil) # FK games → teams : à détacher avant d
  SpecialDay, Game, Event, UserCosmetic, Cosmetic, Item, User].each(&:delete_all)
 
 puts "Cosmétiques…"
+# L'avatar est une TÊTE de fruit : 7 emplacements, ni tenue ni jambes (voir Cosmetic::SLOTS).
 # Prix calés sur la streak hebdo (~1 100 💎 max sur une saison parfaite, voir GameRules) :
 # common ~100 · rare ~250 · epic ~500 · legendary 1000.
+#
+# `emoji` par défaut ; `art` quand l'emoji ne peut pas faire le travail — les chaussures
+# (👟 🥾 🛼 sont des godasses uniques vues de profil, on veut une PAIRE de face) et les
+# pièces dont l'emoji est un visage entier (🤠 🧐 🎅 auraient collé une tête sur la tête).
+# Chaque clé `art` doit exister dans components/cosmeticArt.jsx.
+# ——— Boutique de saison ———
+# Une pièce peut n'exister qu'un temps : `available_from` / `available_until` (l'une ou
+# l'autre, ou les deux). Hors fenêtre elle disparaît de la boutique ET des tirages (coffre,
+# streak, ligue) — mais ce qui est déjà acheté reste à toi pour toujours.
+# La collection d'été est calée sur AUJOURD'HUI pour que la démo montre le rayon ; les deux
+# autres ont les vraies dates de l'année.
+ETE       = [12.days.ago, 16.days.from_now].freeze
+HALLOWEEN = [Time.zone.local(2026, 10, 15), Time.zone.local(2026, 11, 5, 23, 59)].freeze
+NOEL      = [Time.zone.local(2026, 12, 1), Time.zone.local(2027, 1, 6, 23, 59)].freeze
+
 Cosmetic.create!([
-  # Chapeaux
-  { name: "Haut-de-forme doré", slot: "hat",  rarity: "legendary", price_diamonds: 1000, source: "shop",  emoji: "🎩" },
-  { name: "Casquette",          slot: "hat",  rarity: "rare",      price_diamonds: 250,  source: "shop",  emoji: "🧢" },
-  { name: "Bandeau",            slot: "hat",  rarity: "common",    price_diamonds: 90,   source: "shop",  emoji: "🎀" },
+  # Chapeaux — posés sur le sommet réel du fruit (voir fruits.js → box)
+  { name: "Bandeau éponge",     slot: "hat",  rarity: "common",    price_diamonds: 90,   source: "shop",  emoji: "🎀" },
+  { name: "Casquette",          slot: "hat",  rarity: "common",    price_diamonds: 100,  source: "shop",  emoji: "🧢" },
   { name: "Capeline d'été",     slot: "hat",  rarity: "common",    price_diamonds: 100,  source: "shop",  emoji: "👒" },
-  { name: "Chapeau de cowboy",  slot: "hat",  rarity: "rare",      price_diamonds: 260,  source: "shop",  emoji: "🤠" },
+  { name: "Bob du dimanche",    slot: "hat",  rarity: "rare",      price_diamonds: 240,  source: "shop",  art: "bucket_hat" },
+  { name: "Chapeau de cowboy",  slot: "hat",  rarity: "rare",      price_diamonds: 250,  source: "shop",  art: "cowboy_hat" },
   { name: "Toque de diplômé",   slot: "hat",  rarity: "epic",      price_diamonds: 500,  source: "shop",  emoji: "🎓" },
-  # Yeux
-  { name: "Lunettes de star",   slot: "eyes", rarity: "epic",      price_diamonds: 500,  source: "shop",  emoji: "🕶️" },
-  { name: "Lunettes rondes",    slot: "eyes", rarity: "common",    price_diamonds: 100,  source: "shop",  emoji: "👓" },
-  { name: "Lunettes de piscine", slot: "eyes", rarity: "common",   price_diamonds: 90,   source: "shop",  emoji: "🥽" },
-  { name: "Masque de théâtre",  slot: "eyes", rarity: "epic",      price_diamonds: 520,  source: "shop",  emoji: "🎭" },
-  # Tenues
-  { name: "Maillot de course",  slot: "outfit", rarity: "common",  price_diamonds: 100,  source: "shop",  emoji: "🎽" },
-  { name: "Gilet fluo",         slot: "outfit", rarity: "common",  price_diamonds: 90,   source: "shop",  emoji: "🦺" },
-  { name: "Kimono de soie",     slot: "outfit", rarity: "rare",    price_diamonds: 250,  source: "shop",  emoji: "👘" },
-  { name: "Kimono de combat",   slot: "outfit", rarity: "epic",    price_diamonds: 500,  source: "shop",  emoji: "🥋" },
-  # Bras
-  { name: "Gants de boxe",      slot: "arms", rarity: "rare",      price_diamonds: 260,  source: "shop",  emoji: "🥊" },
-  { name: "Gants d'hiver",      slot: "arms", rarity: "common",    price_diamonds: 90,   source: "shop",  emoji: "🧤" },
-  { name: "Montre GPS",         slot: "arms", rarity: "rare",      price_diamonds: 250,  source: "shop",  emoji: "⌚" },
-  # Jambes
-  { name: "Baskets de course",  slot: "legs", rarity: "rare",      price_diamonds: 240,  source: "shop",  emoji: "👟" },
-  { name: "Short de course",    slot: "legs", rarity: "common",    price_diamonds: 100,  source: "shop",  emoji: "🩳" },
-  { name: "Chaussures de rando", slot: "legs", rarity: "rare",     price_diamonds: 240,  source: "shop",  emoji: "🥾" },
-  { name: "Rollers dorés",      slot: "legs", rarity: "epic",      price_diamonds: 500,  source: "shop",  emoji: "🛼" },
-  # Auras
-  { name: "Aura pêche",         slot: "aura", rarity: "common",    price_diamonds: 120,  source: "shop",  emoji: "✨" },
-  { name: "Aura de feu",        slot: "aura", rarity: "epic",      price_diamonds: 550,  source: "shop",  emoji: "🔥" },
+  { name: "Casque de chantier", slot: "hat",  rarity: "epic",      price_diamonds: 500,  source: "shop",  emoji: "⛑️" },
+  { name: "Haut-de-forme doré", slot: "hat",  rarity: "legendary", price_diamonds: 1000, source: "shop",  art: "gold_hat" },
+  # Lunettes — sur la ligne des yeux, commune à tous les fruits
+  { name: "Lunettes rondes",    slot: "eyes", rarity: "common",    price_diamonds: 90,   source: "shop",  emoji: "👓" },
+  { name: "Lunettes de piscine", slot: "eyes", rarity: "common",   price_diamonds: 100,  source: "shop",  emoji: "🥽" },
+  { name: "Masque de plongée",  slot: "eyes", rarity: "common",    price_diamonds: 110,  source: "shop",  emoji: "🤿" },
+  { name: "Lunettes de star",   slot: "eyes", rarity: "rare",      price_diamonds: 250,  source: "shop",  emoji: "🕶️" },
+  { name: "Cache-œil de pirate", slot: "eyes", rarity: "rare",     price_diamonds: 260,  source: "shop",  art: "eyepatch" },
+  { name: "Visière du futur",   slot: "eyes", rarity: "epic",      price_diamonds: 550,  source: "shop",  art: "visor" },
+  { name: "Monocle du mentor",  slot: "eyes", rarity: "legendary", price_diamonds: 1000, source: "shop",  art: "monocle" },
+  # Cou — juste au-dessus de la base du fruit
+  { name: "Cravate du dimanche", slot: "neck", rarity: "common",   price_diamonds: 90,   source: "shop",  emoji: "👔" },
+  { name: "Écharpe de laine",   slot: "neck", rarity: "common",    price_diamonds: 100,  source: "shop",  emoji: "🧣" },
+  { name: "Nœud papillon",      slot: "neck", rarity: "common",    price_diamonds: 100,  source: "shop",  art: "bowtie" },
+  { name: "Dossard de course",  slot: "neck", rarity: "common",    price_diamonds: 110,  source: "shop",  art: "bib" },
+  { name: "Collier de perles",  slot: "neck", rarity: "rare",      price_diamonds: 250,  source: "shop",  emoji: "📿" },
+  { name: "Bandana",            slot: "neck", rarity: "rare",      price_diamonds: 240,  source: "shop",  art: "bandana" },
+  { name: "Chaîne en or",       slot: "neck", rarity: "epic",      price_diamonds: 500,  source: "shop",  emoji: "🪙" },
+  # Bras — un de chaque côté, à la largeur du fruit (le droit en miroir).
+  # La pièce doit représenter UN bras : 🧤 et 🐾 sont des paires, ils sont dessinés.
+  { name: "Gants d'hiver",      slot: "hands", rarity: "common",   price_diamonds: 90,   source: "shop",  art: "mitten" },
+  { name: "Montre GPS",         slot: "hands", rarity: "rare",     price_diamonds: 250,  source: "shop",  emoji: "⌚" },
+  { name: "Gants de boxe",      slot: "hands", rarity: "rare",     price_diamonds: 260,  source: "shop",  emoji: "🥊" },
+  { name: "Bras mécanique",     slot: "hands", rarity: "epic",     price_diamonds: 520,  source: "shop",  emoji: "🦾" },
+  { name: "Patte de loup",      slot: "hands", rarity: "epic",     price_diamonds: 550,  source: "shop",  art: "paw" },
+  { name: "Baguette magique",   slot: "hands", rarity: "legendary", price_diamonds: 1000, source: "shop", art: "wand" },
+  # Chaussures — une PAIRE vue de face sous le fruit
+  { name: "Tongs",              slot: "shoes", rarity: "common",   price_diamonds: 90,   source: "shop",  emoji: "🩴" },
+  { name: "Baskets de course",  slot: "shoes", rarity: "common",   price_diamonds: 110,  source: "shop",  art: "sneakers" },
+  { name: "Chaussures de rando", slot: "shoes", rarity: "rare",    price_diamonds: 240,  source: "shop",  art: "trail" },
+  { name: "Ballerines",         slot: "shoes", rarity: "rare",     price_diamonds: 250,  source: "shop",  art: "ballet" },
+  { name: "Patins à glace",     slot: "shoes", rarity: "rare",     price_diamonds: 250,  source: "shop",  emoji: "⛸️" },
+  { name: "Rollers dorés",      slot: "shoes", rarity: "epic",     price_diamonds: 500,  source: "shop",  art: "skates" },
+  { name: "Bottes de sept lieues", slot: "shoes", rarity: "legendary", price_diamonds: 1000, source: "shop", art: "boots7" },
+  # Accessoire — posé à côté du fruit
+  { name: "Gourde",             slot: "sidekick", rarity: "common", price_diamonds: 90,  source: "shop",  emoji: "🥤" },
+  { name: "Crotte porte-bonheur", slot: "sidekick", rarity: "common", price_diamonds: 90, source: "shop", emoji: "💩" },
+  { name: "Barre protéinée",    slot: "sidekick", rarity: "common", price_diamonds: 100, source: "shop",  emoji: "🍫" },
+  { name: "Banane de course",   slot: "sidekick", rarity: "common", price_diamonds: 110, source: "shop",  emoji: "🎒" },
+  { name: "Maracas",            slot: "sidekick", rarity: "common", price_diamonds: 110, source: "shop",  art: "maracas" },
+  { name: "Chien de course",    slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop",  emoji: "🐕" },
+  { name: "Chat supporter",     slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop",  emoji: "🐈" },
+  { name: "Paresseux",          slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop",  emoji: "🦥" },
+  { name: "Perroquet exotique", slot: "sidekick", rarity: "epic",  price_diamonds: 500,  source: "shop",  emoji: "🦜" },
+  { name: "Chrono du coach",    slot: "sidekick", rarity: "epic",  price_diamonds: 520,  source: "shop",  emoji: "⏱️" },
+  { name: "Sac de butin",       slot: "sidekick", rarity: "epic",  price_diamonds: 520,  source: "shop",  emoji: "💰" },
+  { name: "Guépard",            slot: "sidekick", rarity: "epic",  price_diamonds: 550,  source: "shop",  emoji: "🐆" },
+  # Auras — une couronne de 6 petits emojis, derrière le fruit
   { name: "Pétales de cerisier", slot: "aura", rarity: "common",   price_diamonds: 110,  source: "shop",  emoji: "🌸" },
+  { name: "Aura pêche",         slot: "aura", rarity: "common",    price_diamonds: 120,  source: "shop",  emoji: "✨" },
+  { name: "Double cœur",        slot: "aura", rarity: "common",    price_diamonds: 120,  source: "shop",  emoji: "💕" },
+  { name: "Trèfle à quatre feuilles", slot: "aura", rarity: "rare", price_diamonds: 250, source: "shop",  emoji: "🍀" },
   { name: "Aura de givre",      slot: "aura", rarity: "rare",      price_diamonds: 250,  source: "shop",  emoji: "❄️" },
+  { name: "Aura de feu",        slot: "aura", rarity: "epic",      price_diamonds: 550,  source: "shop",  emoji: "🔥" },
   { name: "Aura électrique",    slot: "aura", rarity: "epic",      price_diamonds: 550,  source: "shop",  emoji: "⚡" },
   { name: "Arc-en-ciel",        slot: "aura", rarity: "legendary", price_diamonds: 1000, source: "shop",  emoji: "🌈" },
   # Exclusives — jamais en vente (price nil) : tirages (streak, ligue), coffres, jours spéciaux
-  { name: "Couronne de Noël",   slot: "hat",  rarity: "legendary", price_diamonds: nil,  source: "event", emoji: "👑" },
-  { name: "Bonnet du Réveillon", slot: "hat", rarity: "epic",      price_diamonds: nil,  source: "event", emoji: "🎅" },
-  { name: "Citrouille maudite", slot: "hat",  rarity: "epic",      price_diamonds: nil,  source: "event", emoji: "🎃" },
-  { name: "Médaille d'Odyssea", slot: "outfit", rarity: "legendary", price_diamonds: nil, source: "rank", emoji: "🏅" },
+  { name: "Couronne de Noël",   slot: "hat",  rarity: "legendary", price_diamonds: nil,  source: "event", emoji: "👑",
+    available_from: NOEL[0], available_until: NOEL[1] },
+  { name: "Bonnet du Réveillon", slot: "hat", rarity: "epic",      price_diamonds: nil,  source: "event", art: "santa_hat",
+    available_from: NOEL[0], available_until: NOEL[1] },
+  { name: "Citrouille maudite", slot: "hat",  rarity: "epic",      price_diamonds: nil,  source: "event", emoji: "🎃",
+    available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
+  { name: "Fantôme d'Halloween", slot: "sidekick", rarity: "epic", price_diamonds: nil,  source: "event", emoji: "👻",
+    available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
+  { name: "Médaille d'Odyssea", slot: "neck", rarity: "legendary", price_diamonds: nil,  source: "rank",  emoji: "🏅" },
   { name: "Esprit du loup",     slot: "aura", rarity: "legendary", price_diamonds: nil,  source: "drop",  emoji: "🐺" },
+  { name: "Ailes de dossard",   slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "drop",  emoji: "🦋" },
+  # Boutique de saison — en vente, mais seulement pendant leur fenêtre
+  { name: "Parasol",            slot: "sidekick", rarity: "common", price_diamonds: 110, source: "shop", emoji: "⛱️",
+    available_from: ETE[0], available_until: ETE[1] },
+  { name: "Tournesol",          slot: "aura", rarity: "common",    price_diamonds: 120,  source: "shop", emoji: "🌻",
+    available_from: ETE[0], available_until: ETE[1] },
+  { name: "Bouée canard",       slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop", emoji: "🦆",
+    available_from: ETE[0], available_until: ETE[1] },
+  { name: "Araignée porte-poisse", slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop", emoji: "🕷️",
+    available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
+  { name: "Toile de sorcière",  slot: "aura", rarity: "rare",      price_diamonds: 250,  source: "shop", emoji: "🕸️",
+    available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
+  { name: "Sapin scintillant",  slot: "aura", rarity: "rare",      price_diamonds: 250,  source: "shop", emoji: "🎄",
+    available_from: NOEL[0], available_until: NOEL[1] },
+  { name: "Renne du traîneau",  slot: "sidekick", rarity: "rare",  price_diamonds: 260,  source: "shop", emoji: "🦌",
+    available_from: NOEL[0], available_until: NOEL[1] },
 ])
 
 puts "Objets (power-ups)…"
@@ -190,11 +257,30 @@ end
 puts "Cosmétiques possédés…"
 # De quoi voir l'écran avatar rempli sans avoir à gagner un mois de classement.
 [["Yann", "Casquette", true], ["Yann", "Aura de feu", true], ["Yann", "Baskets de course", true],
+ ["Yann", "Écharpe de laine", true], ["Yann", "Chien de course", true],
  ["Inès", "Lunettes de star", true], ["Inès", "Gants de boxe", true],
  ["Chloé", "Haut-de-forme doré", false]].each do |name, cosmetic, on|
   user = User.find_by(firstname: name)
   UserCosmetic.create!(user:, cosmetic: Cosmetic.find_by(name: cosmetic),
                        equipped: on, acquired_at: 2.weeks.ago, source_game: game)
+end
+
+puts "Vitrine (un compte qui possède TOUT)…"
+# Compte de démo pour juger le catalogue d'un coup d'œil : il possède les 45 pièces, donc
+# l'écran /avatar les liste toutes, slot par slot, et on peut les essayer en un clic.
+# Il ne court pas (0 km, 0 🍑) : il ne fausse ni la ligue ni la jauge de meute.
+showcase = User.create!(firstname: "Vitrine", email: "vitrine@btb.test",
+                        password: DEMO_PASSWORD, diamonds: 0)
+Membership.create!(user: showcase, game:, team: exo, fruit: "ananas", balls: 0, role: "player",
+                   weekly_streak: 0, best_streak: 0, streak_jokers: 0)
+Cosmetic.find_each do |c|
+  UserCosmetic.create!(user: showcase, cosmetic: c, equipped: false,
+                       acquired_at: 1.day.ago, source_game: game)
+end
+# Une tenue complète équipée : une pièce par emplacement, les plus voyantes.
+["Haut-de-forme doré", "Monocle du mentor", "Nœud papillon", "Gants de boxe",
+ "Bottes de sept lieues", "Chien de course", "Arc-en-ciel"].each do |name|
+  showcase.user_cosmetics.joins(:cosmetic).find_by(cosmetics: { name: })&.update!(equipped: true)
 end
 
 puts "Messages…"
@@ -319,6 +405,7 @@ Team.all.each do |t|
        "#{t.total_balls} 🍑 en banque (créditées par les courses), meute +#{t.pack_percent} %"
 end
 puts "   Statuts de course : #{Training.group(:status).count} · #{Training.where.not(balls_credited_at: nil).count} créditées"
+puts "   Vitrine : vitrine@btb.test possède les #{Cosmetic.count} cosmétiques (écran /avatar)"
 puts "👉 Connexion démo : yann@btb.test / #{DEMO_PASSWORD} " \
      "(Yann/exo voit tout — vents, saladier 🥣 sur King-Coco, chip 🍦 sur les rouges, second souffle " \
      "de Framboitrix, jauge de meute, 🍑 créditées, sa course dont le piège a été déjoué). " \

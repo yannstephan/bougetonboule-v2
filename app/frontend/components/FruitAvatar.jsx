@@ -1,53 +1,141 @@
-import { fruitParams } from './fruits'
+import { fruitParams, fruitBox } from './fruits'
+import { artFor } from './cosmeticArt'
 
 // Avatar-fruit : une silhouette SVG (par fruit) + un visage partagé (mêmes yeux/nez/bouche
-// pour tous) + des cosmétiques posés à des ancres fixes. Comme le visage et les ancres ne
-// bougent pas d'un fruit à l'autre, un chapeau ou des lunettes gagnés tombent toujours au
-// bon endroit, quel que soit le fruit.
+// pour tous) + des cosmétiques posés à des ancres calculées.
 //
-// viewBox 100×100, corps centré autour de (50,55), visage autour de (50,54).
-// Slots dessinés DERRIÈRE le fruit (aura) puis DEVANT (ordre d'empilement du bas vers le haut).
-// Ajouter un slot cosmétique = une entrée ici + son ancre CSS (.fav-<slot>). Aucun autre code :
-// une fois le slot connu, un nouveau cosmétique n'est qu'une ligne en base (Cosmetic + emoji).
+// L'avatar n'est qu'une TÊTE : pas de tenue ni de jambes. Les six emplacements sont
+// chapeau · lunettes · cou (nœud pap' / écharpe / collier) · gants (un de chaque côté) ·
+// chaussures (une paire, sous le fruit) · accessoire (posé à côté) · aura (en fond).
+//
+// Le visage est fixe (viewBox 100×100, yeux sur la ligne y=52), donc lunettes et cou
+// s'ancrent en dur. Tout le reste suit la silhouette du fruit via `box` (voir fruits.js) :
+// une banane et un durian n'ont ni le même sommet, ni la même largeur, ni la même base —
+// le chapeau se pose donc sur le crâne réel et les gants à la vraie largeur.
+//
+// Ajouter un slot = une entrée dans ANCHORS + un z-index CSS (.fav-<slot>). Aucun autre
+// code : une fois le slot connu, un nouveau cosmétique n'est qu'une ligne en base.
+// Ligne des yeux du visage commun (voir <Face />) : la référence de tout ce qui se
+// pose sur la figure, quel que soit le fruit.
+const EYE_LINE = 52
+
 const BACK_SLOTS = ['aura']
-const FRONT_SLOTS = ['legs', 'outfit', 'arms', 'eyes', 'hat']
+const FRONT_SLOTS = ['shoes', 'sidekick', 'hands', 'neck', 'eyes', 'hat']
+
+// L'aura vit DERRIÈRE le fruit : une couronne de petits emojis, assez rapprochée pour que
+// la silhouette en cache une partie (z-index 0 < .fav-svg), et translucide. Un seul gros
+// emoji avalait l'avatar ; une couronne trop large flottait à côté au lieu d'être derrière.
+const AURA_RADIUS = 33
+const AURA_ANGLES = [-155, -120, -60, -25, 25, 155] // symétriques, hors de l'axe vertical
+const AURA_HALO = AURA_ANGLES.map((deg) => {
+  const rad = (deg * Math.PI) / 180
+  return [50 + AURA_RADIUS * Math.cos(rad), EYE_LINE + 2 + AURA_RADIUS * Math.sin(rad)]
+})
+
+// En dessous de cette taille (chat, ligue, listes), l'avatar ne fait plus que quelques
+// dizaines de pixels : on n'y garde que les pièces lisibles, sinon c'est une bouillie
+// d'emojis. Le rendu complet reste sur le Hub et l'écran avatar.
+const COMPACT_BELOW = 44
+const COMPACT_SLOTS = ['aura', 'eyes', 'hat']
+
+// Ancres en unités du viewBox (0-100), centre de la pièce. `em` = taille relative à
+// l'avatar, `spread` = écart symétrique pour les paires (gants, chaussures).
+//
+// Tout ce qui touche au visage se cale sur la LIGNE DES YEUX (y=52, commune à tous les
+// fruits) plutôt que sur la silhouette : lunettes dessus, gants juste en dessous. Seuls
+// le chapeau, le cou, les chaussures et l'accessoire suivent le fruit (crâne / base /
+// largeur), et de près — une pièce qui s'éloigne fait paraître l'avatar plus petit.
+function anchors({ top, bottom, half, hatX }) {
+  const side = Math.max(half, 22) + 2 // les gants ne remontent jamais sur les joues
+  return {
+    hat: { x: hatX, y: top - 3, em: 0.36 },
+    eyes: { x: 50, y: EYE_LINE + 2, em: 0.34 },
+    // au ras de la base : plafonner trop haut le faisait remonter en plein ventre
+    // sur les fruits allongés (ananas, mangue), là où on attend un cou.
+    neck: { x: 50, y: Math.max(Math.min(bottom - 7, 81), 74), em: 0.2 },
+    hands: { x: 50, y: EYE_LINE + 6, em: 0.22, spread: side },
+    // `art` : une paire dessinée est bien plus large qu'un emoji, elle a sa propre ancre.
+    shoes: { x: 50, y: Math.min(bottom + 4, 91), em: 0.22, spread: 10,
+             art: { y: Math.min(bottom + 3, 89), em: 0.38 } },
+    // en bas à droite, sous les gants et à l'écart des chaussures (qui restent centrées)
+    sidekick: { x: Math.min(Math.max(50 + half + 10, 75), 85), y: bottom - 5, em: 0.26 },
+  }
+}
 
 export default function FruitAvatar({ fruit, size = 96, cosmetics = {}, showCosmetics = true, face = true }) {
   const p = fruitParams(fruit)
-  const worn = (slots) => (showCosmetics ? slots.filter((s) => cosmetics[s]) : [])
+  const at = anchors(fruitBox(fruit))
+  const worn = (slots) => {
+    if (!showCosmetics) return []
+    const kept = size < COMPACT_BELOW ? slots.filter((s) => COMPACT_SLOTS.includes(s)) : slots
+    return kept.filter((s) => cosmetics[s])
+  }
 
   return (
     <span className="fav" style={{ width: size, height: size, fontSize: size }}>
-      {worn(BACK_SLOTS).map((s) => <Cosmetic key={s} slot={s} emoji={cosmetics[s]} />)}
+      {worn(BACK_SLOTS).map((s) => <Cosmetic key={s} slot={s} worn={cosmetics[s]} at={at[s]} />)}
       <svg viewBox="0 0 100 100" className="fav-svg" role="img" aria-label={fruit || 'fruit'}>
         <Body p={p} />
         {face && <Face />}
       </svg>
-      {worn(FRONT_SLOTS).map((s) => <Cosmetic key={s} slot={s} emoji={cosmetics[s]} />)}
+      {worn(FRONT_SLOTS).map((s) => <Cosmetic key={s} slot={s} worn={cosmetics[s]} at={at[s]} />)}
     </span>
   )
 }
 
-// Emojis de bras qui représentent DÉJÀ une paire (gants) : on les pose une seule fois, centrés,
-// au lieu de les refléter à gauche ET à droite — sinon on obtient deux mains de chaque côté.
-const PAIR_ARM_EMOJIS = ['🧤']
+// Un cosmétique posé à son ancre. Une pièce est soit un emoji, soit un dessin SVG
+// (`art`, voir cosmeticArt.jsx) — le back sérialise { emoji, art }, mais on accepte aussi
+// une simple chaîne pour rester compatible avec un appelant qui ne passe qu'un emoji.
+function Cosmetic({ slot, worn, at }) {
+  const { emoji, art } = typeof worn === 'string' ? { emoji: worn } : (worn || {})
+  const drawn = artFor(art)
 
-// Un cosmétique posé à son ancre. Les bras sont symétriques : un emoji, rendu à gauche et à droite
-// (sauf un emoji-paire, posé une seule fois).
-function Cosmetic({ slot, emoji }) {
-  if (slot === 'arms') {
-    if (PAIR_ARM_EMOJIS.includes(emoji)) {
-      return <span className="fav-arm fav-arm-pair">{emoji}</span>
-    }
+  if (slot === 'aura') {
     return (
       <>
-        <span className="fav-arm fav-arm-l">{emoji}</span>
-        <span className="fav-arm fav-arm-r">{emoji}</span>
+        {AURA_HALO.map(([x, y], i) => (
+          <span key={i} className="fav-slot fav-glyph fav-aura" style={pin(x, y, 0.22)}>{emoji}</span>
+        ))}
       </>
     )
   }
-  return <span className={`fav-${slot}`}>{emoji}</span>
+  if (!at) return null
+
+  // Un dessin `pair` contient déjà les deux pièces (les chaussures de face) : il occupe
+  // toute la largeur, garde l'ancre dédiée du slot (`at.art`) et n'est jamais dupliqué.
+  if (drawn?.pair) {
+    const a = { ...at, ...(at.art || {}) }
+    return (
+      <span className={`fav-slot fav-${slot}`} style={pin(a.x, a.y, drawn.em || a.em)}>
+        <Art node={drawn.node} />
+      </span>
+    )
+  }
+
+  // Sinon, un slot symétrique pose la pièce de chaque côté, la droite en miroir.
+  // ⚠️ La pièce doit représenter UN bras : 🧤 et 🐾 sont déjà des paires et en donnaient
+  // quatre — d'où les dessins `mitten` et `paw`. Un emoji-paire dans un slot symétrique
+  // est un bug de contenu. `single` = la pièce ne se porte que d'un côté (une baguette).
+  const em = drawn?.em || at.em
+  const glyph = drawn?.emoji || emoji
+  const draw = (x, mirror) => (
+    <span key={x} style={pin(x, at.y, em)}
+          className={`fav-slot fav-${slot} ${drawn?.node ? '' : 'fav-glyph'} ${mirror ? 'fav-mirror' : ''}`}>
+      {drawn?.node ? <Art node={drawn.node} /> : glyph}
+    </span>
+  )
+  if (at.spread && drawn?.single) return draw(at.x + at.spread, false)
+  if (at.spread) return <>{draw(at.x - at.spread, false)}{draw(at.x + at.spread, true)}</>
+  return draw(at.x, false)
 }
+
+const Art = ({ node }) => (
+  <svg viewBox="0 0 100 100" className="fav-art" role="presentation">{node}</svg>
+)
+
+// Position d'une pièce : son centre tombe sur (x, y) — le CSS recentre avec translate(-50%,-50%),
+// ce qui rend le placement indépendant des métriques capricieuses des glyphes emoji.
+const pin = (x, y, em) => ({ left: `${x}%`, top: `${y}%`, fontSize: `${em}em` })
 
 // Visage commun à tous les fruits.
 function Face() {
@@ -137,10 +225,13 @@ const Berry = ({ p }) => {
   )
 }
 
+// Le croissant d'origine, simplement élargi (scale en x autour du centre) et recentré
+// pour que son ventre passe derrière le visage partagé — sans ça les yeux flottaient
+// à côté du corps, et les cosmétiques avec.
 const Banana = ({ p }) => (
-  <g>
+  <g transform="translate(50 56) scale(1.2 1) translate(-50 -56) translate(8 -1)">
     <path d="M26 34 C22 58 34 80 62 82 C74 82 80 76 80 74 C74 78 60 74 48 62 C36 50 36 40 40 32 C34 30 28 30 26 34 Z"
-          fill={p.body} stroke={p.dark} strokeWidth="1.5" />
+          fill={p.body} stroke={p.dark} strokeWidth="1.4" />
     <path d="M60 80 l6 4" stroke={p.tip} strokeWidth="4" strokeLinecap="round" />
     <path d="M40 32 l-2 -6" stroke={p.tip} strokeWidth="4" strokeLinecap="round" />
   </g>

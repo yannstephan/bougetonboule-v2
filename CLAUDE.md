@@ -207,17 +207,77 @@ Ananas dans une partie et Fraise dans une autre. On ne peut le personnaliser **q
 - `FruitCatalog` (app/models) = source de vérité : deux familles (`exotiques` / `rouges`), chacune
   une liste de fruits `{ key, name }`. `teams.fruit_family` fixe la famille d'une équipe.
 - La **clé** du fruit est partagée avec le front : `components/FruitAvatar.jsx` dessine chaque
-  fruit en **SVG** (silhouette + visage commun + ancres cosmétiques fixes, pas d'assets). Toute
-  clé ajoutée dans le catalogue Ruby doit avoir son pendant visuel dans `components/fruits.js`.
+  fruit en **SVG** (silhouette + visage commun, pas d'assets). Toute clé ajoutée dans le
+  catalogue Ruby doit avoir son pendant visuel dans `components/fruits.js`.
 - Choix **partageable** : plusieurs coéquipiers peuvent prendre le même fruit ; l'écran indique
   « déjà : X » sous chaque fruit. Le fruit doit appartenir à la famille de l'équipe (validé).
-- Les **cosmétiques** possédés s'équipent **un par slot** (hat / eyes / outfit / arms / legs /
-  aura), et `cosmetics.emoji` est ce qui les rend affichables. Les ancres SVG sont fixes → un
-  cosmétique tombe au même endroit sur tous les fruits. **Catalogue : ~33 pièces** dans le seed
-  (tous les slots garnis, grille 100/250/500/1000) dont 5 **exclusives** `price_diamonds: nil`
-  (sources `event`/`rank`/`drop` : Noël, Halloween, médaille, loup…) — jamais en vente, mais
-  **tirables** par les cadeaux de streak et de ligue (comportement assumé, comme la Couronne).
-  Ajouter une pièce = une ligne dans le seed (slot existant + emoji), aucun code.
+
+**Les 7 emplacements** (`Cosmetic::SLOTS`) — l'avatar est une **tête** de fruit, donc **ni tenue
+ni jambes** : `hat` chapeau · `eyes` lunettes · `neck` nœud pap'/cravate/écharpe/collier ·
+`hands` **bras** (gants, bras mécanique, baguette — un de chaque côté, le droit en miroir ;
+libellé joueur « Bras », clé `hands`) · `shoes` paire de chaussures sous le fruit ·
+`sidekick` accessoire posé à côté (animal, gourde, barre…) · `aura` halo en fond.
+Un seul cosmétique par slot ; `cosmetics.emoji` est ce qui les rend affichables.
+
+**Deux références, jamais des ancres fixes.** Tout ce qui touche au visage se cale sur la
+**ligne des yeux** (`EYE_LINE = 52`, commune à tous les fruits) : lunettes dessus, gants juste
+en dessous. Le reste suit la **silhouette**, déclarée par chaque fruit dans `components/fruits.js`
+via `box` — `top` (ligne du crâne), `bottom` (ligne du sol), `half` (demi-largeur), `hatX`
+optionnel : le chapeau se pose sur le sommet **réel** (banane, carambole, ananas compris), les
+chaussures sous la vraie base, les gants à la vraie largeur (jamais sur les joues, grâce à un
+plancher). `FruitAvatar#anchors()` en déduit les positions et chaque pièce est **centrée** sur
+son point. Les pièces restent **serrées autour du fruit** : une pièce qui s'éloigne fait paraître
+l'avatar plus petit dans un cadre de taille fixe.
+
+⚠️ **Un glyphe emoji pend sous le centre de sa boîte de ligne** : recentrer la boîte posait donc
+toutes les pièces trop bas (lunettes sous les yeux, gants au menton). La classe `.fav-glyph`
+remonte le glyphe de `.115em` de sa propre taille ; les dessins SVG, déjà centrés dans leur
+viewBox, n'y touchent pas.
+
+L'**aura** est une couronne de 6 petits emojis **derrière** le fruit (`z-index` 0 < `.fav-svg`),
+assez rapprochée (rayon 33) pour que la silhouette en masque une partie, et translucide (`.5`) —
+un seul gros emoji avalait l'avatar, une couronne trop large flottait à côté au lieu d'être
+derrière. Sous **44 px** (chat, ligue, listes) seuls aura/lunettes/chapeau sont rendus — sinon
+c'est une bouillie d'emojis.
+**Emoji par défaut, SVG quand l'emoji ne peut pas** (`cosmetics.art` → `components/cosmeticArt.jsx`) :
+trois familles d'emojis ne marchent pas sur un avatar-fruit —
+1. les **chaussures** (👟 🥾 🛼 sont des godasses *uniques* vues de *profil*, on veut une paire de face) ;
+2. les **visages entiers** (🤠 🧐 🎅 colleraient une deuxième tête sur celle du fruit) ;
+3. les **emojis déjà pairs dans un slot symétrique** — 🧤 est une paire de gants, reflété de chaque
+   côté il donnait **quatre mains** (d'où le dessin `mitten`, une seule moufle).
+
+Ces pièces portent une clé `art` et sont dessinées à plat : `sneakers`/`trail`/`ballet`/`skates`/
+`boots7` (les 5 paires de chaussures), `mitten`, `paw`, `gold_hat` (🎩 est noir et bleu, le nom
+promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `monocle`, `eyepatch`, `visor`,
+`bowtie`, `bib`, `bandana`.
+
+Trois drapeaux de mise en page, sur l'entrée `COSMETIC_ART` :
+- **`pair: true`** — le dessin contient déjà les deux pièces (chaussures) → jamais dupliqué, et
+  le slot `shoes` lui donne sa propre ancre (`at.art`, plus large qu'un emoji) ;
+- **`single: true`** — la pièce ne se porte que d'un côté (la baguette magique) ;
+- sans drapeau, la pièce est posée **de chaque côté, la droite en miroir** : elle doit donc
+  représenter **UN** bras. C'est la règle que violaient 🧤 et 🐾 (déjà des paires → quatre mains).
+
+Une entrée peut porter **`emoji` au lieu de `node`** : le glyphe est rendu tel quel, mais avec
+les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas » sans le dessiner.
+`CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
+catalogue reste en emoji, et le sera par défaut.
+
+- **Catalogue : 69 pièces** (dont 7 de saison) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
+  **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween, médaille,
+  loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue (comportement
+  assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
+  aucun code — sauf si elle a besoin d'un dessin, alors + une entrée dans `COSMETIC_ART`.
+  Ajouter un **slot** = une entrée dans `anchors()` + un z-index CSS `.fav-<slot>`.
+- **L'écran est un vestiaire, pas une liste** : l'aperçu de l'avatar et la barre d'emplacements
+  restent **collés en haut** (`.av-sticky`) pendant qu'on fouille — on juge le rendu sans faire
+  l'aller-retour. Un onglet par emplacement (+ « Fruit »), une pastille verte quand quelque
+  chose y est équipé, et le rayon n'affiche **que** les pièces de l'emplacement choisi, avec une
+  case « Retirer » quand on porte quelque chose. Empiler tout le catalogue d'un coup obligeait à
+  scroller entre la pièce et l'avatar.
+- Le seed crée **`vitrine@btb.test`**, un compte qui **possède les 69 pièces** (et ne court pas,
+  donc ne fausse ni la ligue ni la meute) : `/avatar` liste tout le catalogue, slot par slot,
+  pour juger le rendu d'un coup d'œil.
 
 Cet écran fait aussi office de **compte** (accès en tapant l'avatar du Hud) : **connecter/déconnecter
 Strava** (`StravaController#connect` / `#disconnect`, prop `strava_connected`) et **se déconnecter**
@@ -295,6 +355,16 @@ Deux monnaies **étanches** (règle d'or, jamais de pay-to-win), servies par le 
   (`UserCosmetic`). On les **équipe / remet dans l'armoire** depuis l'écran avatar (`/avatar`).
   Seuls les cosmétiques `price_diamonds` non nul sont en vente (les récompenses ne le sont pas).
 
+**✨ Boutique de saison** (`cosmetics.available_from` / `available_until`, les deux facultatifs) :
+une pièce peut n'exister qu'un temps. `Cosmetic.available(at)` est **la** porte d'entrée — hors
+fenêtre, la pièce disparaît de la boutique **et des tirages** (coffre, streak, ligue : un bonnet
+de Noël ne doit pas tomber en juillet), et `Purchase.cosmetic` la refuse même si l'id est posté
+à la main. Ce qui est **déjà acheté reste acquis pour toujours** : l'armoire ignore la fenêtre.
+Le rayon est servi à part (`seasonal` vs `cosmetics` dans `ShopController`) : les pièces qui ont
+une date de fin s'affichent dans un encadré violet en tête de l'onglet Cosmétiques, chacune avec
+son compte à rebours (« Encore 12 jours », « Dernier jour ! »). Ouvrir une collection = poser
+deux dates sur des lignes du seed, aucun code.
+
 Trois onglets : Objets · Cosmétiques · Sac (inventaire des objets + lien vers l'armoire). Les
 achats sont refusés proprement si monnaie insuffisante, cosmétique déjà possédé, ou pas d'équipe.
 
@@ -356,7 +426,7 @@ quand une mécanique change**. Lien 📖 dans le **header du Hud** (à côté de
 
 ### Écrans React existants (app/frontend/pages)
 `Hub`, `Combat`, `Chat`, `Ligue`, `Avatar`, `Boutique`, `Profile`, `Training`, `Notifications`,
-`Faq`, `auth/Login`, `auth/Register`.
+`Faq`, `Admin`, `auth/Login`, `auth/Register`.
 Navigation par onglets : **Hub · Chat · ⚔️ Combat · Ligue · Boutique** (`components/BottomNav.jsx`),
 tous actifs.
 
@@ -393,9 +463,27 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 - Schéma BDD : https://claude.ai/code/artifact/3711a673-bfcb-4368-a42d-27b3a0ea751e
 - Plan de démarrage : https://claude.ai/code/artifact/cb6fd930-ef35-4163-8164-a8e48dff3238
 
+### Back-office de l'organisateur (`/admin`)
+Réservé au joueur dont la participation est `role: "admin"` (`Membership#admin?`) ; un autre
+joueur est renvoyé à l'accueil, et le lien n'apparaît que pour lui, en bas de l'écran compte.
+Il ne couvre **que les deux réglages qui se pilotent par des dates** et qu'on veut changer sans
+redéployer : les **journées ×2** (ajout/suppression) et les **fenêtres de la boutique de saison**
+(deux champs date par cosmétique, vides = pièce permanente). Une borne de fin court jusqu'au
+**bout de sa journée**, sinon la pièce expirerait à minuit pile. Le reste du contenu (créer une
+partie, des équipes) reste au seed.
+
+Les mêmes réglages en ligne de commande, pour le jour où on est en SSH (`lib/tasks/season.rake`) :
+```bash
+bin/rails season:show                                              # état des lieux
+NAME=Halloween DATE=2026-10-31 bin/rails season:special_day        # journée ×2
+NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
+NAMES='Parasol' bin/rails season:close                             # redevient permanent
+```
+
 ## Roadmap (à faire, ordre suggéré)
 
-1. **Admin de partie** — créer Event/Game/Teams (la validation manuelle des courses n'existe
+1. **Admin de partie** — créer Event/Game/Teams depuis l'app (l'écran `/admin` existe déjà pour
+   les journées spéciales et la boutique de saison ; la validation manuelle des courses n'existe
    pas : le contrôle anti-triche est 100 % automatique, voir la section dédiée).
 2. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
    en console, il n'y a pas d'écran pour rejoindre une équipe.
@@ -415,6 +503,10 @@ bin/rails league:standings          # classements du mois et général, en conso
 bin/rails runner PackLevelJob.perform_now   # juge la semaine écoulée (jauge de meute)
 bin/rails runner FamineJob.perform_now      # famine + clôture de saison (quotidien en prod)
 MONTH=2026-06 bin/rails league:award_month         # décerne la récompense d'un mois (test)
+
+bin/rails season:show                              # journées ×2 + fenêtres de la boutique
+NAME=Halloween DATE=2026-10-31 bin/rails season:special_day
+NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
 ```
 
 ⚠️ **Vite 8 exige Node ≥ 20.12** (`node:util#styleText`). Node 16 fait planter `bin/dev` avec

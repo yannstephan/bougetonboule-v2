@@ -3,6 +3,7 @@ import { useState } from 'react'
 import BottomNav from '../components/BottomNav'
 import TargetPicker from '../components/TargetPicker'
 import MonsterPicker from '../components/MonsterPicker'
+import { CosmeticIcon } from '../components/cosmeticArt'
 
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
@@ -11,7 +12,7 @@ const itemEmoji = (t) =>
   ({ shield: '🥣', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🍦', wooden_leg: '🦿' }[t] || '🎒')
 const rarityLabel = { common: 'Commun', rare: 'Rare', epic: 'Épique', legendary: 'Légendaire' }
 
-export default function Boutique({ has_team, initial_tab, balls, items, cosmetics, inventory, armed, opponents, team_names }) {
+export default function Boutique({ has_team, initial_tab, balls, items, cosmetics, seasonal, inventory, armed, opponents, team_names }) {
   const { auth, flash } = usePage().props
   const diamonds = auth.user?.diamonds ?? 0
   const [tab, setTab] = useState(initial_tab || 'items')
@@ -52,7 +53,7 @@ export default function Boutique({ has_team, initial_tab, balls, items, cosmetic
 
       <main className="body">
         {tab === 'items' && <Items items={items} balls={balls} hasTeam={has_team} onBuy={buyItem} />}
-        {tab === 'cosmetics' && <Cosmetics cosmetics={cosmetics} diamonds={diamonds} onBuy={buyCosmetic} />}
+        {tab === 'cosmetics' && <Cosmetics cosmetics={cosmetics} seasonal={seasonal} diamonds={diamonds} onBuy={buyCosmetic} />}
         {tab === 'inventory' && <Inventory inventory={inventory} armed={armed} onUse={useItem} />}
       </main>
 
@@ -91,12 +92,33 @@ function Items({ items, balls, hasTeam, onBuy }) {
   )
 }
 
-function Cosmetics({ cosmetics, diamonds, onBuy }) {
+// Le compte à rebours d'une pièce de saison. 0 = dernier jour, on le dit franchement.
+const daysLabel = (n) => (n === 0 ? 'Dernier jour !' : n === 1 ? 'Encore 1 jour' : `Encore ${n} jours`)
+
+function Cosmetics({ cosmetics, seasonal = [], diamonds, onBuy }) {
+  return (
+    <>
+      {seasonal.length > 0 && (
+        <section className="shop-season">
+          <div className="shop-season-head">
+            <span className="t">✨ Boutique de saison</span>
+            <span className="s">Ces pièces repartent bientôt — après, il faudra attendre l'an prochain.</span>
+          </div>
+          <CosmeticGrid list={seasonal} diamonds={diamonds} onBuy={onBuy} season />
+        </section>
+      )}
+      <CosmeticGrid list={cosmetics} diamonds={diamonds} onBuy={onBuy} />
+    </>
+  )
+}
+
+function CosmeticGrid({ list, diamonds, onBuy, season = false }) {
   return (
     <div className="shop-grid">
-      {cosmetics.map((c) => (
-        <div key={c.id} className={`shop-cos ${c.rarity}`}>
-          <span className="shop-cos-emoji">{c.emoji || '🎁'}</span>
+      {list.map((c) => (
+        <div key={c.id} className={`shop-cos ${c.rarity} ${season ? 'season' : ''}`}>
+          {season && c.days_left != null && <span className="shop-cos-left">⏳ {daysLabel(c.days_left)}</span>}
+          <CosmeticIcon art={c.art} emoji={c.emoji} className="shop-cos-emoji" />
           <div className="shop-cos-name">{c.name}</div>
           <div className="shop-cos-rarity">{rarityLabel[c.rarity] || c.rarity}</div>
           {c.owned ? (

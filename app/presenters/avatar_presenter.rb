@@ -26,12 +26,17 @@ class AvatarPresenter
     name[0]&.upcase || "?"
   end
 
-  # { "hat" => "🎩", "aura" => "✨" } — un cosmétique équipé par slot.
+  # { "hat" => { emoji: "🎩" }, "shoes" => { art: "sneakers" } } — un cosmétique équipé par
+  # slot. Une pièce s'affiche soit par son emoji, soit par un dessin SVG (`art`) quand
+  # l'emoji ne fait pas l'affaire — voir components/cosmeticArt.jsx.
   def equipped_by_slot
     return {} unless @user
 
     @user.user_cosmetics.equipped.includes(:cosmetic).each_with_object({}) do |uc, h|
-      h[uc.cosmetic.slot] = uc.cosmetic.emoji if uc.cosmetic.emoji.present?
+      c = uc.cosmetic
+      next if c.emoji.blank? && c.art.blank?
+
+      h[c.slot] = { emoji: c.emoji, art: c.art }
     end
   end
 end
