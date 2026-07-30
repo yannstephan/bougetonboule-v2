@@ -14,6 +14,16 @@ puts "Cosmétiques…"
 # (👟 🥾 🛼 sont des godasses uniques vues de profil, on veut une PAIRE de face) et les
 # pièces dont l'emoji est un visage entier (🤠 🧐 🎅 auraient collé une tête sur la tête).
 # Chaque clé `art` doit exister dans components/cosmeticArt.jsx.
+# ——— Boutique de saison ———
+# Une pièce peut n'exister qu'un temps : `available_from` / `available_until` (l'une ou
+# l'autre, ou les deux). Hors fenêtre elle disparaît de la boutique ET des tirages (coffre,
+# streak, ligue) — mais ce qui est déjà acheté reste à toi pour toujours.
+# La collection d'été est calée sur AUJOURD'HUI pour que la démo montre le rayon ; les deux
+# autres ont les vraies dates de l'année.
+ETE       = [12.days.ago, 16.days.from_now].freeze
+HALLOWEEN = [Time.zone.local(2026, 10, 15), Time.zone.local(2026, 11, 5, 23, 59)].freeze
+NOEL      = [Time.zone.local(2026, 12, 1), Time.zone.local(2027, 1, 6, 23, 59)].freeze
+
 Cosmetic.create!([
   # Chapeaux — posés sur le sommet réel du fruit (voir fruits.js → box)
   { name: "Bandeau éponge",     slot: "hat",  rarity: "common",    price_diamonds: 90,   source: "shop",  emoji: "🎀" },
@@ -61,7 +71,7 @@ Cosmetic.create!([
   { name: "Crotte porte-bonheur", slot: "sidekick", rarity: "common", price_diamonds: 90, source: "shop", emoji: "💩" },
   { name: "Barre protéinée",    slot: "sidekick", rarity: "common", price_diamonds: 100, source: "shop",  emoji: "🍫" },
   { name: "Banane de course",   slot: "sidekick", rarity: "common", price_diamonds: 110, source: "shop",  emoji: "🎒" },
-  { name: "Maracas",            slot: "sidekick", rarity: "common", price_diamonds: 110, source: "shop",  emoji: "🪇" },
+  { name: "Maracas",            slot: "sidekick", rarity: "common", price_diamonds: 110, source: "shop",  art: "maracas" },
   { name: "Chien de course",    slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop",  emoji: "🐕" },
   { name: "Chat supporter",     slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop",  emoji: "🐈" },
   { name: "Paresseux",          slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop",  emoji: "🦥" },
@@ -79,13 +89,32 @@ Cosmetic.create!([
   { name: "Aura électrique",    slot: "aura", rarity: "epic",      price_diamonds: 550,  source: "shop",  emoji: "⚡" },
   { name: "Arc-en-ciel",        slot: "aura", rarity: "legendary", price_diamonds: 1000, source: "shop",  emoji: "🌈" },
   # Exclusives — jamais en vente (price nil) : tirages (streak, ligue), coffres, jours spéciaux
-  { name: "Couronne de Noël",   slot: "hat",  rarity: "legendary", price_diamonds: nil,  source: "event", emoji: "👑" },
-  { name: "Bonnet du Réveillon", slot: "hat", rarity: "epic",      price_diamonds: nil,  source: "event", art: "santa_hat" },
-  { name: "Citrouille maudite", slot: "hat",  rarity: "epic",      price_diamonds: nil,  source: "event", emoji: "🎃" },
-  { name: "Fantôme d'Halloween", slot: "sidekick", rarity: "epic", price_diamonds: nil,  source: "event", emoji: "👻" },
+  { name: "Couronne de Noël",   slot: "hat",  rarity: "legendary", price_diamonds: nil,  source: "event", emoji: "👑",
+    available_from: NOEL[0], available_until: NOEL[1] },
+  { name: "Bonnet du Réveillon", slot: "hat", rarity: "epic",      price_diamonds: nil,  source: "event", art: "santa_hat",
+    available_from: NOEL[0], available_until: NOEL[1] },
+  { name: "Citrouille maudite", slot: "hat",  rarity: "epic",      price_diamonds: nil,  source: "event", emoji: "🎃",
+    available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
+  { name: "Fantôme d'Halloween", slot: "sidekick", rarity: "epic", price_diamonds: nil,  source: "event", emoji: "👻",
+    available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
   { name: "Médaille d'Odyssea", slot: "neck", rarity: "legendary", price_diamonds: nil,  source: "rank",  emoji: "🏅" },
   { name: "Esprit du loup",     slot: "aura", rarity: "legendary", price_diamonds: nil,  source: "drop",  emoji: "🐺" },
   { name: "Ailes de dossard",   slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "drop",  emoji: "🦋" },
+  # Boutique de saison — en vente, mais seulement pendant leur fenêtre
+  { name: "Parasol",            slot: "sidekick", rarity: "common", price_diamonds: 110, source: "shop", emoji: "⛱️",
+    available_from: ETE[0], available_until: ETE[1] },
+  { name: "Tournesol",          slot: "aura", rarity: "common",    price_diamonds: 120,  source: "shop", emoji: "🌻",
+    available_from: ETE[0], available_until: ETE[1] },
+  { name: "Bouée canard",       slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop", emoji: "🦆",
+    available_from: ETE[0], available_until: ETE[1] },
+  { name: "Araignée porte-poisse", slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop", emoji: "🕷️",
+    available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
+  { name: "Toile de sorcière",  slot: "aura", rarity: "rare",      price_diamonds: 250,  source: "shop", emoji: "🕸️",
+    available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
+  { name: "Sapin scintillant",  slot: "aura", rarity: "rare",      price_diamonds: 250,  source: "shop", emoji: "🎄",
+    available_from: NOEL[0], available_until: NOEL[1] },
+  { name: "Renne du traîneau",  slot: "sidekick", rarity: "rare",  price_diamonds: 260,  source: "shop", emoji: "🦌",
+    available_from: NOEL[0], available_until: NOEL[1] },
 ])
 
 puts "Objets (power-ups)…"

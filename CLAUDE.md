@@ -263,7 +263,7 @@ les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
-- **Catalogue : 62 pièces** dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
+- **Catalogue : 69 pièces** (dont 7 de saison) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
   **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween, médaille,
   loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue (comportement
   assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
@@ -275,7 +275,7 @@ catalogue reste en emoji, et le sera par défaut.
   chose y est équipé, et le rayon n'affiche **que** les pièces de l'emplacement choisi, avec une
   case « Retirer » quand on porte quelque chose. Empiler tout le catalogue d'un coup obligeait à
   scroller entre la pièce et l'avatar.
-- Le seed crée **`vitrine@btb.test`**, un compte qui **possède les 62 pièces** (et ne court pas,
+- Le seed crée **`vitrine@btb.test`**, un compte qui **possède les 69 pièces** (et ne court pas,
   donc ne fausse ni la ligue ni la meute) : `/avatar` liste tout le catalogue, slot par slot,
   pour juger le rendu d'un coup d'œil.
 
@@ -354,6 +354,16 @@ Deux monnaies **étanches** (règle d'or, jamais de pay-to-win), servies par le 
 - **Cosmétiques** en 💎 diamants (`User.diamonds`, global) → déposés dans l'armoire
   (`UserCosmetic`). On les **équipe / remet dans l'armoire** depuis l'écran avatar (`/avatar`).
   Seuls les cosmétiques `price_diamonds` non nul sont en vente (les récompenses ne le sont pas).
+
+**✨ Boutique de saison** (`cosmetics.available_from` / `available_until`, les deux facultatifs) :
+une pièce peut n'exister qu'un temps. `Cosmetic.available(at)` est **la** porte d'entrée — hors
+fenêtre, la pièce disparaît de la boutique **et des tirages** (coffre, streak, ligue : un bonnet
+de Noël ne doit pas tomber en juillet), et `Purchase.cosmetic` la refuse même si l'id est posté
+à la main. Ce qui est **déjà acheté reste acquis pour toujours** : l'armoire ignore la fenêtre.
+Le rayon est servi à part (`seasonal` vs `cosmetics` dans `ShopController`) : les pièces qui ont
+une date de fin s'affichent dans un encadré violet en tête de l'onglet Cosmétiques, chacune avec
+son compte à rebours (« Encore 12 jours », « Dernier jour ! »). Ouvrir une collection = poser
+deux dates sur des lignes du seed, aucun code.
 
 Trois onglets : Objets · Cosmétiques · Sac (inventaire des objets + lien vers l'armoire). Les
 achats sont refusés proprement si monnaie insuffisante, cosmétique déjà possédé, ou pas d'équipe.

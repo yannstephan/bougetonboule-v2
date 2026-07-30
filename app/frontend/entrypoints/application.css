@@ -409,6 +409,17 @@ body{margin:0;background:var(--bg);color:var(--text);
 .shop-use:active{transform:translateY(1px)}
 
 .shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* Boutique de saison : un encadré à part, en tête du rayon cosmétiques. Le violet (--violet,
+   la couleur « saison » de la charte) le distingue du catalogue permanent d'un coup d'œil. */
+.shop-season{border:1.5px solid color-mix(in srgb,var(--violet) 45%,var(--line));border-radius:var(--r);
+  background:color-mix(in srgb,var(--violet) 7%,var(--surface));padding:11px;margin-bottom:12px;
+  display:flex;flex-direction:column;gap:10px}
+.shop-season-head{display:flex;flex-direction:column;gap:3px}
+.shop-season-head .t{font-weight:800;font-size:14px;color:var(--violet)}
+.shop-season-head .s{font-size:11px;color:var(--muted);line-height:1.35}
+.shop-cos.season{position:relative;padding-top:22px}
+.shop-cos-left{position:absolute;top:6px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  background:var(--violet);color:#fff;border-radius:999px;padding:2px 8px;font-size:9px;font-weight:800}
 .shop-cos{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:13px 10px;
   display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
 .shop-cos.rare{border-color:color-mix(in srgb,var(--mint) 45%,var(--line))}

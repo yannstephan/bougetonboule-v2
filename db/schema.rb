@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_29_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_29_190000) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -69,6 +69,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_180000) do
 
   create_table "cosmetics", force: :cascade do |t|
     t.string "art"
+    t.datetime "available_from"
+    t.datetime "available_until"
     t.datetime "created_at", null: false
     t.string "emoji"
     t.string "name", null: false

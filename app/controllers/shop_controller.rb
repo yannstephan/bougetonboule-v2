@@ -11,6 +11,7 @@ class ShopController < ApplicationController
       balls: m&.balls || 0,
       items: items_json(m),
       cosmetics: cosmetics_json,
+      seasonal: seasonal_json,
       inventory: inventory_json(m),
       armed: armed_effects_json(m),
       opponents: opponents_json(m),
@@ -56,14 +57,20 @@ class ShopController < ApplicationController
     end
   end
 
-  def cosmetics_json
+  # Le rayon permanent : ce qui est en vente et n'a pas de date de fin.
+  def cosmetics_json = serialize_cosmetics(Cosmetic.purchasable.available.where(available_until: nil))
+
+  # La BOUTIQUE DE SAISON : les pièces en vente dont la fenêtre se referme. Servies à part
+  # pour être mises en avant, avec le nombre de jours restants sur chaque carte.
+  def seasonal_json = serialize_cosmetics(Cosmetic.purchasable.available.where.not(available_until: nil))
+
+  def serialize_cosmetics(scope)
     owned = current_user.user_cosmetics.includes(:cosmetic).index_by(&:cosmetic_id)
-    Cosmetic.purchasable
-            .sort_by { |c| [RARITY_ORDER.index(c.rarity) || 99, c.price_diamonds] }
-            .map do |c|
+    scope.sort_by { |c| [RARITY_ORDER.index(c.rarity) || 99, c.price_diamonds] }.map do |c|
       uc = owned[c.id]
       { id: c.id, name: c.name, slot: c.slot, rarity: c.rarity, emoji: c.emoji, art: c.art,
-        price: c.price_diamonds, owned: uc.present?, equipped: uc&.equipped || false }
+        price: c.price_diamonds, owned: uc.present?, equipped: uc&.equipped || false,
+        days_left: c.days_left }
     end
   end
 

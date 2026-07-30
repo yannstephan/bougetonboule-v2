@@ -123,6 +123,27 @@ const Mitten = ({ body, cuff, thumb }) => (
   </g>
 )
 
+// ————— Accessoires —————
+
+// Maracas croisées. 🪇 n'existe qu'en Unicode 15 (2022) : carré vide sur les vieux
+// Android et les vieux Windows — une pièce payante ne peut pas se permettre ça.
+const Maracas = () => (
+  <g>
+    <g stroke="#8a5a2b" strokeWidth="8" strokeLinecap="round">
+      <path d="M36 46 L62 88" />
+      <path d="M64 46 L38 88" />
+    </g>
+    <ellipse cx="32" cy="34" rx="19" ry="21" fill="#f2b100" />
+    <ellipse cx="68" cy="34" rx="19" ry="21" fill="#e23b54" />
+    <g fill="#ffffff" opacity="0.5">
+      <ellipse cx="26" cy="26" rx="5" ry="3.5" />
+      <ellipse cx="62" cy="26" rx="5" ry="3.5" />
+    </g>
+    <g fill="#8a6d1b"><circle cx="26" cy="42" r="3" /><circle cx="38" cy="38" r="3" /></g>
+    <g fill="#8e1122"><circle cx="62" cy="42" r="3" /><circle cx="74" cy="38" r="3" /></g>
+  </g>
+)
+
 // ————— Cou —————
 
 // Dossard : le numéro de course, en aplats (pas de texte, illisible en vignette).
@@ -208,6 +229,7 @@ export const COSMETIC_ART = {
   ballet: { view: '8 40 84 36', pair: true, node: <Pair as={Flat} body="#ff9fc0" sole="#e6749b" trim="#ffd6e5" /> },
   skates: { view: '8 33 84 47', pair: true, node: <Pair as={Skate} body="#f2b100" sole="#fff3cc" tongue="#ffe08a" wheel="#4a4360" /> },
   boots7: { view: '8 25 84 55', pair: true, node: <Pair body="#6c5ce7" sole="#f6c945" tongue="#a99bff" lace="#f6c945" shaft={15} /> },
+  maracas: { view: '9 9 82 85', em: 0.3, node: <Maracas /> },
   paw: { view: '18 20 66 60', em: 0.3, node: <Paw color="#6c5ce7" pad="#a99bff" /> },
   wand: { single: true, em: 0.28, emoji: '🪄' },
   gold_hat: { view: '12 16 76 64', em: 0.46, node: <GoldHat /> },

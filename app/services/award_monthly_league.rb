@@ -55,7 +55,7 @@ class AwardMonthlyLeague
 
   # Tout ce que le gagnant ne possède pas encore, quelle que soit la source.
   def drawable_cosmetics(user)
-    Cosmetic.where.not(id: user.user_cosmetics.select(:cosmetic_id))
+    Cosmetic.available.where.not(id: user.user_cosmetics.select(:cosmetic_id))
   end
 
   def notify(winner, reward)
