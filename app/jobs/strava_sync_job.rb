@@ -39,7 +39,7 @@ class StravaSyncJob < ApplicationJob
             .where(memberships: { user_id: user.id })
             .where(date: SWEEP_WINDOW.ago..)
             .where.not(status: "rejected")
-            .where.not(strava_activity_id: [nil, ""])
+            .where.not(strava_activity_id: [ nil, "" ])
             .find_each do |training|
       next if known.include?(training.strava_activity_id)
 

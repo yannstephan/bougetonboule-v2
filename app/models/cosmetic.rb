@@ -37,6 +37,6 @@ class Cosmetic < ApplicationRecord
   def days_left(at = Time.current)
     return nil if available_until.nil?
 
-    [(available_until.to_date - at.to_date).to_i, 0].max
+    [ (available_until.to_date - at.to_date).to_i, 0 ].max
   end
 end

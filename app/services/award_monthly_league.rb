@@ -61,9 +61,9 @@ class AwardMonthlyLeague
   def notify(winner, reward)
     prize = if reward.cosmetic
               "Tu remportes #{reward.cosmetic.emoji} #{reward.cosmetic.name} !"
-            else
+    else
               "Tu as déjà tous les cosmétiques — voilà #{reward.amount} 💎 à la place !"
-            end
+    end
 
     Notification.create!(
       user: winner.membership.user, game: @game, category: "league", importance: "important",

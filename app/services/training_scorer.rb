@@ -19,7 +19,7 @@ class TrainingScorer
   end
 
   def call
-    base = [@training.distance_km.floor, MAX_BALLS_PER_RUN, daily_room].min.clamp(0, MAX_BALLS_PER_RUN)
+    base = [ @training.distance_km.floor, MAX_BALLS_PER_RUN, daily_room ].min.clamp(0, MAX_BALLS_PER_RUN)
     special = matching_special_day
     @training.special_day = special
     @training.base_balls = base

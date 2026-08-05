@@ -27,5 +27,4 @@ class CombatController < ApplicationController
                                        active: m.team.item_effect_active?(i.effect_type) } }
     }
   end
-
 end

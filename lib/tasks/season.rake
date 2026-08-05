@@ -18,8 +18,8 @@ namespace :season do
     dated = Cosmetic.seasonal.order(:available_from, :name)
     puts("   (aucune)") if dated.empty?
     dated.each do |c|
-      window = [c.available_from&.to_date&.strftime("%d/%m/%Y") || "…",
-                c.available_until&.to_date&.strftime("%d/%m/%Y") || "…"].join(" → ")
+      window = [ c.available_from&.to_date&.strftime("%d/%m/%Y") || "…",
+                c.available_until&.to_date&.strftime("%d/%m/%Y") || "…" ].join(" → ")
       puts format("   %-28s %-24s %s", c.name, window, c.available? ? "EN COURS" : "fermée")
     end
   end

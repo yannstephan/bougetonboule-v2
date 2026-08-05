@@ -29,7 +29,7 @@ class Training < ApplicationRecord
     with_lock do
       break if balls_credited_at.present?
 
-      credited = [score.to_i, GameRules::WALLET_CAP - membership.reload.balls].min.clamp(0, score.to_i)
+      credited = [ score.to_i, GameRules::WALLET_CAP - membership.reload.balls ].min.clamp(0, score.to_i)
       membership.increment!(:balls, credited) if credited.positive?
       update!(balls_credited_at: Time.current, credited_balls: credited)
       credited
@@ -46,7 +46,7 @@ class Training < ApplicationRecord
     with_lock do
       break 0 if balls_credited_at.blank?
 
-      taken = [credited_balls.to_i, membership.reload.balls].min.clamp(0, credited_balls.to_i)
+      taken = [ credited_balls.to_i, membership.reload.balls ].min.clamp(0, credited_balls.to_i)
       membership.decrement!(:balls, taken) if taken.positive?
       update!(balls_credited_at: nil, credited_balls: 0)
       taken

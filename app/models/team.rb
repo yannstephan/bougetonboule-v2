@@ -31,7 +31,7 @@ class Team < ApplicationRecord
 
   # Multiplicateur de combat issu de la jauge de meute : +10 % par palier, plafonné à ×2.
   # Additif et gagné uniquement en courant (jamais acheté, jamais multiplicatif).
-  def combat_multiplier = [1 + pack_level * GameRules::PACK_STEP, 1 + GameRules::PACK_MAX_LEVEL * GameRules::PACK_STEP].min
+  def combat_multiplier = [ 1 + pack_level * GameRules::PACK_STEP, 1 + GameRules::PACK_MAX_LEVEL * GameRules::PACK_STEP ].min
   def pack_percent = (pack_level.clamp(0, GameRules::PACK_MAX_LEVEL) * GameRules::PACK_STEP * 100).round
 
   def second_wind_active? = second_wind_until.present? && second_wind_until.future?
