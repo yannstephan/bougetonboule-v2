@@ -4,6 +4,7 @@
       "Bash(curl -s http://localhost:3000/*)",
       "Bash(bin/dev)",
       "PowerShell(.\\bin\\dev.ps1)",
+      "PowerShell(.\\bin\\dev.ps1 -Stop)",
       "PowerShell(.\\bin\\dev.ps1 -NewWindows)",
       "PowerShell(ruby bin\\rails routes*)",
       "PowerShell(ruby bin\\rails db:version*)",

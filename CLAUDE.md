@@ -524,10 +524,18 @@ par l'interpréteur. `bin/dev` reste le chemin normal sous Linux/macOS ; les deu
 
 ```powershell
 .\bin\dev.ps1               # Rails + Vite dans CE terminal, Ctrl+C arrête les deux
+.\bin\dev.ps1 -Stop         # arrête les serveurs et rend la main
 .\bin\dev.ps1 -NewWindows   # une fenêtre par process, si on préfère séparer les logs
 ruby bin\rails db:prepare   # tout bin/rails s'appelle "ruby bin\rails …"
 ruby bin\rails console
 ```
+
+**Relancer, c'est juste relancer** : le script libère les ports 3000/3036 avant de démarrer.
+Il retrouve les serveurs de deux façons, parce qu'aucune ne suffit seule — par le process qui
+écoute le port (le node enfant de Vite, son parent ruby n'écoute rien) et par la ligne de
+commande (`bin/rails`, `bin/vite`). Il ne tue que du ruby ou du node, jamais un process tiers
+qui aurait pris le 3000. C'est ce qui permet d'arrêter un serveur lancé depuis un autre
+terminal, ou par un agent, sans avoir de `Ctrl+C` sous la main.
 
 Quatre pièges, tous déjà réglés dans ce dépôt mais à refaire sur une machine neuve :
 
