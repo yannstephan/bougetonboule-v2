@@ -1,6 +1,8 @@
 import { Head, Link, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import { CosmeticIcon } from '../components/cosmeticArt'
+import Hud from '../components/Hud'
+import BottomNav from '../components/BottomNav'
 
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
@@ -17,6 +19,8 @@ export default function Admin({ game, today, special_days, cosmetics }) {
   return (
     <div className="shell">
       <Head title="Organisation" />
+      <Hud />
+
       <div className="subhead">
         <Link href="/" className="back">←</Link>
         <div className="ti">🛠️ Organisation</div>
@@ -178,6 +182,7 @@ function CosmeticRow({ c }) {
         </label>
         <button className="adm-save" disabled={!dirty} onClick={save}>OK</button>
       </div>
+      <BottomNav />
     </div>
   )
 }

@@ -1,6 +1,8 @@
 import { Head, Link, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import { enablePush } from '../lib/push'
+import Hud from '../components/Hud'
+import BottomNav from '../components/BottomNav'
 
 const icon = (c) => ({
   attacked: '⚡', healed: '💚', streak: '🔥', chest: '🎁', message: '💬',
@@ -23,6 +25,8 @@ export default function Notifications({ notifications }) {
   return (
     <div className="shell">
       <Head title="Notifications" />
+      <Hud />
+
       <div className="subhead">
         <Link href="/" className="back">←</Link>
         <div className="ti">🔔 Notifications</div>
@@ -53,6 +57,7 @@ export default function Notifications({ notifications }) {
           </section>
         )}
       </main>
+      <BottomNav />
     </div>
   )
 }

@@ -129,12 +129,12 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   15 % de chance de cacher un coffre — **max 1/jour** par participation, **pity** garanti
   après 7 courses scorées sans drop. Rareté pondérée (60/25/12/3), contenu décidé **au drop**
   (💎 15/30/60/120 + parfois un cosmétique non possédé, toujours pour un légendaire — c'est
-  par là qu'arrive l'Esprit du loup). Ouverture sur le **Hub** (`ChestCard`) en **modal
-  plein écran** : coffre SVG qui tremble → POST → au rechargement, `flash[:chest]` rouvre la
-  modal en mode révélation (couvercle sur charnière, **paillettes**, gains qui sortent en
-  chips). Pas de tuile « coffres » : la carte n'apparaît que s'il y a un coffre scellé.
-  `Chest#open!` idempotent (verrou + statut) crédite et journalise dans `rewards`
-  (period `chest-<id>`), doublon acquis entre-temps → +30 💎.
+  par là qu'arrive l'Esprit du loup). Ouverture **dans le sac** (`/sac`, voir plus bas) en
+  **modal plein écran** : coffre SVG qui tremble (`ChestCard`) → POST → au rechargement,
+  `flash[:chest]` rouvre la modal en mode révélation (`ChestReveal`, monté **une seule fois**
+  par page puisqu'on peut avoir plusieurs coffres : couvercle sur charnière, **paillettes**,
+  gains qui sortent en chips). `Chest#open!` idempotent (verrou + statut) crédite et journalise
+  dans `rewards` (period `chest-<id>`), doublon acquis entre-temps → +30 💎.
 - **💥 Échec critique** (retour v1) : 1 attaque sur 10 rate (`PerformAction#crit_fail`) — 0 dégât
   et perte de **15 % du solde** (min 1, max 10 🍑), non multipliée par la meute. Taxe les
   thésauriseurs (pas de plafond de porte-monnaie en v2) sans inverser l'économie attaque/soin
@@ -269,19 +269,21 @@ catalogue reste en emoji, et le sera par défaut.
   assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
   aucun code — sauf si elle a besoin d'un dessin, alors + une entrée dans `COSMETIC_ART`.
   Ajouter un **slot** = une entrée dans `anchors()` + un z-index CSS `.fav-<slot>`.
-- **L'écran est un vestiaire, pas une liste** : l'aperçu de l'avatar et la barre d'emplacements
-  restent **collés en haut** (`.av-sticky`) pendant qu'on fouille — on juge le rendu sans faire
-  l'aller-retour. Un onglet par emplacement (+ « Fruit »), une pastille verte quand quelque
-  chose y est équipé, et le rayon n'affiche **que** les pièces de l'emplacement choisi, avec une
-  case « Retirer » quand on porte quelque chose. Empiler tout le catalogue d'un coup obligeait à
-  scroller entre la pièce et l'avatar.
+- **L'armoire vit dans le sac**, pas ici (`/sac?tab=wardrobe`, `components/Wardrobe.jsx`) :
+  c'est **un vestiaire, pas une liste** — l'aperçu de l'avatar et la barre d'emplacements
+  restent **collés en haut** (`.av-sticky`) pendant qu'on fouille, on juge le rendu sans faire
+  l'aller-retour. Un onglet par emplacement, une pastille verte quand quelque chose y est
+  équipé, et le rayon n'affiche **que** les pièces de l'emplacement choisi, avec une case
+  « Retirer » quand on porte quelque chose. Empiler tout le catalogue d'un coup obligeait à
+  scroller entre la pièce et l'avatar. `/avatar` y renvoie par un bouton.
 - Le seed crée **`vitrine@btb.test`**, un compte qui **possède les 69 pièces** (et ne court pas,
-  donc ne fausse ni la ligue ni la meute) : `/avatar` liste tout le catalogue, slot par slot,
+  donc ne fausse ni la ligue ni la meute) : l'armoire liste tout le catalogue, slot par slot,
   pour juger le rendu d'un coup d'œil.
 
-Cet écran fait aussi office de **compte** (accès en tapant l'avatar du Hud) : **connecter/déconnecter
-Strava** (`StravaController#connect` / `#disconnect`, prop `strava_connected`) et **se déconnecter**
-(`DELETE /logout`). Les deux boutons de suppression demandent une confirmation.
+`/avatar` fait donc **le fruit + le compte** (accès en tapant l'avatar du Hud) :
+**connecter/déconnecter Strava** (`StravaController#connect` / `#disconnect`, prop
+`strava_connected`) et **se déconnecter** (`DELETE /logout`). Les deux boutons de suppression
+demandent une confirmation.
 
 `AvatarPresenter.new(user, membership:)` est le **seul** endroit qui sérialise un avatar (fruit +
 cosmétiques), affiché dans le Hub, le chat, le classement et l'écran avatar. Côté React, le
@@ -289,20 +291,56 @@ composant unique est `components/PlayerAvatar.jsx` (délègue à `FruitAvatar`, 
 en secours si pas de fruit).
 
 ### Les monstres
-Dessinés en SVG dans `components/Monster.jsx`, choisis par `Monster#slug` (`"King-Coco"` →
-`king-coco`). King-Coco (roi noix de coco) et Framboitrix (sorcière-framboise, clin d'œil à
-Bellatrix Lestrange) pour Odyssea. Un slug inconnu retombe sur un emoji 👾.
+`components/Monster.jsx`, choisis par `Monster#slug` (`"King-Coco"` → `king-coco`) ; un slug
+inconnu retombe sur un emoji 👾. Les deux sont des personnages **en pied**, avec bras, jambes et
+un objet en main, servis par une **série de planches peintes** (`art`) dans
+`app/frontend/assets/monsters/<slug>/` :
+
+- **King-Coco** (Fruits exotiques) — colosse de coco : tête en noix coiffée d'un plumeau de
+  palmes et d'une couronne de fruits, museau de gorille à crocs, torse sanglé de cordages,
+  membres en bois noueux, bâton surmonté d'un petit coco rieur.
+- **Framboitrix** (Fruits rouges) — sorcière-framboise, clin d'œil à Bellatrix Lestrange : tête
+  et buste en amas de drupéoles, chapeau pointu, chevelure bouclée, collerette de feuilles sur
+  un corset, membres en sarments terminés par des poignées de baies, bottines, et son bâton à
+  orbe de framboises magiques.
+
+Une illustration peinte **ne se paramètre pas** : chaque état est un fichier. C'est ce qui permet
+le **5e, `defeated`** — le monstre en morceaux au sol quand il tombe à 0 PV (`monster.state`,
+passé en prop depuis le Hub et le Combat) — qu'on ne pouvait pas se payer du temps où les
+monstres étaient des SVG paramétrés (les deux dessins précédents sont dans l'historique git).
+
+**Contrat d'une planche** (à respecter pour toute nouvelle série) : **carrée**, **détourée**
+(fond transparent — sinon carré blanc en thème sombre), **512 px**, **WebP** (~50 Ko, moitié
+moins qu'un PNG), et **toutes les planches d'un monstre cadrées pareil** — c'est ce qui évite
+que le personnage saute d'un palier à l'autre, et ce qui permet aux surcouches SVG (chantilly,
+saladier) de se poser dessus en viewBox 0 0 100 100 sans le moindre calcul.
+Le détourage ne peut pas être un simple seuil : il faut épargner les blancs **intérieurs** du
+dessin. Repère utile relevé sur ces planches — la toile est en 255,255,255 pur, alors que le
+blanc le plus clair du dessin (les yeux) plafonne à lum 241 et reste légèrement rosé.
+
+Vérifier le cadrage **par la mesure**, pas à l'œil : la boîte englobante du contenu opaque doit
+coïncider d'une planche à l'autre (celles en place tiennent à 0,4 % près, l'état effondré mis à
+part — sa pose est plus large et plus basse, c'est normal).
+
+`eyes` (le point de chute de la chantilly, en % de la boîte) est déclaré **par monstre** dans le
+registre : à resituer dès qu'une nouvelle série cadre le visage ailleurs, sinon la crème tombe
+à côté.
 
 **Le dessin évolue**, piloté par trois props que sert `MonsterPresenter` :
 - **`wear` 0→3 — l'usure** : à chaque **premier** passage sous **75 / 50 / 25 %** des PV, le
   monstre prend un cran (`monsters.wear`, calculé dans `Monster#refresh_state!` via
   `GameRules::MONSTER_WEAR_THRESHOLDS`). **Cliquet** : `wear` ne redescend jamais — un soin
-  remonte les PV, pas la façade, et la barre de vie reste la seule info exacte. King-Coco se
-  fend (chair blanche visible), sa couronne glisse et perd ses pierres, ses yeux passent
-  mi-clos puis en croix ; Framboitrix perd ses drupéoles (elles roulent à ses pieds), sa
-  crinière retombe, son chapeau se déchire et ses yeux partent en vrille. Pansement et goutte
-  de sueur communs. Au-delà du 2e palier, le monstre **tangue** (`.mon.wear2/.wear3`, guard
+  remonte les PV, pas la façade, et la barre de vie reste la seule info exacte.
+  **L'usure touche tout le personnage, jamais un seul détail** — c'est ce qui la rend lisible :
+  King-Coco se fissure, ses palmes verdoyantes virent à l'olive puis à la paille sèche, ses
+  fruits noircissent, son regard s'éteint et le petit coco de son bâton passe du sourire à la
+  grimace puis à la pourriture ; Framboitrix se balafre, son chapeau se troue puis se rapièce,
+  sa collerette de feuilles se déchire et brunit, ses bottines s'éventrent, son œil se ferme et
+  **l'orbe de son bâton se fendille**, avec des feuilles mortes qui s'accumulent à ses pieds.
+  Au-delà du 2e palier, le monstre **tangue** (`.mon.wear2/.wear3`, guard
   `prefers-reduced-motion`).
+- **`defeated`** : monstre à 0 PV. Bascule sur la planche d'effondrement — la seule où le
+  personnage n'est plus debout.
 - **`creamed`** : chantilly plein les yeux tant que l'effet dure (= `masked`, donc pour la seule
   équipe aveuglée, celle qui voit « ??? »).
 - **`shielded`** : saladier translucide retourné (= `protected`), le monstre se tasse dessous. En **Combat**, l'attaque secoue + flashe en rouge le monstre
@@ -311,16 +349,66 @@ piloté par état React dans `pages/Combat.jsx` (classes `.impact` / `.healpulse
 `prefers-reduced-motion`).
 
 ### Le compte à rebours (Hub)
-En haut du Hub, `components/Countdown.jsx` décompte jours/heures/min/sec jusqu'au **jour J**.
+En haut du Hub, `components/Countdown.jsx` : **une seule ligne compacte** (`.cd`) — pastille du
+décompte à gauche, nom + date · lieu de la course, et la barre de prépa dessous. La version
+longue (jours/heures/min/sec en quatre cases + coureur 🏃 avançant vers un 🏁) mangeait le tiers
+de l'écran pour une info qu'on lit d'un coup d'œil.
+
+- **La pastille** compte en **jours** (`227 / jours`), bascule en **heures** le dernier jour
+  (sinon elle resterait figée sur « 0 J » pendant 24 h), et passe au vert `🎉 jour J` une fois
+  la date atteinte. Elle ne tique plus qu'à la **minute** : plus rien ne bat à la seconde.
+- **La prépa** se compte en **semaines** (« Semaine 4/12 ») entre `game.starts_at` et `race_at`,
+  la barre donnant la position exacte — une semaine parle plus qu'un pourcentage quand on
+  prépare une course. Absente si la partie n'a pas de date de départ.
+
 La date vient de l'`Event` (`events.race_date`, un `datetime`) — Odyssea Nantes est le
 **21 mars 2027 à 9h** dans le seed. Le Hub sérialise
-`event: { name, location, race_at (ISO), starts_at (ISO) }` et le composant tique chaque seconde
-(`setInterval`), puis affiche « C'est le grand jour ! » une fois la date passée. Piloté par la
-donnée : changer `race_date` déplace le décompte.
+`event: { name, location, race_at (ISO), starts_at (ISO) }`. Piloté par la donnée : changer
+`race_date` déplace le décompte.
 
-Sous le décompte, une **barre de progression** « vers l'arrivée » : un coureur 🏃 avance vers un
-drapeau 🏁, rempli de `game.starts_at` (ligne de départ) à `race_at` (arrivée), avec le % du
-parcours. Calculée côté React à partir des deux timestamps.
+### L'arène (Hub) — les deux camps face à face
+Les deux équipes ne sont plus deux cartes empilées mais **une seule arène** (`.arena`, grille
+`1fr auto 1fr` dans `pages/Hub.jsx`) : mon camp à gauche, l'adversaire à droite, séparés par un
+trait qui monte vers un **⚡ jaune** portant la pastille « VS ». Le camp adverse est le **miroir**
+du sien — avatar vers l'extérieur, texte, PV et pastilles alignés vers le bord.
+
+Le **⚡ est animé** : un cycle de 2,4 s presque entièrement au repos, puis un éclair qui claque —
+une onde part du badge (`arena-wave`), la foudre tressaute et s'éclaire (`arena-zap`), la pastille
+VS encaisse (`arena-vs-pop`). Assez espacé pour ne pas tirer l'œil pendant qu'on lit les PV,
+et coupé sous `prefers-reduced-motion` comme les autres animations du jeu.
+
+Chaque camp (`TeamSide`) est empilé **dans l'ordre où on le lit** : chip **TOI / ENNEMI**, nom
+de l'équipe + nom du monstre, **le monstre en grand**, la ligne **PV**, puis les effets. Le
+monstre prend **toute la largeur du camp** (`.arena-face`, carré par `aspect-ratio`), **sans
+cadre ni fond** : il pose à même la carte, et déborde même un peu du rembourrage du camp pour
+gagner en taille. C'est le sujet de l'écran, pas une vignette d'identité.
+`Monster` accepte pour ça une **longueur CSS** en `size` (`"100%"`) autant qu'un
+nombre de pixels. La ligne PV met son label vers l'extérieur et les chiffres vers le centre,
+avec le total abrégé (`4613 / 10k`) — c'est le restant qui compte.
+Rien de neuf côté données : les mêmes props qu'avant (`MonsterPresenter`, `TeamEffectsPresenter`),
+avec `masked` toujours rendu en `??? 🍦`.
+
+Les pastilles d'effet passent en **variante compacte** (`<EffectBadges compact />`) : **le logo
+seul**, en pastilles rondes qui tiennent sur une ou deux lignes. Écrites en toutes lettres, cinq
+pastilles prenaient cinq lignes et repoussaient le monstre hors de l'écran. Le **Combat** garde
+la version longue. Deux compléments, parce qu'un emoji seul ne se comprend pas toujours :
+
+- **Chaque logo est un bouton** : au toucher, l'effet s'explique sur une ligne en dessous
+  (« Framboitrix masqué · encore 22h00 »), et la pastille se cerne d'indigo. Le `title` seul ne
+  suffisait pas — **une infobulle de survol n'existe pas sur mobile**.
+- Un effet marqué **`labelled`** par le presenter **garde son texte**, sur sa propre ligne sous
+  les logos. Réservé à ceux dont le libellé porte un **chiffre** : aujourd'hui le palier de meute
+  (🐾 dit qu'il y a un bonus, pas qu'il vaut +30 %).
+
+⚠️ Conséquence pour tout nouvel effet : l'**emoji le porte à lui seul** sur le Hub — en choisir
+un qui se distingue des autres au premier coup d'œil (voir `TeamEffectsPresenter::KINDS`).
+
+**Sous le bouton COMBATTRE**, le fil des **5 dernières sorties de chaque équipe** (`RunFeed`)
+reprend **la même grille gauche/droite** que l'arène : on retrouve son équipe du côté de son
+monstre, le trait tombant sous le ⚡. Chaque ligne (coureur · date · km · 🍑) mène à la sortie.
+Les courses **refusées en sont exclues** — convention du feed public, une course qui ne compte
+pas n'est vue que de son coureur — mais les **piégées y restent**, marquées 🐺 0 🍑 : elles
+rapportent zéro, elles ont quand même eu lieu, et c'est précisément ce qu'on veut voir passer.
 
 ### Profils & sorties (`/joueurs/:id`, `/courses/:id`)
 Chaque **participation** (Membership) a une page profil consultable par **tout joueur de la même
@@ -365,8 +453,36 @@ une date de fin s'affichent dans un encadré violet en tête de l'onglet Cosmét
 son compte à rebours (« Encore 12 jours », « Dernier jour ! »). Ouvrir une collection = poser
 deux dates sur des lignes du seed, aucun code.
 
-Trois onglets : Objets · Cosmétiques · Sac (inventaire des objets + lien vers l'armoire). Les
-achats sont refusés proprement si monnaie insuffisante, cosmétique déjà possédé, ou pas d'équipe.
+Deux onglets : Objets · Cosmétiques. Les achats sont refusés proprement si monnaie insuffisante,
+cosmétique déjà possédé, ou pas d'équipe. **Ce qu'on achète part dans le sac** (`/sac`), qui a son
+propre onglet — la boutique vend, le sac utilise.
+
+### Le sac (`/sac`) — objets, coffres et armoire
+Onglet à part entière du footer, **collé à la boutique** (`InventoryController`, page
+`Inventaire.jsx`). Il tient **tout ce que le joueur possède**, en deux onglets — la boutique
+vend, le sac utilise.
+
+**🎒 Objets** (par partie), dans cet ordre :
+1. **🎁 À ouvrir** — les coffres scellés (`chests.sealed`), un `ChestCard` chacun. C'est **le
+   seul endroit** où l'on ouvre un coffre ; `ChestsController#open` redirige ici. Un coffre en
+   attente pose aussi une `.tab-dot` sur l'onglet.
+2. **En préparation** — les objets à retardement déjà posés (jambe de bois armée, pièges en
+   attente), en lecture seule.
+3. **Objets à utiliser** — l'inventaire (`MembershipItem` non utilisés), bouton « Utiliser »
+   → `POST /sac/utiliser` → `PerformAction` (`use_item`), avec `TargetPicker` pour le piège et
+   `MonsterPicker` pour la chantilly.
+
+**🎨 Armoire** (globale) — le vestiaire complet, `components/Wardrobe.jsx` : aperçu de l'avatar
+collé en haut, un onglet par emplacement, le rayon de l'emplacement choisi. C'est **le seul
+endroit d'où l'on équipe** (`POST /sac/equiper` → `InventoryController#equip`, un cosmétique par
+slot, redirige sur `/sac?tab=wardrobe`). `/avatar` ne garde que le **choix du fruit** et le
+**compte**. `initial_tab` vient de `?tab=wardrobe`, ce qui rend l'armoire linkable (la boutique
+y renvoie pour une pièce déjà possédée).
+
+**Pastille du footer** : `inventory_alert` (partagé par `inertia_share`) = nombre de coffres
+scellés ; > 0 allume une `.nav-dot` sur l'icône 🎒 — « du nouveau ici », sans chiffre. Le Hub
+garde sa tuile « Mon sac », qui annonce le coffre en priorité (`.tile-alert`) et sinon le nombre
+d'objets. `/boutique?tab=inventory` redirige vers `/sac` (les vieux liens et raccourcis PWA).
 
 ### Notifications — deux niveaux (`notifications.importance`)
 - **important** : poussé en Web Push **et** listé. Concerne le joueur directement — message dans
@@ -390,12 +506,13 @@ L'écran Notifications sépare **Pour toi** (importantes) et **Activité de la p
 style atténué). Une notif peut porter un **`link`** (colonne `notifications.link`) : la carte
 devient alors cliquable (chevron ›). Les notifs « nouvelle course » pointent vers `/courses/:id`.
 
-### Pastille de messages non lus (onglet Chat)
+### Pastille de messages non lus (💬 du HUD)
 `conversation_reads` (`membership` × `conversation` × `last_read_at`, index unique) mémorise la
 dernière lecture. `Membership#unread_messages_count` compte les messages **des autres** (équipe +
 général) postés après `last_read_at`, exposé globalement via `chat_unread` (`inertia_share`) et
-affiché en pastille sur l'onglet **Chat** (`components/BottomNav.jsx`). Ouvrir le chat
-(`ChatController#show`) appelle `Membership#mark_conversations_read!` → la pastille retombe à 0.
+affiché en pastille sur le bouton **💬 du HUD**, à gauche de la cloche — donc visible depuis
+n'importe quel écran. Ouvrir le chat (`ChatController#show`) appelle
+`Membership#mark_conversations_read!` → la pastille retombe à 0.
 ⚠️ Le seed doit vider `ConversationRead` en tête du nettoyage (FK vers membership/conversation).
 
 ### Profil : pas de solde de 🍑
@@ -425,10 +542,20 @@ composant — c'est le seul endroit qui décrit le fonctionnement côté joueur,
 quand une mécanique change**. Lien 📖 dans le **header du Hud** (à côté de la cloche 🔔).
 
 ### Écrans React existants (app/frontend/pages)
-`Hub`, `Combat`, `Chat`, `Ligue`, `Avatar`, `Boutique`, `Profile`, `Training`, `Notifications`,
-`Faq`, `Admin`, `auth/Login`, `auth/Register`.
-Navigation par onglets : **Hub · Chat · ⚔️ Combat · Ligue · Boutique** (`components/BottomNav.jsx`),
-tous actifs.
+`Hub`, `Combat`, `Chat`, `Ligue`, `Avatar`, `Boutique`, `Inventaire`, `Profile`, `Training`,
+`Notifications`, `Faq`, `Admin`, `auth/Login`, `auth/Register`.
+**Le bandeau et la nav sont sur TOUTES les pages**, et tous deux **collés** (`position:sticky`,
+en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant défiler.
+
+- **`components/Hud.jsx`** — avatar (→ `/avatar`), 🍑, 💎, puis 📖 FAQ · 💬 Chat · 🔔 Notifs.
+  Il ne prend **aucune prop** : tout vient d'`inertia_share` (dont `balls`, partagé exprès pour
+  lui), donc l'ajouter à un écran ne demande rien à son contrôleur. En dessous, chaque page
+  garde son `.subhead` (retour + titre) ; les soldes qui y étaient en double ont été retirés.
+- **`components/BottomNav.jsx`** — **Hub · Ligue · ⚔️ Combat · 🎒 Sac · Boutique**. Le **Chat
+  n'y est pas** : il est passé dans le HUD à gauche de la cloche — deux boutons de même nature
+  (ce qu'on a reçu) plutôt qu'une destination de jeu, et un onglet de moins en bas. Les écrans
+  qui ne sont pas des destinations (Combat, Avatar, Profil, Sortie, FAQ, Notifs, Admin) affichent
+  la nav sans onglet actif.
 
 ### PWA (installable)
 `PwaController` (maison) sert `/manifest.json` et `/service-worker` — **pas**
@@ -452,11 +579,37 @@ en localStorage.
 
 ## Design
 
-**Flat design** (aplats de couleur, pas d'effets 3D). Tokens CSS dans
+**Flat design** (aplats de couleur, pas d'effets 3D) tenu par la **règle 60-30-10**, pour éviter
+la fatigue visuelle et garder le jeu lisible sur un écran de téléphone. Tokens CSS dans
 `app/frontend/entrypoints/application.css` (thème clair + sombre auto) :
-🍑 pêche `--peach`, 🍋 citron `--citron`, 🍓 fraise `--fraise`, 💎/saison `--violet`,
-menthe action `--mint`. Rareté cosmétiques : common/rare/epic/legendary.
+
+| Part | Rôle | Tokens | Où |
+|---|---|---|---|
+| **60 %** | neutres | `--bg` (slate très doux) `--surface` (blanc immaculé) `--surface-2/3` `--line` `--line-2` `--text` `--muted` `--faint` | fonds, cartes, panneaux, modales |
+| **30 %** | identité | **`--brand` indigo** + `--brand-ink` | états actifs, onglets, badges, sélection, liens, jauges de progression, focus |
+| **10 %** | pop | **`--accent` orange** + `--accent-ink` | **uniquement les CTA** : COMBATTRE (et son bouton rond du footer), Acheter, Utiliser, Installer, Enregistrer |
+
+⚠️ **Dans le doute, c'est `--brand`.** La force de l'accent vient de sa rareté : un 4e bouton
+orange à l'écran et plus rien ne ressort. Aujourd'hui l'accent ne sert que dans **6 règles**.
+
+Le reste sont des couleurs de **sens**, pas de décor, et restent donc rares : 🍑 `--peach`
+(boules), 💎 `--violet` (diamants et boutique de saison), `--citron` (récompenses, coffres,
+jours ×2, le ⚡ de l'arène), `--fraise` (camp adverse, pastilles d'alerte),
+`--mint`/`--good`/`--warn`/`--crit` (santé, soin, PV). Rareté cosmétiques :
+common/rare/epic/legendary.
+
+Deux détails qui font le rendu « mobile Nintendo » : les cartes blanches sont **décollées du
+fond** par une ombre très légère (`--shadow`, une seule règle groupée en tête de fichier — y
+ajouter toute nouvelle carte plutôt que d'inventer son ombre ; `none` en thème sombre, où elle
+ne ferait que salir le contour), et chaque aplat de couleur porte son **encre** (`--brand-ink`,
+`--accent-ink`) plutôt qu'un `#fff` en dur. L'orange est trop clair pour porter du blanc
+(3,6:1, sous le seuil AA) : il prend une **encre sombre**, comme `--citron`/`--citron-ink`
+depuis toujours — et c'est ce qui le rend éclatant plutôt que délavé. En thème sombre les deux
+couleurs s'éclaircissent pour rester lisibles en texte, donc leur encre bascule aussi.
+**Toute nouvelle paire aplat/texte se vérifie au ratio AA (4,5:1).**
+
 Mobile-first, `.shell` centré max 460px. Stats en `font-variant-numeric: tabular-nums`.
+Le `theme-color` du manifeste et du layout suit `--brand` (#4f46e5).
 
 Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouvrir) :
 - Écrans flat v2 : https://claude.ai/code/artifact/08cc4efd-1ce2-48cc-bd30-f50a18a85242

@@ -1,5 +1,7 @@
 import { Head, Link } from '@inertiajs/react'
 import PlayerAvatar from '../components/PlayerAvatar'
+import Hud from '../components/Hud'
+import BottomNav from '../components/BottomNav'
 
 const statusChip = {
   verified: { label: 'Validée', cls: 'ok' },
@@ -13,6 +15,8 @@ export default function Profile({ player, stats, trainings }) {
   return (
     <div className="shell">
       <Head title={player.name} />
+      <Hud />
+
       <div className="subhead">
         <Link href="/" className="back">←</Link>
         <div className="ti">Profil</div>
@@ -51,6 +55,7 @@ function Stat({ value, label }) {
     <div className="pf-stat">
       <div className="v">{value}</div>
       <div className="l">{label}</div>
+      <BottomNav />
     </div>
   )
 }

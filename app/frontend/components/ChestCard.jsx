@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { router, usePage } from '@inertiajs/react'
 
-// Coffre du Hub. Deux temps, de part et d'autre du rechargement Inertia :
-// 1. clic sur « Ouvrir » → modal plein écran, le coffre tremble, puis POST ;
-// 2. le serveur répond avec flash.chest → la modal continue en mode révélation
-//    (couvercle qui s'ouvre, paillettes, gains qui sortent du coffre).
+// Coffre du sac (/sac). Deux temps, de part et d'autre du rechargement Inertia :
+// 1. clic sur « Ouvrir » → modal plein écran, le coffre tremble, puis POST (ChestCard) ;
+// 2. le serveur répond avec flash.chest → la modal de révélation prend le relais
+//    (couvercle qui s'ouvre, paillettes, gains qui sortent du coffre) — c'est ChestReveal,
+//    monté une seule fois par page puisqu'on peut avoir plusieurs coffres en attente.
 const LABELS = { common: 'commun', rare: 'rare', epic: 'épique', legendary: 'légendaire' }
 
 const PARTICLES = Array.from({ length: 16 }, (_, i) => {
@@ -35,13 +36,13 @@ function ChestSvg({ open, shaking }) {
   )
 }
 
-export default function ChestCard({ chest }) {
+// Phase révélation : la modal survit au rechargement grâce au flash. On mémorise le flash
+// écarté (et pas un simple booléen) — sinon, le 2e coffre ouvert d'affilée s'ouvrirait muet.
+export function ChestReveal() {
   const { flash } = usePage().props
-  const [opening, setOpening] = useState(false)
-  const [dismissed, setDismissed] = useState(false)
+  const [dismissed, setDismissed] = useState(null)
 
-  // Phase révélation : la modal survit au rechargement grâce au flash.
-  if (flash?.chest && !dismissed) {
+  if (flash?.chest && dismissed !== flash.chest) {
     const { rarity, gains } = flash.chest
     return (
       <div className="chest-modal" role="dialog" aria-label="Coffre ouvert">
@@ -61,11 +62,16 @@ export default function ChestCard({ chest }) {
             ))}
           </div>
           <div className="chest-reveal-title">Coffre {LABELS[rarity]} ouvert !</div>
-          <button className="chest-btn" onClick={() => setDismissed(true)}>Récupérer 🎉</button>
+          <button className="chest-btn" onClick={() => setDismissed(flash.chest)}>Récupérer 🎉</button>
         </div>
       </div>
     )
   }
+  return null
+}
+
+export default function ChestCard({ chest }) {
+  const [opening, setOpening] = useState(false)
 
   if (!chest) return null
 

@@ -2,6 +2,7 @@ class AvatarsController < ApplicationController
   before_action :require_authentication
   before_action :set_membership
 
+  # Le fruit-avatar et le compte. Les cosmétiques, eux, se gèrent dans le sac (/sac, onglet 🎨).
   def show
     render inertia: "Avatar", props: {
       has_team: @membership.present?,
@@ -10,9 +11,7 @@ class AvatarsController < ApplicationController
       team: team_json,
       fruits: fruits_json,
       current_fruit: @membership&.fruit,
-      avatar: AvatarPresenter.new(current_user, membership: @membership).as_json,
-      cosmetics: owned_cosmetics,
-      slots: Cosmetic::SLOTS
+      avatar: AvatarPresenter.new(current_user, membership: @membership).as_json
     }
   end
 
@@ -25,19 +24,6 @@ class AvatarsController < ApplicationController
     else
       redirect_to avatar_path, alert: @membership.errors.full_messages.to_sentence
     end
-  end
-
-  # Équipe (ou retire) un cosmétique possédé. Un seul par slot.
-  def equip
-    owned = current_user.user_cosmetics.includes(:cosmetic).find_by(cosmetic_id: params[:cosmetic_id])
-    return redirect_to avatar_path, alert: "Tu ne possèdes pas ce cosmétique." unless owned
-
-    UserCosmetic.transaction do
-      current_user.user_cosmetics.joins(:cosmetic)
-                  .where(cosmetics: { slot: owned.cosmetic.slot }).update_all(equipped: false)
-      owned.update!(equipped: params[:equipped].to_s != "false")
-    end
-    redirect_to avatar_path
   end
 
   private
@@ -70,14 +56,6 @@ class AvatarsController < ApplicationController
     @membership.team.memberships.includes(:user).where.not(id: @membership.id)
                .each_with_object(Hash.new { |h, k| h[k] = [] }) do |m, acc|
       acc[m.fruit] << m.display_name if m.fruit.present?
-    end
-  end
-
-  def owned_cosmetics
-    current_user.user_cosmetics.includes(:cosmetic).map do |uc|
-      { id: uc.cosmetic.id, name: uc.cosmetic.name, slot: uc.cosmetic.slot,
-        rarity: uc.cosmetic.rarity, emoji: uc.cosmetic.emoji, art: uc.cosmetic.art,
-        equipped: uc.equipped }
     end
   end
 end

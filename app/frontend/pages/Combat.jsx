@@ -4,6 +4,8 @@ import Monster from '../components/Monster'
 import EffectBadges from '../components/EffectBadges'
 import TargetPicker from '../components/TargetPicker'
 import MonsterPicker from '../components/MonsterPicker'
+import Hud from '../components/Hud'
+import BottomNav from '../components/BottomNav'
 
 const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
 const itemEmoji = (t) =>
@@ -53,11 +55,16 @@ export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team
   return (
     <div className="shell">
       <Head title="Combat" />
+      <Hud />
+
       <div className="subhead">
         <Link href="/" className="back">←</Link>
         <div className="ti">⚔️ Combat</div>
-        {multiplier > 1 && <span className="curr" title="Jauge de meute">🐾 ×{multiplier}</span>}
-        <span className="curr" style={{ marginLeft: multiplier > 1 ? 0 : 'auto' }}>🍑 {balls}</span>
+        {/* Le solde de 🍑 est dans le HUD, en permanence : ici on ne garde que la meute,
+            qui décide des dégâts et ne se voit nulle part ailleurs sur cet écran. */}
+        {multiplier > 1 && (
+          <span className="curr" title="Jauge de meute" style={{ marginLeft: 'auto' }}>🐾 ×{multiplier}</span>
+        )}
       </div>
 
       {flash?.notice && <div className="flash ok" style={{ margin: '10px 14px 0' }}>{flash.notice}</div>}
@@ -82,11 +89,13 @@ export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team
             {hitFoe && <div className="burst">💥</div>}
             <Monster slug={foe.slug} name={foe.name} size={130}
                      wear={foe.wear} creamed={foe.masked} shielded={foe.protected}
+                     defeated={foe.state === 'defeated'}
                      className={`foe-mon-svg ${hitFoe ? 'impact' : ''}`} />
             {mine && (
               <>
                 <Monster slug={mine.slug} name={mine.name} size={54}
                          wear={mine.wear} creamed={mine.masked} shielded={mine.protected}
+                         defeated={mine.state === 'defeated'}
                          className={`my-corner-svg ${healMine ? 'healpulse' : ''}`} />
                 {healMine && <div className="heal-spark">✨</div>}
               </>
@@ -124,6 +133,7 @@ export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team
         <MonsterPicker myMonster={my_team?.monster?.name} foeMonster={foe_team?.monster?.name}
                        foeTeam={foe_team?.name} onPick={pickMask} onClose={() => setSmokeItem(null)} />
       )}
+      <BottomNav />
     </div>
   )
 }

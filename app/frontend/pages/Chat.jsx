@@ -1,6 +1,8 @@
 import { Head, Link, router, useForm } from '@inertiajs/react'
 import { useEffect, useRef, useState } from 'react'
 import PlayerAvatar from '../components/PlayerAvatar'
+import Hud from '../components/Hud'
+import BottomNav from '../components/BottomNav'
 
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
@@ -36,6 +38,8 @@ export default function Chat({ conversations }) {
   return (
     <div className="shell">
       <Head title="Chat" />
+      <Hud />
+
       <div className="subhead">
         <Link href="/" className="back">←</Link>
         <div className="ti">💬 Chat</div>
@@ -62,6 +66,7 @@ export default function Chat({ conversations }) {
                onChange={(e) => form.setData('body', e.target.value)} />
         <button className="send" type="submit" disabled={form.processing}>➤</button>
       </form>
+      <BottomNav />
     </div>
   )
 }

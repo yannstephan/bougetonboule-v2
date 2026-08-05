@@ -1,6 +1,8 @@
 import { Head, Link } from '@inertiajs/react'
 import PlayerAvatar from '../components/PlayerAvatar'
 import RouteMap from '../components/RouteMap'
+import Hud from '../components/Hud'
+import BottomNav from '../components/BottomNav'
 
 const statusChip = {
   verified: { label: 'Validée', cls: 'ok' },
@@ -16,6 +18,8 @@ export default function Training({ training: t, author }) {
   return (
     <div className="shell">
       <Head title={t.title} />
+      <Hud />
+
       <div className="subhead">
         <Link href={`/joueurs/${author.id}`} className="back">←</Link>
         <div className="ti">{t.title}</div>
@@ -75,6 +79,7 @@ function Stat({ value, unit, label }) {
     <div className="tr-stat">
       <div className="v">{value}{unit && <span className="u"> {unit}</span>}</div>
       <div className="l">{label}</div>
+      <BottomNav />
     </div>
   )
 }

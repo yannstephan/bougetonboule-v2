@@ -27,7 +27,8 @@ class DropChest
     Notification.create!(
       user: @m.user, game: @m.game, category: "chest", importance: "important",
       title: "🎁 Tu as trouvé un coffre #{LABELS.fetch(rarity)} !",
-      body: "Ta course de #{@t.distance_km.round(1)} km cachait un coffre. Ouvre-le sur le Hub !"
+      body: "Ta course de #{@t.distance_km.round(1)} km cachait un coffre. Ouvre-le dans ton sac 🎒 !",
+      link: "/sac"
     )
     chest
   end

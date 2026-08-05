@@ -1,4 +1,6 @@
 import { Head, Link } from '@inertiajs/react'
+import Hud from '../components/Hud'
+import BottomNav from '../components/BottomNav'
 
 // Règles du jeu. Statique : le seul endroit qui décrit le fonctionnement actuel côté joueur.
 // À garder à jour quand une mécanique change (voir CLAUDE.md).
@@ -60,7 +62,7 @@ const SECTIONS = [
   {
     q: '🎒 Les objets (power-ups)',
     a: [
-      'Achetés avec tes boules 🍑 à la boutique, rangés dans ton sac, à usage unique. Tu les déclenches quand tu veux.',
+      'Achetés avec tes boules 🍑 à la boutique, rangés dans ton sac 🎒 (son propre onglet, à côté de la boutique), à usage unique. Tu les déclenches quand tu veux.',
       '🐺 Piège à loup (5 🍑) : tu vises un adversaire ; sa prochaine course rapporte 0 boule. Les autres voient seulement « X a posé un piège à loup », jamais qui est visé.',
       '🦿 Jambe de bois (4 🍑) : déjoue le prochain piège sur ta course — tu gardes tes boules. Discrète : personne n\'est prévenu tant qu\'elle n\'a pas servi.',
       '🌬️ Vent de dos (4 🍑) : ×1,5 sur les boules de toute ton équipe pendant 12 h. À déclencher avant les sorties du week-end !',
@@ -94,7 +96,7 @@ const SECTIONS = [
     a: [
       'Chaque course importée peut cacher un coffre (une chance sur ~7, maximum un par jour). Et au bout de 7 courses sans rien trouver, le suivant est garanti — la malchance a une limite.',
       'Quatre raretés : commun, rare, épique, légendaire. Plus c\'est rare, plus il y a de diamants dedans — et plus il y a de chances d\'y trouver un cosmétique que tu n\'as pas (toujours dans un légendaire).',
-      'Le coffre t\'attend sur le Hub : appuie sur « Ouvrir » pour découvrir ce qu\'il contient. Certains cosmétiques ne se trouvent QUE dans les coffres…',
+      'Le coffre t\'attend dans ton sac 🎒 (onglet du bas) : une pastille rouge s\'allume dessus tant qu\'il reste quelque chose à ouvrir. Appuie sur « Ouvrir » pour découvrir ce qu\'il contient. Certains cosmétiques ne se trouvent QUE dans les coffres…',
     ],
   },
   {
@@ -111,7 +113,7 @@ const SECTIONS = [
       'Ton avatar est un fruit, choisi dans la famille de ton équipe. Tu ne peux le personnaliser qu\'une fois affecté à une équipe.',
       'Plusieurs coéquipiers peuvent prendre le même fruit — l\'écran indique qui a déjà choisi quoi.',
       'Ton fruit n\'est qu\'une tête : les cosmétiques se posent autour. Sept emplacements — chapeau, lunettes, cou (nœud pap\', écharpe, collier…), bras, chaussures, accessoire posé à côté, et l\'aura en fond.',
-      'Ils s\'achètent en 💎 ou se gagnent, puis s\'équipent un par emplacement depuis l\'écran Avatar.',
+      'Ils s\'achètent en 💎 ou se gagnent, puis s\'équipent un par emplacement depuis ton sac 🎒, onglet 🎨 Armoire — l\'aperçu de ton fruit reste sous les yeux pendant que tu l\'habilles. Le choix du fruit lui-même, et ton compte, restent sur l\'écran Avatar.',
       '✨ Certaines pièces ne passent qu\'une fois par an : elles sont regroupées dans la « boutique de saison », en haut du rayon cosmétiques, avec le nombre de jours restants. Passé la date elles disparaissent (et ne tombent plus des coffres) — mais ce que tu as acheté reste à toi pour toujours.',
       'Certaines pièces ne sont jamais en vente : elles ne se gagnent que par les coffres, les séries, la ligue ou les événements de la saison. L\'🐺 Esprit du loup, par exemple, ne sort que des coffres…',
     ],
@@ -121,7 +123,7 @@ const SECTIONS = [
     a: [
       '« Pour toi » : ce qui te concerne directement — message d\'équipe, récompense, palier de meute, monstre affamé, vent de face ou chantilly reçue, et tout ce qui touche aux pièges (ta course piégée, ton piège réussi ou déjoué). Ce sont les seules poussées sur ton téléphone.',
       '« Activité de la partie » : le reste, en fil d\'activité (X a couru et ce que ça lui rapporte, X a activé un vent de dos, un piège a été posé…). Listé, mais jamais poussé.',
-      'Le chat général ne crée pas de notification : les messages non lus (équipe + général) sont signalés par une pastille sur l\'onglet Chat.',
+      'Le chat général ne crée pas de notification : les messages non lus (équipe + général) sont signalés par une pastille sur le bouton 💬, en haut de l\'accueil à côté de la cloche.',
       'Active les notifications push depuis l\'écran 🔔 pour recevoir les alertes « Pour toi ».',
     ],
   },
@@ -131,6 +133,8 @@ export default function Faq() {
   return (
     <div className="shell">
       <Head title="Règles du jeu" />
+      <Hud />
+
       <div className="subhead">
         <Link href="/" className="back">←</Link>
         <div className="ti">📖 Règles du jeu</div>
@@ -173,6 +177,7 @@ export default function Faq() {
           </div>
         </div>
       </main>
+      <BottomNav />
     </div>
   )
 }
