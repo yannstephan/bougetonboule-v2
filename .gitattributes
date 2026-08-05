@@ -1,5 +1,11 @@
 # See https://git-scm.com/docs/gitattributes for more about git attribute files.
 
+# LF partout, y compris sur les postes Windows. Les scripts bin/* et les hooks
+# .kamal/hooks/* sont du sh copié tel quel dans l'image Docker : en CRLF, le noyau
+# lit `#!/usr/bin/env ruby\r` et refuse de les démarrer. Cette ligne évite aussi
+# les diffs fantômes sur package-lock.json, que npm réécrit en CRLF sous Windows.
+* text=auto eol=lf
+
 # Mark the database schema as having been generated.
 db/schema.rb linguist-generated
 

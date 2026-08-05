@@ -512,6 +512,41 @@ NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
 ⚠️ **Vite 8 exige Node ≥ 20.12** (`node:util#styleText`). Node 16 fait planter `bin/dev` avec
 `SyntaxError: … does not provide an export named 'styleText'` — `nvm use 22` avant de lancer.
 
+### En développement sous Windows (natif, sans WSL)
+
+**Pour lancer le serveur sous Windows : `.\bin\dev.ps1`** (et rien d'autre — voir pourquoi juste
+en dessous). Le jeu répond alors sur http://localhost:3000, connexion `yann@btb.test` /
+`odyssea2027`.
+
+`bin/dev` est un script `sh` qui passe par **foreman** : ni l'un ni l'autre ne tourne en natif
+sous Windows. Les scripts `bin/*` n'ont pas non plus de bit exécutable — on les appelle donc
+par l'interpréteur. `bin/dev` reste le chemin normal sous Linux/macOS ; les deux coexistent.
+
+```powershell
+.\bin\dev.ps1               # Rails + Vite dans CE terminal, Ctrl+C arrête les deux
+.\bin\dev.ps1 -NewWindows   # une fenêtre par process, si on préfère séparer les logs
+ruby bin\rails db:prepare   # tout bin/rails s'appelle "ruby bin\rails …"
+ruby bin\rails console
+```
+
+Quatre pièges, tous déjà réglés dans ce dépôt mais à refaire sur une machine neuve :
+
+1. **Bundler 4** — le `Gemfile.lock` est en `BUNDLED WITH 4.0.9`, RubyInstaller livre 2.5.x :
+   `gem install bundler -v 4.0.9`.
+2. **Plateforme absente du lock** — le `Gemfile.lock` ne listait que linux/darwin, `bundle install`
+   refusait de tourner : `bundle lock --add-platform x64-mingw-ucrt` (sqlite3, nokogiri, ffi et
+   bcrypt_pbkdf ont alors leur binaire précompilé, rien à compiler à la main).
+3. **Fins de ligne** — `core.autocrlf=true` collerait du CRLF dans `bin/*` et `.kamal/hooks/*`,
+   qui partent tels quels dans l'image Docker et n'y démarreraient plus (`#!/usr/bin/env ruby\r`).
+   Le dépôt est donc en `core.autocrlf=false` + `core.fileMode=false` (le bit exécutable des
+   `bin/*` ne survit pas à un checkout Windows, sans ça `git status` est bruyant en permanence).
+4. **MSYS2** — le paquet winget `RubyInstallerTeam.RubyWithDevKit.3.3` pose MSYS2 mais le
+   compilateur est dans `ucrt64\bin`, pas `mingw64\bin` ; `ridk install 3` complète la chaîne
+   (nécessaire pour bootsnap et websocket-driver, qui n'ont pas de gem précompilée Windows).
+
+Les `VIPS-WARNING … vips-heif.dll` au démarrage sont **sans conséquence** : libvips cherche des
+modules de formats exotiques (HEIF, JXL, PDF) que le projet n'utilise pas.
+
 Pour voir le jeu après `db:prepare` : crée un compte sur `/register`, puis en console
 `Membership.create!(user: User.last, game: Game.first, team: Game.first.teams.first, balls: 20)`
 et recharge le Hub.

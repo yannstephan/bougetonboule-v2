@@ -2,6 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(curl -s http://localhost:3000/*)",
+      "Bash(bin/dev)",
+      "PowerShell(.\\bin\\dev.ps1)",
+      "PowerShell(.\\bin\\dev.ps1 -NewWindows)",
+      "PowerShell(ruby bin\\rails routes*)",
+      "PowerShell(ruby bin\\rails db:version*)",
+      "PowerShell(ruby bin\\rails db:migrate:status*)",
+      "PowerShell(ruby bin\\rails league:standings*)",
       "Bash(bin/rails routes*)",
       "Bash(bin/rails league:standings*)",
       "Bash(bin/rails db:version*)",
