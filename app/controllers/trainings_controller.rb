@@ -3,7 +3,7 @@ class TrainingsController < ApplicationController
 
   # Détail d'une sortie : tracé, photo, description, stats — ce qu'on récupère de Strava.
   def show
-    training = Training.includes(:special_day, membership: [:team, :user]).find(params[:id])
+    training = Training.includes(:special_day, membership: [ :team, :user ]).find(params[:id])
     m = training.membership
     unless shares_game?(m.game_id)
       return redirect_to root_path, alert: "Cette sortie n'est pas dans une de tes parties."

@@ -34,7 +34,7 @@ module GameSetup
 
   def build_training(**attrs)
     defaults = { date: 2.hours.ago, distance_meters: 8_000, moving_time: 2_640, elapsed_time: 2_700,
-                 status: "verified", sport_type: "Run", route_points: [[47.2, -1.5], [47.3, -1.6]] }
+                 status: "verified", sport_type: "Run", route_points: [ [ 47.2, -1.5 ], [ 47.3, -1.6 ] ] }
     @membership.trainings.build(**defaults, **attrs)
   end
 end

@@ -66,7 +66,7 @@ class ShopController < ApplicationController
 
   def serialize_cosmetics(scope)
     owned = current_user.user_cosmetics.includes(:cosmetic).index_by(&:cosmetic_id)
-    scope.sort_by { |c| [RARITY_ORDER.index(c.rarity) || 99, c.price_diamonds] }.map do |c|
+    scope.sort_by { |c| [ RARITY_ORDER.index(c.rarity) || 99, c.price_diamonds ] }.map do |c|
       uc = owned[c.id]
       { id: c.id, name: c.name, slot: c.slot, rarity: c.rarity, emoji: c.emoji, art: c.art,
         price: c.price_diamonds, owned: uc.present?, equipped: uc&.equipped || false,

@@ -27,7 +27,7 @@ class Monster < ApplicationRecord
       end
     # Cliquet : l'usure ne redescend jamais. Un palier franchi une fois laisse ses cicatrices,
     # même si l'équipe remonte les PV à bloc ensuite.
-    self.wear = [wear.to_i, self.class.wear_for(hp_ratio)].max
+    self.wear = [ wear.to_i, self.class.wear_for(hp_ratio) ].max
     save!
     maybe_trigger_second_wind!
   end

@@ -14,7 +14,7 @@ class User < ApplicationRecord
   validates :strava_uid, uniqueness: true, allow_nil: true
   validates :password, length: { minimum: 6 }, allow_nil: true
 
-  def full_name = [firstname, lastname].compact_blank.join(" ")
+  def full_name = [ firstname, lastname ].compact_blank.join(" ")
   def strava_connected? = strava_uid.present?
   def equipped_cosmetics = user_cosmetics.equipped.includes(:cosmetic).map(&:cosmetic)
 end

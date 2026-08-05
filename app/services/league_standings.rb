@@ -59,12 +59,12 @@ class LeagueStandings
                    Arel.sql("SUM(score)"),
                    Arel.sql("SUM(distance_meters)"),
                    Arel.sql("COUNT(*)"))
-            .to_h { |id, *values| [id, values] }
-            .tap { |h| h.default = [0, 0, 0] }
+            .to_h { |id, *values| [ id, values ] }
+            .tap { |h| h.default = [ 0, 0, 0 ] }
   end
 
   def rank!(list)
-    sorted = list.sort_by { |row| [-row.score, -row.distance_meters, row.membership.id] }
+    sorted = list.sort_by { |row| [ -row.score, -row.distance_meters, row.membership.id ] }
     sorted.each_with_index { |row, i| row.rank = i + 1 }
     sorted
   end

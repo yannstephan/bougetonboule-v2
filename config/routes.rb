@@ -42,7 +42,7 @@ Rails.application.routes.draw do
   get  "chat", to: "chat#show", as: :chat
   post "conversations/:conversation_id/messages", to: "messages#create", as: :conversation_messages
 
-  get   "faq", to: "faq#show", as: :faq
+  get "faq", to: "faq#show", as: :faq
 
   # Back-office de l'organisateur (Membership#admin?) : journées spéciales + boutique de saison
   get    "admin",                  to: "admin#show",                as: :admin

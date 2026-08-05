@@ -32,7 +32,7 @@ class FamineJob < ApplicationJob
     floor = (monster.max_hp * GameRules::FAMINE_FLOOR_RATIO).round
     return if monster.hp <= floor
 
-    lost = [GameRules::FAMINE_HP_PER_DAY, monster.hp - floor].min
+    lost = [ GameRules::FAMINE_HP_PER_DAY, monster.hp - floor ].min
     monster.update!(hp: monster.hp - lost)
     monster.refresh_state!
     announce(team, monster, lost)

@@ -85,7 +85,7 @@ class TrainingPresenter
   def daily_cap_loss
     return 0 unless @t.status.in?(%w[verified protected])
 
-    [@t.distance_km.floor, GameRules::MAX_BALLS_PER_RUN].min - @t.base_balls.to_i
+    [ @t.distance_km.floor, GameRules::MAX_BALLS_PER_RUN ].min - @t.base_balls.to_i
   end
 
   # Vents actifs sur l'équipe du coureur à l'heure réelle de la course (même règle que TrainingScorer).

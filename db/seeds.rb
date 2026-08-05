@@ -1,9 +1,9 @@
 # Jeu de données de démonstration — valide le schéma et sert d'exemple.
 puts "Nettoyage…"
 Game.update_all(winner_team_id: nil) # FK games → teams : à détacher avant de supprimer les équipes
-[Reward, Chest, ConversationRead, Message, Conversation, Notification, PushSubscription,
+[ Reward, Chest, ConversationRead, Message, Conversation, Notification, PushSubscription,
  Action, MembershipItem, Training, TeamEffect, Membership, Monster, Team,
- SpecialDay, Game, Event, UserCosmetic, Cosmetic, Item, User].each(&:delete_all)
+ SpecialDay, Game, Event, UserCosmetic, Cosmetic, Item, User ].each(&:delete_all)
 
 puts "Cosmétiques…"
 # L'avatar est une TÊTE de fruit : 7 emplacements, ni tenue ni jambes (voir Cosmetic::SLOTS).
@@ -20,9 +20,9 @@ puts "Cosmétiques…"
 # streak, ligue) — mais ce qui est déjà acheté reste à toi pour toujours.
 # La collection d'été est calée sur AUJOURD'HUI pour que la démo montre le rayon ; les deux
 # autres ont les vraies dates de l'année.
-ETE       = [12.days.ago, 16.days.from_now].freeze
-HALLOWEEN = [Time.zone.local(2026, 10, 15), Time.zone.local(2026, 11, 5, 23, 59)].freeze
-NOEL      = [Time.zone.local(2026, 12, 1), Time.zone.local(2027, 1, 6, 23, 59)].freeze
+ETE       = [ 12.days.ago, 16.days.from_now ].freeze
+HALLOWEEN = [ Time.zone.local(2026, 10, 15), Time.zone.local(2026, 11, 5, 23, 59) ].freeze
+NOEL      = [ Time.zone.local(2026, 12, 1), Time.zone.local(2027, 1, 6, 23, 59) ].freeze
 
 Cosmetic.create!([
   # Chapeaux — posés sur le sommet réel du fruit (voir fruits.js → box)
@@ -114,7 +114,7 @@ Cosmetic.create!([
   { name: "Sapin scintillant",  slot: "aura", rarity: "rare",      price_diamonds: 250,  source: "shop", emoji: "🎄",
     available_from: NOEL[0], available_until: NOEL[1] },
   { name: "Renne du traîneau",  slot: "sidekick", rarity: "rare",  price_diamonds: 260,  source: "shop", emoji: "🦌",
-    available_from: NOEL[0], available_until: NOEL[1] },
+    available_from: NOEL[0], available_until: NOEL[1] }
 ])
 
 puts "Objets (power-ups)…"
@@ -126,7 +126,7 @@ Item.create!([
   { name: "Vent de face",  price: 4, description: "−25 % sur les boules adverses pendant 12h",          effect_type: "face_wind" },
   { name: "Chantilly",     price: 4, description: "Chantilly plein les yeux : masque les PV d'un monstre à l'équipe adverse (24h)", effect_type: "smoke" },
   { name: "Piège à loup",  price: 5, description: "Annule les boules de la prochaine course d'un adversaire", effect_type: "trap" },
-  { name: "Saladier",      price: 6, description: "Saladier retourné sur ton monstre : intouchable pendant 6h", effect_type: "shield" },
+  { name: "Saladier",      price: 6, description: "Saladier retourné sur ton monstre : intouchable pendant 6h", effect_type: "shield" }
 ])
 
 puts "Event + partie…"
@@ -177,20 +177,20 @@ roster = [
   { name: "Théo",  team: :rouges, runs: 1, km: 9..15, fruit: "grenade" }
 ]
 
-RUN_TITLES = ["Footing du matin", "Sortie longue", "Fractionné piste", "Récup tranquille",
-              "Tempo au bord de l'Erdre", "Trail urbain", "Sortie club", "Petit tour digestif"].freeze
-RUN_NOTES  = [nil, nil, "Jambes lourdes mais content d'être sorti.", "Nickel, beau soleil sur la Loire ☀️",
-              "Objectif allure tenu 💪", "Un peu de vent de face au retour.", nil].freeze
+RUN_TITLES = [ "Footing du matin", "Sortie longue", "Fractionné piste", "Récup tranquille",
+              "Tempo au bord de l'Erdre", "Trail urbain", "Sortie club", "Petit tour digestif" ].freeze
+RUN_NOTES  = [ nil, nil, "Jambes lourdes mais content d'être sorti.", "Nickel, beau soleil sur la Loire ☀️",
+              "Objectif allure tenu 💪", "Un peu de vent de face au retour.", nil ].freeze
 
 # Parcours GPS synthétique : une boucle bruitée autour de Nantes, dimensionnée par la distance.
 def seed_route(distance_meters)
-  center = [47.2184 + rand(-0.02..0.02), -1.5536 + rand(-0.02..0.02)]
+  center = [ 47.2184 + rand(-0.02..0.02), -1.5536 + rand(-0.02..0.02) ]
   radius = (distance_meters / 6.283 / 111_000.0) * rand(0.4..0.7)
   klng = Math.cos(center[0] * Math::PI / 180)
   (0..32).map do |i|
     angle = (2 * Math::PI * i / 32) + rand(-0.15..0.15)
     r = radius * (0.7 + rand * 0.6)
-    [(center[0] + r * Math.sin(angle)).round(5), (center[1] + r * Math.cos(angle) / klng).round(5)]
+    [ (center[0] + r * Math.sin(angle)).round(5), (center[1] + r * Math.cos(angle) / klng).round(5) ]
   end
 end
 
@@ -219,7 +219,7 @@ roster.each do |p|
   user = User.create!(firstname: p[:name], diamonds: rand(150..900), password: DEMO_PASSWORD,
                       email: "#{p[:name].downcase.tr('éèàï', 'eeai')}@btb.test")
   team = p[:team] == :exo ? exo : rouges
-  streak = [weeks_of_history, p[:runs] * 2].min
+  streak = [ weeks_of_history, p[:runs] * 2 ].min
   # balls: 0 — le solde est ensuite crédité par les courses (credit_balls! dans seed_training!).
   m = Membership.create!(user:, game:, team:, fruit: p[:fruit], balls: 0,
                          role: p[:role] || "player", weekly_streak: streak,
@@ -238,7 +238,7 @@ roster.each do |p|
   end
 
   # Semaine EN COURS : réparties sur les jours déjà écoulés, pour que la ligue ne soit pas vide.
-  [p[:runs], days_elapsed + 1].min.times do |d|
+  [ p[:runs], days_elapsed + 1 ].min.times do |d|
     seed_training!(m, week_start + (d % (days_elapsed + 1)), rand(p[:km]) * 1000 + rand(0..999))
   end
 end
@@ -251,15 +251,15 @@ Notification.create!(user: first.user, game:, category: "chest", importance: "im
 if first.weekly_streak.positive?
   Notification.create!(user: first.user, game:, category: "streak", importance: "important",
                        title: "🔥 #{first.weekly_streak} semaines de course d'affilée !",
-                       body: "+#{GameRules::STREAK_LADDER[[first.weekly_streak, GameRules::STREAK_LADDER.size].min - 1]} 💎")
+                       body: "+#{GameRules::STREAK_LADDER[[ first.weekly_streak, GameRules::STREAK_LADDER.size ].min - 1]} 💎")
 end
 
 puts "Cosmétiques possédés…"
 # De quoi voir l'écran avatar rempli sans avoir à gagner un mois de classement.
-[["Yann", "Casquette", true], ["Yann", "Aura de feu", true], ["Yann", "Baskets de course", true],
- ["Yann", "Écharpe de laine", true], ["Yann", "Chien de course", true],
- ["Inès", "Lunettes de star", true], ["Inès", "Gants de boxe", true],
- ["Chloé", "Haut-de-forme doré", false]].each do |name, cosmetic, on|
+[ [ "Yann", "Casquette", true ], [ "Yann", "Aura de feu", true ], [ "Yann", "Baskets de course", true ],
+ [ "Yann", "Écharpe de laine", true ], [ "Yann", "Chien de course", true ],
+ [ "Inès", "Lunettes de star", true ], [ "Inès", "Gants de boxe", true ],
+ [ "Chloé", "Haut-de-forme doré", false ] ].each do |name, cosmetic, on|
   user = User.find_by(firstname: name)
   UserCosmetic.create!(user:, cosmetic: Cosmetic.find_by(name: cosmetic),
                        equipped: on, acquired_at: 2.weeks.ago, source_game: game)
@@ -278,17 +278,17 @@ Cosmetic.find_each do |c|
                        acquired_at: 1.day.ago, source_game: game)
 end
 # Une tenue complète équipée : une pièce par emplacement, les plus voyantes.
-["Haut-de-forme doré", "Monocle du mentor", "Nœud papillon", "Gants de boxe",
- "Bottes de sept lieues", "Chien de course", "Arc-en-ciel"].each do |name|
+[ "Haut-de-forme doré", "Monocle du mentor", "Nœud papillon", "Gants de boxe",
+ "Bottes de sept lieues", "Chien de course", "Arc-en-ciel" ].each do |name|
   showcase.user_cosmetics.joins(:cosmetic).find_by(cosmetics: { name: })&.update!(equipped: true)
 end
 
 puts "Messages…"
 general = game.general_conversation
-[["Yann", "Allez les exotiques, on a un mois à gagner 🌴"],
- ["Chloé", "Vous allez pleurer, Framboitrix a faim 🍒"],
- ["Inès", "10 km ce matin, King-Coco vous salue 🥥"],
- ["Théo", "Qui court demain matin ?"]].each_with_index do |(name, body), i|
+[ [ "Yann", "Allez les exotiques, on a un mois à gagner 🌴" ],
+ [ "Chloé", "Vous allez pleurer, Framboitrix a faim 🍒" ],
+ [ "Inès", "10 km ce matin, King-Coco vous salue 🥥" ],
+ [ "Théo", "Qui court demain matin ?" ] ].each_with_index do |(name, body), i|
   m = Membership.joins(:user).find_by(users: { firstname: name })
   Message.create!(conversation: general, membership: m, body:, created_at: (4 - i).hours.ago)
 end

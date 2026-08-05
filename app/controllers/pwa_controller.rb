@@ -8,10 +8,10 @@ class PwaController < ApplicationController
   skip_forgery_protection
 
   def service_worker
-    render template: "pwa/service-worker", layout: false, formats: [:js]
+    render template: "pwa/service-worker", layout: false, formats: [ :js ]
   end
 
   def manifest
-    render template: "pwa/manifest", layout: false, formats: [:json]
+    render template: "pwa/manifest", layout: false, formats: [ :json ]
   end
 end

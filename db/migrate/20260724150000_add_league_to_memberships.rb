@@ -4,6 +4,6 @@ class AddLeagueToMemberships < ActiveRecord::Migration[8.1]
     add_column :memberships, :last_league_rank, :integer
     add_column :memberships, :last_league_result, :string
 
-    add_index :memberships, [:game_id, :division]
+    add_index :memberships, [ :game_id, :division ]
   end
 end
