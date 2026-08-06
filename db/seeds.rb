@@ -249,10 +249,16 @@ Chest.create!(membership: first, rarity: "epic", reward_diamonds: 35,
 Notification.create!(user: first.user, game:, category: "chest", importance: "important",
                      title: "Tu as trouvé un coffre épique",
                      body: "Ouvre-le dans ton sac 🎒 !", link: "/sac")
+# La semaine écoulée est posée EN ATTENTE, pas créditée : c'est ce que fait désormais
+# WeeklyStreakJob, et c'est ce qui allume le bouton « Réclamer » sur la piste du Hub.
 if first.weekly_streak.positive?
+  gain = GameRules::STREAK_LADDER[[ first.weekly_streak, GameRules::STREAK_LADDER.size ].min - 1]
+  Reward.create!(user: first.user, membership: first, amount: gain, streak_week: first.weekly_streak,
+                 reward_type: "diamonds", source: "streak",
+                 period: (Date.current.beginning_of_week - 7).strftime("%G-W%V"))
   Notification.create!(user: first.user, game:, category: "streak", importance: "important",
                        title: "🔥 #{first.weekly_streak} semaines de course d'affilée !",
-                       body: "+#{GameRules::STREAK_LADDER[[ first.weekly_streak, GameRules::STREAK_LADDER.size ].min - 1]} 💎")
+                       body: "#{gain} 💎 à réclamer sur ta piste", link: "/")
 end
 
 puts "Cosmétiques possédés…"

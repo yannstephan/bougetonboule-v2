@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_29_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_06_052421) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -195,15 +195,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_190000) do
 
   create_table "rewards", force: :cascade do |t|
     t.integer "amount"
+    t.datetime "claimed_at"
     t.integer "cosmetic_id"
     t.datetime "created_at", null: false
     t.integer "membership_id"
     t.string "period"
     t.string "reward_type", null: false
     t.string "source", null: false
+    t.integer "streak_week"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["cosmetic_id"], name: "index_rewards_on_cosmetic_id"
+    t.index ["membership_id", "claimed_at"], name: "index_rewards_on_membership_id_and_claimed_at"
     t.index ["membership_id", "source", "period"], name: "index_rewards_on_membership_id_and_source_and_period", unique: true
     t.index ["membership_id"], name: "index_rewards_on_membership_id"
     t.index ["user_id"], name: "index_rewards_on_user_id"

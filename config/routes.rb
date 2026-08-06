@@ -29,6 +29,7 @@ Rails.application.routes.draw do
   get   "courses/:id", to: "trainings#show", as: :training
 
   post  "coffres/:id/ouvrir", to: "chests#open", as: :open_chest
+  post  "serie/:week/reclamer", to: "rewards#claim_week", as: :claim_streak_week
 
   get   "boutique",           to: "shop#index",        as: :shop
   post  "boutique/items",     to: "shop#buy_item",     as: :buy_item

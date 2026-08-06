@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react'
+import { Head, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import Monster from '../components/Monster'
 import EffectBadges from '../components/EffectBadges'
@@ -56,16 +56,6 @@ export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team
     <div className="shell">
       <Head title="Combat" />
       <Hud />
-
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">⚔️ Combat</div>
-        {/* Le solde de 🍑 est dans le HUD, en permanence : ici on ne garde que la meute,
-            qui décide des dégâts et ne se voit nulle part ailleurs sur cet écran. */}
-        {multiplier > 1 && (
-          <span className="curr" title="Jauge de meute" style={{ marginLeft: 'auto' }}>🐾 ×{multiplier}</span>
-        )}
-      </div>
 
       {flash?.notice && <div className="flash ok" style={{ margin: '10px 14px 0' }}>{flash.notice}</div>}
       {flash?.alert && <div className="flash err" style={{ margin: '10px 14px 0' }}>{flash.alert}</div>}

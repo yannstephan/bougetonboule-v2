@@ -32,11 +32,6 @@ export default function Avatar({ has_team, strava_connected, is_admin, team, fru
       <Head title="Mon avatar" />
       <Hud />
 
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">🎨 Mon avatar</div>
-      </div>
-
       <main className="body">
         {flash?.notice && <div className="flash ok">{flash.notice}</div>}
         {flash?.alert && <div className="flash err">{flash.alert}</div>}
@@ -92,6 +87,8 @@ export default function Avatar({ has_team, strava_connected, is_admin, team, fru
         <Link href="/" className="btn primary">C'est bon !</Link>
         <button type="button" className="btn-logout" onClick={logout}>Se déconnecter</button>
       </main>
+
+      <BottomNav />
     </div>
   )
 }
@@ -106,7 +103,6 @@ function NoTeam() {
         Ton avatar se choisit une fois que tu as rejoint une partie : chaque équipe a sa propre
         famille de fruits (exotiques ou rouges). Reviens ici dès que tu es affecté·e à une équipe.
       </p>
-      <BottomNav />
     </div>
   )
 }

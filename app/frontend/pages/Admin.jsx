@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react'
+import { Head, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import { CosmeticIcon } from '../components/cosmeticArt'
 import Hud from '../components/Hud'
@@ -21,11 +21,6 @@ export default function Admin({ game, today, special_days, cosmetics }) {
       <Head title="Organisation" />
       <Hud />
 
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">🛠️ Organisation</div>
-      </div>
-
       <main className="body">
         {flash?.notice && <div className="flash ok">{flash.notice}</div>}
         {flash?.alert && <div className="flash err">{flash.alert}</div>}
@@ -45,6 +40,8 @@ export default function Admin({ game, today, special_days, cosmetics }) {
           ? <SpecialDays days={special_days} today={today} />
           : <SeasonalShop cosmetics={cosmetics} />}
       </main>
+
+      <BottomNav />
     </div>
   )
 }
@@ -182,7 +179,6 @@ function CosmeticRow({ c }) {
         </label>
         <button className="adm-save" disabled={!dirty} onClick={save}>OK</button>
       </div>
-      <BottomNav />
     </div>
   )
 }

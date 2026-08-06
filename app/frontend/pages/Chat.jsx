@@ -40,11 +40,6 @@ export default function Chat({ conversations }) {
       <Head title="Chat" />
       <Hud />
 
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">💬 Chat</div>
-      </div>
-
       <div className="chat-tabs">
         {conversations.map((c, i) => (
           <button key={c.id} className={`chat-tab ${i === active ? 'on' : ''}`} onClick={() => setActive(i)}>

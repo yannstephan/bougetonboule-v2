@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react'
+import { Head, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import BottomNav from '../components/BottomNav'
 import TargetPicker from '../components/TargetPicker'
@@ -39,11 +39,6 @@ export default function Inventaire({ has_team, initial_tab, balls, chests, inven
       <Head title="Mon sac" />
       <Hud />
 
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">🎒 Mon sac</div>
-      </div>
-
       {has_team && (
         <div className="chat-tabs">
           <button className={`chat-tab ${tab === 'items' ? 'on' : ''}`} onClick={() => setTab('items')}>
@@ -75,7 +70,7 @@ export default function Inventaire({ has_team, initial_tab, balls, chests, inven
                        foeTeam={team_names?.foe} onPick={smokeMask} onClose={() => setSmokeItem(null)} />
       )}
 
-      <BottomNav active="bag" />
+      <BottomNav />
     </div>
   )
 }

@@ -1,5 +1,9 @@
 class Training < ApplicationRecord
   STATUSES = %w[pending verified rejected trapped protected].freeze
+  # Une VRAIE sortie du point de vue du joueur : elle a passé les contrôles anti-triche et a
+  # bien eu lieu. La piégée en fait partie — le loup vole les 🍑 de cette course, pas le fait
+  # d'avoir couru. Seule la refusée (et l'attente) n'existe pas aux yeux du jeu.
+  REAL_STATUSES = %w[verified trapped protected].freeze
 
   belongs_to :membership
   belongs_to :special_day, optional: true
@@ -13,10 +17,13 @@ class Training < ApplicationRecord
   scope :verified, -> { where(status: "verified") }
   # Courses qui rapportent : vérifiées, ou protégées d'un piège par une jambe de bois.
   scope :scoring, -> { where(status: %w[verified protected]) }
+  # Courses qui ont eu lieu, piégées comprises : ce qui compte pour la série et le feed public.
+  scope :real, -> { where(status: REAL_STATUSES) }
   scope :recent, -> { order(date: :desc) }
 
   def distance_km = distance_meters.to_f / 1000
   def rejected? = status == "rejected"
+  def real? = status.in?(REAL_STATUSES)
 
   # Verse les 🍑 de la course à la participation, dans la limite du porte-monnaie
   # (GameRules::WALLET_CAP) : l'excédent est perdu. Le score de la course reste entier —

@@ -19,8 +19,7 @@ class HubController < ApplicationController
       game: game_payload(m.game),
       event: event_payload(m.game),
       balls: m.balls,
-      weekly_streak: m.weekly_streak,
-      streak_jokers: m.streak_jokers,
+      streak: StreakPassPresenter.call(m),
       month_rank: month_rank(m),
       day_quota: day_quota(m, special),
       bag_count: m.membership_items.unused.count,
@@ -81,8 +80,7 @@ class HubController < ApplicationController
   # coureur), les **piégées** y restent — elles rapportent 0 mais elles ont bien eu lieu, et
   # c'est justement ce qu'on veut voir passer.
   def recent_runs(team)
-    Training.where(membership_id: team.memberships.select(:id))
-            .where(status: %w[verified protected trapped])
+    Training.where(membership_id: team.memberships.select(:id)).real
             .includes(membership: :user)
             .recent.limit(5)
             .map do |t|

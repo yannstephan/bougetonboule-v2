@@ -16,12 +16,6 @@ export default function Ligue({ month, overall, last_winner, balls }) {
       <Head title="Classement" />
       <Hud />
 
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">🏅 Classement</div>
-        <span className="curr" style={{ marginLeft: 'auto' }}>🍑 {balls}</span>
-      </div>
-
       <div className="chat-tabs">
         <button className={`chat-tab ${tab === 'month' ? 'on' : ''}`} onClick={() => setTab('month')}>
           📅 Du mois
@@ -75,7 +69,7 @@ export default function Ligue({ month, overall, last_winner, balls }) {
         </p>
       </main>
 
-      <BottomNav active="ligue" />
+      <BottomNav />
     </div>
   )
 }

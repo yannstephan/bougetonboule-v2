@@ -117,14 +117,27 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   monstre — visible de tous, sur le Hub comme en Combat.
 - **🎉 Journées spéciales** : 5-6 par saison (`SpecialDay`, ×2). Seedées : Halloween 31/10 et
   Réveillon 24/12. Le multiplicateur s'applique après le plafond → plafond effectif doublé.
-- **🔥 Streak hebdo** (`WeeklyStreakJob`, le lundi) : ≥ 1 course scorée dans la semaine →
-  série +1 et 💎 selon l'échelle 10/20/30/40/50 (plateau 50). **Tous les 5 paliers** :
+- **🔥 Streak hebdo** (`AdvanceStreak`, **dès l'import d'une course**) : **une seule sortie
+  suffit**, quoi qu'elle rapporte → série +1 et 💎 selon l'échelle 10/20/30/40/50 (plateau 50).
+  On regarde le **statut**, pas le score (`Training::REAL_STATUSES` : vérifiée, protégée,
+  **piégée**) — une 2e sortie du jour vaut 0 🍑 à cause du plafond mais reste une sortie, et un
+  piège à 5 🍑 n'a pas à casser une série de 20 semaines. Seule la **refusée** ne compte pas.
+  **Tous les 5 paliers** :
   cosmétique tiré au sort (fallback 100 💎) + **1 joker** 🧊 (max 2, jamais achetable).
-  Semaine ratée : un joker se consomme et **gèle** la série, sinon retour à zéro.
-  Doublement idempotent (`memberships.last_streak_week` + registre `rewards` source
-  `streak`/`streak_gift`). ~1 100 💎 max par saison parfaite → **prix boutique calés
-  dessus : common ~100 · rare ~250 · epic ~500 · legendary 1000**. Notifs importantes
-  (gain, gel, perte), jokers visibles sur la tuile 🔥 du Hub.
+  ~1 100 💎 max par saison parfaite → **prix boutique calés dessus : common ~100 · rare ~250 ·
+  epic ~500 · legendary 1000**.
+  ⚠️ **Courir débloque le palier tout de suite** : `ImportTraining` appelle `AdvanceStreak`, la
+  semaine est acquise à la seconde où la course entre. `WeeklyStreakJob` (le lundi) n'a plus
+  que deux rôles : **sanctionner** les semaines sans course (joker consommé → gel, sinon retour
+  à zéro) et **rattraper** une semaine avec course que l'import aurait ratée (réconciliation
+  tardive, historique). Triple idempotence : `memberships.last_streak_week`, l'index unique
+  `rewards[membership, source, period]`, et la transaction.
+  ⚠️ **Rien n'est crédité automatiquement** : `AdvanceStreak` POSE les gains en attente
+  (`rewards.claimed_at` nil), le joueur les encaisse sur sa piste (voir « La piste de série »).
+  **Sauf le joker**, versé tout de suite : c'est un bouclier, le faire attendre ferait perdre
+  des séries à ceux qui n'ouvrent pas l'app à temps.
+  ⚠️ Une course arrivée **après** que le lundi a jugé sa semaine ne la rouvre pas (garde `>=`
+  sur `last_streak_week`) : on ne rend pas un joker déjà consommé.
 - **🎁 Coffres** (`DropChest`, appelé à l'import après le crédit) : une course scorée a
   15 % de chance de cacher un coffre — **max 1/jour** par participation, **pity** garanti
   après 7 courses scorées sans drop. Rareté pondérée (60/25/12/3), contenu décidé **au drop**
@@ -403,6 +416,34 @@ la version longue. Deux compléments, parce qu'un emoji seul ne se comprend pas 
 ⚠️ Conséquence pour tout nouvel effet : l'**emoji le porte à lui seul** sur le Hub — en choisir
 un qui se distingue des autres au premier coup d'œil (voir `TeamEffectsPresenter::KINDS`).
 
+### La piste de série (Hub) — façon season pass
+Sous le fil des sorties, `components/StreakPass.jsx` + `StreakPassPresenter` : la streak hebdo
+présentée comme une **piste de season pass**, à la place de l'ancienne tuile 🔥 d'une ligne.
+
+**Un cycle de 5 semaines, pas l'échelle 1→5.** La série n'a pas de fin (plateau à 50 💎 après
+la 5e semaine) alors qu'un season pass a une piste finie : on affiche donc les 5 semaines du
+palier en cours, qui se termine toujours sur le gros lot 🎁, puis la piste se rejoue. Elle
+reste ainsi lisible à la 47e semaine, avec toujours un « plus que N semaines » à viser.
+`cycle_start = (série / 5) × 5 + 1`.
+
+Quatre états par nœud : `claimed` (encaissé) · `claimable` (gagné, il attend — pastille citron
+qui pulse) · `next` (la semaine en cours, cerclée en pointillés) · `locked`. Le nœud du palier
+est **plus gros** : sur une piste, la récompense majeure se voit de loin.
+
+**La semaine se sécurise en courant**, pas le lundi : dès qu'une course scorée entre, le nœud
+de la semaine passe en `claimable` et le bouton s'allume. C'est la course qui débloque le
+palier, l'app ne fait que le montrer.
+
+**Réclamer** (`POST /recompenses/:id/reclamer` → `RewardsController#claim` → `ClaimReward`) :
+- les gains vivent dans `rewards` avec `claimed_at` nil = en attente, et `streak_week` pour se
+  placer sur la piste (le `period` ISO ne suffit pas, il devient ambigu après un retour à zéro) ;
+- `ClaimReward` est idempotent comme l'ouverture d'un coffre (verrou + relecture dans la
+  transaction) : double-clic ou deux onglets ne paient qu'une fois ;
+- le **cosmétique du palier est tiré au moment du palier** (comme le contenu d'un coffre au
+  drop), seul le versement attend. Déjà possédé à l'encaissement → +30 💎, comme le coffre.
+- ⚠️ les autres sources (coffre, ligue) créditent toujours à la création : elles naissent avec
+  `claimed_at` renseigné. Seules `Reward::CLAIMABLE_SOURCES` passent par la case Réclamer.
+
 **Sous le bouton COMBATTRE**, le fil des **5 dernières sorties de chaque équipe** (`RunFeed`)
 reprend **la même grille gauche/droite** que l'arène : on retrouve son équipe du côté de son
 monstre, le trait tombant sous le ⚡. Chaque ligne (coureur · date · km · 🍑) mène à la sortie.
@@ -549,13 +590,20 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
 
 - **`components/Hud.jsx`** — avatar (→ `/avatar`), 🍑, 💎, puis 📖 FAQ · 💬 Chat · 🔔 Notifs.
   Il ne prend **aucune prop** : tout vient d'`inertia_share` (dont `balls`, partagé exprès pour
-  lui), donc l'ajouter à un écran ne demande rien à son contrôleur. En dessous, chaque page
-  garde son `.subhead` (retour + titre) ; les soldes qui y étaient en double ont été retirés.
+  lui), donc l'ajouter à un écran ne demande rien à son contrôleur.
 - **`components/BottomNav.jsx`** — **Hub · Ligue · ⚔️ Combat · 🎒 Sac · Boutique**. Le **Chat
   n'y est pas** : il est passé dans le HUD à gauche de la cloche — deux boutons de même nature
-  (ce qu'on a reçu) plutôt qu'une destination de jeu, et un onglet de moins en bas. Les écrans
-  qui ne sont pas des destinations (Combat, Avatar, Profil, Sortie, FAQ, Notifs, Admin) affichent
-  la nav sans onglet actif.
+  (ce qu'on a reçu) plutôt qu'une destination de jeu, et un onglet de moins en bas.
+
+⚠️ **Aucune page n'a de bandeau de titre.** Ce qui dit où l'on est, c'est **l'icône allumée** du
+HUD ou de la nav (`.on` → contour et fond indigo ; anneau indigo autour de l'avatar et du bouton
+⚔️). Une ligne de texte en moins à porter sur chaque écran. L'état actif est **déduit de l'URL**
+(`usePage().url`) et non d'une prop : un écran ajouté plus tard ne peut pas oublier de se
+déclarer. Les pages de **détail** (profil, sortie, admin) n'ont volontairement aucune icône
+allumée — on y arrive par un lien, pas par la barre. Corollaire : une info qui vivait dans le
+bandeau doit descendre **dans le corps** si elle est du contenu (c'est le cas du titre d'une
+sortie, `.tr-title`) ; si elle est déjà ailleurs, elle disparaît (le 🍑 de la ligue est dans le
+HUD, le 🐾 du combat dans les effets « Nous »).
 
 ### PWA (installable)
 `PwaController` (maison) sert `/manifest.json` et `/service-worker` — **pas**

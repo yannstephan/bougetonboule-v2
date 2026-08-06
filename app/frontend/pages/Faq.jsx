@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react'
+import { Head } from '@inertiajs/react'
 import Hud from '../components/Hud'
 import BottomNav from '../components/BottomNav'
 
@@ -84,8 +84,12 @@ const SECTIONS = [
   {
     q: '🔥 La série hebdo (streak)',
     a: [
-      'Cours au moins une fois par semaine (du lundi au dimanche) et ta série grandit. Chaque lundi, elle paie en diamants : 10 💎 la 1re semaine, puis 20, 30, 40 et 50 — et 50 💎 chaque semaine ensuite.',
-      '🎁 Toutes les 5 semaines de série (5, 10, 15…), palier bonus : un cosmétique tiré au hasard parmi ceux que tu n\'as pas (ou 100 💎 si tu as déjà tout) — et tu gagnes un joker.',
+      'Cours au moins une fois par semaine (du lundi au dimanche) et ta série grandit. Elle paie en diamants : 10 💎 la 1re semaine, puis 20, 30, 40 et 50 — et 50 💎 chaque semaine ensuite.',
+      '⚡ Pas besoin d\'attendre le lundi : dès que ta course est importée, la semaine est sécurisée et le palier se débloque. Tu cours, c\'est gagné.',
+      'Une seule sortie suffit, et peu importe ce qu\'elle rapporte : même à 0 boule (plafond du jour déjà atteint, ou course piégée 🐺), elle compte pour ta série. Le loup te vole les boules de cette course, pas tes semaines.',
+      '🎉 Les gains ne tombent pas tout seuls : ils t\'attendent sur ta piste, sur l\'accueil. Le palier débloqué se met à clignoter, tu appuies sur « Réclamer » et tu encaisses. Rien ne se périme, tu peux venir les chercher quand tu veux.',
+      '🏁 La piste se lit par paliers de 5 semaines : quatre semaines de diamants, puis le gros lot au bout. Une fois le palier passé, la piste repart pour cinq nouvelles semaines.',
+      '🎁 Toutes les 5 semaines de série (5, 10, 15…), palier bonus : un cosmétique tiré au hasard parmi ceux que tu n\'as pas (ou 100 💎 si tu as déjà tout) — et tu gagnes un joker. Le joker, lui, arrive tout de suite, sans réclamation : c\'est un bouclier, il ne servirait à rien s\'il t\'attendait.',
       '🧊 Le joker (2 max en réserve) te sauve une semaine sans course : il se consomme et ta série est gelée au lieu de repartir à zéro. Blessure, vacances… tu ne perds pas tout.',
       'Semaine sans course et sans joker : la série retombe à zéro. Les jokers ne s\'achètent pas — ils se courent.',
       'Ta série est propre à chaque partie, mais les diamants gagnés sont à toi pour toujours.',
@@ -134,11 +138,6 @@ export default function Faq() {
     <div className="shell">
       <Head title="Règles du jeu" />
       <Hud />
-
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">📖 Règles du jeu</div>
-      </div>
 
       <main className="body">
         <div className="faq-hero">

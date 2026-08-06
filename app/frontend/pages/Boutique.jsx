@@ -25,11 +25,6 @@ export default function Boutique({ has_team, initial_tab, balls, items, cosmetic
       <Head title="Boutique" />
       <Hud />
 
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">🛒 Boutique</div>
-      </div>
-
       {flash?.notice && <div className="flash ok" style={{ margin: '10px 14px 0' }}>{flash.notice}</div>}
       {flash?.alert && <div className="flash err" style={{ margin: '10px 14px 0' }}>{flash.alert}</div>}
 
@@ -43,7 +38,7 @@ export default function Boutique({ has_team, initial_tab, balls, items, cosmetic
         {tab === 'cosmetics' && <Cosmetics cosmetics={cosmetics} seasonal={seasonal} diamonds={diamonds} onBuy={buyCosmetic} />}
       </main>
 
-      <BottomNav active="shop" />
+      <BottomNav />
     </div>
   )
 }

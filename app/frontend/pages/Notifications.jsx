@@ -27,11 +27,6 @@ export default function Notifications({ notifications }) {
       <Head title="Notifications" />
       <Hud />
 
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">🔔 Notifications</div>
-      </div>
-
       <main className="body">
         <div className="push-cta">
           <span>🔔 Reçois une alerte pour ce qui te concerne (messages d'équipe, pièges…).</span>

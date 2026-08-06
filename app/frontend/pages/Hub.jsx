@@ -4,6 +4,7 @@ import Monster from '../components/Monster'
 import EffectBadges from '../components/EffectBadges'
 import Countdown from '../components/Countdown'
 import InstallHint from '../components/InstallHint'
+import StreakPass from '../components/StreakPass'
 import Hud from '../components/Hud'
 
 const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
@@ -25,7 +26,7 @@ export default function Hub({ membership }) {
 
       {membership ? <GameView m={membership} /> : <Onboarding user={user} />}
 
-      <BottomNav active="hub" />
+      <BottomNav />
     </div>
   )
 }
@@ -66,9 +67,9 @@ function GameView({ m }) {
 
       {!finished && <Link href="/combat" className="btn combat">⚔️ COMBATTRE</Link>}
       <RunFeed mine={mine} foe={foe} />
+      <StreakPass streak={m.streak} />
       <div className="tiles">
-        <div className="tile"><span className="ic">🔥</span><div><div className="tn">Série hebdo</div><div className="td">{m.weekly_streak} sem.{m.streak_jokers > 0 ? ` · 🧊×${m.streak_jokers}` : ''}</div></div></div>
-        <Link href="/ligue" className="tile"><span className="ic">🏅</span><div><div className="tn">Classement</div><div className="td">{m.month_rank ? `${m.month_rank}e ce mois-ci` : 'Cours pour entrer'}</div></div></Link>
+        <Link href="/ligue" className="tile" style={{ gridColumn: '1 / -1' }}><span className="ic">🏅</span><div><div className="tn">Classement</div><div className="td">{m.month_rank ? `${m.month_rank}e ce mois-ci` : 'Cours pour entrer'}</div></div></Link>
         {m.day_quota && (
           <div className="tile" style={{ gridColumn: '1 / -1' }}>
             <span className="ic">🧢</span>

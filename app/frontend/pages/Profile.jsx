@@ -17,11 +17,6 @@ export default function Profile({ player, stats, trainings }) {
       <Head title={player.name} />
       <Hud />
 
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">Profil</div>
-      </div>
-
       <main className="body">
         <div className="pf-head">
           <PlayerAvatar avatar={player.avatar} size={72} />
@@ -46,6 +41,8 @@ export default function Profile({ player, stats, trainings }) {
               {trainings.map((t) => <li key={t.id}><Run t={t} /></li>)}
             </ul>}
       </main>
+
+      <BottomNav />
     </div>
   )
 }
@@ -55,7 +52,6 @@ function Stat({ value, label }) {
     <div className="pf-stat">
       <div className="v">{value}</div>
       <div className="l">{label}</div>
-      <BottomNav />
     </div>
   )
 }
