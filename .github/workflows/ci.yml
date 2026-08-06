@@ -71,7 +71,7 @@ jobs:
       # Les pages sont rendues par Inertia : sans build Vite, le layout ne trouve
       # pas entrypoints/application.css et tous les tests de rendu échouent.
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
