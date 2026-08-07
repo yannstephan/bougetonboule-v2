@@ -909,6 +909,14 @@ de charger et on la restaure — ça revient à ancrer la vue sur le message qu'
 sondage ne redescend au bas **que si on y était déjà** (`NEAR_BOTTOM`), sinon lire l'historique
 serait impossible : toutes les 8 s, la vue vous reprendrait.
 
+⚠️ **Le seed ne suffit pas à voir la pagination** (une douzaine de messages, tout tient dans la
+première page) : `bin/rails chat:fill` en pose 200, **dans le passé** à partir du plus ancien
+message existant. Le fil du seed reste donc en bas, là où on l'a laissé, et tout l'ajout est de
+l'historique à remonter — empiler par-dessus l'enterrerait et gonflerait les pastilles de non-lus,
+qui sont justement ce que le seed met en scène. Chaque message généré finit par un **espace de
+largeur nulle**, ce qui permet à `chat:clear` de ne retirer que les siens ; sans repère, nettoyer
+voudrait dire « supprimer les N derniers » et emporterait le seed.
+
 ⚠️ Le verrou du chargement est une **`ref`**, pas l'état `loading` : le défilement tire des
 dizaines d'événements par seconde qui partagent tous le même rendu, donc la même valeur d'état.
 
@@ -1169,6 +1177,10 @@ bin/rails league:standings          # classements du mois et général, en conso
 bin/rails runner PackLevelJob.perform_now   # juge la semaine écoulée (jauge de meute)
 bin/rails runner FamineJob.perform_now      # famine + clôture de saison (quotidien en prod)
 MONTH=2026-06 bin/rails league:award_month         # décerne la récompense d'un mois (test)
+
+bin/rails chat:fill                                # 200 messages pour tester la pagination
+COUNT=500 CANAL=team bin/rails chat:fill           # ailleurs, et plus gros
+bin/rails chat:clear                               # ne retire QUE les messages générés
 
 bin/rails season:show                              # journées ×2 + fenêtres de la boutique
 NAME=Halloween DATE=2026-10-31 bin/rails season:special_day
