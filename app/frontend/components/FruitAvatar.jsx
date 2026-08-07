@@ -56,8 +56,11 @@ function anchors({ top, bottom, half, hatX }) {
     // `art` : une paire dessinée est bien plus large qu'un emoji, elle a sa propre ancre.
     shoes: { x: 50, y: Math.min(bottom + 4, 91), em: 0.22, spread: 10, half,
              art: { y: Math.min(bottom + 3, 89), em: 0.38 } },
-    // en bas à droite, sous les gants et à l'écart des chaussures (qui restent centrées)
-    sidekick: { x: Math.min(Math.max(50 + half + 10, 75), 85), y: bottom - 5, em: 0.26, half },
+    // en bas à droite, sous les bras et à l'écart des chaussures (qui restent centrées).
+    // Écarté du fruit d'une bonne dizaine d'unités : un accessoire est POSÉ à côté, il ne
+    // s'accroche pas au corps. Les bornes le gardent dans le cadre — au-delà de 90 il en
+    // sortirait, et l'aperçu de l'armoire (`.av-stage`, en overflow:hidden) le rognerait.
+    sidekick: { x: Math.min(Math.max(50 + half + 15, 80), 90), y: bottom - 5, em: 0.26, half },
   }
 }
 
