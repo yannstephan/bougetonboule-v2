@@ -417,10 +417,14 @@ l'échelle pour atteindre les oreilles, il déborde d'un demi-fruit au-dessus du
 rang : c'est ce qui les distingue au premier coup d'œil sans coûter une couleur de plus.
 Aujourd'hui `spin`, porté par le **nœud papillon de velours** de L'intello : un tour en 2 s,
 puis 1 s d'arrêt (cycle de 3 s). Coupé sous `prefers-reduced-motion` comme le reste du jeu.
-⚠️ L'animation joue sur la propriété **`rotate`**, JAMAIS sur `transform` : celui-ci porte déjà
-le centrage (`translate -50 %`) et le miroir des pièces symétriques, l'animer les décalerait.
-Les propriétés de transformation individuelles s'appliquent **avant** lui, donc la pièce tourne
-autour de son centre puis se recentre — même ruse que la roue de rayons du coffre.
+⚠️ L'animation est portée par le **dessin** (`.fav-art`), jamais par la pièce (`.fav-slot`).
+La pièce a déjà un `transform` — le centrage `translate -50 %` — et la matrice finale vaut
+`Translate·Rotate·Scale·Transform` : le centrage s'applique donc **avant** la rotation, autour
+d'une origine restée au centre de la boîte non translatée. Résultat, la pièce décrivait un
+cercle du rayon de sa demi-diagonale : elle **orbitait** au lieu de tourner sur elle-même.
+Le dessin, lui, n'a aucun `transform` — il tourne autour de son propre centre.
+⚠️ Corollaire : `anim` ne marche que sur une pièce **dessinée** (`node`), pas sur un emoji,
+qui n'a pas de `.fav-art` à faire tourner.
 
 Trois drapeaux de mise en page, sur l'entrée `COSMETIC_ART` :
 - **`pair: true`** — le dessin contient déjà les deux pièces (chaussures, bras de combinaison)

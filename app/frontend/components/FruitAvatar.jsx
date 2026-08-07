@@ -164,10 +164,10 @@ function Cosmetic({ slot, worn, at }) {
 
 // Une pièce peut s'ANIMER (`anim` dans le registre des dessins) : réservé aux panoplies de
 // haut rang, c'est ce qui les distingue au premier coup d'œil sans coûter une couleur de plus.
-// ⚠️ L'animation joue sur la propriété `rotate`, JAMAIS sur `transform` : `transform` porte
-// déjà le centrage (translate -50 %) et le miroir des pièces symétriques, l'animer les
-// décalerait. Les propriétés de transformation individuelles s'appliquent avant lui, donc la
-// pièce tourne autour de son centre puis se recentre — même ruse que la roue de rayons du coffre.
+// ⚠️ La classe est posée sur la PIÈCE, mais le CSS anime le DESSIN qu'elle contient : la pièce
+// porte déjà un `transform` (le centrage `-50 %`), qui s'applique AVANT la rotation et la
+// faisait orbiter au lieu de tourner sur elle-même. Voir la note dans application.css.
+// ⚠️ Ne marche donc que sur une pièce dessinée (`node`), pas sur un emoji.
 const animClass = (drawn) => (drawn?.anim ? `fav-anim-${drawn.anim}` : '')
 
 const Art = ({ node }) => (
