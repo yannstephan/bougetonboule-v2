@@ -512,17 +512,22 @@ const Tiara = ({ metal = '#e8cf7a', dark = '#b99a35', gem = '#7fd4ff' }) => (
   </g>
 )
 
-// Tutu : deux épaisseurs de tulle qui s'évasent depuis la base du fruit, plus les coutures.
-// C'est une BANDE, pas un anneau (voir la règle du cou) — il s'arrête aux côtés du fruit.
+// Tutu CLASSIQUE, dit « plateau » : large et PLAT, pas une jupe.
+// ⚠️ Premier jet raté sur les deux points : une coupole de 48 unités de haut pour 98 de large,
+// ça faisait un abat-jour. Un tutu est trois fois plus large que haut, et son bord est
+// FESTONNÉ — c'est le feston qui dit le tulle, une courbe lisse dit la robe.
+// Deux épaisseurs, un corsage au-dessus, et des coutures qui rayonnent depuis la taille.
+// C'est une BANDE, pas un anneau (voir la règle du cou) : il s'arrête aux côtés du fruit.
 const Tutu = ({ tulle = '#ffd6e5', under = '#ffb3cd', seam = '#f78bb0' }) => (
   <g>
-    <path d="M50 22 Q94 32 99 58 Q75 70 50 64 Q25 70 1 58 Q6 32 50 22 Z"
-          fill={under} stroke={seam} strokeWidth="2" />
-    <path d="M50 26 Q86 36 91 54 Q71 63 50 58 Q29 63 9 54 Q14 36 50 26 Z"
-          fill={tulle} stroke="#f9a8c4" strokeWidth="1.5" />
-    <g stroke={seam} strokeWidth="1.6" fill="none">
-      <path d="M24 36 L18 56 M37 30 L34 60 M50 28 L50 61 M63 30 L66 60 M76 36 L82 56" />
+    <path d="M50 29 Q92 31 100 42 q-6.25 9 -12.5 0 q-6.25 9 -12.5 0 q-6.25 9 -12.5 0 q-6.25 9 -12.5 0 q-6.25 9 -12.5 0 q-6.25 9 -12.5 0 q-6.25 9 -12.5 0 q-6.25 9 -12.5 0 Q8 31 50 29 Z"
+          fill={under} stroke={seam} strokeWidth="1.6" />
+    <path d="M50 25 Q84 27 92 38 q-5.25 8 -10.5 0 q-5.25 8 -10.5 0 q-5.25 8 -10.5 0 q-5.25 8 -10.5 0 q-5.25 8 -10.5 0 q-5.25 8 -10.5 0 q-5.25 8 -10.5 0 q-5.25 8 -10.5 0 Q16 27 50 25 Z"
+          fill={tulle} stroke="#f9a8c4" strokeWidth="1.4" />
+    <g stroke="#f9a8c4" strokeWidth="1.3" fill="none">
+      <path d="M30 29 L26 40 M40 26 L38 41 M50 25 L50 42 M60 26 L62 41 M70 29 L74 40" />
     </g>
+    <rect x="38" y="17" width="24" height="12" rx="4" fill={seam} />
   </g>
 )
 
@@ -733,7 +738,7 @@ export const COSMETIC_ART = {
   // — Panoplie de la ballerine. Les chaussons sont les « Ballerines » qui existaient déjà
   // (`ballet`) : la panoplie les rapatrie plutôt que d'en dessiner des sosies.
   tiara: { view: '4 34 92 66', fit: 0.9, bite: 16, node: <Tiara /> },
-  tutu: { view: '0 20 100 52', fit: 1.15, bite: 24, node: <Tutu /> },
+  tutu: { view: '0 15 100 38', fit: 1.05, bite: 23, node: <Tutu /> },
   ballet_arms: { view: '0 10 100 74', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
                  node: <BalletArms /> },
   cowboy_hat: { view: '8 30 84 52', fit: 1.155, bite: 18, node: <CowboyHat /> },
