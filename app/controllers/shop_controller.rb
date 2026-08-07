@@ -61,8 +61,14 @@ class ShopController < ApplicationController
       pieces = set.cosmetics.select { |c| c.price_diamonds && c.available? }
       next if pieces.empty?
 
+      # L'aura de la panoplie n'est pas une pièce à vendre : c'est sa RÉCOMPENSE. Elle est
+      # servie à part, avec l'état d'avancement — c'est elle qui donne envie de finir.
+      aura = set.cosmetics.find(&:aura?)
+      owned = current_user.user_cosmetics.pluck(:cosmetic_id)
       { id: set.id, name: set.name, description: set.description, rarity: pieces.first.rarity,
         promo: set.promo? ? { percent: set.promo_percent, days_left: set.promo_days_left } : nil,
+        reward: aura && { name: aura.name, emoji: aura.emoji, art: aura.art,
+                          owned: owned.include?(aura.id) },
         pieces: serialize_cosmetics(pieces) }
     end
   end

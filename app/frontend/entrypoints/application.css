@@ -686,6 +686,17 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* La promo, seule chose qui puisse faire bouger un prix (pilotée depuis /admin). */
 .shop-promo{flex:none;background:var(--fraise);color:#fff;border-radius:999px;
   padding:2px 9px;font-size:10px;font-weight:800;white-space:nowrap}
+/* La récompense d'une panoplie : son aura. Montrée AVANT d'être gagnée — c'est elle qui
+   donne une raison de finir la collection. Citron, la couleur des récompenses. */
+.shop-reward{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:12px;
+  border:1.5px dashed color-mix(in srgb,var(--citron) 55%,var(--line));
+  background:color-mix(in srgb,var(--citron) 9%,var(--surface))}
+.shop-reward.got{border-style:solid;border-color:var(--good);
+  background:color-mix(in srgb,var(--good) 9%,var(--surface))}
+.shop-reward-icon{font-size:26px;line-height:1;flex:none;width:32px;text-align:center}
+.shop-reward-text{min-width:0}
+.shop-reward-name{font-weight:800;font-size:12px}
+.shop-reward-sub{font-size:10px;color:var(--muted);line-height:1.35;margin-top:1px}
 /* Le prix catalogue, barré, à gauche du prix payé — servi seulement s'il en diffère. */
 .shop-was{opacity:.65;font-weight:700;margin-right:6px;text-decoration-thickness:1.5px}
 .shop-cos.season{position:relative;padding-top:22px}

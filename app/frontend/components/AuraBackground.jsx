@@ -13,18 +13,21 @@ import { CosmeticIcon } from './cosmeticArt'
 // Semis déterministe : une grille décalée d'une demi-case une ligne sur deux, plus un petit
 // déport et une inclinaison par motif. En grille pure ça faisait du papier millimétré ; au
 // hasard, les motifs se regroupaient en paquets et laissaient des trous.
-const COLS = 6
-const ROWS = 9
-const MOTIFS = Array.from({ length: COLS * ROWS }, (_, i) => {
-  const col = i % COLS
-  const row = Math.floor(i / COLS)
+// ⚠️ Deux semis, et pas un seul mis à l'échelle : la page fait plusieurs centaines de pixels
+// de haut, l'aperçu de la cabine à peine 180. La même densité donnait un banc de poissons
+// serré dans l'aperçu — un motif de fond doit RESPIRER, sinon il devient le sujet.
+const grid = (cols, rows, base) => Array.from({ length: cols * rows }, (_, i) => {
+  const col = i % cols
+  const row = Math.floor(i / cols)
   return {
-    left: (col * 100) / COLS + (row % 2 ? 50 / COLS : 0) + ((i % 3) - 1) * 2.4,
-    top: (row * 100) / ROWS + ((i % 4) - 1.5) * 1.6,
-    size: 20 + (i % 3) * 7,
+    left: (col * 100) / cols + (row % 2 ? 50 / cols : 0) + ((i % 3) - 1) * 2.4,
+    top: (row * 100) / rows + ((i % 4) - 1.5) * 1.8,
+    size: base + (i % 3) * 6,
     tilt: ((i % 5) - 2) * 9,
   }
 })
+const PAGE_MOTIFS = grid(4, 6, 22)
+const LOCAL_MOTIFS = grid(3, 2, 26)
 
 // `local` : la même chose, mais bornée à son conteneur et plus franche — c'est ce qui rend
 // l'essayage d'une aura visible dans la cabine et l'armoire, où l'on n'a pas encore changé
@@ -34,7 +37,7 @@ export default function AuraBackground({ aura, local = false }) {
 
   return (
     <div className={`aura-bg${local ? ' local' : ''}`} aria-hidden>
-      {MOTIFS.map((m, i) => (
+      {(local ? LOCAL_MOTIFS : PAGE_MOTIFS).map((m, i) => (
         <span key={i} className="aura-motif" style={{
           left: `${m.left}%`, top: `${m.top}%`,
           fontSize: `${m.size}px`, transform: `rotate(${m.tilt}deg)`,

@@ -118,6 +118,7 @@ const SECTIONS = [
       'Plusieurs coéquipiers peuvent prendre le même fruit — l\'écran indique qui a déjà choisi quoi.',
       'Ton fruit n\'est qu\'une tête : les cosmétiques se posent autour. Sept emplacements — chapeau, lunettes, cou (nœud pap\', écharpe, collier…), bras, chaussures, accessoire posé à côté, et l\'aura.',
       '✨ L\'aura ne se pose pas sur ton fruit : elle habille le FOND de tes écrans, semée partout en petit. Tu es le seul à voir la tienne — et quand tu ouvres le profil de quelqu\'un, c\'est la sienne que tu vois.',
+      '🏆 Une aura ne s\'achète pas et ne sort d\'aucun coffre : c\'est la récompense d\'une panoplie. Réunis toutes ses autres pièces et elle t\'est offerte.',
       'Ils s\'achètent en 💎 ou se gagnent, puis s\'équipent un par emplacement depuis ton sac 🎒, onglet 🎨 Armoire — l\'aperçu de ton fruit reste sous les yeux pendant que tu l\'habilles. Le choix du fruit lui-même, et ton compte, restent sur l\'écran Avatar.',
       '🎽 Certaines pièces vont ensemble : ce sont les panoplies. Toutes celles d\'une même panoplie ont la même rareté, et tu les achètes à la pièce, dans l\'ordre que tu veux — le compteur te dit où tu en es. De temps en temps l\'organisateur en met une en promo : le prix barré, c\'est l\'ancien.',
       '✨ Certaines pièces ne passent qu\'une fois par an : elles sont regroupées dans la « boutique de saison », en haut du rayon cosmétiques, avec le nombre de jours restants. Passé la date elles disparaissent (et ne tombent plus des coffres) — mais ce que tu as acheté reste à toi pour toujours.',

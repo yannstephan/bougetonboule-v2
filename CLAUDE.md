@@ -339,6 +339,20 @@ toutes les pièces trop bas (lunettes sous les yeux, gants au menton). La classe
 remonte le glyphe de `.115em` de sa propre taille ; les dessins SVG, déjà centrés dans leur
 viewBox, n'y touchent pas.
 
+⚠️ **Une aura ne s'achète pas et ne se tire pas : c'est la RÉCOMPENSE d'une panoplie**
+(`UnlockSetAura`). On l'obtient en possédant **toutes les autres pièces** de sa panoplie, et
+c'est le seul chemin — `Purchase.cosmetic` la refuse même si l'id est posté à la main, et le
+scope **`Cosmetic.drawable`** l'exclut du coffre, du cadeau de série et de la ligue (un seul
+scope pour les trois : c'est ce qui garantit qu'aucun n'oublie la règle).
+- ⚠️ Le déclencheur est un **`after_create` sur `UserCosmetic`**, pas l'achat : une pièce de
+  panoplie peut aussi arriver par un coffre. Accroché à la création du lien joueur↔pièce,
+  aucun chemin ne peut passer à côté. Une aura n'en déclenche pas une autre (garde explicite).
+- La boutique **montre l'aura avant qu'elle soit gagnée**, en pied de son rayon, avec le
+  compte des pièces restantes : c'est elle qui donne une raison de finir la collection.
+- Toutes les auras du seed sont donc `price_diamonds: nil` + `source: "set"`.
+- ⚠️ **13 auras du catalogue n'ont pas encore de panoplie** et sont donc *inobtenables* —
+  voir la roadmap. Seules celles du Coureur du dimanche et du Plongeur se gagnent.
+
 ⚠️ **L'aura n'est plus sur l'avatar : elle peint le FOND DE PAGE**
 (`components/AuraBackground.jsx`). C'était une couronne de 6 emojis derrière le fruit, et elle
 étouffait : dans un cadre de taille fixe on ne peut pas l'élargir sans la faire sortir du cadre.
@@ -903,6 +917,11 @@ SET='Coureur du dimanche' bin/rails season:unpromo                 # prix d'orig
 
 ## Roadmap (à faire, ordre suggéré)
 
+0. **Donner une panoplie aux 13 auras orphelines** — depuis qu'une aura est la récompense
+   d'une panoplie, celles qui n'en ont pas ne s'obtiennent plus (Arc-en-ciel, Aura de feu,
+   Esprit du loup, Tournesol…). Trois issues possibles : bâtir une panoplie autour de
+   chacune, les rattacher aux panoplies existantes, ou les retirer du catalogue. Décision
+   de contenu, pas de code : la mécanique, elle, est en place.
 1. **Admin de partie** — créer Event/Game/Teams depuis l'app (l'écran `/admin` existe déjà pour
    les journées spéciales et la boutique de saison ; la validation manuelle des courses n'existe
    pas : le contrôle anti-triche est 100 % automatique, voir la section dédiée).

@@ -73,7 +73,9 @@ class AdvanceStreak
   # récompense de ligue. Le tirage a lieu MAINTENANT (comme le contenu d'un coffre au drop),
   # seul le versement attend la réclamation. Inventaire déjà complet → 💎 de repli.
   def offer_gift(streak)
-    cosmetic = Cosmetic.available.where.not(id: @m.user.user_cosmetics.select(:cosmetic_id)).order("RANDOM()").first
+    cosmetic = Cosmetic.available.drawable
+                       .where.not(id: @m.user.user_cosmetics.select(:cosmetic_id))
+                       .order(Arel.sql("RANDOM()")).first
 
     if cosmetic
       Reward.create!(user: @m.user, membership: @m, cosmetic:, period:, streak_week: streak,

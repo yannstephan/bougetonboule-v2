@@ -176,6 +176,22 @@ function SetShelf({ set, diamonds, onBuy, onTry, tried }) {
       </div>
       {set.description && <p className="shop-set-desc">{set.description}</p>}
       <CosmeticGrid list={set.pieces} diamonds={diamonds} onBuy={onBuy} onTry={onTry} tried={tried} />
+      {/* L'aura n'est pas une pièce du rayon : c'est la RÉCOMPENSE de la panoplie. Elle ne
+          s'achète nulle part et ne tombe d'aucun coffre — c'est elle qui donne une raison de
+          finir la collection, donc elle se montre AVANT d'être gagnée. */}
+      {set.reward && (
+        <div className={`shop-reward ${set.reward.owned ? 'got' : ''}`}>
+          <CosmeticIcon art={set.reward.art} emoji={set.reward.emoji} className="shop-reward-icon" />
+          <div className="shop-reward-text">
+            <div className="shop-reward-name">✨ {set.reward.name}</div>
+            <div className="shop-reward-sub">
+              {set.reward.owned
+                ? "Débloquée — ton fond d'écran t'attend dans l'armoire."
+                : `Aura offerte quand la panoplie est complète · encore ${set.pieces.length - owned} pièce${set.pieces.length - owned > 1 ? 's' : ''}`}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

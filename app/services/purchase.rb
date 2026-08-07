@@ -23,6 +23,8 @@ class Purchase
   # MOINS la promo de sa panoplie, si elle court à cet instant. On le relit ici et pas
   # côté client — une promo terminée pendant qu'un onglet traînait ouvert se paie plein pot.
   def self.cosmetic(user, cosmetic, source_game: nil)
+    # Une aura ne s'achète pas : elle est offerte quand on complète sa panoplie (UnlockSetAura).
+    return err("Une aura ne s'achète pas : complète sa panoplie.") if cosmetic.aura?
     return err("Ce cosmétique n'est pas en vente.") if cosmetic.price_diamonds.nil?
     return err("#{cosmetic.name} n'est plus disponible.") unless cosmetic.available?
     return err("Tu possèdes déjà #{cosmetic.name}.") if user.user_cosmetics.exists?(cosmetic_id: cosmetic.id)

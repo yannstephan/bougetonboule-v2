@@ -79,15 +79,18 @@ Cosmetic.create!([
   { name: "Chrono du coach",    slot: "sidekick", rarity: "epic",  price_diamonds: 520,  source: "shop",  emoji: "⏱️" },
   { name: "Sac de butin",       slot: "sidekick", rarity: "epic",  price_diamonds: 520,  source: "shop",  emoji: "💰" },
   { name: "Guépard",            slot: "sidekick", rarity: "epic",  price_diamonds: 550,  source: "shop",  emoji: "🐆" },
-  # Auras — une couronne de 6 petits emojis, derrière le fruit
-  { name: "Pétales de cerisier", slot: "aura", rarity: "common",   price_diamonds: 110,  source: "shop",  emoji: "🌸" },
-  { name: "Aura pêche",         slot: "aura", rarity: "common",    price_diamonds: 120,  source: "shop",  emoji: "✨" },
-  { name: "Double cœur",        slot: "aura", rarity: "common",    price_diamonds: 120,  source: "shop",  emoji: "💕" },
-  { name: "Trèfle à quatre feuilles", slot: "aura", rarity: "rare", price_diamonds: 250, source: "shop",  emoji: "🍀" },
-  { name: "Aura de givre",      slot: "aura", rarity: "rare",      price_diamonds: 250,  source: "shop",  emoji: "❄️" },
-  { name: "Aura de feu",        slot: "aura", rarity: "epic",      price_diamonds: 550,  source: "shop",  emoji: "🔥" },
-  { name: "Aura électrique",    slot: "aura", rarity: "epic",      price_diamonds: 550,  source: "shop",  emoji: "⚡" },
-  { name: "Arc-en-ciel",        slot: "aura", rarity: "legendary", price_diamonds: 1000, source: "shop",  emoji: "🌈" },
+  # Auras — le FOND DE PAGE du joueur (voir AuraBackground).
+  # ⚠️ Aucune ne s'achète ni ne se tire : une aura est la RÉCOMPENSE d'une panoplie, offerte
+  # quand on en possède toutes les autres pièces (UnlockSetAura). D'où `price_diamonds: nil`
+  # et `source: "set"` sur toutes, y compris celles qui n'ont pas encore de panoplie.
+  { name: "Pétales de cerisier", slot: "aura", rarity: "common",   price_diamonds: nil,  source: "set",  emoji: "🌸" },
+  { name: "Aura pêche",         slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set",  emoji: "✨" },
+  { name: "Double cœur",        slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set",  emoji: "💕" },
+  { name: "Trèfle à quatre feuilles", slot: "aura", rarity: "rare", price_diamonds: nil, source: "set",  emoji: "🍀" },
+  { name: "Aura de givre",      slot: "aura", rarity: "rare",      price_diamonds: nil,  source: "set",  emoji: "❄️" },
+  { name: "Aura de feu",        slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "set",  emoji: "🔥" },
+  { name: "Aura électrique",    slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "set",  emoji: "⚡" },
+  { name: "Arc-en-ciel",        slot: "aura", rarity: "legendary", price_diamonds: nil, source: "set",  emoji: "🌈" },
   # Exclusives — jamais en vente (price nil) : tirages (streak, ligue), coffres, jours spéciaux
   { name: "Couronne de Noël",   slot: "hat",  rarity: "legendary", price_diamonds: nil,  source: "event", emoji: "👑",
     available_from: NOEL[0], available_until: NOEL[1] },
@@ -98,20 +101,20 @@ Cosmetic.create!([
   { name: "Fantôme d'Halloween", slot: "sidekick", rarity: "epic", price_diamonds: nil,  source: "event", emoji: "👻",
     available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
   { name: "Médaille d'Odyssea", slot: "neck", rarity: "legendary", price_diamonds: nil,  source: "rank",  emoji: "🏅" },
-  { name: "Esprit du loup",     slot: "aura", rarity: "legendary", price_diamonds: nil,  source: "drop",  emoji: "🐺" },
-  { name: "Ailes de dossard",   slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "drop",  emoji: "🦋" },
+  { name: "Esprit du loup",     slot: "aura", rarity: "legendary", price_diamonds: nil,  source: "set",  emoji: "🐺" },
+  { name: "Ailes de dossard",   slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "set",  emoji: "🦋" },
   # Boutique de saison — en vente, mais seulement pendant leur fenêtre
   { name: "Parasol",            slot: "sidekick", rarity: "common", price_diamonds: 110, source: "shop", emoji: "⛱️",
     available_from: ETE[0], available_until: ETE[1] },
-  { name: "Tournesol",          slot: "aura", rarity: "common",    price_diamonds: 120,  source: "shop", emoji: "🌻",
+  { name: "Tournesol",          slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set", emoji: "🌻",
     available_from: ETE[0], available_until: ETE[1] },
   { name: "Bouée canard",       slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop", emoji: "🦆",
     available_from: ETE[0], available_until: ETE[1] },
   { name: "Araignée porte-poisse", slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop", emoji: "🕷️",
     available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
-  { name: "Toile de sorcière",  slot: "aura", rarity: "rare",      price_diamonds: 250,  source: "shop", emoji: "🕸️",
+  { name: "Toile de sorcière",  slot: "aura", rarity: "rare",      price_diamonds: nil,  source: "set", emoji: "🕸️",
     available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
-  { name: "Sapin scintillant",  slot: "aura", rarity: "rare",      price_diamonds: 250,  source: "shop", emoji: "🎄",
+  { name: "Sapin scintillant",  slot: "aura", rarity: "rare",      price_diamonds: nil,  source: "set", emoji: "🎄",
     available_from: NOEL[0], available_until: NOEL[1] },
   { name: "Renne du traîneau",  slot: "sidekick", rarity: "rare",  price_diamonds: 260,  source: "shop", emoji: "🦌",
     available_from: NOEL[0], available_until: NOEL[1] }
@@ -139,7 +142,7 @@ Cosmetic.create!([
     art: "worn_sneakers",     cosmetic_set: dimanche },
   { name: "Café d'avant-course",   slot: "sidekick", rarity: "common", price_diamonds: 100, source: "shop",
     emoji: "☕",              cosmetic_set: dimanche },
-  { name: "Souffle court",         slot: "aura",     rarity: "common", price_diamonds: 100, source: "shop",
+  { name: "Souffle court",         slot: "aura",     rarity: "common", price_diamonds: nil, source: "set",
     emoji: "💨",              cosmetic_set: dimanche }
 ])
 
@@ -161,7 +164,7 @@ Cosmetic.create!([
     art: "wetsuit_arms", cosmetic_set: plongeur },
   { name: "Palmes",            slot: "shoes",    rarity: "rare", price_diamonds: 250, source: "shop",
     art: "flippers",     cosmetic_set: plongeur },
-  { name: "Banc de poissons",  slot: "aura",     rarity: "rare", price_diamonds: 250, source: "shop",
+  { name: "Banc de poissons",  slot: "aura",     rarity: "rare", price_diamonds: nil, source: "set",
     emoji: "🐠",         cosmetic_set: plongeur }
 ])
 
@@ -325,10 +328,15 @@ end
 # Yann porte la panoplie du plongeur en entier : c'est la pièce maîtresse du catalogue, et
 # la voir dès le Hub évite d'aller la chercher dans l'armoire pour juger le rendu. Il lui
 # reste le chien en accessoire — le 7e emplacement, que le plongeur ne remplit pas.
-plongeur.cosmetics.each do |piece|
-  UserCosmetic.create!(user: User.find_by(firstname: "Yann"), cosmetic: piece,
+yann_user = User.find_by(firstname: "Yann")
+# ⚠️ Les pièces SEULEMENT : l'aura de la panoplie arrive toute seule à la dernière d'entre
+# elles (UnlockSetAura), et la créer une seconde fois violerait l'unicité. Le seed passe donc
+# par le vrai chemin du jeu — c'est aussi ce qui le fait échouer si la règle casse.
+plongeur.cosmetics.reject(&:aura?).each do |piece|
+  UserCosmetic.create!(user: yann_user, cosmetic: piece,
                        equipped: true, acquired_at: 1.week.ago, source_game: game)
 end
+yann_user.user_cosmetics.joins(:cosmetic).find_by(cosmetics: { slot: "aura" })&.update!(equipped: true)
 
 puts "Vitrine (un compte qui possède TOUT)…"
 # Compte de démo pour juger le catalogue d'un coup d'œil : il possède toutes les pièces, donc
@@ -339,6 +347,10 @@ showcase = User.create!(firstname: "Vitrine", email: "vitrine@btb.test",
 Membership.create!(user: showcase, game:, team: exo, fruit: "ananas", balls: 0, role: "player",
                    weekly_streak: 0, best_streak: 0, streak_jokers: 0)
 Cosmetic.find_each do |c|
+  # Une aura de panoplie a pu être offerte en route (UnlockSetAura, déclenché par la dernière
+  # pièce) : on ne la recrée pas.
+  next if showcase.user_cosmetics.exists?(cosmetic_id: c.id)
+
   UserCosmetic.create!(user: showcase, cosmetic: c, equipped: false,
                        acquired_at: 1.day.ago, source_game: game)
 end

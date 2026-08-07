@@ -6,7 +6,8 @@ class Cosmetic < ApplicationRecord
   # shoes = paire de chaussures sous le fruit · sidekick = accessoire posé à côté · aura = fond.
   # L'ordre fixe celui des rayons de la boutique et de l'écran avatar.
   SLOTS    = %w[hat eyes neck hands shoes sidekick aura].freeze
-  SOURCES  = %w[shop drop event rank].freeze
+  # `set` : la récompense d'une panoplie — ni vendue, ni tirable (voir UnlockSetAura).
+  SOURCES  = %w[shop drop event rank set].freeze
 
   belongs_to :cosmetic_set, optional: true
   has_many :user_cosmetics, dependent: :destroy
@@ -19,6 +20,10 @@ class Cosmetic < ApplicationRecord
 
   scope :purchasable, -> { where.not(price_diamonds: nil) }
   scope :by_slot, ->(slot) { where(slot:) }
+  # ⚠️ LE seul filtre des tirages au sort (coffre, série, ligue). Une AURA ne se tire jamais :
+  # elle est la récompense d'une panoplie et ne s'obtient qu'en la complétant. La sortir des
+  # tirages ici plutôt que dans chaque service, c'est la garantie qu'aucun n'oublie la règle.
+  scope :drawable, -> { where.not(slot: "aura") }
 
   # Le catalogue du moment : une pièce hors de sa fenêtre n'est ni en vente, ni tirable
   # (coffre, streak, ligue) — sinon un bonnet de Noël tomberait en juillet.
@@ -28,6 +33,8 @@ class Cosmetic < ApplicationRecord
   }
   # Les pièces à durée limitée, celles qui garnissent la « boutique de saison ».
   scope :seasonal, -> { where.not(available_from: nil).or(where.not(available_until: nil)) }
+
+  def aura? = slot == "aura"
 
   def seasonal? = available_from.present? || available_until.present?
 
