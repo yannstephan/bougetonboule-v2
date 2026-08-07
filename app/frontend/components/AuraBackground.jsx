@@ -16,6 +16,10 @@ import { CosmeticIcon } from './cosmeticArt'
 // ⚠️ Deux semis, et pas un seul mis à l'échelle : la page fait plusieurs centaines de pixels
 // de haut, l'aperçu de la cabine à peine 180. La même densité donnait un banc de poissons
 // serré dans l'aperçu — un motif de fond doit RESPIRER, sinon il devient le sujet.
+// La DÉRIVE (auras épiques et légendaires seulement) : chaque motif s'éloigne un peu, monte
+// en éclat, puis retombe. ⚠️ Décalages et durées sont tous DIFFÉRENTS d'un motif à l'autre :
+// à l'unisson, le fond entier se met à pulser comme une respiration, ce qui est insupportable
+// derrière du texte. Étalés, on ne perçoit qu'un scintillement lent.
 const grid = (cols, rows, base) => Array.from({ length: cols * rows }, (_, i) => {
   const col = i % cols
   const row = Math.floor(i / cols)
@@ -24,6 +28,10 @@ const grid = (cols, rows, base) => Array.from({ length: cols * rows }, (_, i) =>
     top: (row * 100) / rows + ((i % 4) - 1.5) * 1.8,
     size: base + (i % 3) * 6,
     tilt: ((i % 5) - 2) * 9,
+    dx: ((i % 5) - 2) * 5,
+    dy: ((i % 3) - 1) * 6 - 4,
+    dur: 11 + (i % 6) * 1.7,
+    delay: (i % 7) * 1.6,
   }
 })
 const PAGE_MOTIFS = grid(4, 6, 22)
@@ -32,15 +40,22 @@ const LOCAL_MOTIFS = grid(3, 2, 26)
 // `local` : la même chose, mais bornée à son conteneur et plus franche — c'est ce qui rend
 // l'essayage d'une aura visible dans la cabine et l'armoire, où l'on n'a pas encore changé
 // le fond du site.
+// ⚠️ Seules les auras ÉPIQUES et légendaires bougent : c'est la récompense des panoplies de
+// haut rang, et c'est ce qui les distingue d'un simple motif. Une aura commune reste immobile.
+const LIVE = [ 'epic', 'legendary' ]
+
 export default function AuraBackground({ aura, local = false }) {
   if (!aura?.emoji && !aura?.art) return null
 
+  const live = LIVE.includes(aura.rarity)
   return (
-    <div className={`aura-bg${local ? ' local' : ''}`} aria-hidden>
+    <div className={`aura-bg${local ? ' local' : ''}${live ? ' live' : ''}`} aria-hidden>
       {(local ? LOCAL_MOTIFS : PAGE_MOTIFS).map((m, i) => (
         <span key={i} className="aura-motif" style={{
           left: `${m.left}%`, top: `${m.top}%`,
           fontSize: `${m.size}px`, transform: `rotate(${m.tilt}deg)`,
+          '--dx': `${m.dx}px`, '--dy': `${m.dy}px`,
+          '--dur': `${m.dur}s`, '--delay': `${m.delay}s`,
         }}>
           <CosmeticIcon art={aura.art} emoji={aura.emoji} className="aura-glyph" />
         </span>

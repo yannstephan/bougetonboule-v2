@@ -13,9 +13,9 @@ class AuraBackgroundTest < ActionDispatch::IntegrationTest
     post "/login", params: { email: @membership.user.email, password: "odyssea2027" }
   end
 
-  def wear_aura(user, emoji)
-    piece = Cosmetic.create!(name: "Aura #{SecureRandom.hex(3)}", slot: "aura", rarity: "common",
-                             price_diamonds: 120, source: "shop", emoji:)
+  def wear_aura(user, emoji, rarity: "common")
+    piece = Cosmetic.create!(name: "Aura #{SecureRandom.hex(3)}", slot: "aura", rarity:,
+                             price_diamonds: nil, source: "set", emoji:)
     UserCosmetic.create!(user:, cosmetic: piece, equipped: true, acquired_at: Time.current)
     piece
   end
@@ -32,7 +32,7 @@ class AuraBackgroundTest < ActionDispatch::IntegrationTest
     [ "/", "/ligue", "/boutique", "/sac" ].each do |path|
       get path
       assert_response :success
-      assert_match(/"aura":\{"emoji":"🔥","art":null\}/, response.body, "aura absente de #{path}")
+      assert_match(/"aura":\{"emoji":"🔥","art":null,"rarity":"common"\}/, response.body, "aura absente de #{path}")
     end
   end
 
@@ -56,13 +56,22 @@ class AuraBackgroundTest < ActionDispatch::IntegrationTest
     assert_match(/"aura":null/, response.body)
   end
 
+  # La rareté part au front : c'est elle qui décide si les motifs du fond dérivent ou non
+  # (seules les auras épiques et légendaires bougent, voir AuraBackground).
+  test "la rareté de l'aura est servie, c'est elle qui décide de l'animation" do
+    wear_aura(@membership.user, "🌈", rarity: "legendary")
+
+    get "/"
+    assert_match(/"aura":\{"emoji":"🌈","art":null,"rarity":"legendary"\}/, response.body)
+  end
+
   test "sur le profil d'un joueur, c'est SON aura qui prime sur la mienne" do
     wear_aura(@membership.user, "🔥")
     wear_aura(@foe.user, "❄️")
 
     get "/joueurs/#{@foe.id}"
     assert_response :success
-    assert_match(/"page_aura":\{"emoji":"❄️","art":null\}/, response.body)
+    assert_match(/"page_aura":\{"emoji":"❄️","art":null,"rarity":"common"\}/, response.body)
   end
 
   # Un joueur sans aura doit servir `page_aura: null` et NON rien du tout : c'est ce nil

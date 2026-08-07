@@ -32,7 +32,8 @@ class ApplicationController < ActionController::Base
   # L'aura d'un joueur, telle que le fond de page la consomme. `nil` = pas d'aura, pas de fond.
   def aura_json(user)
     piece = user&.user_cosmetics&.includes(:cosmetic)&.find { |uc| uc.equipped && uc.cosmetic.slot == "aura" }
-    piece && { emoji: piece.cosmetic.emoji, art: piece.cosmetic.art }
+    # `rarity` : seules les auras épiques et légendaires s'animent en fond (AuraBackground).
+    piece && { emoji: piece.cosmetic.emoji, art: piece.cosmetic.art, rarity: piece.cosmetic.rarity }
   end
   helper_method :aura_json
 

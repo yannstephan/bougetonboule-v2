@@ -354,6 +354,16 @@ body{margin:0;background:var(--bg);color:var(--text);
    et la charte 60-30-10 tient parce que ce fond ne porte aucune couleur d'interface. */
 .aura-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;opacity:.12}
 .aura-motif{position:absolute;line-height:1}
+/* Auras ÉPIQUES et légendaires : les motifs DÉRIVENT lentement, montent en éclat, puis
+   retombent. Chacun a sa durée et son départ (posés par React) — à l'unisson, le fond entier
+   se met à respirer, ce qui est insupportable derrière du texte.
+   ⚠️ On anime `translate` et `scale`, les propriétés INDIVIDUELLES, jamais `transform` : celui-ci
+   porte déjà l'inclinaison du motif. Même règle que les pièces animées de l'avatar. */
+.aura-bg.live .aura-motif{animation:aura-drift var(--dur,13s) var(--delay,0s) ease-in-out infinite}
+@keyframes aura-drift{
+  0%,100%{opacity:.45;scale:.94;translate:0 0}
+  50%{opacity:1;scale:1.08;translate:var(--dx) var(--dy)}}
+@media (prefers-reduced-motion:reduce){.aura-bg.live .aura-motif{animation:none}}
 .aura-glyph{display:block}
 /* Variante bornée à son conteneur, plus franche : l'essayage d'une aura dans la cabine ou
    l'armoire, là où le fond du site n'a pas encore changé. */

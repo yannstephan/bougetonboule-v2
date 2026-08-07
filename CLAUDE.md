@@ -371,6 +371,13 @@ rendu a changé — c'est toujours un cosmétique qu'on achète et qu'on équipe
 - Semis **déterministe** : grille décalée d'une demi-case une ligne sur deux, plus un déport et
   une inclinaison par motif. En grille pure c'était du papier millimétré ; au hasard, les motifs
   se regroupaient en paquets. Très pâle (12 %) : c'est une ambiance, pas un décor.
+- ⚠️ **Les auras épiques et légendaires DÉRIVENT** : chaque motif s'éloigne un peu, monte en
+  éclat, puis retombe (`.aura-bg.live`). Une aura commune ou rare reste immobile — le mouvement
+  est la récompense des panoplies de haut rang. La **rareté** part donc au front avec l'aura.
+  Durées et départs sont **tous différents** d'un motif à l'autre : à l'unisson, le fond entier
+  se met à respirer, ce qui est insupportable derrière du texte. On anime `translate` et `scale`,
+  les propriétés **individuelles**, jamais `transform` — celui-ci porte déjà l'inclinaison du
+  motif (même règle que les pièces animées de l'avatar).
 - La **cabine d'essai** et l'**armoire** en montrent une version bornée à l'aperçu
   (`.aura-bg.local`) — sans ça, essayer une aura ne se verrait qu'après avoir quitté l'écran.
 
