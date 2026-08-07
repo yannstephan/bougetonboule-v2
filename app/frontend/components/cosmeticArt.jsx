@@ -268,11 +268,14 @@ const WolfEars = ({ fur = '#6b6f7a', dark = '#4a4f59', inner = '#e79aa8' }) => (
 // Balafre. ⚠️ Taille FIXE et non `fit` : le visage est le même sur tous les fruits (ligne des
 // yeux commune), donc une cicatrice n'a aucune raison de grandir avec la silhouette.
 // Elle passe SUR LA TEMPE, à gauche de l'œil : centrée, elle effaçait l'œil au lieu de le barrer.
+// ⚠️ Pour la rétrécir, on rétrécit le DESSIN dans sa boîte et pas `em` : la pièce est centrée
+// sur son ancre, donc réduire la boîte l'aurait ramenée sur l'œil au lieu de la laisser sur
+// la tempe. Le décalage vient de la position du tracé dans la boîte — lui seul le tient.
 const Scar = () => (
   <g stroke="#b5514f" strokeLinecap="round" fill="none">
-    <path d="M16 6 L24 94" strokeWidth="4.5" />
-    <g strokeWidth="3">
-      <path d="M8 24 L32 21 M6 48 L34 45 M10 72 L36 69" />
+    <path d="M18.5 28 L22.5 72" strokeWidth="2.6" />
+    <g strokeWidth="1.8">
+      <path d="M14.5 37 L26.5 35.5 M13.5 49 L27.5 47.5 M15.5 61 L28.5 59.5" />
     </g>
   </g>
 )
@@ -447,7 +450,7 @@ export const COSMETIC_ART = {
                   node: <WetsuitArms /> },
   // — Panoplie du loup —
   wolf_ears: { view: '6 24 88 78', fit: 0.9, node: <WolfEars /> },
-  scar: { view: '2 2 40 96', em: 0.5, node: <Scar /> },
+  scar: { view: '11 25 20 50', em: 0.5, node: <Scar /> },
   spiked_collar: { view: '4 8 92 58', fit: 0.8, bite: 23, node: <SpikedCollar /> },
   wolf_paws: { view: '8 42 84 44', pair: true, node: <Pair as={PawFoot} fur="#6b6f7a" pad="#3f434c" /> },
   bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },
