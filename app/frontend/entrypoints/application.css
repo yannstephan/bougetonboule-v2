@@ -326,6 +326,17 @@ body{margin:0;background:var(--bg);color:var(--text);
    Après les .fav-<slot> : à spécificité égale, c'est la dernière règle qui gagne. */
 .fav-behind{z-index:0}
 
+/* Pièces ANIMÉES (`anim` dans COSMETIC_ART) : réservées aux panoplies de haut rang, c'est ce
+   qui les distingue au premier coup d'œil sans coûter une couleur de plus.
+   ⚠️ On anime `rotate`, JAMAIS `transform` : celui-ci porte déjà le centrage (translate -50 %)
+   et le miroir des pièces symétriques, l'animer les décalerait. Les propriétés de
+   transformation individuelles s'appliquent AVANT lui — la pièce tourne donc autour de son
+   centre puis se recentre. Même ruse que la roue de rayons du coffre.
+   Un tour en 2 s, puis 1 s d'arrêt : le cycle fait 3 s, la rotation en occupe les deux tiers. */
+.fav-anim-spin{animation:fav-spin 3s linear infinite}
+@keyframes fav-spin{0%{rotate:0deg}66.7%{rotate:360deg}100%{rotate:360deg}}
+@media (prefers-reduced-motion:reduce){.fav-anim-spin{animation:none}}
+
 /* Fond de page « aura » (components/AuraBackground.jsx) : les motifs de l'aura équipée,
    semés sur tout l'écran. C'est ce que l'aura est devenue — en couronne derrière l'avatar,
    elle était condensée et on ne pouvait pas l'élargir sans sortir du cadre.

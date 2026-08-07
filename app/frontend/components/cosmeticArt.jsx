@@ -638,7 +638,10 @@ export const COSMETIC_ART = {
   bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },
   // — Panoplie de l'intello. Le haut-de-forme et le monocle sont les dessins EXISTANTS :
   // la panoplie les rapatrie plutôt que d'en créer des sosies.
-  bowtie_lux: { view: '10 24 80 52', em: 0.28, node: <BowTie wing="#8e1122" knot="#5e0b16" band="#c9a227" /> },
+  // `anim` : le nœud de velours fait un tour sur lui-même, 2 s toutes les 3 s. Une pièce de
+  // panoplie de haut rang a le droit de bouger — c'est ce qui la distingue de loin.
+  bowtie_lux: { view: '10 24 80 52', em: 0.28, anim: 'spin',
+                node: <BowTie wing="#8e1122" knot="#5e0b16" band="#c9a227" /> },
   dress_shoes: { view: '8 40 84 40', pair: true,
                  node: <Pair as={DressShoe} body="#1b1b22" sole="#0b0b10" shine="#8d95a3" /> },
   scholar_arms: { view: '0 40 100 60', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,

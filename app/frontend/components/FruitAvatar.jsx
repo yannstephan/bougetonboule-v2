@@ -133,7 +133,7 @@ function Cosmetic({ slot, worn, at }) {
     // `back` : la pièce passe derrière la silhouette (z-index 0 < .fav-svg). Les bras d'une
     // combinaison n'ont l'air de bras que si l'épaule est cachée par le corps.
     return (
-      <span className={`fav-slot fav-${slot} ${drawn.back ? 'fav-behind' : ''}`}
+      <span className={`fav-slot fav-${slot} ${drawn.back ? 'fav-behind' : ''} ${animClass(drawn)}`}
             style={pin(a.x, centerY(a, em, drawn), em)}>
         <Art node={drawn.node} />
       </span>
@@ -153,7 +153,7 @@ function Cosmetic({ slot, worn, at }) {
   const glyph = drawn?.emoji || emoji
   const draw = (x, mirror) => (
     <span key={x} style={pin(x, y, em)}
-          className={`fav-slot fav-${slot} ${drawn?.node ? '' : 'fav-glyph'} ${mirror ? 'fav-mirror' : ''}`}>
+          className={`fav-slot fav-${slot} ${drawn?.node ? '' : 'fav-glyph'} ${mirror ? 'fav-mirror' : ''} ${animClass(drawn)}`}>
       {drawn?.node ? <Art node={drawn.node} /> : glyph}
     </span>
   )
@@ -161,6 +161,14 @@ function Cosmetic({ slot, worn, at }) {
   if (at.spread) return <>{draw(at.x - at.spread, false)}{draw(at.x + at.spread, true)}</>
   return draw(at.x, false)
 }
+
+// Une pièce peut s'ANIMER (`anim` dans le registre des dessins) : réservé aux panoplies de
+// haut rang, c'est ce qui les distingue au premier coup d'œil sans coûter une couleur de plus.
+// ⚠️ L'animation joue sur la propriété `rotate`, JAMAIS sur `transform` : `transform` porte
+// déjà le centrage (translate -50 %) et le miroir des pièces symétriques, l'animer les
+// décalerait. Les propriétés de transformation individuelles s'appliquent avant lui, donc la
+// pièce tourne autour de son centre puis se recentre — même ruse que la roue de rayons du coffre.
+const animClass = (drawn) => (drawn?.anim ? `fav-anim-${drawn.anim}` : '')
 
 const Art = ({ node }) => (
   <svg viewBox="0 0 100 100" className="fav-art" role="presentation">{node}</svg>

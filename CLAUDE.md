@@ -413,6 +413,15 @@ par le haut.
 ⚠️ Un dessin destiné au **chapeau** doit être **large et plat** : plus haut que large, mis à
 l'échelle pour atteindre les oreilles, il déborde d'un demi-fruit au-dessus du crâne.
 
+⚠️ **Une pièce peut s'ANIMER** (`anim` dans `COSMETIC_ART`) — réservé aux panoplies de haut
+rang : c'est ce qui les distingue au premier coup d'œil sans coûter une couleur de plus.
+Aujourd'hui `spin`, porté par le **nœud papillon de velours** de L'intello : un tour en 2 s,
+puis 1 s d'arrêt (cycle de 3 s). Coupé sous `prefers-reduced-motion` comme le reste du jeu.
+⚠️ L'animation joue sur la propriété **`rotate`**, JAMAIS sur `transform` : celui-ci porte déjà
+le centrage (`translate -50 %`) et le miroir des pièces symétriques, l'animer les décalerait.
+Les propriétés de transformation individuelles s'appliquent **avant** lui, donc la pièce tourne
+autour de son centre puis se recentre — même ruse que la roue de rayons du coffre.
+
 Trois drapeaux de mise en page, sur l'entrée `COSMETIC_ART` :
 - **`pair: true`** — le dessin contient déjà les deux pièces (chaussures, bras de combinaison)
   → jamais dupliqué, et le slot `shoes` lui donne sa propre ancre (`at.art`, plus large qu'un
