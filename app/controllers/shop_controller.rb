@@ -14,7 +14,9 @@ class ShopController < ApplicationController
       balls: m&.balls || 0,
       items: items_json(m),
       cosmetics: cosmetics_json,
-      seasonal: seasonal_json
+      seasonal: seasonal_json,
+      # Pour l'essayage : la boutique montre la pièce SUR le fruit du joueur avant l'achat.
+      avatar: AvatarPresenter.new(current_user, membership: m).as_json
     }
   end
 

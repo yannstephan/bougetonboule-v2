@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_06_052421) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_07_060636) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -142,10 +142,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_06_052421) do
   end
 
   create_table "messages", force: :cascade do |t|
-    t.text "body", null: false
+    t.text "body"
     t.integer "conversation_id", null: false
     t.datetime "created_at", null: false
     t.integer "membership_id", null: false
+    t.string "meme_title"
+    t.string "meme_url"
     t.datetime "updated_at", null: false
     t.index ["conversation_id"], name: "index_messages_on_conversation_id"
     t.index ["membership_id"], name: "index_messages_on_membership_id"

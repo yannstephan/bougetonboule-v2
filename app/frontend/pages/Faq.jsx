@@ -127,6 +127,7 @@ const SECTIONS = [
     a: [
       '« Pour toi » : ce qui te concerne directement — message d\'équipe, récompense, palier de meute, monstre affamé, vent de face ou chantilly reçue, et tout ce qui touche aux pièges (ta course piégée, ton piège réussi ou déjoué). Ce sont les seules poussées sur ton téléphone.',
       '« Activité de la partie » : le reste, en fil d\'activité (X a couru et ce que ça lui rapporte, X a activé un vent de dos, un piège a été posé…). Listé, mais jamais poussé.',
+      '➕ Dans le chat, le bouton + à côté du champ ouvre une recherche de memes : tape un mot, touche celui qui te plaît, il part tout seul. Tu ne peux pas envoyer tes propres images — seulement des memes du catalogue.',
       'Le chat général ne crée pas de notification : les messages non lus (équipe + général) sont signalés par une pastille sur le bouton 💬, en haut de l\'accueil à côté de la cloche.',
       'Active les notifications push depuis l\'écran 🔔 pour recevoir les alertes « Pour toi ».',
     ],

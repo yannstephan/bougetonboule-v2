@@ -23,6 +23,9 @@
   --peach:#ff7a59; --citron:#f2b100; --citron-ink:#4a3600; --fraise:#f0325b;
   --mint:#12b58a; --mint-ink:#04352a; --violet:#8b5cf6; --strava:#fc4c02;
   --good:#12b58a; --warn:#e89312; --crit:#e23b54; --r:14px;
+  /* Hauteur du bandeau collé : 14 + 38 (avatar) + 12 + 1 de bordure. Tout ce qui colle
+     en dessous doit partir de là, sinon ça glisse sous le HUD. */
+  --hud-h:65px;
   --shadow:0 1px 2px rgba(15,23,42,.05),0 2px 8px rgba(15,23,42,.05);
 }
 @media (prefers-color-scheme:dark){
@@ -233,7 +236,13 @@ body{margin:0;background:var(--bg);color:var(--text);
 .tab-dot{display:inline-block;vertical-align:top;width:8px;height:8px;margin-left:4px;
   border-radius:50%;background:var(--fraise)}
 .chat-tab.on .tab-dot{background:#fff}
-.chat-scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:12px 14px}
+/* Le chat tient EXACTEMENT dans l'écran : sa zone de messages défile, le composeur reste
+   au-dessus de la nav. En `min-height`, la colonne grandissait avec les messages et la nav
+   collée finissait par recouvrir le champ de saisie — chat inutilisable au doigt. */
+.chat-shell{height:100dvh}
+/* min-height:0 : sans lui, un enfant flex refuse de descendre sous la hauteur de son
+   contenu — la colonne dépassait 100dvh et la nav collée recouvrait le composeur. */
+.chat-scroll{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:12px 14px}
 .chat-day{align-self:center;font-size:10px;font-weight:700;color:var(--muted);background:var(--surface-2);
   border:1px solid var(--line);border-radius:999px;padding:3px 11px;margin:4px 0}
 .msg{max-width:85%;display:flex;gap:8px;align-items:flex-end}
@@ -256,6 +265,29 @@ body{margin:0;background:var(--bg);color:var(--text);
 .chat-input .send{width:40px;height:40px;border-radius:50%;background:var(--brand);color:var(--brand-ink);border:none;
   display:grid;place-items:center;font-size:16px;cursor:pointer;flex:none}
 
+/* Recherche de memes dans le chat. Aucune image n'est stockée : on ne garde que l'URL du GIF
+   choisi, et seuls les hôtes du catalogue sont acceptés (Giphy::HOSTS + revérification au
+   modèle) — sinon ce serait un champ « affiche l'image de ton choix ». */
+.meme-btn{width:40px;height:40px;flex:none;border-radius:50%;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--muted);font:inherit;font-size:24px;font-weight:400;
+  line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+.meme-btn:hover{border-color:var(--brand);color:var(--brand)}
+.meme-sheet{max-height:78dvh;display:flex;flex-direction:column}
+/* Flex plutôt que grid, et ce n'est pas un détail : en grid, `width:100%` sur la vignette
+   donne une contribution intrinsèque NULLE, donc la ligne se dimensionnait sur la hauteur de
+   ligne du bouton (15 px) et les images se chevauchaient. En flex, la largeur de la cellule
+   est définie, et l'aspect carré en découle. */
+.meme-grid{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;overflow-y:auto;
+  margin-top:8px;min-height:120px}
+.meme-hint{width:100%;margin:16px 0;text-align:center;font-size:12px;color:var(--muted);line-height:1.45}
+.meme-cell{width:calc((100% - 12px) / 3);aspect-ratio:1;flex:none;padding:0;
+  border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  background:var(--surface-2);cursor:pointer;display:block}
+.meme-cell img{width:100%;height:100%;object-fit:cover;display:block}
+.meme-cell:hover{border-color:var(--brand)}
+/* Un meme envoyé seul n'a pas besoin de la bulle : l'image EST le message. */
+.msg-meme{max-width:100%;width:200px;border-radius:12px;display:block}
+.bub.meme-only{background:none;border:0;padding:0}
 /* avatar-fruit (Hub, chat, classement, écran avatar) */
 .fav{position:relative;display:inline-grid;place-items:center;flex:none;line-height:1}
 .fav-svg{position:relative;z-index:1;width:100%;height:100%;display:block}
@@ -340,7 +372,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* avatar */
 /* Écran avatar : l'aperçu et la barre d'emplacements restent visibles pendant qu'on
    fouille un rayon — on juge le rendu sans faire l'aller-retour avec le haut de page. */
-.av-sticky{position:sticky;top:0;z-index:5;margin:-14px -14px 0;padding:14px 14px 8px;
+.av-sticky{position:sticky;top:var(--hud-h);z-index:5;margin:-14px -14px 0;padding:14px 14px 8px;
   background:var(--bg);display:flex;flex-direction:column;gap:10px}
 .av-stage{display:grid;place-items:center;padding:16px 0;background:var(--surface-2);
   border:1px solid var(--line);border-radius:var(--r)}
@@ -566,6 +598,16 @@ body{margin:0;background:var(--bg);color:var(--text);
 .tp-empty{color:var(--muted);text-align:center;font-size:13px;margin:8px 0}
 .tp-cancel{background:none;border:none;color:var(--muted);font:inherit;font-weight:700;padding:10px;
   cursor:pointer;margin-top:2px}
+/* Feuille de confirmation d'achat : ce qu'on prend, ce que ça coûte, ce qu'il restera. */
+.buy-what{display:flex;align-items:center;gap:12px;background:var(--surface-2);
+  border:1px solid var(--line);border-radius:var(--r);padding:11px 12px}
+.buy-icon{font-size:40px;line-height:1;flex:none;width:56px;text-align:center}
+.buy-id{min-width:0}
+.buy-name{font-weight:800;font-size:15px}
+.buy-desc{font-size:11px;color:var(--muted);line-height:1.35;margin-top:2px}
+.buy-sum{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:2px 4px;
+  font-size:12px;color:var(--muted)}
+.buy-sum b{color:var(--text);font-weight:800;font-variant-numeric:tabular-nums}
 
 /* boutique */
 .shop-wallet{margin-left:auto;display:flex;gap:6px}
@@ -605,11 +647,22 @@ body{margin:0;background:var(--bg);color:var(--text);
 .shop-cos.season{position:relative;padding-top:22px}
 .shop-cos-left{position:absolute;top:6px;left:50%;transform:translateX(-50%);white-space:nowrap;
   background:var(--violet);color:#fff;border-radius:999px;padding:2px 8px;font-size:9px;font-weight:800}
+/* Cabine d'essai de la boutique : la vignette entière est un bouton (essayer est le geste
+   le plus fréquent), et la pièce en cours d'essai se cerne d'indigo. */
+.shop-try{display:flex;align-items:center;gap:8px;min-height:24px}
+.shop-try-hint{font-size:11px;color:var(--muted)}
+.shop-try-list{flex:1;min-width:0;font-size:11px;font-weight:700;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shop-try-off{flex:none;background:var(--surface);border:1px solid var(--line-2);border-radius:999px;
+  padding:3px 10px;font:inherit;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer}
+.shop-cos-try{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;
+  background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer}
 .shop-cos{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:13px 10px;
   display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
 .shop-cos.rare{border-color:color-mix(in srgb,var(--mint) 45%,var(--line))}
 .shop-cos.epic{border-color:color-mix(in srgb,var(--violet) 50%,var(--line))}
 .shop-cos.legendary{border-color:color-mix(in srgb,var(--citron) 60%,var(--line))}
+.shop-cos.trying{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 9%,var(--surface))}
 .shop-cos-emoji{font-size:36px;line-height:1.1}
 .shop-cos-name{font-weight:800;font-size:12px}
 .shop-cos-rarity{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}

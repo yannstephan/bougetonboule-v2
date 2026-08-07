@@ -38,6 +38,13 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
+  # Lit le .env local (ignoré par git) : c'est ce qui rend les secrets optionnels — Strava,
+  # Google, VAPID, Giphy — utilisables en développement sans les poser dans le shell à chaque
+  # fois. Dev/test seulement : en production les secrets viennent de l'environnement ou des
+  # credentials Rails. (`dotenv` était déjà là, mais seulement comme dépendance de Kamal,
+  # donc jamais chargé par l'app.)
+  gem "dotenv-rails"
+
   # Audits gems for known security defects (use config/bundler-audit.yml to ignore issues)
   gem "bundler-audit", require: false
 

@@ -498,6 +498,20 @@ Deux onglets : Objets · Cosmétiques. Les achats sont refusés proprement si mo
 cosmétique déjà possédé, ou pas d'équipe. **Ce qu'on achète part dans le sac** (`/sac`), qui a son
 propre onglet — la boutique vend, le sac utilise.
 
+**🪞 Cabine d'essai** (onglet Cosmétiques) : un aperçu de son fruit **collé en haut**
+(`.av-sticky`, même motif que l'armoire du sac — un seul geste à apprendre) et **toute la
+vignette d'une pièce est un bouton** : on la touche, elle se pose sur l'avatar. On décide en la
+voyant, plus en lisant son nom. L'essai est **purement local** (état React, aucun aller-retour
+serveur) : ce qu'on porte vraiment ne bouge pas, une pièce essayée ne remplace que son
+emplacement dans l'aperçu, et on peut donc composer une tenue entière avant d'acheter quoi que
+ce soit. `ShopController` sert pour ça l'`AvatarPresenter` du joueur.
+
+**Confirmation avant tout achat** (`components/BuyConfirm.jsx`) : la vignette « Acheter » ouvre
+la feuille du bas des autres choix du jeu (comme `TargetPicker`) plutôt qu'un `confirm()` natif,
+et rappelle **ce qu'on prend, ce que ça coûte et ce qu'il restera**. Pour un cosmétique, la pièce
+est montrée **portée** — c'est ce qu'on achète vraiment. On ne dépense pas sur un geste
+involontaire une monnaie gagnée en courant. Le POST ne part qu'à la confirmation.
+
 ### Le sac (`/sac`) — objets, coffres et armoire
 Onglet à part entière du footer, **collé à la boutique** (`InventoryController`, page
 `Inventaire.jsx`). Il tient **tout ce que le joueur possède**, en deux onglets — la boutique
@@ -546,6 +560,35 @@ Le push n'est déclenché que pour les importantes (`Notification#push_if_import
 L'écran Notifications sépare **Pour toi** (importantes) et **Activité de la partie** (secondaires,
 style atténué). Une notif peut porter un **`link`** (colonne `notifications.link`) : la carte
 devient alors cliquable (chevron ›). Les notifs « nouvelle course » pointent vers `/courses/:id`.
+
+
+### Memes dans le chat (`Memes`, `components/MemePicker.jsx`)
+Le bouton **+** du composeur ouvre une recherche de memes ; on touche une vignette, elle part
+**seule** (c'est une réaction, pas une légende). Deux colonnes sur `messages` : `meme_url` +
+`meme_title`, et `body` devient facultatif — un meme seul est un message valide.
+
+**Deux sources, derrière une seule façade** (`Memes`), et c'est ce qui fait que le bouton n'est
+jamais un bouton mort :
+- **Imgflip** par défaut — **aucune clé, aucune inscription**, ~100 modèles populaires mis en
+  cache une journée et filtrés par nom en mémoire. La recherche marche dès l'installation.
+- **Giphy** dès que la clé existe (`GIPHY_KEY` ou `GIPHY_API_KEY`) — vraie recherche, catalogue immense. Secret
+  **optionnel** comme Strava/Google/VAPID : c'est une amélioration, pas un prérequis.
+
+⚠️ **`meme_url` n'est PAS un champ d'image libre, et ça doit le rester.** Le Gemfile porte une
+décision explicite (« l'app ne stocke aucune pièce jointe ») : rien n'est envoyé ni hébergé ici,
+on ne garde que l'URL, chez la source. Le garde-fou `Memes.allowed?` est appliqué **deux fois**
+— `MessagesController` à la réception, et le modèle `Message` en validation (donc même depuis
+la console). Sont refusés : autre domaine, `http://`, sous-domaine piégeux
+(`i.imgflip.com.attaquant.test`), URL avec identifiants. Verrouillé par des tests.
+
+Une source qui tombe rend une liste vide plutôt qu'une erreur — le chat n'en dépend jamais.
+La recherche passe par un **rechargement partiel Inertia** (`only: ['memes']`, `?meme_q=`) et
+non par une API JSON à part, comme le veut la convention du projet ; la frappe est temporisée
+de 400 ms pour ne pas tirer une requête par lettre.
+
+⚠️ Le chat est le seul écran en **`height:100dvh`** (`.chat-shell`) et non `min-height` : sa
+zone de messages doit pouvoir rétrécir (`min-height:0`), sinon la colonne dépasse l'écran et la
+nav collée **recouvre le composeur** — le champ de saisie devient intouchable au doigt.
 
 ### Pastille de messages non lus (💬 du HUD)
 `conversation_reads` (`membership` × `conversation` × `last_read_at`, index unique) mémorise la
@@ -658,6 +701,8 @@ couleurs s'éclaircissent pour rester lisibles en texte, donc leur encre bascule
 
 Mobile-first, `.shell` centré max 460px. Stats en `font-variant-numeric: tabular-nums`.
 Le `theme-color` du manifeste et du layout suit `--brand` (#4f46e5).
+Tout ce qui **colle** sous le bandeau part de `--hud-h` (65 px) et non de `top:0`, sinon ça
+glisse dessous : c'est le cas des aperçus d'avatar de l'armoire et de la cabine d'essai.
 
 Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouvrir) :
 - Écrans flat v2 : https://claude.ai/code/artifact/08cc4efd-1ce2-48cc-bd30-f50a18a85242
@@ -785,8 +830,12 @@ de démo (équipe affamée / partie terminée).
 
 ### Secrets (optionnels — l'app tourne sans)
 `GOOGLE_CLIENT_ID/SECRET`, `STRAVA_CLIENT_ID/SECRET`, `STRAVA_VERIFY_TOKEN`,
-`VAPID_PUBLIC_KEY/PRIVATE_KEY` (ou dans les credentials Rails). Sans eux, Google/Strava/push
-sont simplement inactifs.
+`VAPID_PUBLIC_KEY/PRIVATE_KEY`, `GIPHY_KEY` (ou dans les credentials Rails). Sans eux,
+Google/Strava/push sont simplement inactifs. La clé Giphy est un bonus : sans elle la
+recherche de memes marche quand même, via les catalogues libres.
+En **développement**, tout ça se pose dans un **`.env`** à la racine (ignoré par git) : c'est
+à ça que sert `dotenv-rails`, ajouté au groupe dev/test. En production les secrets viennent de
+l'environnement ou des credentials chiffrés — `.env` n'y est jamais lu.
 
 ## Conventions
 
