@@ -311,13 +311,23 @@ end
 
 puts "Cosmétiques possédés…"
 # De quoi voir l'écran avatar rempli sans avoir à gagner un mois de classement.
-[ [ "Yann", "Casquette", true ], [ "Yann", "Aura de feu", true ], [ "Yann", "Baskets de course", true ],
- [ "Yann", "Écharpe de laine", true ], [ "Yann", "Chien de course", true ],
+# ⚠️ Un seul cosmétique ÉQUIPÉ par emplacement : les anciennes pièces de Yann restent dans
+# son armoire mais décrochées, la panoplie du plongeur en occupe six sur sept (voir plus bas).
+[ [ "Yann", "Casquette", false ], [ "Yann", "Aura de feu", false ], [ "Yann", "Baskets de course", false ],
+ [ "Yann", "Écharpe de laine", false ], [ "Yann", "Chien de course", true ],
  [ "Inès", "Lunettes de star", true ], [ "Inès", "Gants de boxe", true ],
  [ "Chloé", "Haut-de-forme doré", false ] ].each do |name, cosmetic, on|
   user = User.find_by(firstname: name)
   UserCosmetic.create!(user:, cosmetic: Cosmetic.find_by(name: cosmetic),
                        equipped: on, acquired_at: 2.weeks.ago, source_game: game)
+end
+
+# Yann porte la panoplie du plongeur en entier : c'est la pièce maîtresse du catalogue, et
+# la voir dès le Hub évite d'aller la chercher dans l'armoire pour juger le rendu. Il lui
+# reste le chien en accessoire — le 7e emplacement, que le plongeur ne remplit pas.
+plongeur.cosmetics.each do |piece|
+  UserCosmetic.create!(user: User.find_by(firstname: "Yann"), cosmetic: piece,
+                       equipped: true, acquired_at: 1.week.ago, source_game: game)
 end
 
 puts "Vitrine (un compte qui possède TOUT)…"
