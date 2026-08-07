@@ -336,9 +336,11 @@ body{margin:0;background:var(--bg);color:var(--text);
    sur elle-même. Le dessin, lui, n'a aucun transform : il tourne autour de son propre centre.
    ⚠️ Corollaire : `anim` ne marche que sur une pièce DESSINÉE (`node`), pas sur un emoji, qui
    n'a pas de `.fav-art` à faire tourner.
-   Un tour en 2 s, puis 1 s d'arrêt : le cycle fait 3 s, la rotation en occupe les deux tiers. */
-.fav-anim-spin .fav-art{animation:fav-spin 3s linear infinite;transform-origin:50% 50%}
-@keyframes fav-spin{0%{rotate:0deg}66.7%{rotate:360deg}100%{rotate:360deg}}
+   Un tour en 2 s, puis 5 s d'arrêt : cycle de 7 s dont la rotation n'occupe que le premier
+   tiers. Le repos domine, comme pour l'éclair de l'arène — une pièce qui bouge tout le temps
+   tire l'œil en permanence et on finit par ne plus voir l'avatar. */
+.fav-anim-spin .fav-art{animation:fav-spin 7s linear infinite;transform-origin:50% 50%}
+@keyframes fav-spin{0%{rotate:0deg}28.6%{rotate:360deg}100%{rotate:360deg}}
 @media (prefers-reduced-motion:reduce){.fav-anim-spin .fav-art{animation:none}}
 
 /* Fond de page « aura » (components/AuraBackground.jsx) : les motifs de l'aura équipée,

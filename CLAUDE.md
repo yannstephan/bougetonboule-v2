@@ -416,7 +416,8 @@ l'échelle pour atteindre les oreilles, il déborde d'un demi-fruit au-dessus du
 ⚠️ **Une pièce peut s'ANIMER** (`anim` dans `COSMETIC_ART`) — réservé aux panoplies de haut
 rang : c'est ce qui les distingue au premier coup d'œil sans coûter une couleur de plus.
 Aujourd'hui `spin`, porté par le **nœud papillon de velours** de L'intello : un tour en 2 s,
-puis 1 s d'arrêt (cycle de 3 s). Coupé sous `prefers-reduced-motion` comme le reste du jeu.
+puis **5 s d'arrêt** (cycle de 7 s). Le repos domine largement, comme pour l'éclair de l'arène —
+une pièce qui bouge tout le temps tire l'œil en permanence et on finit par ne plus voir l'avatar. Coupé sous `prefers-reduced-motion` comme le reste du jeu.
 ⚠️ L'animation est portée par le **dessin** (`.fav-art`), jamais par la pièce (`.fav-slot`).
 La pièce a déjà un `transform` — le centrage `translate -50 %` — et la matrice finale vaut
 `Translate·Rotate·Scale·Transform` : le centrage s'applique donc **avant** la rotation, autour
