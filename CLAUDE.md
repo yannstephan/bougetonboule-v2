@@ -945,12 +945,19 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
   propres** — hutte à toit de palmes, trophée doré, épées d'acier, sac orangé, échoppe à store
   rayé. Pas des pictogrammes monochromes : un pictogramme dit « maison », un emblème dit « le Hub
   de CE jeu ». Ils ne suivent donc **pas** la couleur de l'onglet : l'état actif est porté par la
-  **plaque** (indigo + libellé), et les emblèmes au repos sont **désaturés et atténués**
-  (`.nav .n:not(.on) .nav-svg`), comme dans les jeux dont vient cette barre.
-  ⚠️ Dessinés pour être lus à **22 px** : quatre à six aplats, pas un de plus, et des couleurs
-  franches. Tout détail plus fin disparaît — une maquette agrandie est trompeuse, c'est toujours
-  la **taille réelle** qui tranche. Seul le combat vit sur le disque orange : ses lames sont
-  claires et ses poignées sombres, un métal foncé s'y serait perdu.
+  **plaque** (indigo + libellé).
+  ⚠️ Chacun porte un **contour sombre commun** (`INK` dans `navIcons.jsx`), et c'est lui qui fait
+  tout le contraste : sans lui, des aplats clairs sur une plaque claire donnaient des emblèmes
+  fantômes, et sur la plaque indigo ils se noyaient dans le bleu. Un seul trait, la même encre
+  partout — c'est aussi ce qui les fait ressembler à une **famille** plutôt qu'à cinq dessins
+  voisins. Corollaire : ils ne sont **pas atténués** au repos (les désaturer par-dessus le manque
+  de contraste ne faisait que les rendre illisibles), et la plaque est en `--surface-3` et non
+  `--surface-2`, pour se détacher de la barre.
+  ⚠️ Dessinés pour être lus à **25 px** : quatre à six aplats, pas un de plus, des couleurs
+  franches et des formes qui remplissent la boîte. Tout détail plus fin disparaît — une maquette
+  agrandie est trompeuse, c'est toujours la **taille réelle** qui tranche. Seul le combat vit sur
+  le disque orange : ses lames sont claires et ses poignées sombres, un métal foncé s'y serait
+  perdu.
 
 ⚠️ **La nav du bas est en `z-index:10`, comme le bandeau, et l'avatar est en
 `isolation:isolate`.** L'avatar distribue des z-index de 0 à 6 entre ses pièces (aura derrière,
