@@ -56,7 +56,6 @@ Cosmetic.create!([
   { name: "Montre GPS",         slot: "hands", rarity: "rare",     price_diamonds: 250,  source: "shop",  emoji: "⌚" },
   { name: "Gants de boxe",      slot: "hands", rarity: "rare",     price_diamonds: 260,  source: "shop",  emoji: "🥊" },
   { name: "Bras mécanique",     slot: "hands", rarity: "epic",     price_diamonds: 520,  source: "shop",  emoji: "🦾" },
-  { name: "Patte de loup",      slot: "hands", rarity: "epic",     price_diamonds: 550,  source: "shop",  art: "paw" },
   { name: "Baguette magique",   slot: "hands", rarity: "legendary", price_diamonds: 1000, source: "shop", art: "wand" },
   # Chaussures — une PAIRE vue de face sous le fruit
   { name: "Tongs",              slot: "shoes", rarity: "common",   price_diamonds: 90,   source: "shop",  emoji: "🩴" },
@@ -101,7 +100,6 @@ Cosmetic.create!([
   { name: "Fantôme d'Halloween", slot: "sidekick", rarity: "epic", price_diamonds: nil,  source: "event", emoji: "👻",
     available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
   { name: "Médaille d'Odyssea", slot: "neck", rarity: "legendary", price_diamonds: nil,  source: "rank",  emoji: "🏅" },
-  { name: "Esprit du loup",     slot: "aura", rarity: "legendary", price_diamonds: nil,  source: "set",  emoji: "🐺" },
   { name: "Ailes de dossard",   slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "set",  emoji: "🦋" },
   # Boutique de saison — en vente, mais seulement pendant leur fenêtre
   { name: "Parasol",            slot: "sidekick", rarity: "common", price_diamonds: 110, source: "shop", emoji: "⛱️",
@@ -166,6 +164,32 @@ Cosmetic.create!([
     art: "flippers",     cosmetic_set: plongeur },
   { name: "Banc de poissons",  slot: "aura",     rarity: "rare", price_diamonds: nil, source: "set",
     emoji: "🐠",         cosmetic_set: plongeur }
+])
+
+# Troisième panoplie : ÉPIQUE (500 💎 la pièce). Elle donne enfin une maison à l'Esprit du
+# loup, qui traînait en aura orpheline — et c'est le seul endroit où on peut l'obtenir.
+# ⚠️ Son aura est LÉGENDAIRE alors que les pièces sont épiques : la règle « une panoplie,
+# une rareté » porte sur ce qu'on PAIE, et une aura ne se paie pas (voir Cosmetic).
+loup = CosmeticSet.create!(
+  name: "Le loup",
+  description: "Celui qui court la nuit, seul, et rentre avant que la meute s'en aperçoive."
+)
+Cosmetic.create!([
+  { name: "Oreilles de loup",  slot: "hat",      rarity: "epic", price_diamonds: 500, source: "shop",
+    art: "wolf_ears",     cosmetic_set: loup },
+  { name: "Balafre",           slot: "eyes",     rarity: "epic", price_diamonds: 500, source: "shop",
+    art: "scar",          cosmetic_set: loup },
+  { name: "Collier à pointes", slot: "neck",     rarity: "epic", price_diamonds: 500, source: "shop",
+    art: "spiked_collar", cosmetic_set: loup },
+  { name: "Patte de loup",     slot: "hands",    rarity: "epic", price_diamonds: 500, source: "shop",
+    art: "paw",           cosmetic_set: loup },
+  { name: "Coussinets",        slot: "shoes",    rarity: "epic", price_diamonds: 500, source: "shop",
+    art: "wolf_paws",     cosmetic_set: loup },
+  { name: "Os à ronger",       slot: "sidekick", rarity: "epic", price_diamonds: 500, source: "shop",
+    emoji: "🦴",          cosmetic_set: loup },
+  # La récompense : l'aura ne s'achète pas, elle tombe quand les six autres sont réunies.
+  { name: "Esprit du loup",    slot: "aura",     rarity: "legendary", price_diamonds: nil, source: "set",
+    emoji: "🐺",          cosmetic_set: loup }
 ])
 
 puts "Objets (power-ups)…"

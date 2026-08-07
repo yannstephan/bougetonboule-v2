@@ -249,6 +249,57 @@ const WetsuitArms = () => (
   </g>
 )
 
+// ————— Panoplie du loup —————
+
+// Oreilles de loup. Comme le bonnet de bain, le dessin REMPLIT le bas de sa boîte : c'est le
+// bord de la boîte qui se pose sur le crâne, pas celui du dessin.
+const WolfEars = ({ fur = '#6b6f7a', dark = '#4a4f59', inner = '#e79aa8' }) => (
+  <g>
+    <path d="M10 98 L20 28 L52 84 Z" fill={fur} stroke={dark} strokeWidth="3" strokeLinejoin="round" />
+    <path d="M24 80 L27 46 L42 82 Z" fill={inner} />
+    <path d="M90 98 L80 28 L48 84 Z" fill={fur} stroke={dark} strokeWidth="3" strokeLinejoin="round" />
+    <path d="M76 80 L73 46 L58 82 Z" fill={inner} />
+  </g>
+)
+
+// Balafre. ⚠️ Taille FIXE et non `fit` : le visage est le même sur tous les fruits (ligne des
+// yeux commune), donc une cicatrice n'a aucune raison de grandir avec la silhouette.
+// Elle passe SUR LA TEMPE, à gauche de l'œil : centrée, elle effaçait l'œil au lieu de le barrer.
+const Scar = () => (
+  <g stroke="#b5514f" strokeLinecap="round" fill="none">
+    <path d="M16 6 L24 94" strokeWidth="4.5" />
+    <g strokeWidth="3">
+      <path d="M8 24 L32 21 M6 48 L34 45 M10 72 L36 69" />
+    </g>
+  </g>
+)
+
+// Collier à pointes : les pointes d'abord, le collier PAR-DESSUS — elles doivent sortir de
+// dessous, pas flotter à côté.
+const SpikedCollar = () => (
+  <g>
+    <g fill="#2f2622">
+      <path d="M13 42 l6 15 l6 -15 z" /><path d="M31 46 l6 16 l6 -16 z" />
+      <path d="M51 46 l6 16 l6 -16 z" /><path d="M69 42 l6 15 l6 -15 z" />
+    </g>
+    <path d="M6 24 Q50 10 94 24 L94 46 Q50 32 6 46 Z" fill="#4a3a32" stroke="#241c19" strokeWidth="2.5" />
+    <circle cx="50" cy="52" r="10" fill="#c9a227" stroke="#8d6f13" strokeWidth="2" />
+  </g>
+)
+
+// Un coussinet, vu de face : la grosse pelote en bas, les quatre doigts au-dessus. Passe par
+// <Pair /> comme les chaussures et les palmes.
+const PawFoot = ({ x, fur, pad }) => (
+  <g transform={`translate(${x} 0)`}>
+    <ellipse cx="0" cy="68" rx="18" ry="13" fill={fur} />
+    <ellipse cx="0" cy="70" rx="9" ry="7" fill={pad} />
+    <circle cx="-12" cy="54" r="5" fill={fur} />
+    <circle cx="-4" cy="49" r="5" fill={fur} />
+    <circle cx="4" cy="49" r="5" fill={fur} />
+    <circle cx="12" cy="54" r="5" fill={fur} />
+  </g>
+)
+
 // ————— Accessoires —————
 
 // Maracas croisées. 🪇 n'existe qu'en Unicode 15 (2022) : carré vide sur les vieux
@@ -391,6 +442,11 @@ export const COSMETIC_ART = {
   // tiers qui reste de chaque côté, quelle que soit sa largeur.
   wetsuit_arms: { view: '3 22 98 72', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
                   node: <WetsuitArms /> },
+  // — Panoplie du loup —
+  wolf_ears: { view: '6 24 88 78', fit: 0.9, node: <WolfEars /> },
+  scar: { view: '2 2 40 96', em: 0.5, node: <Scar /> },
+  spiked_collar: { view: '4 8 92 58', fit: 0.8, bite: 23, node: <SpikedCollar /> },
+  wolf_paws: { view: '8 42 84 44', pair: true, node: <Pair as={PawFoot} fur="#6b6f7a" pad="#3f434c" /> },
   bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },
   cowboy_hat: { view: '8 30 84 52', fit: 0.77, node: <CowboyHat /> },
   santa_hat: { view: '18 22 79 62', fit: 0.77, node: <SantaHat /> },

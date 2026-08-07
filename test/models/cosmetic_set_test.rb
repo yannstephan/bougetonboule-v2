@@ -70,6 +70,29 @@ class CosmeticSetTest < ActiveSupport::TestCase
     assert_match(/common/, intruse.errors[:rarity].to_sentence)
   end
 
+  # L'aura est la RÉCOMPENSE : elle a le droit de valoir plus que ce qu'on a payé pour
+  # l'obtenir (six pièces épiques → une aura légendaire, c'est le sel de la collection).
+  test "l'aura échappe à la règle « une panoplie, une rareté »" do
+    s = set
+    piece(s, rarity: "epic", price: 500)
+    aura = Cosmetic.new(name: "Aura", slot: "aura", rarity: "legendary", price_diamonds: nil,
+                        source: "set", emoji: "🐺", cosmetic_set: s)
+
+    assert aura.valid?, aura.errors.full_messages.to_sentence
+  end
+
+  test "une pièce à vendre reste soumise à la règle, aura présente ou non" do
+    s = set
+    piece(s, rarity: "epic", price: 500)
+    Cosmetic.create!(name: "Aura #{SecureRandom.hex(3)}", slot: "aura", rarity: "legendary",
+                     price_diamonds: nil, source: "set", emoji: "🐺", cosmetic_set: s)
+    intruse = Cosmetic.new(name: "Intruse", slot: "shoes", rarity: "common", price_diamonds: 100,
+                           source: "shop", emoji: "👟", cosmetic_set: s)
+
+    assert_not intruse.valid?
+    assert_match(/epic/, intruse.errors[:rarity].to_sentence)
+  end
+
   test "un pourcentage hors de 1..90 est refusé" do
     assert_not CosmeticSet.new(name: "A", promo_percent: 0).valid?
     assert_not CosmeticSet.new(name: "B", promo_percent: 95).valid?

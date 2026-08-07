@@ -350,8 +350,8 @@ scope pour les trois : c'est ce qui garantit qu'aucun n'oublie la règle).
 - La boutique **montre l'aura avant qu'elle soit gagnée**, en pied de son rayon, avec le
   compte des pièces restantes : c'est elle qui donne une raison de finir la collection.
 - Toutes les auras du seed sont donc `price_diamonds: nil` + `source: "set"`.
-- ⚠️ **13 auras du catalogue n'ont pas encore de panoplie** et sont donc *inobtenables* —
-  voir la roadmap. Seules celles du Coureur du dimanche et du Plongeur se gagnent.
+- ⚠️ **12 auras du catalogue n'ont pas encore de panoplie** et sont donc *inobtenables* —
+  voir la roadmap. Seules celles du Coureur du dimanche, du Plongeur et du Loup se gagnent.
 
 ⚠️ **L'aura n'est plus sur l'avatar : elle peint le FOND DE PAGE**
 (`components/AuraBackground.jsx`). C'était une couronne de 6 emojis derrière le fruit, et elle
@@ -386,7 +386,9 @@ trois familles d'emojis ne marchent pas sur un avatar-fruit —
 Ces pièces portent une clé `art` et sont dessinées à plat : `sneakers`/`trail`/`ballet`/`skates`/
 `boots7`/`worn_sneakers` (les 6 paires de chaussures), `mitten`, `paw`, `gold_hat` (🎩 est noir
 et bleu, le nom promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `monocle`,
-`eyepatch`, `visor`, `bowtie`, `bib`, `bandana` ; les cinq du plongeur (`swim_cap`,
+`eyepatch`, `visor`, `bowtie`, `bib`, `bandana` ; les quatre du loup (`wolf_ears`, `scar`
+— taille **fixe**, le visage étant le même sur tous les fruits —, `spiked_collar`,
+`wolf_paws`) ; les cinq du plongeur (`swim_cap`,
 `dive_mask` — vitre **translucide**, un masque opaque effaçait le regard —, `dive_gauge`,
 `flippers` qui passent par le même `<Pair />` que les chaussures, `wetsuit_arms`) ; et les
 trois de la panoplie du dimanche :
@@ -421,7 +423,7 @@ les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
-- **Catalogue : 81 pièces** (dont 7 de saison et 12 réparties en 2 panoplies) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
+- **Catalogue : 86 pièces** (dont 7 de saison et 19 réparties en 3 panoplies) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
   **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween, médaille,
   loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue (comportement
   assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
@@ -641,15 +643,20 @@ deux dates sur des lignes du seed, aucun code.
 
 **🎽 Panoplies** (`CosmeticSet`, `cosmetics.cosmetic_set_id`) : un thème, plusieurs pièces,
 **toutes de la même rareté** — validé par `Cosmetic#rarity_matches_set`, c'est ce qui rend le
-prix d'un ensemble lisible d'un coup d'œil. On achète **toujours à la pièce** : une panoplie ne
+prix d'un ensemble lisible d'un coup d'œil. ⚠️ **L'aura en est exemptée** : depuis qu'elle est
+la récompense et non une pièce à vendre, elle a le droit de valoir plus que ce qu'on a payé
+pour l'obtenir (Le loup : six pièces épiques → une aura **légendaire**). La règle porte sur ce
+qu'on **paie**, et une aura ne se paie pas. On achète **toujours à la pièce** : une panoplie ne
 se vend pas en bloc, elle range le rayon (son propre encadré, peint à sa rareté, avec un
 compteur « 3/6 » qui donne envie de la finir) et surtout elle **porte les promotions**.
 Ses pièces sont **exclues** du rayon permanent et du rayon de saison — une pièce n'apparaît
-que dans un rayon, et sa panoplie prime. Deux panoplies au seed :
+que dans un rayon, et sa panoplie prime. Trois panoplies au seed :
 **Coureur du dimanche** (6 pièces **communes** à 100 💎 — écouteurs, serviette éponge,
 téléphone en brassard, baskets fatiguées, ☕ café d'avant-course, 💨 souffle court) et
-**Le plongeur** (6 pièces **rares** à 250 💎 — bonnet de bain, masque et tuba, manomètre,
-harpon et lampe, palmes, 🐠 banc de poissons). Deux paliers : le rayon d'entrée, puis un objectif
+**Le plongeur** (5 pièces **rares** à 250 💎 — bonnet de bain, masque et tuba, manomètre,
+harpon et lampe, palmes → 🐠 Banc de poissons) et **Le loup** (6 pièces **épiques** à 500 💎 —
+oreilles, balafre, collier à pointes, patte, coussinets, 🦴 os à ronger → 🐺 **Esprit du loup**,
+qui n'existe plus que là). Deux paliers : le rayon d'entrée, puis un objectif
 de collection à 1 500 💎 pour qui a déjà tout le commun — c'est plus qu'une saison parfaite
 (~1 100 💎), et c'est assumé : une panoplie rare se complète sur la durée, ou pendant une promo.
 
@@ -917,9 +924,9 @@ SET='Coureur du dimanche' bin/rails season:unpromo                 # prix d'orig
 
 ## Roadmap (à faire, ordre suggéré)
 
-0. **Donner une panoplie aux 13 auras orphelines** — depuis qu'une aura est la récompense
+0. **Donner une panoplie aux 12 auras orphelines** — depuis qu'une aura est la récompense
    d'une panoplie, celles qui n'en ont pas ne s'obtiennent plus (Arc-en-ciel, Aura de feu,
-   Esprit du loup, Tournesol…). Trois issues possibles : bâtir une panoplie autour de
+   Tournesol…). L'Esprit du loup a trouvé la sienne, il en reste douze. Trois issues possibles : bâtir une panoplie autour de
    chacune, les rattacher aux panoplies existantes, ou les retirer du catalogue. Décision
    de contenu, pas de code : la mécanique, elle, est en place.
 1. **Admin de partie** — créer Event/Game/Teams depuis l'app (l'écran `/admin` existe déjà pour

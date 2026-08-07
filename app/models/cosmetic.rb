@@ -72,8 +72,14 @@ class Cosmetic < ApplicationRecord
 
   # Une panoplie est d'UNE rareté : c'est ce qui rend son prix lisible d'un coup d'œil
   # et ce qui permet à une promo de s'appliquer uniformément.
+  # ⚠️ L'AURA en est exemptée : depuis qu'elle est la récompense de la panoplie et non une
+  # pièce à vendre, elle a le droit de valoir PLUS que ce qu'on a acheté pour l'obtenir —
+  # cinq pièces épiques qui rapportent une aura légendaire, c'est justement le sel de la
+  # collection. La règle porte sur ce qu'on paie, et une aura ne se paie pas.
   def rarity_matches_set
-    other = cosmetic_set&.cosmetics&.where&.not(id: id)&.first
+    return if aura?
+
+    other = cosmetic_set&.cosmetics&.where&.not(id: id)&.reject(&:aura?)&.first
     return if other.nil? || other.rarity == rarity
 
     errors.add(:rarity, "doit être « #{other.rarity} », comme le reste de la panoplie #{cosmetic_set.name}")
