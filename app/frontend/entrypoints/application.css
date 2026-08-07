@@ -140,39 +140,38 @@ body{margin:0;background:var(--bg);color:var(--text);
    à plat, indigo pour l'actif, orange réservé au combat (charte 60-30-10). */
 .nav{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px 13px;
   border-top:1px solid var(--line);background:var(--surface);position:sticky;bottom:0;z-index:10}
-.nav .n{display:flex;align-items:center;justify-content:center;height:46px;padding:0 12px;
-  border-radius:15px;background:var(--surface-3);color:var(--muted);
-  transition:background .2s ease,color .2s ease}
+/* ⚠️ Pas de plaque au REPOS : les emblèmes portent leur propre écusson (voir navIcons.jsx),
+   un fond gris par-dessus faisait doublon et les rapetissait. La plaque est réservée à
+   l'onglet actif, où elle devient un vrai contraste au lieu d'un cadre de plus. */
+.nav .n{display:flex;align-items:center;justify-content:center;height:50px;padding:0 7px;
+  border-radius:16px;background:none;color:var(--muted);
+  transition:background .2s ease,padding .2s ease}
 /* La plaque active : indigo plein, son encre, et un cran plus haut que les autres. */
-.nav .n.on{background:var(--brand);color:var(--brand-ink);
+.nav .n.on{background:var(--brand);color:var(--brand-ink);padding:0 12px 0 7px;
   box-shadow:0 3px 10px color-mix(in srgb,var(--brand) 32%,transparent)}
 /* ⚠️ Le libellé s'OUVRE en largeur au lieu d'apparaître d'un coup : sinon la barre saute à
    chaque changement de page. Coupé sous prefers-reduced-motion comme le reste du jeu. */
 .nav .n .lb{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;font-size:12px;font-weight:800;
   transition:max-width .24s ease,opacity .18s ease,margin .24s ease}
 .nav .n.on .lb{max-width:90px;opacity:1;margin-left:7px}
-.nav-svg{display:block;width:25px;height:25px}
-/* ⚠️ Les emblèmes ne sont PAS atténués au repos, et c'est un revirement : les désaturer les
-   rendait fantomatiques sur une plaque claire. C'est leur contour sombre commun qui les
-   détache du fond (voir navIcons.jsx), et la plaque indigo + le libellé qui disent l'onglet
-   actif — largement assez. */
-/* Le bouton rond du combat est le CTA permanent de l'app : même orange que COMBATTRE.
-   Sur l'écran de combat, il porte l'anneau indigo des onglets actifs. */
-.nav .center{width:52px;height:52px;flex:none;border-radius:50%;background:var(--accent);
-  color:var(--accent-ink);display:grid;place-items:center;
-  box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 40%,transparent)}
-.nav .center .nav-svg{width:29px;height:29px}
-.nav .center.on{box-shadow:0 0 0 3px var(--surface),0 0 0 6px var(--brand)}
+.nav-emblem{display:block;width:36px;height:36px;object-fit:contain;
+  -webkit-user-drag:none;user-select:none}
+/* Le combat reste le CTA permanent de l'app, mais son disque orange est DANS l'image :
+   le bouton ne le dessine plus, il se contente de faire de la place et de porter l'anneau
+   indigo quand on est sur l'écran de combat. */
+.nav .center{width:52px;height:52px;flex:none;border-radius:50%;display:grid;place-items:center}
+.nav .center .nav-emblem{width:50px;height:50px}
+.nav .center.on{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--brand)}
 @media (prefers-reduced-motion:reduce){.nav .n,.nav .n .lb{transition:none}}
 .nav-ic{position:relative;display:inline-grid;place-items:center}
 .nav-badge{position:absolute;top:-5px;right:-9px;min-width:16px;height:16px;border-radius:99px;
   background:var(--fraise);color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;
   padding:0 3px;line-height:1;border:2px solid var(--surface)}
 /* Pastille muette : « du nouveau ici », sans chiffre (onglet 🎒) */
-/* ⚠️ La pastille se cerne de la couleur de SA PLAQUE, pas de la barre : sur l'onglet actif
-   le fond est indigo, un liseré blanc y ferait une tache. */
-.nav-dot{position:absolute;top:-3px;right:-6px;width:10px;height:10px;border-radius:50%;
-  background:var(--fraise);border:2px solid var(--surface-3)}
+/* La pastille se pose sur le coin de l'écusson : liseré de la couleur de la BARRE au repos,
+   de la plaque quand l'onglet est actif. */
+.nav-dot{position:absolute;top:-1px;right:-1px;width:11px;height:11px;border-radius:50%;
+  background:var(--fraise);border:2px solid var(--surface)}
 .nav .n.on .nav-dot{border-color:var(--brand)}
 
 /* Auth */
