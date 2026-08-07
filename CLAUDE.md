@@ -356,8 +356,8 @@ Ces pièces portent une clé `art` et sont dessinées à plat : `sneakers`/`trai
 et bleu, le nom promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `monocle`,
 `eyepatch`, `visor`, `bowtie`, `bib`, `bandana` ; les cinq du plongeur (`swim_cap`,
 `dive_mask` — vitre **translucide**, un masque opaque effaçait le regard —, `dive_gauge`,
-`flippers` qui passent par le même `<Pair />` que les chaussures, `dive_light` = 🔦 en
-`single`) ; et les trois de la panoplie du dimanche :
+`flippers` qui passent par le même `<Pair />` que les chaussures, `wetsuit_arms`) ; et les
+trois de la panoplie du dimanche :
 `headphones` (🎧 est un casque vu de face, une masse noire sur le crâne ; dessiné, l'arceau
 passe **sur** la silhouette et les écouteurs tombent aux oreilles), `armband` (📱 seul flottait
 comme un objet posé là : ce qu'on porte, ce sont les sangles) et `towel` (🎽 était un débardeur,
@@ -371,8 +371,15 @@ flexible, qui pend.
 l'échelle pour atteindre les oreilles, il déborde d'un demi-fruit au-dessus du crâne.
 
 Trois drapeaux de mise en page, sur l'entrée `COSMETIC_ART` :
-- **`pair: true`** — le dessin contient déjà les deux pièces (chaussures) → jamais dupliqué, et
-  le slot `shoes` lui donne sa propre ancre (`at.art`, plus large qu'un emoji) ;
+- **`pair: true`** — le dessin contient déjà les deux pièces (chaussures, bras de combinaison)
+  → jamais dupliqué, et le slot `shoes` lui donne sa propre ancre (`at.art`, plus large qu'un
+  emoji). C'est **le seul moyen d'avoir deux mains DIFFÉRENTES** : un slot symétrique reflète
+  la même pièce, il ne sait faire que deux fois la même chose ;
+- **`back: true`** — la pièce passe **derrière** la silhouette (`.fav-behind`, z-index 0 sous
+  `.fav-svg`). C'est ce qui rend des bras crédibles : l'épaule part d'un point caché par le
+  corps et seul l'avant-bras ressort, donc un fruit étroit en montre plus qu'un large **sans
+  un seul calcul**. Devant, il fallait creuser un trou au milieu du dessin — et il barrait
+  quand même le visage ;
 - **`single: true`** — la pièce ne se porte que d'un côté (la baguette magique) ;
 - sans drapeau, la pièce est posée **de chaque côté, la droite en miroir** : elle doit donc
   représenter **UN** bras. C'est la règle que violaient 🧤 et 🐾 (déjà des paires → quatre mains).
@@ -610,7 +617,7 @@ que dans un rayon, et sa panoplie prime. Deux panoplies au seed :
 **Coureur du dimanche** (6 pièces **communes** à 100 💎 — écouteurs, serviette éponge,
 téléphone en brassard, baskets fatiguées, ☕ café d'avant-course, 💨 souffle court) et
 **Le plongeur** (6 pièces **rares** à 250 💎 — bonnet de bain, masque et tuba, manomètre,
-🔦 lampe, palmes, 🐠 banc de poissons). Deux paliers : le rayon d'entrée, puis un objectif
+harpon et lampe, palmes, 🐠 banc de poissons). Deux paliers : le rayon d'entrée, puis un objectif
 de collection à 1 500 💎 pour qui a déjà tout le commun — c'est plus qu'une saison parfaite
 (~1 100 💎), et c'est assumé : une panoplie rare se complète sur la durée, ou pendant une promo.
 

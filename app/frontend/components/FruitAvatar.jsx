@@ -146,8 +146,11 @@ function Cosmetic({ slot, worn, at }) {
   if (drawn?.pair) {
     const a = { ...at, ...(at.art || {}) }
     const em = sizeOf(drawn, a)
+    // `back` : la pièce passe derrière la silhouette (z-index 0 < .fav-svg). Les bras d'une
+    // combinaison n'ont l'air de bras que si l'épaule est cachée par le corps.
     return (
-      <span className={`fav-slot fav-${slot}`} style={pin(a.x, centerY(a, em, drawn), em)}>
+      <span className={`fav-slot fav-${slot} ${drawn.back ? 'fav-behind' : ''}`}
+            style={pin(a.x, centerY(a, em, drawn), em)}>
         <Art node={drawn.node} />
       </span>
     )

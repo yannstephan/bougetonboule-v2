@@ -322,6 +322,10 @@ body{margin:0;background:var(--bg);color:var(--text);
 .fav-neck{z-index:4}
 .fav-eyes{z-index:5}
 .fav-hat{z-index:6}
+/* Une pièce qui passe DERRIÈRE la silhouette (bras de combinaison) : elle reste dans la
+   passe « devant » du composant, mais son z-index la fait repasser sous .fav-svg (1).
+   Après les .fav-<slot> : à spécificité égale, c'est la dernière règle qui gagne. */
+.fav-behind{z-index:0}
 
 /* monstres SVG */
 .mon{position:relative;display:inline-grid;place-items:center;flex:none;line-height:1}

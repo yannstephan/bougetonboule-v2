@@ -218,6 +218,37 @@ const Mitten = ({ body, cuff, thumb }) => (
   </g>
 )
 
+// Les bras d'une combinaison : harpon dans une main, lampe torche dans l'autre.
+//
+// ⚠️ `pair: true` — le dessin contient DÉJÀ les deux bras, il n'est donc jamais dupliqué.
+// C'est ce qui permet de leur donner des mains DIFFÉRENTES : un slot symétrique reflète la
+// même pièce, il ne sait faire que deux fois la même chose.
+// ⚠️ `back: true` — la pièce passe DERRIÈRE le fruit. C'est ce qui rend les bras crédibles :
+// les épaules partent d'un point caché par la silhouette et seuls les avant-bras ressortent,
+// donc un fruit étroit en montre plus qu'un large, sans un seul calcul. Devant, il fallait
+// laisser un trou au milieu du dessin et il barrait quand même le visage.
+// ⚠️ Le harpon est VERTICAL : penché, son fût passait derrière le fruit et disparaissait.
+const WetsuitArms = () => (
+  <g>
+    <path d="M13 90 L13 30" stroke="#aeb9c9" strokeWidth="4" strokeLinecap="round" />
+    <path d="M13 24 l-6 11 h12 z" fill="#8d99ab" />
+    <path d="M7 44 l6 -7 l6 7" fill="none" stroke="#8d99ab" strokeWidth="2.6" strokeLinejoin="round" />
+    <rect x="5" y="55" width="16" height="20" rx="4" fill="#3d4757" />
+    <rect x="5" y="59" width="16" height="4.5" fill="#1f9ecb" />
+    <path d="M44 44 L26 58 L14 78" fill="none" stroke="#17233a" strokeWidth="13"
+          strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M20 68 L15 76" fill="none" stroke="#1f9ecb" strokeWidth="13" strokeLinecap="round" />
+    <circle cx="13" cy="80" r="9" fill="#0d1626" />
+    <path d="M56 44 L74 58 L86 78" fill="none" stroke="#17233a" strokeWidth="13"
+          strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M80 68 L85 76" fill="none" stroke="#1f9ecb" strokeWidth="13" strokeLinecap="round" />
+    <circle cx="87" cy="80" r="9" fill="#0d1626" />
+    <path d="M100 58 L100 92 L88 84 L88 70 Z" fill="#f2b100" opacity="0.32" />
+    <rect x="78" y="70" width="13" height="11" rx="3" fill="#2b303c" />
+    <rect x="89" y="69" width="5" height="13" rx="2" fill="#ffd97a" />
+  </g>
+)
+
 // ————— Accessoires —————
 
 // Maracas croisées. 🪇 n'existe qu'en Unicode 15 (2022) : carré vide sur les vieux
@@ -356,9 +387,10 @@ export const COSMETIC_ART = {
   // Taille FIXE, sans `fit` : un objet qui pend au bout d'un flexible n'a pas de raison de
   // grossir avec la tête, contrairement à ce qui se pose dessus.
   dive_gauge: { view: '22 0 56 100', em: 0.3, node: <DiveGauge /> },
-  // 🔦 est une lampe vue de biais : reflétée, elle en faisait deux. `single` la garde d'un
-  // seul côté, comme la baguette magique — et l'emoji suffit, inutile de la dessiner.
-  dive_light: { single: true, em: 0.28, emoji: '🔦' },
+  // fit 1.6 : le fruit occupe alors ~63 % de la boîte, et les avant-bras se logent dans le
+  // tiers qui reste de chaque côté, quelle que soit sa largeur.
+  wetsuit_arms: { view: '3 22 98 72', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
+                  node: <WetsuitArms /> },
   bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },
   cowboy_hat: { view: '8 30 84 52', fit: 0.77, node: <CowboyHat /> },
   santa_hat: { view: '18 22 79 62', fit: 0.77, node: <SantaHat /> },
