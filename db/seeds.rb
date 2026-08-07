@@ -86,7 +86,6 @@ Cosmetic.create!([
   { name: "Aura pêche",         slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set",  emoji: "✨" },
   { name: "Double cœur",        slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set",  emoji: "💕" },
   { name: "Trèfle à quatre feuilles", slot: "aura", rarity: "rare", price_diamonds: nil, source: "set",  emoji: "🍀" },
-  { name: "Aura de givre",      slot: "aura", rarity: "rare",      price_diamonds: nil,  source: "set",  emoji: "❄️" },
   { name: "Aura de feu",        slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "set",  emoji: "🔥" },
   { name: "Aura électrique",    slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "set",  emoji: "⚡" },
   { name: "Arc-en-ciel",        slot: "aura", rarity: "legendary", price_diamonds: nil, source: "set",  emoji: "🌈" },
@@ -214,6 +213,28 @@ Cosmetic.create!([
     emoji: "🦌",         cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] },
   { name: "Sapin scintillant",   slot: "aura",     rarity: "rare", price_diamonds: nil, source: "set",
     emoji: "🎄",         cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] }
+])
+
+# Cinquième panoplie : le costume complet, PERMANENT (pas de fenêtre, contrairement à
+# « Noël ») — c'est un déguisement, pas une collection de saison, et il reste au catalogue
+# toute l'année. Elle sauve l'Aura de givre, une orpheline de plus.
+# ⚠️ La barbe occupe le slot des LUNETTES : on ne peut donc pas porter les deux, ce qui est
+# exactement ce qu'on veut d'une barbe de Père Noël.
+pere_noel = CosmeticSet.create!(
+  name: "Le Père Noël",
+  description: "La panoplie complète : le bonnet, la barbe, les bottes et les bras chargés."
+)
+Cosmetic.create!([
+  { name: "Bonnet du Père Noël",  slot: "hat",   rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "santa_hat",   cosmetic_set: pere_noel },
+  { name: "Grande barbe blanche", slot: "eyes",  rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "beard",       cosmetic_set: pere_noel },
+  { name: "Bras chargés de cadeaux", slot: "hands", rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "gift_arms",   cosmetic_set: pere_noel },
+  { name: "Bottes à boucle",      slot: "shoes", rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "santa_boots", cosmetic_set: pere_noel },
+  { name: "Aura de givre",        slot: "aura",  rarity: "rare", price_diamonds: nil, source: "set",
+    emoji: "❄️",        cosmetic_set: pere_noel }
 ])
 
 puts "Objets (power-ups)…"

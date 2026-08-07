@@ -391,6 +391,43 @@ const XmasArms = () => (
   </g>
 )
 
+// ————— Panoplie du Père Noël —————
+
+// La grande barbe. ⚠️ Dans le slot des LUNETTES, mais dessinée BAS dans sa boîte : c'est la
+// même ruse que la balafre — le décalage ne tient qu'à la position du tracé, la pièce étant
+// centrée sur la ligne des yeux. La moustache s'arrête au-dessus de la bouche et la barbe
+// reprend en dessous : d'un seul bloc, elle effaçait le sourire.
+const Beard = () => (
+  <g fill="#f4f7fd" stroke="#d3dbe6" strokeWidth="2" strokeLinejoin="round">
+    <path d="M20 70 Q18 98 50 100 Q82 98 80 70 Q72 80 50 80 Q28 80 20 70 Z" />
+    <path d="M50 60 Q40 51 29 55 Q21 59 26 66 Q37 71 50 63 Z" />
+    <path d="M50 60 Q60 51 71 55 Q79 59 74 66 Q63 71 50 63 Z" />
+  </g>
+)
+
+// Bras chargés de cadeaux : manches rouges à revers de fourrure, un paquet dans chaque main.
+// Même construction que les bras du plongeur et de Noël (`pair` + `back`).
+const Gift = ({ x, wrap, ribbon }) => (
+  <g>
+    <rect x={x - 13} y="70" width="26" height="24" rx="3" fill={wrap} />
+    <rect x={x - 3} y="70" width="6" height="24" fill={ribbon} />
+    <rect x={x - 13} y="79" width="26" height="5" fill={ribbon} />
+    <path d={`M${x} 70 q-9 -9 -1 -9 q4 0 1 9 z M${x} 70 q9 -9 1 -9 q-4 0 -1 9 z`} fill={ribbon} />
+  </g>
+)
+const GiftArms = () => (
+  <g>
+    <path d="M44 42 L26 54 L15 68" fill="none" stroke="#c0182f" strokeWidth="14"
+          strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M56 42 L74 54 L85 68" fill="none" stroke="#c0182f" strokeWidth="14"
+          strokeLinecap="round" strokeLinejoin="round" />
+    <ellipse cx="17" cy="66" rx="9" ry="6.5" fill="#f4f7fd" transform="rotate(-40 17 66)" />
+    <ellipse cx="83" cy="66" rx="9" ry="6.5" fill="#f4f7fd" transform="rotate(40 83 66)" />
+    <Gift x={14} wrap="#3aa76d" ribbon="#f2b100" />
+    <Gift x={86} wrap="#4a7fd1" ribbon="#f4f7fd" />
+  </g>
+)
+
 // ————— Accessoires —————
 
 // Maracas croisées. 🪇 n'existe qu'en Unicode 15 (2022) : carré vide sur les vieux
@@ -540,6 +577,13 @@ export const COSMETIC_ART = {
   // de la chaussure sont déjà paramétrés, une panoplie de plus ne coûte que des couleurs.
   antlers: { view: '4 28 92 74', fit: 1.0, node: <Antlers /> },
   santa_glasses: { view: '0 0 100 68', fit: 1.05, node: <SantaGlasses /> },
+  // — Panoplie du Père Noël. Le bonnet réutilise `santa_hat` : c'est le même objet que le
+  // Bonnet du Réveillon, le redessiner en plus gros aurait dupliqué du contenu pour rien.
+  beard: { view: '16 48 68 54', fit: 1.12, minEm: 0.4, maxEm: 0.82, node: <Beard /> },
+  gift_arms: { view: '0 40 100 56', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
+               node: <GiftArms /> },
+  santa_boots: { view: '8 25 84 55', pair: true,
+                 node: <Pair body="#1f2229" sole="#0f1216" tongue="#f4f7fd" lace="#f2b100" shaft={16} /> },
   garland: { view: '0 20 100 40', fit: 0.85, bite: 26, node: <Garland /> },
   xmas_arms: { view: '0 40 100 54', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
                node: <XmasArms /> },

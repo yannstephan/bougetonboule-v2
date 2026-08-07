@@ -350,9 +350,8 @@ scope pour les trois : c'est ce qui garantit qu'aucun n'oublie la règle).
 - La boutique **montre l'aura avant qu'elle soit gagnée**, en pied de son rayon, avec le
   compte des pièces restantes : c'est elle qui donne une raison de finir la collection.
 - Toutes les auras du seed sont donc `price_diamonds: nil` + `source: "set"`.
-- ⚠️ **11 auras du catalogue n'ont pas encore de panoplie** et sont donc *inobtenables* —
-  voir la roadmap. Seules celles du Coureur du dimanche, du Plongeur, du Loup et de Noël
-  se gagnent.
+- ⚠️ **10 auras du catalogue n'ont pas encore de panoplie** et sont donc *inobtenables* —
+  voir la roadmap. Les cinq panoplies en ont sauvé une chacune.
 
 ⚠️ **L'aura n'est plus sur l'avatar : elle peint le FOND DE PAGE**
 (`components/AuraBackground.jsx`). C'était une couronne de 6 emojis derrière le fruit, et elle
@@ -426,7 +425,7 @@ les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
-- **Catalogue : 91 pièces** (dont 5 de saison et 26 réparties en 4 panoplies) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
+- **Catalogue : 95 pièces** (dont 5 de saison et 31 réparties en 5 panoplies) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
   **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween, médaille,
   loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue (comportement
   assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
@@ -653,7 +652,7 @@ qu'on **paie**, et une aura ne se paie pas. On achète **toujours à la pièce**
 se vend pas en bloc, elle range le rayon (son propre encadré, peint à sa rareté, avec un
 compteur « 3/6 » qui donne envie de la finir) et surtout elle **porte les promotions**.
 Ses pièces sont **exclues** du rayon permanent et du rayon de saison — une pièce n'apparaît
-que dans un rayon, et sa panoplie prime. Quatre panoplies au seed :
+que dans un rayon, et sa panoplie prime. Cinq panoplies au seed :
 **Coureur du dimanche** (6 pièces **communes** à 100 💎 — écouteurs, serviette éponge,
 téléphone en brassard, baskets fatiguées, ☕ café d'avant-course, 💨 souffle court) et
 **Le plongeur** (5 pièces **rares** à 250 💎 — bonnet de bain, masque et tuba, ceinture de
@@ -664,6 +663,12 @@ du Père Noël, guirlande, manteau et moufles, bottes, 🦌 renne → 🎄 **Sap
 ⚠️ Deux de ses pièces se **disputent l'espace** : le bonnet des lunettes monte jusqu'au crâne
 et disparaît sous les bois de renne. C'est un choix laissé au joueur, pas un bug — mais c'est
 le premier cas où deux pièces d'une même panoplie ne se portent pas bien ensemble.
+Enfin **Le Père Noël** (4 pièces **rares** à 250 💎 — bonnet, grande barbe blanche, bras
+chargés de cadeaux, bottes à boucle → ❄️ **Aura de givre**), **permanente** : c'est un
+déguisement, pas une collection de saison. Son bonnet **réutilise `santa_hat`**, le dessin du
+Bonnet du Réveillon — le redessiner en plus gros aurait dupliqué du contenu pour rien. Et sa
+**barbe occupe le slot des LUNETTES** : on ne peut donc pas porter les deux, ce qui est
+exactement ce qu'on veut d'une barbe de Père Noël.
 
 ⚠️ **Une panoplie peut être SAISONNIÈRE** (Noël) : ce sont ses **pièces** qui portent la
 fenêtre, pas la panoplie. `sets_json` ne retient que les pièces disponibles et **saute une
@@ -940,7 +945,7 @@ SET='Coureur du dimanche' bin/rails season:unpromo                 # prix d'orig
 
 0. **Donner une panoplie aux 11 auras orphelines** — depuis qu'une aura est la récompense
    d'une panoplie, celles qui n'en ont pas ne s'obtiennent plus (Arc-en-ciel, Aura de feu,
-   Tournesol…). L'Esprit du loup et le Sapin scintillant ont trouvé la leur, il en reste onze. Trois issues possibles : bâtir une panoplie autour de
+   Tournesol…). Chaque panoplie en sauve une (Esprit du loup, Sapin scintillant, Aura de givre…) : il en reste dix. Trois issues possibles : bâtir une panoplie autour de
    chacune, les rattacher aux panoplies existantes, ou les retirer du catalogue. Décision
    de contenu, pas de code : la mécanique, elle, est en place.
 1. **Admin de partie** — créer Event/Game/Teams depuis l'app (l'écran `/admin` existe déjà pour
