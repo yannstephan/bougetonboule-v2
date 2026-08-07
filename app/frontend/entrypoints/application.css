@@ -55,8 +55,8 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* Cartes blanches sur fond slate : une ombre très légère les décolle du fond, sans aucun
    relief 3D — on reste en flat design, on ajoute juste de la profondeur. Une seule règle
    groupée : toute nouvelle carte s'ajoute ici plutôt que d'inventer son ombre. */
-.arena,.cd,.tile,.lg-card,.lg-row,.shop-card,.shop-cos,.notif,.auth-card,.fx-card,
-.chest-card,.strava-row{box-shadow:var(--shadow)}
+.arena,.cd,.tile,.lg-card,.lg-row,.shop-card,.shop-cos,.shop-set-card,.notif,.auth-card,
+.fx-card,.chest-card,.strava-row{box-shadow:var(--shadow)}
 .shop-card.armed{box-shadow:none}
 
 .shell{max-width:460px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
@@ -698,6 +698,30 @@ body{margin:0;background:var(--bg);color:var(--text);
 .shop-season-head{display:flex;flex-direction:column;gap:3px}
 .shop-season-head .t{font-weight:800;font-size:14px;color:var(--violet)}
 .shop-season-head .s{font-size:11px;color:var(--muted);line-height:1.35}
+/* La carte d'une PANOPLIE : ce qu'on voit avant d'entrer. Le rayon liste des TENUES, pas des
+   pièces — la carte montre donc la panoplie portée sur son propre fruit, et les boutons
+   d'achat n'apparaissent qu'une fois entré. Deux colonnes : à trois, l'aperçu devenait trop
+   petit pour qu'on juge la tenue, ce qui est tout l'intérêt de la carte. */
+.shop-sets{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.shop-set-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;
+  border-width:1.5px;border-style:solid;border-radius:var(--r);padding:10px 8px 11px;
+  font:inherit;color:inherit;cursor:pointer;text-align:center}
+.shop-set-look{display:grid;place-items:center;height:96px}
+.shop-set-name{font-weight:800;font-size:12px;line-height:1.2}
+.shop-set-meta{display:flex;align-items:center;gap:7px;font-size:11px}
+.shop-set-price{font-weight:800;font-variant-numeric:tabular-nums}
+/* Promo et compte à rebours se posent en pastille sur la carte, pas dans le flux : la
+   vignette doit garder la même hauteur qu'elle en ait ou non. */
+.shop-set-card .shop-promo{position:absolute;top:6px;right:6px}
+.shop-set-left{position:absolute;top:6px;left:6px;background:var(--violet);color:#fff;
+  border-radius:999px;padding:2px 7px;font-size:9px;font-weight:800;white-space:nowrap}
+/* Barre de retour de la panoplie ouverte */
+.shop-set-nav{display:flex;align-items:center;gap:8px}
+.shop-back{flex:1;text-align:left;background:none;border:0;padding:0;font:inherit;
+  font-weight:800;font-size:12px;color:var(--brand);cursor:pointer}
+.shop-tryall{flex:none;background:var(--surface);border:1px solid var(--line-2);border-radius:999px;
+  padding:5px 11px;font:inherit;font-weight:700;font-size:11px;cursor:pointer}
+
 /* Une PANOPLIE : même forme d'encadré que la boutique de saison, mais peinte à la RARETÉ
    de ses pièces (rar-tint) plutôt qu'en violet — elles sont toutes de la même, c'est ce qui
    fait qu'un ensemble se lit comme un ensemble. On y achète à la pièce comme ailleurs. */

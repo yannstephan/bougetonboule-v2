@@ -103,9 +103,17 @@ const daysLabel = (n) => (n === 0 ? 'Dernier jour !' : n === 1 ? 'Encore 1 jour'
 // peut composer une tenue complète avant d'acheter quoi que ce soit.
 function Cosmetics({ cosmetics, seasonal = [], sets = [], diamonds, onBuy, avatar }) {
   const [tried, setTried] = useState({}) // { slot: cosmétique }
+  // La panoplie ouverte. Fermée, on ne voit d'elle qu'UNE carte : le rayon liste des tenues,
+  // pas des pièces. Les pièces et leurs boutons n'apparaissent qu'une fois entré.
+  const [openId, setOpenId] = useState(null)
+  const open = sets.find((s) => s.id === openId)
 
   const tryOn = (c) =>
     setTried((t) => (t[c.slot]?.id === c.id ? omit(t, c.slot) : { ...t, [c.slot]: c }))
+  // « Tout essayer » : la panoplie entière d'un coup dans la cabine. C'est la question qu'on
+  // se pose devant une tenue — pas « et ce chapeau, il me va ? ».
+  const tryAll = (set) =>
+    setTried(Object.fromEntries(set.pieces.map((c) => [ c.slot, c ])))
 
   const worn = Object.values(tried)
   const preview = {
@@ -139,34 +147,89 @@ function Cosmetics({ cosmetics, seasonal = [], sets = [], diamonds, onBuy, avata
         </div>
       )}
 
-      {seasonal.length > 0 && (
-        <section className="shop-season">
-          <div className="shop-season-head">
-            <span className="t">✨ Boutique de saison</span>
-            <span className="s">Ces pièces repartent bientôt — après, il faudra attendre l'an prochain.</span>
-          </div>
-          <CosmeticGrid list={seasonal} diamonds={diamonds} onBuy={onBuy} onTry={tryOn} tried={tried} season />
-        </section>
+      {open ? (
+        <SetShelf set={open} diamonds={diamonds} onBuy={onBuy} onTry={tryOn} tried={tried}
+                  onBack={() => setOpenId(null)} onTryAll={() => tryAll(open)} />
+      ) : (
+        <>
+          {sets.length > 0 && (
+            <section className="av-sec">
+              <h2>Panoplies · {sets.length}</h2>
+              <div className="shop-sets">
+                {sets.map((set) => (
+                  <SetCard key={set.id} set={set} avatar={avatar} onOpen={() => setOpenId(set.id)} />
+                ))}
+              </div>
+            </section>
+          )}
+          {seasonal.length > 0 && (
+            <section className="shop-season">
+              <div className="shop-season-head">
+                <span className="t">✨ Boutique de saison</span>
+                <span className="s">Ces pièces repartent bientôt — après, il faudra attendre l'an prochain.</span>
+              </div>
+              <CosmeticGrid list={seasonal} diamonds={diamonds} onBuy={onBuy} onTry={tryOn} tried={tried} season />
+            </section>
+          )}
+          <section className="av-sec">
+            <h2>À la pièce · {cosmetics.length}</h2>
+            <CosmeticGrid list={cosmetics} diamonds={diamonds} onBuy={onBuy} onTry={tryOn} tried={tried} />
+          </section>
+        </>
       )}
-      {sets.map((set) => (
-        <SetShelf key={set.id} set={set} diamonds={diamonds}
-                  onBuy={onBuy} onTry={tryOn} tried={tried} />
-      ))}
-      <CosmeticGrid list={cosmetics} diamonds={diamonds} onBuy={onBuy} onTry={tryOn} tried={tried} />
     </>
   )
 }
 
-// Une PANOPLIE : ses pièces montrées ensemble, sous leur nom. On achète toujours à la
-// pièce — la panoplie range le rayon et porte la promo. Le compteur « 3/6 » dit où on en
-// est : c'est ce qui donne envie de la finir.
-function SetShelf({ set, diamonds, onBuy, onTry, tried }) {
+// La carte d'une panoplie : ce qu'on voit AVANT d'entrer. Elle montre la TENUE, portée sur
+// son propre fruit — la question devant un rayon de panoplies est « est-ce que ça me va ? »,
+// pas « combien coûte ce chapeau ». Le compteur et le reste à payer suffisent au reste.
+// L'aperçu est monté exactement comme la cabine d'essai : mêmes pièces posées sur le même
+// avatar, aucun aller-retour serveur.
+function SetCard({ set, avatar, onOpen }) {
+  const owned = set.pieces.filter((p) => p.owned).length
+  const done = owned === set.pieces.length
+  const left = set.pieces.filter((p) => !p.owned).reduce((n, p) => n + p.price, 0)
+  const worn = {
+    ...avatar,
+    cosmetics: {
+      ...avatar?.cosmetics,
+      ...Object.fromEntries(set.pieces.map((c) => [ c.slot, { emoji: c.emoji, art: c.art } ]))
+    }
+  }
+
+  return (
+    <button type="button" className={`shop-set-card rar-tint rar-${set.rarity}`} onClick={onOpen}>
+      <span className="shop-set-look">
+        <PlayerAvatar avatar={worn} size={96} />
+      </span>
+      <span className="shop-set-name">{set.name}</span>
+      <span className="shop-set-meta">
+        <span className={`shop-set-count ${done ? 'done' : ''}`}>
+          {done ? '✓ complète' : `${owned}/${set.pieces.length}`}
+        </span>
+        {!done && <span className="shop-set-price">{left} 💎</span>}
+      </span>
+      {set.promo && <span className="shop-promo">−{set.promo.percent}%</span>}
+      {set.days_left != null && <span className="shop-set-left">⏳ {daysLabel(set.days_left)}</span>}
+    </button>
+  )
+}
+
+// La panoplie OUVERTE : c'est seulement ici qu'apparaissent les pièces et leurs boutons.
+// On achète toujours à la pièce — la panoplie range le rayon et porte la promo. Le compteur
+// « 3/6 » dit où on en est : c'est ce qui donne envie de la finir.
+function SetShelf({ set, diamonds, onBuy, onTry, tried, onBack, onTryAll }) {
   const owned = set.pieces.filter((p) => p.owned).length
   const done = owned === set.pieces.length
   return (
     <section className={`shop-set rar-tint rar-${set.rarity}`}>
+      <div className="shop-set-nav">
+        <button type="button" className="shop-back" onClick={onBack}>‹ Toutes les panoplies</button>
+        <button type="button" className="shop-tryall" onClick={onTryAll}>Tout essayer</button>
+      </div>
       <div className="shop-set-head">
-        <span className="t">🎽 {set.name}</span>
+        <span className="t">{set.name}</span>
         {set.days_left != null && (
           <span className="shop-cos-left" style={{ position: 'static', transform: 'none' }}>
             ⏳ {daysLabel(set.days_left)}

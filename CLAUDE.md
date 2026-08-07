@@ -682,8 +682,16 @@ prix d'un ensemble lisible d'un coup d'œil. ⚠️ **L'aura en est exemptée** 
 la récompense et non une pièce à vendre, elle a le droit de valoir plus que ce qu'on a payé
 pour l'obtenir (Le loup : six pièces épiques → une aura **légendaire**). La règle porte sur ce
 qu'on **paie**, et une aura ne se paie pas. On achète **toujours à la pièce** : une panoplie ne
-se vend pas en bloc, elle range le rayon (son propre encadré, peint à sa rareté, avec un
-compteur « 3/6 » qui donne envie de la finir) et surtout elle **porte les promotions**.
+se vend pas en bloc, elle range le rayon et surtout elle **porte les promotions**.
+
+⚠️ **Le rayon liste des TENUES, pas des pièces.** Une panoplie fermée n'est qu'**une carte**,
+qui montre la panoplie **portée sur le fruit du joueur** — la question devant un rayon de
+panoplies est « est-ce que ça me va ? », pas « combien coûte ce chapeau ». La carte ne dit que
+le compteur (`3/6`), ce qu'il reste à payer, et la promo ou le compte à rebours en pastille.
+**Les pièces et leurs boutons d'achat n'apparaissent qu'une fois la panoplie ouverte**, avec un
+bouton **« Tout essayer »** qui pose l'ensemble dans la cabine d'un coup. L'aperçu de la carte
+est monté exactement comme la cabine d'essai (mêmes pièces sur le même avatar) : **aucun
+aller-retour serveur**. Les pièces hors panoplie gardent leur grille, sous « À la pièce ».
 Ses pièces sont **exclues** du rayon permanent et du rayon de saison — une pièce n'apparaît
 que dans un rayon, et sa panoplie prime. Neuf panoplies au seed :
 **Coureur du dimanche** (6 pièces **communes** à 100 💎 — écouteurs, serviette éponge,
