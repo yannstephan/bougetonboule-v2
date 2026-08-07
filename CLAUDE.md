@@ -951,6 +951,12 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
   l'écusson est **seul** et prend toute la place (36 px), et **seul l'onglet actif** reçoit sa
   plaque indigo, qui devient un vrai contraste au lieu d'un cadre de plus. Le disque orange du
   combat étant dans l'image, le bouton ne le dessine plus.
+  ⚠️ **Le ⚔️ déborde par le haut** : plus gros que les autres (60 px contre 36) et remonté de
+  14 px, il **coupe le filet supérieur de la barre**. C'est ce qui le sort du rang — un CTA
+  permanent ne se range pas dans la file, il se pose dessus. Le débord se fait au `translate`,
+  pas par la boîte : **la hauteur de la barre ne bouge pas**, donc rien à recalculer ailleurs.
+  Et pas de collerette à dessiner : l'écusson porte déjà son liseré blanc, c'est lui qui tranche
+  le filet — une seconde bague par-dessus ferait un double cerne.
   ⚠️ **Contrat d'un écusson** (à respecter pour tout remplaçant) : carré, détouré, 128 px, WebP,
   et surtout **lisible à 36 px** — c'est la seule taille qui compte, une planche agrandie est
   toujours trompeuse. Découpage : **exiger une source à vraie transparence** — c'est son

@@ -158,10 +158,20 @@ body{margin:0;background:var(--bg);color:var(--text);
   -webkit-user-drag:none;user-select:none}
 /* Le combat reste le CTA permanent de l'app, mais son disque orange est DANS l'image :
    le bouton ne le dessine plus, il se contente de faire de la place et de porter l'anneau
-   indigo quand on est sur l'écran de combat. */
-.nav .center{width:52px;height:52px;flex:none;border-radius:50%;display:grid;place-items:center}
-.nav .center .nav-emblem{width:50px;height:50px}
-.nav .center.on{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--brand)}
+   indigo quand on est sur l'écran de combat.
+   ⚠️ Il DÉBORDE par le haut : plus gros que les autres onglets, il monte de 14 px et coupe le
+   filet supérieur de la barre. C'est ce qui le sort du rang — un CTA permanent ne se range pas
+   dans la file, il se pose dessus. Le débord se fait au `translate` et non par la boîte : la
+   hauteur de la barre ne bouge pas d'un pixel, donc rien à recalculer ailleurs (`--hud-h` et
+   les fonds de page ignorent l'affaire).
+   Pas de collerette à dessiner : l'écusson porte déjà son liseré blanc, c'est LUI qui tranche
+   le filet. Une seconde bague par-dessus ferait un double cerne. */
+.nav .center{width:60px;height:60px;flex:none;border-radius:50%;display:grid;place-items:center;
+  position:relative;z-index:1;translate:0 -14px;
+  box-shadow:0 6px 14px color-mix(in srgb,var(--accent) 40%,transparent)}
+.nav .center .nav-emblem{width:60px;height:60px}
+.nav .center.on{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--brand),
+  0 6px 14px color-mix(in srgb,var(--brand) 36%,transparent)}
 @media (prefers-reduced-motion:reduce){.nav .n,.nav .n .lb{transition:none}}
 .nav-ic{position:relative;display:inline-grid;place-items:center}
 .nav-badge{position:absolute;top:-5px;right:-9px;min-width:16px;height:16px;border-radius:99px;
