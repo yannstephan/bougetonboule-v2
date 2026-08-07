@@ -955,6 +955,11 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
   et surtout **lisible à 36 px** — c'est la seule taille qui compte, une planche agrandie est
   toujours trompeuse. Le découpage se fait par masque de saturation quand la source arrive avec
   un damier peint : le fond est le gris NEUTRE de clarté moyenne, tout le reste est du contenu.
+  ⚠️ Et il faut **effacer tout ce qui sort de la boîte détectée** : le carré final est plus
+  large que le sticker, il mord donc sur ses voisins de la planche et embarque des bouts de leur
+  contour blanc, qui flottent ensuite à côté de l'icône. Le remplissage du carré n'est qu'un
+  cadre, pas du contenu. Ça ne se voit qu'en posant l'écusson sur un fond criard — le magenta
+  est fait pour ça.
 
 ⚠️ **La nav du bas est en `z-index:10`, comme le bandeau, et l'avatar est en
 `isolation:isolate`.** L'avatar distribue des z-index de 0 à 6 entre ses pièces (aura derrière,
