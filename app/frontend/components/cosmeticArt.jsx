@@ -251,14 +251,17 @@ const WetsuitArms = () => (
 
 // ————— Panoplie du loup —————
 
-// Oreilles de loup. Comme le bonnet de bain, le dessin REMPLIT le bas de sa boîte : c'est le
-// bord de la boîte qui se pose sur le crâne, pas celui du dessin.
+// Oreilles de loup, ÉCARTÉES : elles se rejoignaient au milieu du crâne et faisaient un
+// bonnet à pointes plutôt que deux oreilles. Un creux entre les deux, et la silhouette du
+// fruit (les palmes de l'ananas, la queue d'une cerise) passe au travers.
+// Comme le bonnet de bain, le dessin REMPLIT le bas de sa boîte : c'est le bord de la BOÎTE
+// qui se pose sur le crâne, pas celui du dessin.
 const WolfEars = ({ fur = '#6b6f7a', dark = '#4a4f59', inner = '#e79aa8' }) => (
   <g>
-    <path d="M10 98 L20 28 L52 84 Z" fill={fur} stroke={dark} strokeWidth="3" strokeLinejoin="round" />
-    <path d="M24 80 L27 46 L42 82 Z" fill={inner} />
-    <path d="M90 98 L80 28 L48 84 Z" fill={fur} stroke={dark} strokeWidth="3" strokeLinejoin="round" />
-    <path d="M76 80 L73 46 L58 82 Z" fill={inner} />
+    <path d="M4 98 L13 24 L42 86 Z" fill={fur} stroke={dark} strokeWidth="3" strokeLinejoin="round" />
+    <path d="M18 82 L21 44 L34 84 Z" fill={inner} />
+    <path d="M96 98 L87 24 L58 86 Z" fill={fur} stroke={dark} strokeWidth="3" strokeLinejoin="round" />
+    <path d="M82 82 L79 44 L66 84 Z" fill={inner} />
   </g>
 )
 
