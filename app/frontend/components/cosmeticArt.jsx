@@ -322,15 +322,32 @@ const Antlers = ({ horn = '#8a5a2b' }) => (
   </g>
 )
 
-// Lunettes de ski. Même leçon que le masque de plongée : l'écran d'abord et TRANSLUCIDE,
-// la monture par-dessus AU TRAIT — un verre posé sur une monture pleine devient opaque et
-// efface le regard.
-const SkiGoggles = () => (
+// Lunettes du Père Noël : la babiole de fête — verres fumés, monture rouge, bonnet posé
+// dessus et branches en sucre d'orge.
+// ⚠️ Verres OPAQUES, contrairement au masque de plongée et aux lunettes de ski : ici le
+// verre teinté EST la pièce. Le reflet en diagonale évite qu'ils fassent deux trous noirs.
+// ⚠️ Le bonnet monte jusqu'au crâne : cette pièce se dispute donc l'espace avec ce qu'on
+// porte au chapeau (les bois de renne de la même panoplie n'en laissent rien voir).
+const SantaGlasses = () => (
   <g>
-    <rect x="16" y="34" width="68" height="32" rx="14" fill="#ffcf5c" opacity="0.5" />
-    <rect x="0" y="42" width="100" height="13" rx="6" fill="#c0182f" />
-    <rect x="14" y="30" width="72" height="40" rx="17" fill="none" stroke="#2b3240" strokeWidth="9" />
-    <path d="M26 40 q12 -6 24 -1" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" fill="none" opacity="0.75" />
+    <g fill="#f4f7fd">
+      <rect x="0" y="43" width="17" height="9" rx="3" /><rect x="83" y="43" width="17" height="9" rx="3" />
+    </g>
+    <g fill="#c0182f">
+      <path d="M0 43 h5 l-5 9 z" /><path d="M7 43 h5 l-5 9 z" /><path d="M14 43 h3 l-3 9 z" />
+      <path d="M100 43 h-5 l5 9 z" /><path d="M93 43 h-5 l5 9 z" /><path d="M86 43 h-3 l3 9 z" />
+    </g>
+    <path d="M16 28 Q22 2 58 2 Q84 3 90 20 L90 28 Z" fill="#c0182f" />
+    <circle cx="92" cy="12" r="11" fill="#f4f7fd" />
+    <rect x="10" y="23" width="80" height="14" rx="7" fill="#f4f7fd" />
+    <rect x="14" y="36" width="34" height="28" rx="8" fill="#23262e" />
+    <rect x="52" y="36" width="34" height="28" rx="8" fill="#23262e" />
+    <path d="M20 58 L36 40" stroke="#5b6577" strokeWidth="5" strokeLinecap="round" opacity="0.55" />
+    <path d="M58 58 L74 40" stroke="#5b6577" strokeWidth="5" strokeLinecap="round" opacity="0.55" />
+    <g fill="none" stroke="#c0182f" strokeWidth="5">
+      <rect x="12" y="34" width="38" height="32" rx="9" /><rect x="50" y="34" width="38" height="32" rx="9" />
+    </g>
+    <rect x="46" y="40" width="8" height="5" fill="#c0182f" />
   </g>
 )
 
@@ -522,7 +539,7 @@ export const COSMETIC_ART = {
   // — Panoplie de Noël. Deux pièces ne sont qu'un RECOLORIAGE : les dessins de la moufle et
   // de la chaussure sont déjà paramétrés, une panoplie de plus ne coûte que des couleurs.
   antlers: { view: '4 28 92 74', fit: 1.0, node: <Antlers /> },
-  ski_goggles: { view: '0 28 100 44', fit: 0.9, node: <SkiGoggles /> },
+  santa_glasses: { view: '0 0 100 68', fit: 1.05, node: <SantaGlasses /> },
   garland: { view: '0 20 100 40', fit: 0.85, bite: 26, node: <Garland /> },
   xmas_arms: { view: '0 40 100 54', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
                node: <XmasArms /> },

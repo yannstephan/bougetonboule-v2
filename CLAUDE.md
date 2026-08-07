@@ -660,7 +660,10 @@ téléphone en brassard, baskets fatiguées, ☕ café d'avant-course, 💨 souf
 plomb, harpon et lampe, palmes → 🐠 Banc de poissons) ; **Le loup** (6 pièces **épiques** à 500 💎 —
 oreilles, balafre, collier à pointes, patte, coussinets, 🦴 os à ronger → 🐺 **Esprit du loup**,
 qui n'existe plus que là) ; et **Noël** (6 pièces **rares** à 250 💎 — bois de renne, lunettes
-de ski, guirlande, moufles, bottes, 🦌 renne → 🎄 **Sapin scintillant**).
+du Père Noël, guirlande, manteau et moufles, bottes, 🦌 renne → 🎄 **Sapin scintillant**).
+⚠️ Deux de ses pièces se **disputent l'espace** : le bonnet des lunettes monte jusqu'au crâne
+et disparaît sous les bois de renne. C'est un choix laissé au joueur, pas un bug — mais c'est
+le premier cas où deux pièces d'une même panoplie ne se portent pas bien ensemble.
 
 ⚠️ **Une panoplie peut être SAISONNIÈRE** (Noël) : ce sont ses **pièces** qui portent la
 fenêtre, pas la panoplie. `sets_json` ne retient que les pièces disponibles et **saute une

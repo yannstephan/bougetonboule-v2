@@ -200,8 +200,10 @@ noel = CosmeticSet.create!(
 Cosmetic.create!([
   { name: "Bois de renne",       slot: "hat",      rarity: "rare", price_diamonds: 250, source: "shop",
     art: "antlers",      cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] },
-  { name: "Lunettes de ski",     slot: "eyes",     rarity: "rare", price_diamonds: 250, source: "shop",
-    art: "ski_goggles",  cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] },
+  # ⚠️ Le bonnet de ces lunettes monte jusqu'au crâne : porté avec les Bois de renne (slot
+  # chapeau de la même panoplie), il disparaît sous eux. Les deux pièces se choisissent.
+  { name: "Lunettes du Père Noël", slot: "eyes",   rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "santa_glasses", cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] },
   { name: "Guirlande lumineuse", slot: "neck",     rarity: "rare", price_diamonds: 250, source: "shop",
     art: "garland",      cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] },
   { name: "Manteau et moufles",  slot: "hands",    rarity: "rare", price_diamonds: 250, source: "shop",
