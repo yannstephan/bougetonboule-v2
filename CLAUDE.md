@@ -350,7 +350,7 @@ scope pour les trois : c'est ce qui garantit qu'aucun n'oublie la règle).
 - La boutique **montre l'aura avant qu'elle soit gagnée**, en pied de son rayon, avec le
   compte des pièces restantes : c'est elle qui donne une raison de finir la collection.
 - Toutes les auras du seed sont donc `price_diamonds: nil` + `source: "set"`.
-- ⚠️ **7 auras du catalogue n'ont pas encore de panoplie** et sont donc *inobtenables* —
+- ⚠️ **6 auras du catalogue n'ont pas encore de panoplie** et sont donc *inobtenables* —
   voir la roadmap.
 
 ⚠️ **L'aura n'est plus sur l'avatar : elle peint le FOND DE PAGE**
@@ -453,7 +453,7 @@ les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
-- **Catalogue : 107 pièces** (dont 4 de saison et 49 réparties en 9 panoplies) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
+- **Catalogue : 112 pièces** (dont 3 de saison et 55 réparties en 10 panoplies) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
   **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween, médaille,
   loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue (comportement
   assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
@@ -695,7 +695,7 @@ aller-retour serveur**. Et le **fond de la carte porte l'aura** de la panoplie �
 façon de la montrer, puisqu'elle ne se pose pas sur l'avatar mais derrière l'écran : la carte
 donne donc à voir la tenue **et son décor**, d'un coup. Les pièces hors panoplie gardent leur grille, sous « À la pièce ».
 Ses pièces sont **exclues** du rayon permanent et du rayon de saison — une pièce n'apparaît
-que dans un rayon, et sa panoplie prime. Neuf panoplies au seed :
+que dans un rayon, et sa panoplie prime. Dix panoplies au seed :
 **Coureur du dimanche** (6 pièces **communes** à 100 💎 — écouteurs, serviette éponge,
 téléphone en brassard, baskets fatiguées, ☕ café d'avant-course, 💨 souffle court) et
 **Le plongeur** (5 pièces **rares** à 250 💎 — bonnet de bain, masque et tuba, ceinture de
@@ -736,6 +736,13 @@ pose son bord bas sur le crâne, il se **centre** sur le fruit (`from: 'center'`
 c'est la seule pièce du jeu bornée par le BAS (`minEm`) — un fruit étroit doit recevoir le même
 drap qu'un fruit large. Ce qui déborde déborde **exprès** : palmes de l'ananas, pointes de la
 carambole, queue d'une cerise. On doit pouvoir deviner qui est dessous.
+Et **Le plagiste** (5 pièces **communes** à 100 💎 — casquette multicolore sans visière,
+lunettes de soleil, short de bain, pelle et seau, tongs → 🌻 **Tournesol**), deuxième panoplie
+d'entrée à côté du Coureur du dimanche.
+⚠️ Ses jambes de short sont **volontairement courtes** : plus longues, elles descendaient sur
+les tongs et les effaçaient. Le cou d'un avatar-tête est **juste au-dessus des pieds** — tout
+ce qui y pend se dispute la place avec les chaussures (le tutu de la ballerine a la même
+contrainte, et c'est pour ça qu'il est plat).
 
 ⚠️ **Une panoplie peut être SAISONNIÈRE** (Noël) : ce sont ses **pièces** qui portent la
 fenêtre, pas la panoplie. `sets_json` ne retient que les pièces disponibles et **saute une

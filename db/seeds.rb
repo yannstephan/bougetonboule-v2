@@ -98,8 +98,6 @@ Cosmetic.create!([
   # Boutique de saison — en vente, mais seulement pendant leur fenêtre
   { name: "Parasol",            slot: "sidekick", rarity: "common", price_diamonds: 110, source: "shop", emoji: "⛱️",
     available_from: ETE[0], available_until: ETE[1] },
-  { name: "Tournesol",          slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set", emoji: "🌻",
-    available_from: ETE[0], available_until: ETE[1] },
   { name: "Bouée canard",       slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop", emoji: "🦆",
     available_from: ETE[0], available_until: ETE[1] },
   { name: "Araignée porte-poisse", slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop", emoji: "🕷️",
@@ -311,6 +309,27 @@ Cosmetic.create!([
     art: "ghost_sheet",  cosmetic_set: fantome },
   { name: "Toile de sorcière", slot: "aura", rarity: "rare", price_diamonds: nil, source: "set",
     emoji: "🕸️",         cosmetic_set: fantome }
+])
+
+# Dixième panoplie, et la deuxième COMMUNE (100 💎 la pièce) : le rayon d'entrée n'avait que
+# le Coureur du dimanche. Le Tournesol y perd sa fenêtre d'été — la panoplie est permanente.
+plagiste = CosmeticSet.create!(
+  name: "Le plagiste",
+  description: "Casquette à quartiers, short à rayures, pelle et seau. Le sable, c'est du dénivelé."
+)
+Cosmetic.create!([
+  { name: "Casquette multicolore", slot: "hat",   rarity: "common", price_diamonds: 100, source: "shop",
+    art: "beach_cap",     cosmetic_set: plagiste },
+  { name: "Lunettes de soleil",    slot: "eyes",  rarity: "common", price_diamonds: 100, source: "shop",
+    art: "beach_shades",  cosmetic_set: plagiste },
+  { name: "Short de bain",         slot: "neck",  rarity: "common", price_diamonds: 100, source: "shop",
+    art: "swim_shorts",   cosmetic_set: plagiste },
+  { name: "Pelle et seau",         slot: "hands", rarity: "common", price_diamonds: 100, source: "shop",
+    art: "beach_arms",    cosmetic_set: plagiste },
+  { name: "Tongs de plage",        slot: "shoes", rarity: "common", price_diamonds: 100, source: "shop",
+    art: "flip_flops",    cosmetic_set: plagiste },
+  { name: "Tournesol",             slot: "aura",  rarity: "common", price_diamonds: nil, source: "set",
+    emoji: "🌻",          cosmetic_set: plagiste }
 ])
 
 puts "Objets (power-ups)…"

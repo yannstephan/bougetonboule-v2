@@ -564,6 +564,77 @@ const GhostSheet = ({ cloth = '#f7f9fd', fold = '#d9e1ec', hole = '#2b2f3a' }) =
   </g>
 )
 
+// ————— Panoplie du plagiste —————
+
+// Casquette multicolore SANS VISIÈRE : une calotte et trois quartiers de couleur, façon
+// parasol. Bottom-flush comme tout ce qui se pose sur le crâne.
+const BeachCap = () => (
+  <g>
+    <path d="M6 96 Q6 30 50 30 Q94 30 94 96 Z" fill="#4a7fd1" />
+    <path d="M50 30 L6 96 L28 96 Z" fill="#e23b54" />
+    <path d="M50 30 L39 96 L61 96 Z" fill="#f2b100" />
+    <path d="M50 30 L72 96 L94 96 Z" fill="#3aa76d" />
+    <circle cx="50" cy="28" r="7" fill="#f4f7fd" />
+  </g>
+)
+
+// Lunettes de soleil. Verres TRANSLUCIDES, contrairement à celles du Père Noël : sur une
+// panoplie d'été on veut garder le regard, c'est ce qui rend l'avatar avenant.
+const BeachShades = () => (
+  <g>
+    <rect x="0" y="42" width="17" height="7" rx="3" fill="#f2b100" />
+    <rect x="83" y="42" width="17" height="7" rx="3" fill="#f2b100" />
+    <rect x="14" y="36" width="34" height="26" rx="11" fill="#12b58a" opacity="0.55" />
+    <rect x="52" y="36" width="34" height="26" rx="11" fill="#12b58a" opacity="0.55" />
+    <g fill="none" stroke="#f2b100" strokeWidth="6">
+      <rect x="12" y="34" width="38" height="30" rx="13" />
+      <rect x="50" y="34" width="38" height="30" rx="13" />
+    </g>
+    <rect x="46" y="41" width="8" height="5" fill="#f2b100" />
+  </g>
+)
+
+// Short de bain. ⚠️ Jambes VOLONTAIREMENT courtes : plus longues, elles descendaient sur les
+// tongs et les effaçaient — le cou d'un avatar-tête est juste au-dessus des pieds, tout ce
+// qui y pend se dispute la place avec les chaussures.
+const SwimShorts = () => (
+  <g>
+    <path d="M12 30 Q50 22 88 30 L88 44 L12 44 Z" fill="#e23b54" />
+    <path d="M12 44 L46 44 L44 58 L14 58 Z" fill="#e23b54" />
+    <path d="M54 44 L88 44 L86 58 L56 58 Z" fill="#e23b54" />
+    <g fill="#f4f7fd">
+      <rect x="12" y="36" width="76" height="5" />
+      <rect x="14" y="49" width="30" height="5" /><rect x="56" y="49" width="30" height="5" />
+    </g>
+    <rect x="10" y="24" width="80" height="11" rx="5.5" fill="#f2b100" />
+    <path d="M50 30 l-7 6 l7 -2 l7 2 z" fill="#f4f7fd" />
+  </g>
+)
+
+// Une pelle dans une main, un seau dans l'autre. Bras nus — pas de manche, c'est l'été.
+const BeachArms = () => (
+  <g>
+    <path d="M44 42 L27 53 L17 66" fill="none" stroke="#f0b98a" strokeWidth="14"
+          strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M56 42 L73 53 L83 66" fill="none" stroke="#f0b98a" strokeWidth="14"
+          strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M16 68 L11 84" stroke="#c9930a" strokeWidth="6" strokeLinecap="round" />
+    <path d="M2 84 L22 84 L18 99 L6 99 Z" fill="#f2b100" stroke="#c9930a" strokeWidth="2" />
+    <path d="M72 74 q13 -8 26 0" fill="none" stroke="#8d95a3" strokeWidth="3" />
+    <path d="M70 76 L100 76 L94 99 L76 99 Z" fill="#e23b54" stroke="#a5153a" strokeWidth="2" />
+    <rect x="68" y="72" width="34" height="7" rx="3.5" fill="#f0325b" />
+  </g>
+)
+
+// Une tong, vue de face : la semelle et sa bride en Y. Passe par <Pair /> comme les autres
+// paires — même moule, même ancre, jamais dupliquée.
+const FlipFlop = ({ x, sole, edge, strap }) => (
+  <g transform={`translate(${x} 0)`}>
+    <path d="M-14 62 q0 -10 14 -10 q14 0 14 10 l-3 24 q-11 5 -22 0 z" fill={sole} stroke={edge} strokeWidth="2" />
+    <path d="M0 56 L-8 68 M0 56 L8 68" stroke={strap} strokeWidth="4" strokeLinecap="round" />
+  </g>
+)
+
 // ————— Accessoires —————
 
 // Maracas croisées. 🪇 n'existe qu'en Unicode 15 (2022) : carré vide sur les vieux
@@ -763,6 +834,14 @@ export const COSMETIC_ART = {
                  node: <BalletArms /> },
   ghost_sheet: { view: '8 2 86 92', fit: 1.6, minEm: 0.85, maxEm: 1.02, from: 'center', dy: 30,
                  node: <GhostSheet /> },
+  // — Panoplie du plagiste —
+  beach_cap: { view: '4 19 94 79', fit: 1.0, bite: 16, node: <BeachCap /> },
+  beach_shades: { view: '0 32 100 34', fit: 0.95, node: <BeachShades /> },
+  swim_shorts: { view: '8 20 84 40', fit: 1.05, bite: 30, node: <SwimShorts /> },
+  beach_arms: { view: '0 40 100 60', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
+                node: <BeachArms /> },
+  flip_flops: { view: '8 45 84 45', pair: true,
+                node: <Pair as={FlipFlop} sole="#f2b100" edge="#c9930a" strap="#e23b54" /> },
   cowboy_hat: { view: '8 30 84 52', fit: 1.155, bite: 18, node: <CowboyHat /> },
   santa_hat: { view: '18 22 79 62', fit: 1.155, bite: 18, node: <SantaHat /> },
   bucket_hat: { view: '10 34 80 48', fit: 1.095, bite: 18, node: <BucketHat /> },
