@@ -83,7 +83,6 @@ Cosmetic.create!([
   { name: "Pétales de cerisier", slot: "aura", rarity: "common",   price_diamonds: nil,  source: "set",  emoji: "🌸" },
   { name: "Aura pêche",         slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set",  emoji: "✨" },
   { name: "Double cœur",        slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set",  emoji: "💕" },
-  { name: "Trèfle à quatre feuilles", slot: "aura", rarity: "rare", price_diamonds: nil, source: "set",  emoji: "🍀" },
   { name: "Aura de feu",        slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "set",  emoji: "🔥" },
   { name: "Aura électrique",    slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "set",  emoji: "⚡" },
   # Exclusives — jamais en vente (price nil) : tirages (streak, ligue), coffres, jours spéciaux
@@ -254,6 +253,29 @@ Cosmetic.create!([
     art: "dress_shoes",  cosmetic_set: intello },
   { name: "Arc-en-ciel",         slot: "aura",  rarity: "legendary", price_diamonds: nil, source: "set",
     emoji: "🌈",         cosmetic_set: intello }
+])
+
+# Septième panoplie : le lutin. QUATRE pièces seulement, et trois d'entre elles ne sont qu'un
+# paramétrage de dessins existants (haut-de-forme, barbe, chaussure de ville) — quand les
+# dessins sont découpés, une panoplie de plus ne coûte presque rien.
+# ⚠️ Pas de pièce au COU : la barbe descend jusqu'à la base du fruit et couvrait entièrement
+# le nœud papillon vert qu'on y avait mis. Du contenu invisible vaut moins que pas de contenu.
+# (Même raison que pour Le Père Noël, qui n'a pas de pièce au cou non plus.)
+chanceux = CosmeticSet.create!(
+  name: "Le chanceux",
+  description: "Il ne s'entraîne pas, il a de la chance. Ça marche presque aussi bien."
+)
+Cosmetic.create!([
+  { name: "Chapeau de lutin",  slot: "hat",   rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "leprechaun_hat", cosmetic_set: chanceux },
+  { name: "Barbe rousse",      slot: "eyes",  rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "red_beard",      cosmetic_set: chanceux },
+  { name: "Fer à cheval et chaudron", slot: "hands", rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "lucky_arms",     cosmetic_set: chanceux },
+  { name: "Souliers à boucle", slot: "shoes", rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "buckle_shoes",   cosmetic_set: chanceux },
+  { name: "Trèfle à quatre feuilles", slot: "aura", rarity: "rare", price_diamonds: nil, source: "set",
+    emoji: "🍀",           cosmetic_set: chanceux }
 ])
 
 puts "Objets (power-ups)…"

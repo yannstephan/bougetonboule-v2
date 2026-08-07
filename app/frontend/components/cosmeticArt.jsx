@@ -76,14 +76,16 @@ const Skate = ({ x, body, sole, tongue, wheel }) => (
 
 // ————— Chapeaux (brim autour de y=72, la ligne du crâne du fruit) —————
 
-// Haut-de-forme DORÉ : 🎩 est noir et bleu, le nom promettait de l'or.
-const GoldHat = () => (
+// Haut-de-forme. Le doré d'abord (🎩 est noir et bleu, le nom promettait de l'or), puis
+// paramétré : le chapeau de lutin n'est qu'un jeu de couleurs et une boucle en plus.
+const TopHat = ({ body, top, band, brim, buckle }) => (
   <g>
-    <path d="M33 70 V26 q0 -7 17 -7 q17 0 17 7 V70 z" fill="#f6c945" />
-    <ellipse cx="50" cy="26" rx="17" ry="5.5" fill="#ffe08a" />
-    <rect x="32" y="53" width="36" height="10" rx="2" fill="#8a6d1b" />
-    <ellipse cx="50" cy="71" rx="36" ry="8" fill="#c9930a" />
-    <ellipse cx="50" cy="69" rx="36" ry="8" fill="#f6c945" />
+    <path d="M33 70 V26 q0 -7 17 -7 q17 0 17 7 V70 z" fill={body} />
+    <ellipse cx="50" cy="26" rx="17" ry="5.5" fill={top} />
+    <rect x="32" y={buckle ? 51 : 53} width="36" height={buckle ? 13 : 10} rx="2" fill={band} />
+    {buckle && <rect x="43" y="52" width="14" height="11" rx="2" fill="none" stroke={buckle} strokeWidth="3.5" />}
+    <ellipse cx="50" cy="71" rx="36" ry="8" fill={brim} />
+    <ellipse cx="50" cy="69" rx="36" ry="8" fill={body} />
   </g>
 )
 
@@ -397,8 +399,8 @@ const XmasArms = () => (
 // même ruse que la balafre — le décalage ne tient qu'à la position du tracé, la pièce étant
 // centrée sur la ligne des yeux. La moustache s'arrête au-dessus de la bouche et la barbe
 // reprend en dessous : d'un seul bloc, elle effaçait le sourire.
-const Beard = () => (
-  <g fill="#f4f7fd" stroke="#d3dbe6" strokeWidth="2" strokeLinejoin="round">
+const Beard = ({ hair = '#f4f7fd', shade = '#d3dbe6' }) => (
+  <g fill={hair} stroke={shade} strokeWidth="2" strokeLinejoin="round">
     <path d="M20 70 Q18 98 50 100 Q82 98 80 70 Q72 80 50 80 Q28 80 20 70 Z" />
     <path d="M50 60 Q40 51 29 55 Q21 59 26 66 Q37 71 50 63 Z" />
     <path d="M50 60 Q60 51 71 55 Q79 59 74 66 Q63 71 50 63 Z" />
@@ -432,11 +434,13 @@ const GiftArms = () => (
 
 // Chaussure cirée, vue de face : une empeigne basse et sans lacets, plus fine que la basket,
 // et un reflet qui dit le cuir ciré.
-const DressShoe = ({ x, body, sole, shine }) => (
+const DressShoe = ({ x, body, sole, shine, buckle }) => (
   <g transform={`translate(${x} 0)`}>
     <path d="M-17 66 v-9 q0 -14 17 -14 q17 0 17 14 v9 z" fill={body} />
     <ellipse cx="-5" cy="51" rx="6.5" ry="4" fill={shine} opacity="0.45" />
-    <path d="M-9 60 h18" stroke={sole} strokeWidth="2.5" strokeLinecap="round" />
+    {buckle
+      ? <rect x="-6" y="52" width="12" height="9" rx="2" fill="none" stroke={buckle} strokeWidth="3" />
+      : <path d="M-9 60 h18" stroke={sole} strokeWidth="2.5" strokeLinecap="round" />}
     <rect x="-19" y="63" width="38" height="12" rx="5" fill={sole} />
   </g>
 )
@@ -463,6 +467,32 @@ const ScholarArms = () => (
     <path d="M76 70 q1 8 9 8 q8 0 9 -8 z" fill="#8e1122" />
     <rect x="83.5" y="79" width="3" height="12" fill="#dbe3ee" />
     <ellipse cx="85" cy="92" rx="9" ry="3" fill="#dbe3ee" />
+  </g>
+)
+
+// ————— Panoplie du chanceux —————
+
+// Un fer à cheval dans une main, le chaudron d'or dans l'autre. Les pièces sont dessinées
+// AVANT le bord du chaudron : elles doivent avoir l'air posées dedans, pas devant.
+const LuckyArms = () => (
+  <g>
+    <path d="M44 42 L27 53 L17 66" fill="none" stroke="#2f7d4f" strokeWidth="14"
+          strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M56 42 L73 53 L83 66" fill="none" stroke="#2f7d4f" strokeWidth="14"
+          strokeLinecap="round" strokeLinejoin="round" />
+    <ellipse cx="19" cy="64" rx="8.5" ry="6" fill="#c9a227" transform="rotate(-42 19 64)" />
+    <ellipse cx="81" cy="64" rx="8.5" ry="6" fill="#c9a227" transform="rotate(42 81 64)" />
+    <path d="M3 96 L3 84 a13 13 0 0 1 26 0 L29 96" fill="none" stroke="#aeb9c9"
+          strokeWidth="8" strokeLinecap="round" />
+    <g fill="#7e8899">
+      <circle cx="7" cy="87" r="1.7" /><circle cx="25" cy="87" r="1.7" />
+      <circle cx="9" cy="94" r="1.7" /><circle cx="23" cy="94" r="1.7" />
+    </g>
+    <g fill="#f2b100">
+      <circle cx="78" cy="74" r="5" /><circle cx="88" cy="71" r="5.5" /><circle cx="96" cy="75" r="4.5" />
+    </g>
+    <rect x="70" y="77" width="32" height="7" rx="3.5" fill="#31363f" />
+    <path d="M73 83 q0 15 13 15 q13 0 13 -15 z" fill="#22262e" />
   </g>
 )
 
@@ -592,7 +622,8 @@ export const COSMETIC_ART = {
   // renne en couvrent 90 à 100 %, et ils avaient l'air posés sur la tête d'un autre.
   // Le `bite` passe de 14 à 18 avec : l'ancrage pose le bord bas de la BOÎTE sur le crâne,
   // et comme ces dessins laissent du vide sous eux, grandir les décollait de la tête.
-  gold_hat: { view: '12 16 76 64', fit: 1.155, bite: 18, node: <GoldHat /> },
+  gold_hat: { view: '12 16 76 64', fit: 1.155, bite: 18,
+              node: <TopHat body="#f6c945" top="#ffe08a" band="#8a6d1b" brim="#c9930a" /> },
   eyepatch: { view: '0 20 100 50', em: 0.34, node: <EyePatch /> },
   visor: { view: '2 29 96 39', fit: 0.57, node: <Visor /> },
   bib: { view: '17 22 66 57', em: 0.26, node: <Bib /> },
@@ -646,6 +677,16 @@ export const COSMETIC_ART = {
                  node: <Pair as={DressShoe} body="#1b1b22" sole="#0b0b10" shine="#8d95a3" /> },
   scholar_arms: { view: '0 40 100 60', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
                   node: <ScholarArms /> },
+  // — Panoplie du chanceux. Quatre pièces, dont TROIS ne sont qu'un paramétrage de dessins
+  // existants : le haut-de-forme, la barbe et la chaussure de ville étaient déjà découpés.
+  leprechaun_hat: { view: '12 16 76 64', fit: 1.155, bite: 18,
+                    node: <TopHat body="#2f7d4f" top="#46a06a" band="#16281d" brim="#1f5b3a" buckle="#f2b100" /> },
+  red_beard: { view: '16 48 68 54', fit: 1.12, minEm: 0.4, maxEm: 0.82,
+               node: <Beard hair="#c2622a" shade="#9a4a1c" /> },
+  buckle_shoes: { view: '8 40 84 40', pair: true,
+                  node: <Pair as={DressShoe} body="#16281d" sole="#0b120d" shine="#8d95a3" buckle="#f2b100" /> },
+  lucky_arms: { view: '0 40 100 60', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
+                node: <LuckyArms /> },
   cowboy_hat: { view: '8 30 84 52', fit: 1.155, bite: 18, node: <CowboyHat /> },
   santa_hat: { view: '18 22 79 62', fit: 1.155, bite: 18, node: <SantaHat /> },
   bucket_hat: { view: '10 34 80 48', fit: 1.095, bite: 18, node: <BucketHat /> },
