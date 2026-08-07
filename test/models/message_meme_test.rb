@@ -38,8 +38,7 @@ class MessageMemeTest < ActiveSupport::TestCase
     [ "https://media.giphy.com/media/abc/giphy.gif", "https://i.imgflip.com/30b1gx.jpg" ].each do |url|
       msg = @conv.messages.new(membership: @membership, meme_url: url, meme_title: "bravo")
       assert msg.save, "#{url} : #{msg.errors.full_messages.to_sentence}"
-      assert msg.meme?
-    end
+      end
   end
 
   test "une image de n'importe où est refusée" do
@@ -75,7 +74,7 @@ class MessageMemeTest < ActiveSupport::TestCase
   # Sans clé, la recherche doit quand même marcher : c'est tout l'intérêt du repli.
   test "sans clé Giphy, ce sont les catalogues libres qui répondent" do
     assert_not Giphy.configured?, "le décor de test ne doit pas porter de clé"
-    assert_equal "libre", Memes.source_name
+    assert_not Memes.giphy?, "sans clé, on doit être sur les catalogues libres"
     assert_equal [], Giphy.search("bravo"), "Giphy sans clé ne part pas en requête"
     with_catalogues { assert_equal [ "Drake Hotline Bling" ], Memes.search("drake").map { |m| m[:title] } }
   end

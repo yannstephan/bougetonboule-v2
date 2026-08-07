@@ -1,5 +1,3 @@
-require "net/http"
-
 # Recherche de memes (GIF de réaction) chez Giphy, pour le chat.
 #
 # Secret OPTIONNEL, comme Strava/Google/VAPID : sans `GIPHY_API_KEY`, `configured?` est faux
@@ -12,7 +10,6 @@ require "net/http"
 class Giphy
   SEARCH = "https://api.giphy.com/v1/gifs/search".freeze
   TRENDING = "https://api.giphy.com/v1/gifs/trending".freeze
-  TIMEOUT = 4 # une recherche qui traîne ne doit pas bloquer l'ouverture du chat
   LIMIT = 24
 
   # Les hôtes d'où peuvent venir les GIF (voir Memes.allowed?).
@@ -42,21 +39,11 @@ class Giphy
     call(TRENDING)
   end
 
-  # Une API tierce qui tombe ne doit jamais casser le chat : on rend une liste vide.
+  # Le repli silencieux en cas de panne vit dans Memes::Http, partagé par les trois sources.
   def self.call(endpoint, **extra)
-    parse(get(endpoint, **extra))
-  rescue StandardError => e
-    Rails.logger.warn("[giphy] #{e.class}: #{e.message}")
-    []
-  end
-
-  def self.get(endpoint, **extra)
-    uri = URI(endpoint)
-    uri.query = URI.encode_www_form(api_key: key, limit: LIMIT, rating: "pg-13",
-                                    lang: "fr", bundle: "messaging_non_clips", **extra)
-    res = Net::HTTP.start(uri.host, uri.port, use_ssl: true,
-                          open_timeout: TIMEOUT, read_timeout: TIMEOUT) { |h| h.get(uri.request_uri) }
-    res.is_a?(Net::HTTPSuccess) ? JSON.parse(res.body) : {}
+    query = URI.encode_www_form(api_key: key, limit: LIMIT, rating: "pg-13",
+                                lang: "fr", bundle: "messaging_non_clips", **extra)
+    parse(Memes::Http.get_json("#{endpoint}?#{query}", source: "giphy"))
   end
 
   # On ne garde que ce qu'il faut pour afficher et envoyer : une vignette légère pour la
@@ -71,5 +58,5 @@ class Giphy
     end
   end
 
-  private_class_method :call, :get, :parse
+  private_class_method :call, :parse
 end

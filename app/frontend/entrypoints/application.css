@@ -610,7 +610,6 @@ body{margin:0;background:var(--bg);color:var(--text);
 .buy-sum b{color:var(--text);font-weight:800;font-variant-numeric:tabular-nums}
 
 /* boutique */
-.shop-wallet{margin-left:auto;display:flex;gap:6px}
 .shop-empty{color:var(--muted);font-size:13px;line-height:1.45;text-align:center;margin:24px 8px}
 .shop-h2{margin:0;font-size:14px;font-weight:800}
 /* Sac : une section = un titre + sa liste, serrés ensemble */

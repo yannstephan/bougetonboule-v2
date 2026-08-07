@@ -5,12 +5,11 @@ import PlayerAvatar from '../components/PlayerAvatar'
 import BuyConfirm from '../components/BuyConfirm'
 import { CosmeticIcon } from '../components/cosmeticArt'
 import Hud from '../components/Hud'
+import { itemEmoji } from '../lib/gameIcons'
 
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
 
-const itemEmoji = (t) =>
-  ({ shield: '🥣', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🍦', wooden_leg: '🦿' }[t] || '🎒')
 const rarityLabel = { common: 'Commun', rare: 'Rare', epic: 'Épique', legendary: 'Légendaire' }
 
 export default function Boutique({ has_team, initial_tab, balls, items, cosmetics, seasonal, avatar }) {

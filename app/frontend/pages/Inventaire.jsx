@@ -6,12 +6,10 @@ import MonsterPicker from '../components/MonsterPicker'
 import Wardrobe from '../components/Wardrobe'
 import ChestCard, { ChestReveal } from '../components/ChestCard'
 import Hud from '../components/Hud'
+import { itemEmoji } from '../lib/gameIcons'
 
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
-
-const itemEmoji = (t) =>
-  ({ shield: '🥣', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🍦', wooden_leg: '🦿' }[t] || '🎒')
 
 // Le sac tient les deux inventaires du joueur : les objets de la partie (🍑, à usage unique)
 // et l'armoire des cosmétiques (💎, globale). C'est le seul endroit d'où l'on ouvre un coffre

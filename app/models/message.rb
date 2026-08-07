@@ -13,8 +13,6 @@ class Message < ApplicationRecord
 
   scope :chronological, -> { order(created_at: :asc) }
 
-  def meme? = meme_url.present?
-
   # Ce qu'on met dans une notification ou un aperçu : le texte, sinon le meme.
   def preview(limit = 90)
     return body.truncate(limit) if body.present?

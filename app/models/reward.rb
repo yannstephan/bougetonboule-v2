@@ -18,7 +18,6 @@ class Reward < ApplicationRecord
   validates :reward_type, inclusion: { in: TYPES }
 
   scope :pending, -> { where(claimed_at: nil) }
-  scope :claimed, -> { where.not(claimed_at: nil) }
   scope :streak, -> { where(source: CLAIMABLE_SOURCES) }
 
   def pending? = claimed_at.nil?

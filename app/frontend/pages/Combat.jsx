@@ -6,10 +6,7 @@ import TargetPicker from '../components/TargetPicker'
 import MonsterPicker from '../components/MonsterPicker'
 import Hud from '../components/Hud'
 import BottomNav from '../components/BottomNav'
-
-const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
-const itemEmoji = (t) =>
-  ({ shield: '🥣', trap: '🐺', back_wind: '🌬️', face_wind: '🌪️', smoke: '🍦', wooden_leg: '🦿' }[t] || '🎒')
+import { itemEmoji, familyEmoji } from '../lib/gameIcons'
 
 export default function Combat({ balls, multiplier, heal_cost, my_team, foe_team, items, opponents }) {
   const { flash } = usePage().props

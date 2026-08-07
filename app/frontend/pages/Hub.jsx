@@ -6,8 +6,7 @@ import Countdown from '../components/Countdown'
 import InstallHint from '../components/InstallHint'
 import StreakPass from '../components/StreakPass'
 import Hud from '../components/Hud'
-
-const familyEmoji = (family) => (family === 'rouges' ? '🍒' : '🌴')
+import { familyEmoji } from '../lib/gameIcons'
 
 // Ce qu'annonce la tuile « Mon sac ». Un coffre à ouvrir passe devant tout le reste.
 const bagLine = (chests, items) => {

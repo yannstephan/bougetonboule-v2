@@ -18,7 +18,6 @@ module Memes
   BROWSE_LIMIT = 60 # ce qu'on montre quand on feuillette sans chercher
 
   def self.giphy? = Giphy.configured?
-  def self.source_name = giphy? ? "giphy" : "libre"
 
   # Champ vide = on PARCOURT. Sur un catalogue de quelques centaines d'entrées aux titres
   # anglais, chercher « bébé » ou « patron » ne donne rien : feuilleter est le bon geste.
