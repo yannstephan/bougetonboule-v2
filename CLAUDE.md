@@ -915,6 +915,13 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
   n'y est pas** : il est passé dans le HUD à gauche de la cloche — deux boutons de même nature
   (ce qu'on a reçu) plutôt qu'une destination de jeu, et un onglet de moins en bas.
 
+⚠️ **La nav du bas est en `z-index:10`, comme le bandeau, et l'avatar est en
+`isolation:isolate`.** L'avatar distribue des z-index de 0 à 6 entre ses pièces (aura derrière,
+chapeau devant) : sans contexte d'empilement propre, ces valeurs **remontent dans la page** et
+un chapeau à 6 passe par-dessus la nav collée — c'est ce qui arrivait dans la boutique et la
+ligue dès qu'un avatar tombait près du bas de l'écran. L'empilement interne d'un avatar est un
+détail d'implémentation : il ne doit jamais fuir.
+
 ⚠️ **Aucune page n'a de bandeau de titre.** Ce qui dit où l'on est, c'est **l'icône allumée** du
 HUD ou de la nav (`.on` → contour et fond indigo ; anneau indigo autour de l'avatar et du bouton
 ⚔️). Une ligne de texte en moins à porter sur chaque écran. L'état actif est **déduit de l'URL**
