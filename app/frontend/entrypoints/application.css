@@ -140,8 +140,8 @@ body{margin:0;background:var(--bg);color:var(--text);
    à plat, indigo pour l'actif, orange réservé au combat (charte 60-30-10). */
 .nav{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px 13px;
   border-top:1px solid var(--line);background:var(--surface);position:sticky;bottom:0;z-index:10}
-.nav .n{display:flex;align-items:center;justify-content:center;height:44px;padding:0 13px;
-  border-radius:14px;background:var(--surface-2);color:var(--muted);
+.nav .n{display:flex;align-items:center;justify-content:center;height:46px;padding:0 12px;
+  border-radius:15px;background:var(--surface-3);color:var(--muted);
   transition:background .2s ease,color .2s ease}
 /* La plaque active : indigo plein, son encre, et un cran plus haut que les autres. */
 .nav .n.on{background:var(--brand);color:var(--brand-ink);
@@ -151,17 +151,17 @@ body{margin:0;background:var(--bg);color:var(--text);
 .nav .n .lb{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;font-size:12px;font-weight:800;
   transition:max-width .24s ease,opacity .18s ease,margin .24s ease}
 .nav .n.on .lb{max-width:90px;opacity:1;margin-left:7px}
-.nav-svg{display:block;width:22px;height:22px}
-/* ⚠️ Les emblèmes ont leurs couleurs propres, ils ne suivent pas celle de l'onglet : au repos
-   on les DÉSATURE et on les atténue, comme dans les jeux dont vient cette barre. C'est ce
-   contraste qui fait ressortir l'onglet actif, pas un changement de teinte. */
-.nav .n:not(.on) .nav-svg{filter:saturate(.5);opacity:.72}
+.nav-svg{display:block;width:25px;height:25px}
+/* ⚠️ Les emblèmes ne sont PAS atténués au repos, et c'est un revirement : les désaturer les
+   rendait fantomatiques sur une plaque claire. C'est leur contour sombre commun qui les
+   détache du fond (voir navIcons.jsx), et la plaque indigo + le libellé qui disent l'onglet
+   actif — largement assez. */
 /* Le bouton rond du combat est le CTA permanent de l'app : même orange que COMBATTRE.
    Sur l'écran de combat, il porte l'anneau indigo des onglets actifs. */
 .nav .center{width:52px;height:52px;flex:none;border-radius:50%;background:var(--accent);
   color:var(--accent-ink);display:grid;place-items:center;
   box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 40%,transparent)}
-.nav .center .nav-svg{width:26px;height:26px}
+.nav .center .nav-svg{width:29px;height:29px}
 .nav .center.on{box-shadow:0 0 0 3px var(--surface),0 0 0 6px var(--brand)}
 @media (prefers-reduced-motion:reduce){.nav .n,.nav .n .lb{transition:none}}
 .nav-ic{position:relative;display:inline-grid;place-items:center}
@@ -172,7 +172,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* ⚠️ La pastille se cerne de la couleur de SA PLAQUE, pas de la barre : sur l'onglet actif
    le fond est indigo, un liseré blanc y ferait une tache. */
 .nav-dot{position:absolute;top:-3px;right:-6px;width:10px;height:10px;border-radius:50%;
-  background:var(--fraise);border:2px solid var(--surface-2)}
+  background:var(--fraise);border:2px solid var(--surface-3)}
 .nav .n.on .nav-dot{border-color:var(--brand)}
 
 /* Auth */
