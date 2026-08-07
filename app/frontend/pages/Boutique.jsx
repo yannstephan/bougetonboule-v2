@@ -192,12 +192,14 @@ function SetCard({ set, avatar, onOpen }) {
   const owned = set.pieces.filter((p) => p.owned).length
   const done = owned === set.pieces.length
   const left = set.pieces.filter((p) => !p.owned).reduce((n, p) => n + p.price, 0)
+  // ⚠️ SEULEMENT les pièces de la panoplie, sans ce qu'on porte déjà : la carte doit montrer
+  // ce qu'on ACHÈTE, pas un mélange. Fusionnées avec la tenue en cours, une panoplie de quatre
+  // pièces se retrouvait affublée du masque de plongée et du chien du joueur, et on ne savait
+  // plus ce qui venait d'elle. Le fruit, lui, reste celui du joueur — c'est bien sur lui qu'on
+  // veut la voir. (La cabine d'essai, elle, fusionne toujours : c'est une cabine d'ESSAI.)
   const worn = {
     ...avatar,
-    cosmetics: {
-      ...avatar?.cosmetics,
-      ...Object.fromEntries(set.pieces.map((c) => [ c.slot, { emoji: c.emoji, art: c.art } ]))
-    }
+    cosmetics: Object.fromEntries(set.pieces.map((c) => [ c.slot, { emoji: c.emoji, art: c.art } ]))
   }
 
   return (

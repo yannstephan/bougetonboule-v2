@@ -690,8 +690,12 @@ panoplies est « est-ce que ça me va ? », pas « combien coûte ce chapeau ».
 le compteur (`3/6`), ce qu'il reste à payer, et la promo ou le compte à rebours en pastille.
 **Les pièces et leurs boutons d'achat n'apparaissent qu'une fois la panoplie ouverte**, avec un
 bouton **« Tout essayer »** qui pose l'ensemble dans la cabine d'un coup. L'aperçu de la carte
-est monté exactement comme la cabine d'essai (mêmes pièces sur le même avatar) : **aucun
-aller-retour serveur**. Et le **fond de la carte porte l'aura** de la panoplie — c'est la seule
+est monté comme celui de la cabine d'essai (les pièces posées sur l'avatar du joueur) :
+**aucun aller-retour serveur**. ⚠️ Mais il ne montre **QUE les pièces de la panoplie**, pas ce
+qu'on porte déjà : fusionné avec la tenue en cours, un ensemble de quatre pièces se retrouvait
+affublé du masque de plongée et du chien du joueur, et on ne savait plus ce qui venait de lui.
+Le **fruit** reste celui du joueur — c'est bien sur lui qu'on veut voir la tenue. La cabine
+d'essai, elle, continue de fusionner : c'est une cabine d'*essai*. Et le **fond de la carte porte l'aura** de la panoplie — c'est la seule
 façon de la montrer, puisqu'elle ne se pose pas sur l'avatar mais derrière l'écran : la carte
 donne donc à voir la tenue **et son décor**, d'un coup. Les pièces hors panoplie gardent leur grille, sous « À la pièce ».
 Ses pièces sont **exclues** du rayon permanent et du rayon de saison — une pièce n'apparaît
