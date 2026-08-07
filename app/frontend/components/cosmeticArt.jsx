@@ -428,6 +428,44 @@ const GiftArms = () => (
   </g>
 )
 
+// ————— Panoplie de l'intello —————
+
+// Chaussure cirée, vue de face : une empeigne basse et sans lacets, plus fine que la basket,
+// et un reflet qui dit le cuir ciré.
+const DressShoe = ({ x, body, sole, shine }) => (
+  <g transform={`translate(${x} 0)`}>
+    <path d="M-17 66 v-9 q0 -14 17 -14 q17 0 17 14 v9 z" fill={body} />
+    <ellipse cx="-5" cy="51" rx="6.5" ry="4" fill={shine} opacity="0.45" />
+    <path d="M-9 60 h18" stroke={sole} strokeWidth="2.5" strokeLinecap="round" />
+    <rect x="-19" y="63" width="38" height="12" rx="5" fill={sole} />
+  </g>
+)
+
+// Un livre ouvert dans une main, un verre de vin dans l'autre. Même construction que les
+// bras du plongeur, de Noël et du Père Noël (`pair` + `back`) : c'est le seul moyen d'avoir
+// deux mains DIFFÉRENTES, un slot symétrique ne sachant faire que deux fois la même chose.
+const ScholarArms = () => (
+  <g>
+    <path d="M44 42 L27 53 L17 66" fill="none" stroke="#2b2f3a" strokeWidth="14"
+          strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M56 42 L73 53 L83 66" fill="none" stroke="#2b2f3a" strokeWidth="14"
+          strokeLinecap="round" strokeLinejoin="round" />
+    <ellipse cx="19" cy="64" rx="8.5" ry="6" fill="#f4f7fd" transform="rotate(-42 19 64)" />
+    <ellipse cx="81" cy="64" rx="8.5" ry="6" fill="#f4f7fd" transform="rotate(42 81 64)" />
+    <path d="M0 78 L17 72 L17 94 L0 99 Z" fill="#f4f7fd" stroke="#c2ccdb" strokeWidth="1.6" />
+    <path d="M34 78 L17 72 L17 94 L34 99 Z" fill="#f4f7fd" stroke="#c2ccdb" strokeWidth="1.6" />
+    <path d="M0 78 L17 72 L17 76 L0 82 Z" fill="#7a2f3a" />
+    <path d="M34 78 L17 72 L17 76 L34 82 Z" fill="#7a2f3a" />
+    <g stroke="#c2ccdb" strokeWidth="1.4">
+      <path d="M4 86 L14 83 M4 90 L14 87 M20 83 L30 86 M20 87 L30 90" />
+    </g>
+    <path d="M74 62 q0 18 11 18 q11 0 11 -18 z" fill="#dbe3ee" opacity="0.75" />
+    <path d="M76 70 q1 8 9 8 q8 0 9 -8 z" fill="#8e1122" />
+    <rect x="83.5" y="79" width="3" height="12" fill="#dbe3ee" />
+    <ellipse cx="85" cy="92" rx="9" ry="3" fill="#dbe3ee" />
+  </g>
+)
+
 // ————— Accessoires —————
 
 // Maracas croisées. 🪇 n'existe qu'en Unicode 15 (2022) : carré vide sur les vieux
@@ -475,11 +513,14 @@ const Bandana = () => (
 
 
 // Nœud papillon : 🎀 servait déjà de bandeau, deux pièces au même glyphe se confondaient.
-const BowTie = () => (
+// Paramétré : le nœud de velours de la panoplie de l'intello n'est qu'un jeu de couleurs
+// et une bague dorée de plus.
+const BowTie = ({ wing = '#f0325b', knot = '#c81e45', band }) => (
   <g>
-    <path d="M46 40 L14 28 v44 L46 60 z" fill="#f0325b" />
-    <path d="M54 40 L86 28 v44 L54 60 z" fill="#f0325b" />
-    <rect x="41" y="38" width="18" height="24" rx="6" fill="#c81e45" />
+    <path d="M46 40 L14 28 v44 L46 60 z" fill={wing} />
+    <path d="M54 40 L86 28 v44 L54 60 z" fill={wing} />
+    <rect x="41" y="38" width="18" height="24" rx="6" fill={knot} />
+    {band && <rect x="41" y="45" width="18" height="7" fill={band} />}
   </g>
 )
 
@@ -595,6 +636,13 @@ export const COSMETIC_ART = {
   xmas_boots: { view: '8 25 84 55', pair: true,
                 node: <Pair body="#c0182f" sole="#3f434c" tongue="#f4f7fd" lace="#ffffff" shaft={14} /> },
   bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },
+  // — Panoplie de l'intello. Le haut-de-forme et le monocle sont les dessins EXISTANTS :
+  // la panoplie les rapatrie plutôt que d'en créer des sosies.
+  bowtie_lux: { view: '10 24 80 52', em: 0.28, node: <BowTie wing="#8e1122" knot="#5e0b16" band="#c9a227" /> },
+  dress_shoes: { view: '8 40 84 40', pair: true,
+                 node: <Pair as={DressShoe} body="#1b1b22" sole="#0b0b10" shine="#8d95a3" /> },
+  scholar_arms: { view: '0 40 100 60', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
+                  node: <ScholarArms /> },
   cowboy_hat: { view: '8 30 84 52', fit: 1.155, bite: 18, node: <CowboyHat /> },
   santa_hat: { view: '18 22 79 62', fit: 1.155, bite: 18, node: <SantaHat /> },
   bucket_hat: { view: '10 34 80 48', fit: 1.095, bite: 18, node: <BucketHat /> },

@@ -33,7 +33,6 @@ Cosmetic.create!([
   { name: "Chapeau de cowboy",  slot: "hat",  rarity: "rare",      price_diamonds: 250,  source: "shop",  art: "cowboy_hat" },
   { name: "Toque de diplômé",   slot: "hat",  rarity: "epic",      price_diamonds: 500,  source: "shop",  emoji: "🎓" },
   { name: "Casque de chantier", slot: "hat",  rarity: "epic",      price_diamonds: 500,  source: "shop",  emoji: "⛑️" },
-  { name: "Haut-de-forme doré", slot: "hat",  rarity: "legendary", price_diamonds: 1000, source: "shop",  art: "gold_hat" },
   # Lunettes — sur la ligne des yeux, commune à tous les fruits
   { name: "Lunettes rondes",    slot: "eyes", rarity: "common",    price_diamonds: 90,   source: "shop",  emoji: "👓" },
   { name: "Lunettes de piscine", slot: "eyes", rarity: "common",   price_diamonds: 100,  source: "shop",  emoji: "🥽" },
@@ -41,7 +40,6 @@ Cosmetic.create!([
   { name: "Lunettes de star",   slot: "eyes", rarity: "rare",      price_diamonds: 250,  source: "shop",  emoji: "🕶️" },
   { name: "Cache-œil de pirate", slot: "eyes", rarity: "rare",     price_diamonds: 260,  source: "shop",  art: "eyepatch" },
   { name: "Visière du futur",   slot: "eyes", rarity: "epic",      price_diamonds: 550,  source: "shop",  art: "visor" },
-  { name: "Monocle du mentor",  slot: "eyes", rarity: "legendary", price_diamonds: 1000, source: "shop",  art: "monocle" },
   # Cou — juste au-dessus de la base du fruit
   { name: "Cravate du dimanche", slot: "neck", rarity: "common",   price_diamonds: 90,   source: "shop",  emoji: "👔" },
   { name: "Écharpe de laine",   slot: "neck", rarity: "common",    price_diamonds: 100,  source: "shop",  emoji: "🧣" },
@@ -88,7 +86,6 @@ Cosmetic.create!([
   { name: "Trèfle à quatre feuilles", slot: "aura", rarity: "rare", price_diamonds: nil, source: "set",  emoji: "🍀" },
   { name: "Aura de feu",        slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "set",  emoji: "🔥" },
   { name: "Aura électrique",    slot: "aura", rarity: "epic",      price_diamonds: nil,  source: "set",  emoji: "⚡" },
-  { name: "Arc-en-ciel",        slot: "aura", rarity: "legendary", price_diamonds: nil, source: "set",  emoji: "🌈" },
   # Exclusives — jamais en vente (price nil) : tirages (streak, ligue), coffres, jours spéciaux
   { name: "Couronne de Noël",   slot: "hat",  rarity: "legendary", price_diamonds: nil,  source: "event", emoji: "👑",
     available_from: NOEL[0], available_until: NOEL[1] },
@@ -235,6 +232,28 @@ Cosmetic.create!([
     art: "santa_boots", cosmetic_set: pere_noel },
   { name: "Aura de givre",        slot: "aura",  rarity: "rare", price_diamonds: nil, source: "set",
     emoji: "❄️",        cosmetic_set: pere_noel }
+])
+
+# Sixième panoplie, et la seule LÉGENDAIRE (1 000 💎 la pièce) : le sommet du catalogue.
+# Elle rapatrie le Haut-de-forme doré et le Monocle du mentor, qui traînaient seuls au rayon
+# légendaire, et sauve l'Arc-en-ciel — la dernière aura orpheline de ce rang.
+intello = CosmeticSet.create!(
+  name: "L'intello",
+  description: "Haut-de-forme, monocle, et un verre de rouge pour réfléchir en courant."
+)
+Cosmetic.create!([
+  { name: "Haut-de-forme doré",  slot: "hat",   rarity: "legendary", price_diamonds: 1000, source: "shop",
+    art: "gold_hat",     cosmetic_set: intello },
+  { name: "Monocle du mentor",   slot: "eyes",  rarity: "legendary", price_diamonds: 1000, source: "shop",
+    art: "monocle",      cosmetic_set: intello },
+  { name: "Nœud papillon de velours", slot: "neck", rarity: "legendary", price_diamonds: 1000, source: "shop",
+    art: "bowtie_lux",   cosmetic_set: intello },
+  { name: "Livre et verre de vin", slot: "hands", rarity: "legendary", price_diamonds: 1000, source: "shop",
+    art: "scholar_arms", cosmetic_set: intello },
+  { name: "Chaussures cirées",   slot: "shoes", rarity: "legendary", price_diamonds: 1000, source: "shop",
+    art: "dress_shoes",  cosmetic_set: intello },
+  { name: "Arc-en-ciel",         slot: "aura",  rarity: "legendary", price_diamonds: nil, source: "set",
+    emoji: "🌈",         cosmetic_set: intello }
 ])
 
 puts "Objets (power-ups)…"
