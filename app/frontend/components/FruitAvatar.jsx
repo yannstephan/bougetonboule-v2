@@ -68,14 +68,18 @@ function anchors({ top, bottom, half, hatX }) {
 }
 
 // Le centre de la pièce, une fois qu'on connaît sa taille. Sans `from`, c'est l'ancre.
-// Un dessin peut imposer sa propre morsure : le slot est réglé pour la pièce type, et les
-// écouteurs doivent tomber au niveau des oreilles, bien plus bas que le bord d'un chapeau.
+// Un dessin peut imposer sa propre morsure, son propre bord d'accroche et un décalage :
+// le slot est réglé pour la pièce type, et certaines n'ont pas la même logique. Les écouteurs
+// tombent au niveau des oreilles, bien plus bas que le bord d'un chapeau ; le drap de fantôme,
+// lui, ne s'accroche à rien — il se CENTRE sur le fruit, qu'il recouvre entièrement.
 function centerY(at, em, drawn) {
+  const from = drawn?.from ?? at.from
   const bite = drawn?.bite ?? at.bite ?? 0
+  const y = at.y + (drawn?.dy ?? 0)
   const half = em * 50
-  if (at.from === 'bottom') return at.y + bite - half // bord bas posé à y + bite
-  if (at.from === 'top') return at.y - bite + half    // bord haut posé à y − bite
-  return at.y
+  if (from === 'bottom') return y + bite - half // bord bas posé à y + bite
+  if (from === 'top') return y - bite + half    // bord haut posé à y − bite
+  return y
 }
 
 // Taille de la pièce.

@@ -544,6 +544,26 @@ const BalletArms = ({ sleeve = '#ffb3cd', hand = '#ffd6e5' }) => (
   </g>
 )
 
+// ————— Le fantôme (panoplie d'une seule pièce) —————
+
+// Drap de fantôme : il recouvre TOUT le fruit, cosmétiques compris.
+// ⚠️ Il occupe le slot du chapeau mais ne s'y accroche pas : là où un chapeau pose son bord
+// bas sur le crâne, le drap se CENTRE sur le fruit (`from: 'center'` + `dy`). C'est la seule
+// pièce du jeu dont la taille est bornée par le BAS (`minEm`) plutôt que par le haut : un
+// fruit étroit doit recevoir le même drap qu'un fruit large, sinon il dépasse.
+// ⚠️ Ce qui déborde du drap déborde exprès : les palmes de l'ananas, les pointes de la
+// carambole, la queue d'une cerise. On doit pouvoir deviner qui est dessous.
+const GhostSheet = ({ cloth = '#f7f9fd', fold = '#d9e1ec', hole = '#2b2f3a' }) => (
+  <g>
+    <path d="M50 4 Q90 6 92 48 L92 74 q-8.2 13 -16.4 0 q-8.2 13 -16.4 0 q-8.2 13 -16.4 0 q-8.2 13 -16.4 0 q-8.2 13 -16.4 0 L10 48 Q10 6 50 4 Z"
+          fill={cloth} stroke={fold} strokeWidth="2" strokeLinejoin="round" />
+    <ellipse cx="36" cy="42" rx="8" ry="10.5" fill={hole} />
+    <ellipse cx="64" cy="42" rx="8" ry="10.5" fill={hole} />
+    <ellipse cx="50" cy="62" rx="6" ry="8" fill={hole} opacity="0.8" />
+    <path d="M22 20 q6 26 2 50" stroke="#e6ecf5" strokeWidth="4" fill="none" strokeLinecap="round" />
+  </g>
+)
+
 // ————— Accessoires —————
 
 // Maracas croisées. 🪇 n'existe qu'en Unicode 15 (2022) : carré vide sur les vieux
@@ -741,6 +761,8 @@ export const COSMETIC_ART = {
   tutu: { view: '0 15 100 38', fit: 1.05, bite: 23, node: <Tutu /> },
   ballet_arms: { view: '0 10 100 74', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
                  node: <BalletArms /> },
+  ghost_sheet: { view: '8 2 86 92', fit: 1.6, minEm: 0.85, maxEm: 1.02, from: 'center', dy: 30,
+                 node: <GhostSheet /> },
   cowboy_hat: { view: '8 30 84 52', fit: 1.155, bite: 18, node: <CowboyHat /> },
   santa_hat: { view: '18 22 79 62', fit: 1.155, bite: 18, node: <SantaHat /> },
   bucket_hat: { view: '10 34 80 48', fit: 1.095, bite: 18, node: <BucketHat /> },

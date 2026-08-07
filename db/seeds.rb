@@ -102,8 +102,6 @@ Cosmetic.create!([
     available_from: ETE[0], available_until: ETE[1] },
   { name: "Bouée canard",       slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop", emoji: "🦆",
     available_from: ETE[0], available_until: ETE[1] },
-  { name: "Toile de sorcière",  slot: "aura", rarity: "rare",      price_diamonds: nil,  source: "set", emoji: "🕸️",
-    available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
   { name: "Araignée porte-poisse", slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop", emoji: "🕷️",
     available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] }
 ])
@@ -297,6 +295,22 @@ Cosmetic.create!([
     art: "ballet",       cosmetic_set: ballerine },
   { name: "Cygne",             slot: "aura",  rarity: "epic", price_diamonds: nil, source: "set",
     emoji: "🦢",         cosmetic_set: ballerine }
+])
+
+# Neuvième panoplie, et la première à UNE SEULE PIÈCE : le drap suffit, il recouvre tout.
+# L'aura tombe donc dès l'achat — `UnlockSetAura` vérifie qu'on possède toutes les AUTRES
+# pièces, et il n'y en a qu'une. C'est la panoplie la plus courte possible, et elle marche
+# sans une ligne de code en plus.
+# La Toile de sorcière y perd sa fenêtre d'Halloween : la panoplie, elle, est permanente.
+fantome = CosmeticSet.create!(
+  name: "Le fantôme",
+  description: "Un drap, deux trous. Personne ne saura que c'est toi qui marches dans les côtes."
+)
+Cosmetic.create!([
+  { name: "Drap de fantôme",   slot: "hat",  rarity: "epic", price_diamonds: 500, source: "shop",
+    art: "ghost_sheet",  cosmetic_set: fantome },
+  { name: "Toile de sorcière", slot: "aura", rarity: "rare", price_diamonds: nil, source: "set",
+    emoji: "🕸️",         cosmetic_set: fantome }
 ])
 
 puts "Objets (power-ups)…"
