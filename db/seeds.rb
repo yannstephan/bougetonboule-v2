@@ -3,7 +3,7 @@ puts "Nettoyage…"
 Game.update_all(winner_team_id: nil) # FK games → teams : à détacher avant de supprimer les équipes
 [ Reward, Chest, ConversationRead, Message, Conversation, Notification, PushSubscription,
  Action, MembershipItem, Training, TeamEffect, Membership, Monster, Team,
- SpecialDay, Game, Event, UserCosmetic, Cosmetic, Item, User ].each(&:delete_all)
+ SpecialDay, Game, Event, UserCosmetic, Cosmetic, CosmeticSet, Item, User ].each(&:delete_all)
 
 puts "Cosmétiques…"
 # L'avatar est une TÊTE de fruit : 7 emplacements, ni tenue ni jambes (voir Cosmetic::SLOTS).
@@ -115,6 +115,32 @@ Cosmetic.create!([
     available_from: NOEL[0], available_until: NOEL[1] },
   { name: "Renne du traîneau",  slot: "sidekick", rarity: "rare",  price_diamonds: 260,  source: "shop", emoji: "🦌",
     available_from: NOEL[0], available_until: NOEL[1] }
+])
+
+puts "Panoplies…"
+# Une PANOPLIE : un thème, plusieurs pièces, toutes de la MÊME rareté (validé par le modèle).
+# On achète toujours à la pièce — la panoplie range le rayon et porte les promotions, qui se
+# posent depuis /admin (pourcentage + dates) et ne touchent jamais au prix catalogue.
+dimanche = CosmeticSet.create!(
+  name: "Coureur du dimanche",
+  description: "Celui qui court une fois par semaine, en coton, avec un café dans le ventre."
+)
+Cosmetic.create!([
+  # Trois pièces DESSINÉES : l'emoji ne pouvait pas les porter. 🎧 est un casque vu de face
+  # qui faisait une masse noire sur le crâne, 📱 un téléphone posé là plutôt qu'un brassard,
+  # et 🎽 un débardeur — une TENUE, alors que l'avatar est une tête (d'où la serviette).
+  { name: "Écouteurs du dimanche", slot: "hat",      rarity: "common", price_diamonds: 100, source: "shop",
+    art: "headphones",        cosmetic_set: dimanche },
+  { name: "Serviette éponge",      slot: "neck",     rarity: "common", price_diamonds: 100, source: "shop",
+    art: "towel",             cosmetic_set: dimanche },
+  { name: "Téléphone en brassard", slot: "hands",    rarity: "common", price_diamonds: 100, source: "shop",
+    art: "armband",           cosmetic_set: dimanche },
+  { name: "Baskets fatiguées",     slot: "shoes",    rarity: "common", price_diamonds: 100, source: "shop",
+    art: "worn_sneakers",     cosmetic_set: dimanche },
+  { name: "Café d'avant-course",   slot: "sidekick", rarity: "common", price_diamonds: 100, source: "shop",
+    emoji: "☕",              cosmetic_set: dimanche },
+  { name: "Souffle court",         slot: "aura",     rarity: "common", price_diamonds: 100, source: "shop",
+    emoji: "💨",              cosmetic_set: dimanche }
 ])
 
 puts "Objets (power-ups)…"

@@ -3,7 +3,8 @@
 # Il ne couvre QUE les deux réglages qui se pilotent par des dates et qu'on veut pouvoir
 # changer sans déployer :
 #   - les journées spéciales (×2 sur les boules) ;
-#   - la fenêtre de disponibilité des cosmétiques (la boutique de saison).
+#   - la fenêtre de disponibilité des cosmétiques (la boutique de saison) ;
+#   - les PROMOTIONS sur les panoplies (un pourcentage et deux dates).
 # Le reste du contenu (créer une partie, des équipes) reste au seed — voir la roadmap.
 class AdminController < ApplicationController
   before_action :require_authentication
@@ -15,7 +16,8 @@ class AdminController < ApplicationController
               starts_at: @game.starts_at&.iso8601, ends_at: @game.ends_at&.iso8601 },
       today: Date.current.iso8601,
       special_days: special_days_json,
-      cosmetics: cosmetics_json
+      cosmetics: cosmetics_json,
+      sets: sets_json
     }
   end
 
@@ -47,6 +49,26 @@ class AdminController < ApplicationController
 
     cosmetic.update!(available_from: from, available_until: until_)
     redirect_to admin_path, notice: "#{cosmetic.name} : #{window_label(cosmetic)}"
+  end
+
+  # Pose (ou retire) la promotion d'une panoplie. Pourcentage vide = plus de promo, quelles
+  # que soient les dates ; dates vides = la promo court sans borne de ce côté.
+  # ⚠️ On ne touche JAMAIS au prix des pièces : le prix catalogue reste intact et la remise
+  # est recalculée à la volée (`Cosmetic#current_price`). Retirer la promo remet donc les
+  # prix d'origine tout seul, sans avoir à les réécrire — et rien ne peut « rester soldé ».
+  def update_set_promo
+    set = CosmeticSet.find(params[:id])
+    percent = params[:promo_percent].presence&.to_i
+
+    set.promo_percent = percent
+    set.promo_from    = percent && parse_day(params[:promo_from])
+    set.promo_until   = percent && parse_day(params[:promo_until], end_of_day: true)
+
+    if set.save
+      redirect_to admin_path, notice: "#{set.name} : #{promo_label(set)}"
+    else
+      redirect_to admin_path, alert: set.errors.full_messages.to_sentence
+    end
   end
 
   private
@@ -86,6 +108,32 @@ class AdminController < ApplicationController
     @game.special_days.order(:date).map do |d|
       { id: d.id, name: d.name, date: d.date.iso8601, multiplier: d.multiplier.to_f,
         past: d.date < Date.current }
+    end
+  end
+
+  def promo_label(set)
+    return "plus de promotion, prix d'origine rétablis" unless set.promo_percent
+
+    from = set.promo_from&.to_date&.strftime("%d/%m/%Y")
+    till = set.promo_until&.to_date&.strftime("%d/%m/%Y")
+    window = if from && till then "du #{from} au #{till}"
+    elsif from then "à partir du #{from}"
+    elsif till then "jusqu'au #{till}"
+    else "sans date de fin"
+    end
+    "−#{set.promo_percent} % #{window}"
+  end
+
+  def sets_json
+    CosmeticSet.includes(:cosmetics).ordered.map do |set|
+      pieces = set.cosmetics.select { |c| c.price_diamonds }
+      { id: set.id, name: set.name, rarity: set.rarity, pieces: pieces.size,
+        full_total: pieces.sum(&:price_diamonds),
+        promo_total: pieces.sum { |c| c.current_price.to_i },
+        promo_percent: set.promo_percent,
+        promo_from: set.promo_from&.to_date&.iso8601,
+        promo_until: set.promo_until&.to_date&.iso8601,
+        live: set.promo? }
     end
   end
 

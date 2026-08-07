@@ -15,6 +15,7 @@ class ShopController < ApplicationController
       items: items_json(m),
       cosmetics: cosmetics_json,
       seasonal: seasonal_json,
+      sets: sets_json,
       # Pour l'essayage : la boutique montre la pièce SUR le fruit du joueur avant l'achat.
       avatar: AvatarPresenter.new(current_user, membership: m).as_json
     }
@@ -46,20 +47,43 @@ class ShopController < ApplicationController
     end
   end
 
-  # Le rayon permanent : ce qui est en vente et n'a pas de date de fin.
-  def cosmetics_json = serialize_cosmetics(Cosmetic.purchasable.available.where(available_until: nil))
+  # Le rayon permanent : ce qui est en vente, n'a pas de date de fin — et n'est pas dans
+  # une panoplie, celles-ci ayant leur propre rayon (sinon chaque pièce s'afficherait deux fois).
+  def cosmetics_json
+    serialize_cosmetics(Cosmetic.purchasable.available.where(available_until: nil, cosmetic_set_id: nil))
+  end
+
+  # Les PANOPLIES : un thème, plusieurs pièces d'une même rareté, achetées à la pièce.
+  # Servies à part et en tête du rayon — c'est un ensemble, il se regarde comme un ensemble,
+  # et c'est là que se voit une promo (qui porte sur la panoplie entière).
+  def sets_json
+    CosmeticSet.includes(:cosmetics).ordered.filter_map do |set|
+      pieces = set.cosmetics.select { |c| c.price_diamonds && c.available? }
+      next if pieces.empty?
+
+      { id: set.id, name: set.name, description: set.description, rarity: pieces.first.rarity,
+        promo: set.promo? ? { percent: set.promo_percent, days_left: set.promo_days_left } : nil,
+        pieces: serialize_cosmetics(pieces) }
+    end
+  end
 
   # La BOUTIQUE DE SAISON : les pièces en vente dont la fenêtre se referme. Servies à part
   # pour être mises en avant, avec le nombre de jours restants sur chaque carte.
-  def seasonal_json = serialize_cosmetics(Cosmetic.purchasable.available.where.not(available_until: nil))
+  # Les pièces de panoplie en sont exclues comme du rayon permanent : une pièce ne doit
+  # apparaître que dans UN rayon, et sa panoplie prime.
+  def seasonal_json
+    serialize_cosmetics(Cosmetic.purchasable.available.where(cosmetic_set_id: nil).where.not(available_until: nil))
+  end
 
   def serialize_cosmetics(scope)
     owned = current_user.user_cosmetics.includes(:cosmetic).index_by(&:cosmetic_id)
     scope.sort_by { |c| [ RARITY_ORDER.index(c.rarity) || 99, c.price_diamonds ] }.map do |c|
       uc = owned[c.id]
+      # price = ce qu'on paie VRAIMENT (promo comprise) ; full_price n'est là que pour
+      # être barré, et seulement quand les deux diffèrent.
       { id: c.id, name: c.name, slot: c.slot, rarity: c.rarity, emoji: c.emoji, art: c.art,
-        price: c.price_diamonds, owned: uc.present?, equipped: uc&.equipped || false,
-        days_left: c.days_left }
+        price: c.current_price, full_price: c.on_promo? ? c.price_diamonds : nil,
+        owned: uc.present?, equipped: uc&.equipped || false, days_left: c.days_left }
     end
   end
 end

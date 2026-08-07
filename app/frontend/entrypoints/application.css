@@ -23,6 +23,14 @@
   --peach:#ff7a59; --citron:#f2b100; --citron-ink:#4a3600; --fraise:#f0325b;
   --mint:#12b58a; --mint-ink:#04352a; --violet:#8b5cf6; --strava:#fc4c02;
   --good:#12b58a; --warn:#e89312; --crit:#e23b54; --r:14px;
+  /* Rareté — une seule échelle pour toute l'app (boutique, armoire, coffres, gains) :
+     gris → vert → violet → or, la convention des jeux de loot. Pas de bleu : il se
+     confondrait avec l'indigo de --brand, qui veut dire « équipé / sélectionné ».
+     Chaque teinte porte son encre, vérifiée AA sur l'aplat (les pastilles sont pleines). */
+  --rar-common:#64748b;          --rar-common-ink:#fff;
+  --rar-rare:var(--mint);        --rar-rare-ink:var(--mint-ink);
+  --rar-epic:var(--violet);      --rar-epic-ink:#150a2e;
+  --rar-legendary:var(--citron); --rar-legendary-ink:var(--citron-ink);
   /* Hauteur du bandeau collé : 14 + 38 (avatar) + 12 + 1 de bordure. Tout ce qui colle
      en dessous doit partir de là, sinon ça glisse sous le HUD. */
   --hud-h:65px;
@@ -35,6 +43,7 @@
     --brand:#818cf8; --brand-ink:#111827; --accent:#fb923c; --accent-ink:#231000;
     --peach:#ff8a6b; --citron:#ffc63a; --citron-ink:#3a2b00; --fraise:#ff466b;
     --mint:#2fd6a3; --violet:#a78bfa; --good:#2fd6a3; --warn:#ffb03a; --crit:#ff5c72;
+    --rar-common:#94a3b8; --rar-common-ink:#0f1420;
     --shadow:none; /* sur fond sombre une ombre ne se voit pas, elle salit le contour */
   }
 }
@@ -397,10 +406,6 @@ body{margin:0;background:var(--bg);color:var(--text);
 .av-card .tick{position:absolute;top:4px;right:6px;font-size:11px;color:var(--brand);font-weight:900}
 .av-card.on{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 10%,var(--surface))}
 .av-card.bare{border-style:dashed;color:var(--muted)}
-.av-card.rare{border-color:color-mix(in srgb,var(--mint) 45%,var(--line))}
-.av-card.epic{border-color:color-mix(in srgb,var(--violet) 45%,var(--line))}
-.av-card.legendary{border-color:color-mix(in srgb,var(--citron) 60%,var(--line))}
-.av-card.on.rare,.av-card.on.epic,.av-card.on.legendary{border-color:var(--brand)}
 .av-sec h2{margin:0 0 8px;font-size:13px;font-weight:800}
 .av-sec{display:flex;flex-direction:column}
 .av-grid{display:flex;flex-wrap:wrap;gap:8px}
@@ -643,6 +648,23 @@ body{margin:0;background:var(--bg);color:var(--text);
 .shop-season-head{display:flex;flex-direction:column;gap:3px}
 .shop-season-head .t{font-weight:800;font-size:14px;color:var(--violet)}
 .shop-season-head .s{font-size:11px;color:var(--muted);line-height:1.35}
+/* Une PANOPLIE : même forme d'encadré que la boutique de saison, mais peinte à la RARETÉ
+   de ses pièces (rar-tint) plutôt qu'en violet — elles sont toutes de la même, c'est ce qui
+   fait qu'un ensemble se lit comme un ensemble. On y achète à la pièce comme ailleurs. */
+.shop-set{border-width:1.5px;border-style:solid;border-radius:var(--r);padding:11px;
+  margin-bottom:12px;display:flex;flex-direction:column;gap:10px}
+.shop-set-head{display:flex;align-items:center;gap:8px}
+.shop-set-head .t{font-weight:800;font-size:14px;flex:1;min-width:0}
+.shop-set-desc{margin:-4px 0 0;font-size:11px;color:var(--muted);line-height:1.35}
+/* Où on en est de la collection : c'est ce compteur qui donne envie de la finir. */
+.shop-set-count{flex:none;font-size:10px;font-weight:800;color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.shop-set-count.done{color:var(--good)}
+/* La promo, seule chose qui puisse faire bouger un prix (pilotée depuis /admin). */
+.shop-promo{flex:none;background:var(--fraise);color:#fff;border-radius:999px;
+  padding:2px 9px;font-size:10px;font-weight:800;white-space:nowrap}
+/* Le prix catalogue, barré, à gauche du prix payé — servi seulement s'il en diffère. */
+.shop-was{opacity:.65;font-weight:700;margin-right:6px;text-decoration-thickness:1.5px}
 .shop-cos.season{position:relative;padding-top:22px}
 .shop-cos-left{position:absolute;top:6px;left:50%;transform:translateX(-50%);white-space:nowrap;
   background:var(--violet);color:#fff;border-radius:999px;padding:2px 8px;font-size:9px;font-weight:800}
@@ -658,13 +680,10 @@ body{margin:0;background:var(--bg);color:var(--text);
   background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer}
 .shop-cos{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:13px 10px;
   display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
-.shop-cos.rare{border-color:color-mix(in srgb,var(--mint) 45%,var(--line))}
-.shop-cos.epic{border-color:color-mix(in srgb,var(--violet) 50%,var(--line))}
-.shop-cos.legendary{border-color:color-mix(in srgb,var(--citron) 60%,var(--line))}
 .shop-cos.trying{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 9%,var(--surface))}
 .shop-cos-emoji{font-size:36px;line-height:1.1}
 .shop-cos-name{font-weight:800;font-size:12px}
-.shop-cos-rarity{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}
+.shop-cos .rar-pill{margin-bottom:6px}
 .shop-owned{margin-top:auto;font-size:11px;font-weight:700;color:var(--good);text-decoration:none;
   background:color-mix(in srgb,var(--good) 12%,transparent);border-radius:999px;padding:6px 10px;width:100%}
 .shop-armoire{margin-top:14px;display:flex;flex-direction:column;gap:4px;background:var(--surface-2);
@@ -716,49 +735,172 @@ body{margin:0;background:var(--bg);color:var(--text);
 .chest-card{display:flex;align-items:center;gap:12px;padding:12px 14px;
   background:var(--surface);border:2px solid var(--line-2);border-radius:16px}
 .chest-card+.chest-card{margin-top:9px}
-.chest-card.rar-rare{border-color:var(--mint)}
-.chest-card.rar-epic{border-color:var(--violet)}
-.chest-card.rar-legendary{border-color:var(--citron)}
-.chest-emoji{font-size:30px}
+/* Le coffre de la carte et celui du titre de section sont le MÊME dessin que celui qui
+   s'ouvre (voir ChestSvg) : ferrures à la couleur de la rareté comprises. Un 🎁 emoji
+   promettait un cadeau, et ne savait pas dire de quelle rareté il était.
+   Sélecteurs à deux classes : ils doivent battre le `.chest-svg` de la modal (150px). */
+.chest-svg.chest-mini{width:46px;filter:none;flex:none}
+.chest-svg.chest-tiny{width:22px;filter:none;display:inline-block;vertical-align:-4px}
 .chest-text{flex:1}
 .chest-title{font-weight:800;font-size:14px}
 .chest-sub{font-size:12px;color:var(--muted)}
 .chest-btn{background:var(--citron);color:var(--citron-ink);border:0;border-radius:12px;
   padding:10px 16px;font-weight:800;font-size:13px}
 
-/* Modal d'ouverture : coffre SVG (couvercle sur charnière), paillettes, gains qui sortent */
-.chest-modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;
-  background:rgba(20,16,28,.72);backdrop-filter:blur(3px);animation:chest-fade .25s ease-out}
+/* ---- Ouverture d'un coffre --------------------------------------------------------------
+   Le seul moment de fanfare du jeu, et il emprunte la grammaire des jeux de loot (Vampire
+   Survivors) : le coffre s'agite de plus en plus fort et fait trembler l'écran, le couvercle
+   claque, l'écran flashe, une roue de rayons tourne derrière, une colonne de lumière monte,
+   il pleut des pièces, et les gains s'IMPRIMENT un par un — ils arrivent trop grands et se
+   posent d'un coup sec, ce n'est pas un fondu.
+   Tout est peint dans --rar : la rareté se voit avant de se lire. Et la QUANTITÉ de fanfare
+   suit la rareté (--fanfare, posé par la modale) — un commun ne se joue pas comme un
+   légendaire, sinon le légendaire ne vaut plus rien.
+   La charte 60-30-10 n'est pas entamée : la modale est un plein écran noir, hors de la page.
+   Chaque animation a son pendant sous prefers-reduced-motion, en fin de bloc. */
+.chest-modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(circle at 50% 40%,
+    color-mix(in srgb,var(--rar,var(--citron)) 26%,rgba(12,9,18,.88)) 0%,rgba(9,7,14,.95) 65%);
+  backdrop-filter:blur(3px);animation:chest-fade .25s ease-out;
+  /* Réglages posés en ligne par React (table FANFARE, un seul endroit) — ici, les valeurs
+     de repli. --fanfare : l'intensité des lumières. --rattle : combien de temps le coffre
+     s'agite avant de céder — le même nombre minute le POST.
+     DEUX facteurs de temps, et c'est voulu : --k étire l'ATMOSPHÈRE (rayons, colonne, onde)
+     et l'attente entre deux gains ; --k2, deux fois moins ample, étire les GESTES (couvercle,
+     encaissement, vol du butin), parce qu'un geste trop lent ne se lit pas comme de la
+     solennité mais comme une appli qui rame. */
+  --fanfare:.7;--k:1;--k2:1;--rattle:1s}
 @keyframes chest-fade{from{opacity:0}to{opacity:1}}
 .chest-stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;
   padding:32px 24px;max-width:320px;text-align:center}
-.chest-svg{width:150px;height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.4))}
-.chest-svg.shaking{animation:chest-shake .9s ease-in-out infinite}
-@keyframes chest-shake{0%,100%{transform:rotate(0)}15%{transform:rotate(-7deg) scale(1.03)}
-  35%{transform:rotate(6deg) scale(1.06)}55%{transform:rotate(-5deg) scale(1.08)}75%{transform:rotate(4deg) scale(1.05)}}
+/* Le tremblement de l'écran, pendant que le coffre s'agite (avant le POST). Même principe
+   que le coffre : une secousse courte RÉPÉTÉE --shivers fois, pas une longue étirée. */
+.chest-stage.rattling{animation:chest-quake .16s linear var(--shivers,6)}
+@keyframes chest-quake{0%,100%{transform:translate(0,0)}
+  30%{transform:translate(-2px,1px)}70%{transform:translate(2px,-2px)}}
+
+/* Le coffre et tout ce qui rayonne DE lui vivent dans leur propre boîte : rayons, halo,
+   colonne et onde restent ainsi centrés sur le coffre, et non sur une modale dont la
+   hauteur change avec le nombre de gains. */
+.chest-hold{position:relative;width:170px;height:140px;display:grid;place-items:center}
+.chest-fx{position:absolute;top:50%;left:50%;pointer-events:none}
+
+/* La roue de rayons. Masquée en son centre (le coffre doit rester lisible) et sur son bord
+   (sinon on verrait le disque). Elle jaillit d'un coup puis tourne lentement : DEUX
+   animations séparées, l'une sur `transform`, l'autre sur `rotate` — la propriété à part —
+   sinon la seconde écraserait le centrage de la première. */
+.chest-rays{width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;opacity:0;
+  background:repeating-conic-gradient(from 0deg,var(--rar) 0 2.6deg,transparent 2.6deg 15deg);
+  -webkit-mask-image:radial-gradient(closest-side circle,transparent 4%,#000 11%,transparent 52%);
+  mask-image:radial-gradient(closest-side circle,transparent 4%,#000 11%,transparent 52%);
+  animation:chest-rays-in calc(.55s*var(--k)) ease-out forwards,chest-rays-spin 30s linear infinite}
+@keyframes chest-rays-in{0%{transform:scale(.15)}
+  55%{opacity:calc(.62*var(--fanfare))}100%{opacity:calc(.4*var(--fanfare));transform:scale(1)}}
+@keyframes chest-rays-spin{to{rotate:360deg}}
+
+/* Le halo qui respire derrière le coffre — c'est lui qui reste quand tout est retombé. */
+.chest-glow{width:300px;height:300px;margin:-150px 0 0 -150px;border-radius:50%;filter:blur(4px);
+  background:radial-gradient(circle,color-mix(in srgb,var(--rar) 72%,transparent) 0,
+    color-mix(in srgb,var(--rar) 20%,transparent) 42%,transparent 68%);
+  animation:chest-glow-pulse 2.4s ease-in-out infinite}
+@keyframes chest-glow-pulse{0%,100%{transform:scale(.9);opacity:calc(.5*var(--fanfare) + .2)}
+  50%{transform:scale(1.1);opacity:calc(.75*var(--fanfare) + .2)}}
+
+/* La colonne de lumière qui sort du coffre ouvert : posée sur la ligne du couvercle, pas
+   au centre de la boîte — d'où le `bottom` plutôt que le `top` commun aux autres effets. */
+.chest-beam{top:auto;bottom:calc(50% + 16px);width:200px;height:250px;margin-left:-100px;
+  background:linear-gradient(to top,color-mix(in srgb,var(--rar) 85%,transparent),transparent 84%);
+  clip-path:polygon(42% 100%,58% 100%,100% 0,0 0);filter:blur(3px);
+  opacity:0;transform-origin:50% 100%;
+  animation:chest-beam-up calc(1s*var(--k)) calc(.1s*var(--k)) ease-out forwards}
+@keyframes chest-beam-up{0%{opacity:0;transform:scaleY(.08)}
+  35%{opacity:calc(.8*var(--fanfare))}100%{opacity:calc(.4*var(--fanfare));transform:scaleY(1)}}
+
+/* L'onde de choc du couvercle qui claque, et le flash plein écran au même instant. */
+.chest-shock{width:70px;height:70px;margin:-35px 0 0 -35px;border-radius:50%;
+  border:3px solid var(--rar);opacity:0;
+  animation:chest-shock calc(.85s*var(--k)) calc(.08s*var(--k)) cubic-bezier(.15,.75,.3,1) forwards}
+@keyframes chest-shock{0%{transform:scale(.25);opacity:0}12%{opacity:.95}100%{transform:scale(6.5);opacity:0}}
+.chest-flash{position:fixed;inset:0;pointer-events:none;background:#fff;opacity:0;
+  animation:chest-flash .55s .06s ease-out forwards} /* pas de --k : un flash est un IMPACT,
+  pas une montée — étiré à une seconde il devient un voile blanc au lieu d'un coup */
+@keyframes chest-flash{0%{opacity:0}10%{opacity:calc(.55*var(--fanfare) + .3)}100%{opacity:0}}
+
+/* La pluie de pièces balaie tout l'écran, pas seulement le coffre — elle est donc fille de
+   la modale, pas de .chest-hold. */
+.chest-coin{position:absolute;top:-10%;left:var(--x);font-size:var(--s,17px);pointer-events:none;
+  opacity:0;animation:chest-rain var(--dur,1.9s) var(--delay,0s) linear forwards}
+@keyframes chest-rain{0%{transform:translateY(0) rotate(0);opacity:0}
+  8%{opacity:1}88%{opacity:1}100%{transform:translateY(120vh) rotate(var(--spin,360deg));opacity:0}}
+
+/* Le coffre lui-même. Ses ferrures prennent la couleur de la rareté (.chest-trim) : le bois
+   reste du bois, mais un coffre légendaire est cerclé d'or et un commun de gris. */
+.chest-svg{width:150px;height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.45));position:relative}
+.chest-trim{fill:var(--rar,#f2b100)}
+/* Avant le POST : l'agitation MONTE — c'est ce qui fait attendre le couvercle, et un
+   légendaire se fait attendre trois fois plus longtemps qu'un commun.
+   ⚠️ DEUX animations sur DEUX propriétés indépendantes (`rotate` et `scale`, comme la roue
+   de rayons), et surtout PAS une seule keyframe étirée : étirée sur 2 s elle donnerait un
+   balancement mou, pas un tremblement. La secousse garde donc une fréquence FIXE (.16 s) et
+   c'est le NOMBRE de secousses qui suit la rareté (--shivers) ; le gonflement, lui, s'étire
+   sur toute la durée en `ease-in` — il accélère, c'est lui qui fait monter la tension. */
+.chest-svg.shaking{animation:chest-shiver .16s linear var(--shivers,6),
+  chest-swell var(--rattle) ease-in forwards}
+@keyframes chest-shiver{0%,100%{rotate:0deg}25%{rotate:-4deg}75%{rotate:4deg}}
+@keyframes chest-swell{0%{scale:1}55%{scale:1.05}85%{scale:1.12}100%{scale:1.22}}
+/* Après : il encaisse le coup et redescend. */
+.chest-svg.popped{animation:chest-pop calc(.7s*var(--k2)) cubic-bezier(.2,1.5,.35,1) forwards}
+@keyframes chest-pop{0%{transform:scale(1.2)}28%{transform:scale(1.38)}100%{transform:scale(1.06)}}
 .chest-lid{transform-origin:18px 46px;transition:transform .01s}
-.chest-lid.open{animation:chest-lid-open .7s cubic-bezier(.3,1.5,.5,1) forwards}
-@keyframes chest-lid-open{from{transform:rotate(0)}to{transform:rotate(-70deg) translate(-6px,-10px)}}
-.chest-particle{position:absolute;top:44%;left:50%;font-size:15px;pointer-events:none;opacity:0;
-  animation:chest-burst 1.1s ease-out forwards}
+.chest-lid.open{animation:chest-lid-open calc(.8s*var(--k2)) cubic-bezier(.25,1.6,.45,1) forwards}
+@keyframes chest-lid-open{0%{transform:rotate(0)}
+  55%{transform:rotate(-86deg) translate(-8px,-12px)}100%{transform:rotate(-72deg) translate(-6px,-10px)}}
+
+.chest-particle{position:absolute;top:50%;left:50%;pointer-events:none;opacity:0;
+  color:var(--rar);text-shadow:0 0 8px color-mix(in srgb,var(--rar) 70%,transparent);
+  animation:chest-burst var(--pd,1.2s) ease-out forwards} /* taille et durée : par paillette,
+  posées par React — elles ne doivent pas toutes partir ni s'éteindre ensemble */
 @keyframes chest-burst{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}
-  15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.15);opacity:0}}
-.chest-gains-out{display:flex;flex-direction:column;align-items:center;gap:8px;min-height:40px}
-.chest-gain-chip{background:var(--surface);border:2px solid var(--line-2);border-radius:999px;
-  padding:8px 16px;font-weight:800;font-size:14px;opacity:0;
-  animation:chest-gain-pop .5s cubic-bezier(.2,1.6,.4,1) forwards}
-.chest-gain-chip.rar-rare{border-color:var(--mint)}
-.chest-gain-chip.rar-epic{border-color:var(--violet)}
-.chest-gain-chip.rar-legendary{border-color:var(--citron)}
-@keyframes chest-gain-pop{from{transform:translateY(26px) scale(.6);opacity:0}
-  to{transform:translateY(0) scale(1);opacity:1}}
-.chest-reveal-title{color:#fff;font-weight:800;font-size:17px;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+  15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.2);opacity:0}}
+
+/* Les gains SORTENT du coffre : chacun jaillit de là où il est (le coffre, juste au-dessus),
+   monte encore un peu, puis retombe à sa place — d'où le translateY négatif au départ, calé
+   sur la hauteur de .chest-hold. Ils sont donc placés SOUS le coffre et AVANT le titre : la
+   proximité fait la lecture, le titre n'est plus que la légende du butin.
+   On montre la matière, pas une phrase : le vrai dessin de la pièce (CosmeticIcon) ou les 💎,
+   dans un médaillon — c'est ce que Chest#open! sert en gains structurés. */
+.chest-gains-out{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;
+  gap:8px 20px;min-height:104px}
+.chest-loot{display:flex;flex-direction:column;align-items:center;gap:5px;width:104px;opacity:0;
+  animation:chest-loot-out calc(.75s*var(--k2)) cubic-bezier(.2,1.05,.3,1) forwards}
+@keyframes chest-loot-out{0%{transform:translateY(-120px) scale(.2);opacity:0}
+  16%{opacity:1}45%{transform:translateY(-54px) scale(1.22)}
+  76%{transform:translateY(9px) scale(.93)}100%{transform:translateY(0) scale(1);opacity:1}}
+/* Le médaillon prend la rareté de CE qu'il contient : le coffre pour les 💎, la pièce pour
+   un cosmétique (`rar-<rareté>` posé par React) — un commun peut cracher un légendaire. */
+.chest-loot-medal{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 32%,color-mix(in srgb,var(--rar) 45%,#fff) 0,var(--rar) 76%);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--rar) 40%,transparent),
+             0 0 28px color-mix(in srgb,var(--rar) 60%,transparent)}
+.chest-loot-art{font-size:34px;line-height:1;display:grid;place-items:center;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
+.chest-loot-name{color:#fff;font-weight:800;font-size:13px;line-height:1.25;
+  text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.chest-loot-note{color:rgba(255,255,255,.7);font-size:10px;line-height:1.3}
+.chest-reveal-title{color:#fff;font-weight:800;font-size:19px;
+  text-shadow:0 2px 10px rgba(0,0,0,.6),0 0 22px color-mix(in srgb,var(--rar) 75%,transparent)}
+/* Dans la modale, le bouton porte la rareté : c'est le sujet de l'écran. */
+.chest-stage .chest-btn{background:var(--rar);color:var(--rar-ink);
+  box-shadow:0 6px 20px color-mix(in srgb,var(--rar) 45%,transparent)}
+
 @media (prefers-reduced-motion: reduce){
-  .chest-svg.shaking,.chest-particle{animation:none}
-  .chest-particle{display:none}
+  /* On garde le tableau final — coffre ouvert, halo, gains — sans rien qui bouge. */
+  .chest-svg.shaking,.chest-svg.popped,.chest-stage.rattling,.chest-glow{animation:none}
+  .chest-rays,.chest-shock,.chest-flash,.chest-coin,.chest-particle,.chest-beam{display:none}
   .chest-lid.open{animation:none;transform:rotate(-70deg) translate(-6px,-10px)}
-  .chest-gain-chip{animation:none;opacity:1}
+  .chest-loot{animation:none;opacity:1}
 }
+
 .install-hint{display:flex;align-items:center;gap:10px;margin:10px 14px 0;padding:10px 12px;
   background:var(--surface);border:1px solid var(--line);border-radius:14px;font-size:13px}
 .install-hint .ih-icon{font-size:20px}
@@ -898,3 +1040,26 @@ body{margin:0;background:var(--bg);color:var(--text);
 .adm-save{background:var(--accent);color:var(--accent-ink);border:none;border-radius:10px;padding:9px 14px;
   font:inherit;font-weight:800;font-size:12px;cursor:pointer;flex:none}
 .adm-save:disabled{background:var(--surface-3);color:var(--faint);cursor:default}
+
+/* ---- Rareté ---------------------------------------------------------------------------
+   Une pièce a la même couleur partout : boutique, cabine d'essai, armoire, coffre, gain.
+   `rar-<rareté>` POSE --rar / --rar-ink et teinte la carte ; tout le reste (la pastille,
+   les éclats de l'ouverture d'un coffre) se contente de lire ces deux variables, qui
+   s'héritent. Ajouter une rareté = une ligne de token + une ligne ici, aucun composant.
+   Volontairement en fin de fichier : voir la note ci-dessus sur la spécificité. */
+.rar-common{--rar:var(--rar-common);--rar-ink:var(--rar-common-ink)}
+.rar-rare{--rar:var(--rar-rare);--rar-ink:var(--rar-rare-ink)}
+.rar-epic{--rar:var(--rar-epic);--rar-ink:var(--rar-epic-ink)}
+.rar-legendary{--rar:var(--rar-legendary);--rar-ink:var(--rar-legendary-ink)}
+/* `rar-tint` = la carte PORTE la couleur. Séparé du porteur ci-dessus parce que tout ce
+   qui prend --rar ne veut pas forcément ce fond clair : la modale d'ouverture d'un coffre
+   se joue sur un plein écran noir, elle ne lit que la variable. */
+.rar-tint{border-color:color-mix(in srgb,var(--rar) 55%,var(--line));
+  background:color-mix(in srgb,var(--rar) 8%,var(--surface))}
+/* Le légendaire est le seul à s'annoncer de loin : un halo, pas une 5e couleur. */
+.rar-tint.rar-legendary{box-shadow:0 0 0 1px color-mix(in srgb,var(--rar) 35%,transparent),
+  0 2px 14px color-mix(in srgb,var(--rar) 28%,transparent)}
+/* La pastille : aplat plein + son encre. C'est le seul endroit où la rareté s'ÉCRIT. */
+.rar-pill{display:inline-block;background:var(--rar,var(--line-2));color:var(--rar-ink,var(--text));
+  border-radius:999px;padding:2px 8px;font-size:9px;font-weight:800;line-height:1.6;
+  text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}

@@ -4,8 +4,6 @@
 # non possédé) est tiré au moment du drop et stocké sur le coffre — l'ouverture ne
 # fait que le révéler.
 class DropChest
-  LABELS = { "common" => "commun", "rare" => "rare", "epic" => "épique", "legendary" => "légendaire" }.freeze
-
   def self.call(training) = new(training).call
 
   def initialize(training)
@@ -26,7 +24,9 @@ class DropChest
     )
     Notification.create!(
       user: @m.user, game: @m.game, category: "chest", importance: "important",
-      title: "🎁 Tu as trouvé un coffre #{LABELS.fetch(rarity)} !",
+      # ⚠️ Pas un mot sur la rareté : elle ne se découvre qu'en ouvrant le coffre (voir
+      # ChestCard). L'annoncer ici la vendrait des jours à l'avance, et par une notif push.
+      title: "🎁 Tu as trouvé un coffre !",
       body: "Ta course de #{@t.distance_km.round(1)} km cachait un coffre. Ouvre-le dans ton sac 🎒 !",
       link: "/sac"
     )

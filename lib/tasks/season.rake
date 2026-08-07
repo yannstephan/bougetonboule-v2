@@ -22,6 +22,23 @@ namespace :season do
                 c.available_until&.to_date&.strftime("%d/%m/%Y") || "…" ].join(" → ")
       puts format("   %-28s %-24s %s", c.name, window, c.available? ? "EN COURS" : "fermée")
     end
+
+    puts "
+🏷️  Panoplies"
+    sets = CosmeticSet.includes(:cosmetics).ordered
+    puts("   (aucune)") if sets.empty?
+    sets.each do |set|
+      pieces = set.cosmetics.select(&:price_diamonds)
+      promo = if set.promo_percent
+        window = [ set.promo_from&.to_date&.strftime("%d/%m/%Y") || "…",
+                  set.promo_until&.to_date&.strftime("%d/%m/%Y") || "…" ].join(" → ")
+        "-#{set.promo_percent}% #{window} #{set.promo? ? '(EN COURS)' : '(inactive)'}"
+      else
+        "pas de promo"
+      end
+      puts format("   %-24s %d pièces  %4d 💎 → %4d 💎   %s", set.name, pieces.size,
+                  pieces.sum(&:price_diamonds), pieces.sum { |c| c.current_price.to_i }, promo)
+    end
   end
 
   desc "Ajoute une journée ×2 (NAME='Halloween' DATE=2026-10-31 [MULT=2] [GAME_ID=1])"
@@ -50,6 +67,30 @@ namespace :season do
       cosmetic.update!(available_from: from, available_until: till)
       puts "#{name} → #{cosmetic.seasonal? ? "#{from&.to_date || '…'} → #{till&.to_date || '…'}" : 'permanent'}"
     end
+  end
+
+  desc "Lance une promo (SET='Coureur du dimanche' PERCENT=20 [FROM=2026-11-01] [UNTIL=2026-11-15])"
+  task promo: :environment do
+    set = CosmeticSet.find_by(name: ENV.fetch("SET") { abort "SET='Nom de la panoplie' manquant" })
+    abort "Panoplie inconnue" if set.nil?
+
+    set.promo_percent = ENV.fetch("PERCENT") { abort "PERCENT= manquant (1 à 90)" }.to_i
+    set.promo_from    = ENV["FROM"].presence && Date.parse(ENV["FROM"]).beginning_of_day
+    set.promo_until   = ENV["UNTIL"].presence && Date.parse(ENV["UNTIL"]).end_of_day
+    abort set.errors.full_messages.to_sentence unless set.save
+
+    puts "#{set.name} → -#{set.promo_percent}% (#{set.promo? ? 'en cours' : 'programmée'})"
+    set.cosmetics.each { |c| puts format("   %-28s %4d 💎 → %4d 💎", c.name, c.price_diamonds, c.current_price) }
+  end
+
+  desc "Arrête la promo d'une panoplie (SET='Coureur du dimanche')"
+  task unpromo: :environment do
+    set = CosmeticSet.find_by(name: ENV.fetch("SET") { abort "SET= manquant" })
+    abort "Panoplie inconnue" if set.nil?
+
+    # On n'écrit rien dans les prix : les retirer suffit à rétablir le catalogue.
+    set.update!(promo_percent: nil, promo_from: nil, promo_until: nil)
+    puts "#{set.name} → prix d'origine rétablis"
   end
 
   desc "Rend des pièces permanentes (NAMES='Parasol,Tournesol')"

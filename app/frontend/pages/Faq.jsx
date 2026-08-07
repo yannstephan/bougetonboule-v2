@@ -99,7 +99,7 @@ const SECTIONS = [
     q: '🎁 Les coffres',
     a: [
       'Chaque course importée peut cacher un coffre (une chance sur ~7, maximum un par jour). Et au bout de 7 courses sans rien trouver, le suivant est garanti — la malchance a une limite.',
-      'Quatre raretés : commun, rare, épique, légendaire. Plus c\'est rare, plus il y a de diamants dedans — et plus il y a de chances d\'y trouver un cosmétique que tu n\'as pas (toujours dans un légendaire).',
+      'Quatre raretés : commun, rare, épique, légendaire. Plus c\'est rare, plus il y a de diamants dedans — et plus il y a de chances d\'y trouver un cosmétique que tu n\'as pas (toujours dans un légendaire). Mais tu ne sauras jamais laquelle tu as trouvée avant de l\'ouvrir.',
       'Le coffre t\'attend dans ton sac 🎒 (onglet du bas) : une pastille rouge s\'allume dessus tant qu\'il reste quelque chose à ouvrir. Appuie sur « Ouvrir » pour découvrir ce qu\'il contient. Certains cosmétiques ne se trouvent QUE dans les coffres…',
     ],
   },
@@ -118,6 +118,7 @@ const SECTIONS = [
       'Plusieurs coéquipiers peuvent prendre le même fruit — l\'écran indique qui a déjà choisi quoi.',
       'Ton fruit n\'est qu\'une tête : les cosmétiques se posent autour. Sept emplacements — chapeau, lunettes, cou (nœud pap\', écharpe, collier…), bras, chaussures, accessoire posé à côté, et l\'aura en fond.',
       'Ils s\'achètent en 💎 ou se gagnent, puis s\'équipent un par emplacement depuis ton sac 🎒, onglet 🎨 Armoire — l\'aperçu de ton fruit reste sous les yeux pendant que tu l\'habilles. Le choix du fruit lui-même, et ton compte, restent sur l\'écran Avatar.',
+      '🎽 Certaines pièces vont ensemble : ce sont les panoplies. Toutes celles d\'une même panoplie ont la même rareté, et tu les achètes à la pièce, dans l\'ordre que tu veux — le compteur te dit où tu en es. De temps en temps l\'organisateur en met une en promo : le prix barré, c\'est l\'ancien.',
       '✨ Certaines pièces ne passent qu\'une fois par an : elles sont regroupées dans la « boutique de saison », en haut du rayon cosmétiques, avec le nombre de jours restants. Passé la date elles disparaissent (et ne tombent plus des coffres) — mais ce que tu as acheté reste à toi pour toujours.',
       'Certaines pièces ne sont jamais en vente : elles ne se gagnent que par les coffres, les séries, la ligue ou les événements de la saison. L\'🐺 Esprit du loup, par exemple, ne sort que des coffres…',
     ],

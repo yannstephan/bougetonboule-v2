@@ -38,21 +38,27 @@ const AURA_HALO = AURA_ANGLES.map((deg) => {
 const COMPACT_BELOW = 44
 const COMPACT_SLOTS = ['aura', 'eyes', 'hat']
 
-// Ancres en unités du viewBox (0-100), centre de la pièce. `em` = taille relative à
-// l'avatar, `spread` = écart symétrique pour les paires (gants, chaussures).
+// Ancres en unités du viewBox (0-100). `em` = taille relative à l'avatar, `spread` = écart
+// symétrique pour les paires (gants, chaussures).
 //
 // Tout ce qui touche au visage se cale sur la LIGNE DES YEUX (y=52, commune à tous les
 // fruits) plutôt que sur la silhouette : lunettes dessus, gants juste en dessous. Seuls
 // le chapeau, le cou, les chaussures et l'accessoire suivent le fruit (crâne / base /
 // largeur), et de près — une pièce qui s'éloigne fait paraître l'avatar plus petit.
+//
+// ⚠️ `from` + `bite` : quel BORD de la pièce tombe sur le repère, et de combien il mord
+// dedans — au lieu de centrer la pièce sur le repère. C'est ce qui fait tenir les GROSSES
+// pièces : centré, un chapeau haut descendait jusqu'aux yeux là où un bandeau plat se
+// posait juste ; ancré par le bas, les deux ont leur bord inférieur au même endroit et
+// c'est le haut qui pousse dans le vide. Changer la taille d'une pièce ne la déplace plus.
 function anchors({ top, bottom, half, hatX }) {
   const side = Math.max(half, 22) + 2 // les gants ne remontent jamais sur les joues
   return {
-    hat: { x: hatX, y: top - 3, em: 0.36 },
+    hat: { x: hatX, y: top, em: 0.36, from: 'bottom', bite: 14 },
     eyes: { x: 50, y: EYE_LINE + 2, em: 0.34 },
-    // au ras de la base : plafonner trop haut le faisait remonter en plein ventre
-    // sur les fruits allongés (ananas, mangue), là où on attend un cou.
-    neck: { x: 50, y: Math.max(Math.min(bottom - 7, 81), 74), em: 0.2 },
+    // suspendu à la base du fruit : plus la pièce est grande, plus elle pend — elle ne
+    // remonte jamais en plein ventre, là où on attend un cou.
+    neck: { x: 50, y: Math.min(bottom, 88), em: 0.2, from: 'top', bite: 17 },
     hands: { x: 50, y: EYE_LINE + 6, em: 0.22, spread: side },
     // `art` : une paire dessinée est bien plus large qu'un emoji, elle a sa propre ancre.
     shoes: { x: 50, y: Math.min(bottom + 4, 91), em: 0.22, spread: 10,
@@ -60,6 +66,14 @@ function anchors({ top, bottom, half, hatX }) {
     // en bas à droite, sous les gants et à l'écart des chaussures (qui restent centrées)
     sidekick: { x: Math.min(Math.max(50 + half + 10, 75), 85), y: bottom - 5, em: 0.26 },
   }
+}
+
+// Le centre de la pièce, une fois qu'on connaît sa taille. Sans `from`, c'est l'ancre.
+function centerY(at, em, bite) {
+  const half = em * 50
+  if (at.from === 'bottom') return at.y + bite - half // bord bas posé à y + bite
+  if (at.from === 'top') return at.y - bite + half    // bord haut posé à y − bite
+  return at.y
 }
 
 export default function FruitAvatar({ fruit, size = 96, cosmetics = {}, showCosmetics = true, face = true }) {
@@ -91,10 +105,12 @@ function Cosmetic({ slot, worn, at }) {
   const drawn = artFor(art)
 
   if (slot === 'aura') {
+    const glyph = drawn?.emoji || emoji
+    const em = drawn?.em || 0.22
     return (
       <>
         {AURA_HALO.map(([x, y], i) => (
-          <span key={i} className="fav-slot fav-glyph fav-aura" style={pin(x, y, 0.22)}>{emoji}</span>
+          <span key={i} className="fav-slot fav-glyph fav-aura" style={pin(x, y, em)}>{glyph}</span>
         ))}
       </>
     )
@@ -105,8 +121,9 @@ function Cosmetic({ slot, worn, at }) {
   // toute la largeur, garde l'ancre dédiée du slot (`at.art`) et n'est jamais dupliqué.
   if (drawn?.pair) {
     const a = { ...at, ...(at.art || {}) }
+    const em = drawn.em || a.em
     return (
-      <span className={`fav-slot fav-${slot}`} style={pin(a.x, a.y, drawn.em || a.em)}>
+      <span className={`fav-slot fav-${slot}`} style={pin(a.x, centerY(a, em, drawn.bite ?? a.bite ?? 0), em)}>
         <Art node={drawn.node} />
       </span>
     )
@@ -116,10 +133,15 @@ function Cosmetic({ slot, worn, at }) {
   // ⚠️ La pièce doit représenter UN bras : 🧤 et 🐾 sont déjà des paires et en donnaient
   // quatre — d'où les dessins `mitten` et `paw`. Un emoji-paire dans un slot symétrique
   // est un bug de contenu. `single` = la pièce ne se porte que d'un côté (une baguette).
+  // ⚠️ Une pièce peut imposer SA taille et SA morsure (`em`, `bite` dans le registre des
+  // dessins) : le réglage du slot est calibré pour une pièce moyenne, et une forme large
+  // — un casque audio, une paire de chaussures — ne tient pas au même endroit qu'un nœud
+  // papillon. C'est là qu'on rattrape un emoji qui remplit toute sa boîte.
   const em = drawn?.em || at.em
+  const y = centerY(at, em, drawn?.bite ?? at.bite ?? 0)
   const glyph = drawn?.emoji || emoji
   const draw = (x, mirror) => (
-    <span key={x} style={pin(x, at.y, em)}
+    <span key={x} style={pin(x, y, em)}
           className={`fav-slot fav-${slot} ${drawn?.node ? '' : 'fav-glyph'} ${mirror ? 'fav-mirror' : ''}`}>
       {drawn?.node ? <Art node={drawn.node} /> : glyph}
     </span>

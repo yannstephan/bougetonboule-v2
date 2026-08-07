@@ -6,13 +6,13 @@ import BuyConfirm from '../components/BuyConfirm'
 import { CosmeticIcon } from '../components/cosmeticArt'
 import Hud from '../components/Hud'
 import { itemEmoji } from '../lib/gameIcons'
+import { rarityLabel } from '../lib/rarity'
 
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
 
-const rarityLabel = { common: 'Commun', rare: 'Rare', epic: 'Épique', legendary: 'Légendaire' }
 
-export default function Boutique({ has_team, initial_tab, balls, items, cosmetics, seasonal, avatar }) {
+export default function Boutique({ has_team, initial_tab, balls, items, cosmetics, seasonal, sets, avatar }) {
   const { auth, flash } = usePage().props
   const diamonds = auth.user?.diamonds ?? 0
   const [tab, setTab] = useState(initial_tab || 'items')
@@ -32,7 +32,7 @@ export default function Boutique({ has_team, initial_tab, balls, items, cosmetic
   const askCosmetic = (c) => setBuy({
     url: '/boutique/cosmetics', payload: { cosmetic_id: c.id },
     name: c.name, price: c.price, currency: '💎', emoji: c.emoji, art: c.art, slot: c.slot,
-    balance: diamonds
+    rarity: c.rarity, balance: diamonds
   })
 
   return (
@@ -52,7 +52,7 @@ export default function Boutique({ has_team, initial_tab, balls, items, cosmetic
         {tab === 'items' && <Items items={items} balls={balls} hasTeam={has_team} onBuy={askItem} />}
         {tab === 'cosmetics' && (
           <Cosmetics cosmetics={cosmetics} seasonal={seasonal} diamonds={diamonds}
-                     onBuy={askCosmetic} avatar={avatar} />
+                     sets={sets} onBuy={askCosmetic} avatar={avatar} />
         )}
       </main>
 
@@ -100,7 +100,7 @@ const daysLabel = (n) => (n === 0 ? 'Dernier jour !' : n === 1 ? 'Encore 1 jour'
 // L'essayage est PUREMENT LOCAL : rien n'est envoyé au serveur, ce qu'on porte vraiment ne
 // bouge pas. Une pièce essayée remplace seulement son emplacement dans l'aperçu, donc on
 // peut composer une tenue complète avant d'acheter quoi que ce soit.
-function Cosmetics({ cosmetics, seasonal = [], diamonds, onBuy, avatar }) {
+function Cosmetics({ cosmetics, seasonal = [], sets = [], diamonds, onBuy, avatar }) {
   const [tried, setTried] = useState({}) // { slot: cosmétique }
 
   const tryOn = (c) =>
@@ -142,9 +142,43 @@ function Cosmetics({ cosmetics, seasonal = [], diamonds, onBuy, avatar }) {
           <CosmeticGrid list={seasonal} diamonds={diamonds} onBuy={onBuy} onTry={tryOn} tried={tried} season />
         </section>
       )}
+      {sets.map((set) => (
+        <SetShelf key={set.id} set={set} diamonds={diamonds}
+                  onBuy={onBuy} onTry={tryOn} tried={tried} />
+      ))}
       <CosmeticGrid list={cosmetics} diamonds={diamonds} onBuy={onBuy} onTry={tryOn} tried={tried} />
     </>
   )
+}
+
+// Une PANOPLIE : ses pièces montrées ensemble, sous leur nom. On achète toujours à la
+// pièce — la panoplie range le rayon et porte la promo. Le compteur « 3/6 » dit où on en
+// est : c'est ce qui donne envie de la finir.
+function SetShelf({ set, diamonds, onBuy, onTry, tried }) {
+  const owned = set.pieces.filter((p) => p.owned).length
+  const done = owned === set.pieces.length
+  return (
+    <section className={`shop-set rar-tint rar-${set.rarity}`}>
+      <div className="shop-set-head">
+        <span className="t">🎽 {set.name}</span>
+        {set.promo && (
+          <span className="shop-promo">−{set.promo.percent}% · {promoLabel(set.promo.days_left)}</span>
+        )}
+        <span className={`shop-set-count ${done ? 'done' : ''}`}>
+          {done ? '✓ complète' : `${owned}/${set.pieces.length}`}
+        </span>
+      </div>
+      {set.description && <p className="shop-set-desc">{set.description}</p>}
+      <CosmeticGrid list={set.pieces} diamonds={diamonds} onBuy={onBuy} onTry={onTry} tried={tried} />
+    </section>
+  )
+}
+
+// Une promo sans date de fin ne se raconte pas en jours : elle court, point.
+const promoLabel = (days) => {
+  if (days == null) return 'en promo'
+  if (days <= 0) return 'dernier jour !'
+  return days === 1 ? 'encore 1 jour' : `encore ${days} jours`
 }
 
 const omit = (obj, key) => Object.fromEntries(Object.entries(obj).filter(([k]) => k !== key))
@@ -155,19 +189,20 @@ function CosmeticGrid({ list, diamonds, onBuy, onTry, tried, season = false }) {
       {list.map((c) => {
         const on = tried[c.slot]?.id === c.id
         return (
-          <div key={c.id} className={`shop-cos ${c.rarity} ${season ? 'season' : ''} ${on ? 'trying' : ''}`}>
+          <div key={c.id} className={`shop-cos rar-tint rar-${c.rarity} ${season ? 'season' : ''} ${on ? 'trying' : ''}`}>
             {season && c.days_left != null && <span className="shop-cos-left">⏳ {daysLabel(c.days_left)}</span>}
             {/* Toute la vignette est le bouton d'essayage : c'est le geste le plus fréquent. */}
             <button type="button" className="shop-cos-try" onClick={() => onTry(c)}
                     aria-pressed={on} title={on ? 'Retirer de l\'essai' : `Essayer ${c.name}`}>
               <CosmeticIcon art={c.art} emoji={c.emoji} className="shop-cos-emoji" />
               <span className="shop-cos-name">{c.name}</span>
-              <span className="shop-cos-rarity">{rarityLabel[c.rarity] || c.rarity}</span>
+              <span className="rar-pill">{rarityLabel(c.rarity)}</span>
             </button>
             {c.owned ? (
               <Link href="/sac?tab=wardrobe" className="shop-owned">{c.equipped ? '✓ Équipé' : 'Dans l\'armoire'}</Link>
             ) : (
               <button className="shop-buy full" disabled={diamonds < c.price} onClick={() => onBuy(c)}>
+                {c.full_price && <s className="shop-was">{c.full_price}</s>}
                 {c.price} 💎
               </button>
             )}

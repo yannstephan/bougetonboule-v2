@@ -7,7 +7,7 @@ class ChestsController < ApplicationController
 
     gains = chest.open!
     if gains
-      flash[:chest] = { rarity: chest.rarity, gains: }
+      flash[:chest] = { rarity: chest.loot_rarity, gains: }
       redirect_to inventory_path
     else
       redirect_to inventory_path, alert: "Ce coffre est déjà ouvert."

@@ -143,10 +143,67 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   après 7 courses scorées sans drop. Rareté pondérée (60/25/12/3), contenu décidé **au drop**
   (💎 15/30/60/120 + parfois un cosmétique non possédé, toujours pour un légendaire — c'est
   par là qu'arrive l'Esprit du loup). Ouverture **dans le sac** (`/sac`, voir plus bas) en
-  **modal plein écran** : coffre SVG qui tremble (`ChestCard`) → POST → au rechargement,
-  `flash[:chest]` rouvre la modal en mode révélation (`ChestReveal`, monté **une seule fois**
-  par page puisqu'on peut avoir plusieurs coffres : couvercle sur charnière, **paillettes**,
-  gains qui sortent en chips). `Chest#open!` idempotent (verrou + statut) crédite et journalise
+  **modal plein écran**, en deux temps de part et d'autre du rechargement Inertia : le coffre
+  s'agite **de plus en plus fort** et fait trembler l'écran (`ChestCard`) → POST → au
+  rechargement, `flash[:chest]` rouvre la modal en mode révélation (`ChestReveal`, monté
+  **une seule fois** par page puisqu'on peut avoir plusieurs coffres).
+  La révélation emprunte la grammaire des **jeux de loot** : flash plein écran, roue de
+  **rayons** qui tourne, couvercle qui claque avec **onde de choc**, colonne de lumière,
+  **pluie de pièces**, et le **butin qui sort du coffre** : chaque gain jaillit de là où est
+  le coffre, monte encore un peu, puis retombe à sa place (d'où sa position **sous** le coffre
+  et **avant** le titre — le titre n'est plus que la légende du butin).
+  ⚠️ On montre la **matière**, pas une phrase : `Chest#open!` rend des **gains structurés**
+  (`{kind: "diamonds", amount:}` / `{kind: "cosmetic", name:, emoji:, art:, rarity:}`) et la
+  modal dessine la vraie pièce (`CosmeticIcon`, dessin ou emoji) dans un médaillon. Le
+  médaillon d'un cosmétique porte **SA** rareté, pas celle du coffre : `DropChest` tire dans
+  tout le catalogue, donc un coffre commun peut cracher un légendaire — c'est le meilleur
+  moment que le jeu sache produire, il doit se voir. C'est la **seule** autre couleur admise
+  dans la modal. Deux règles à garder : ⚠️ tout le reste est peint dans
+  **`--rar`**, la couleur de la rareté (voir « Rareté » plus bas) — aucune autre couleur
+  n'entre dans la modal ; et la **quantité** de fanfare suit la rareté — **comme sa
+  durée** : ~1,9 s et 8 paillettes pour un commun, **~6,6 s et 60 paillettes** pour un
+  légendaire. L'écart est volontairement brutal : c'est le commun expédié en moins de deux
+  secondes qui rend les six secondes du légendaire désirables plutôt que pénibles — le
+  contraste porte la récompense, pas la durée absolue.
+  Une **seule table**, `FANFARE` dans `ChestCard`, pose tout en style en ligne sur la modal :
+  nombre d'éclats et de pièces, `--fanfare` (intensité des lumières), `--rattle` (durée de
+  l'agitation — **le même nombre minute le POST**, la modal ne peut donc pas se désynchroniser
+  de son animation) et **deux facteurs de temps**, parce qu'ils ne s'étirent pas
+  au même rythme : **`--k`** pour l'**atmosphère** (rayons, colonne, onde) et l'attente entre
+  deux gains, **`--k2`** (deux fois moins ample) pour les **gestes** — couvercle qui claque,
+  coffre qui encaisse, butin qui vole. Un geste trop lent ne se lit pas comme de la solennité,
+  il se lit comme une appli qui rame. Chaque durée est un `calc(… * var(--k))` ou `var(--k2)`,
+  tout s'étire d'un coup sans rien réaccorder. Deux exceptions notées dans le CSS : le
+  **flash** ne s'étire pas du tout (un impact dilaté devient un voile blanc), et l'**agitation**
+  est une secousse courte à fréquence **fixe** répétée `--shivers` fois (une seule keyframe
+  étirée sur 3 s donnerait un balancement mou), le gonflement `ease-in` par-dessus portant
+  seul la montée en tension. Les **paillettes** sont réparties en **spirale dorée** avec un
+  rayon en racine carrée : à 60 éclats, une répartition régulière dessinait une grille de
+  rayons et d'anneaux. Départs et durées étalés par paillette — une pluie qui dure, pas un
+  pop synchronisé. Chaque animation a son pendant sous
+  `prefers-reduced-motion` : le tableau final (coffre ouvert, halo, gains) sans rien qui bouge.
+  ⚠️ **La couleur de l'ouverture est celle du plus beau CONTENU**, pas du palier du coffre
+  (`Chest#loot_rarity` = le plus haut de `rarity` et de la rareté du cosmétique). Un coffre
+  commun qui cache un légendaire s'ouvre **en or**, avec la fanfare et la durée d'un
+  légendaire — c'est le meilleur moment que le jeu sache produire, il ne doit pas se jouer en
+  gris ; et un coffre légendaire qui ne cache qu'un chapeau commun garde l'or de son palier
+  (on prend toujours le plus haut, jamais le plus bas). C'est `loot_rarity`, et **elle seule**,
+  qui part au front — le palier brut n'y sert à rien.
+  ⚠️ **La rareté d'un coffre scellé ne s'affiche NULLE PART** : ni pastille, ni teinte, ni
+  ferrures colorées sur la carte du sac. Elle n'apparaît qu'**à partir du clic sur « Ouvrir »**
+  — d'abord la couleur du halo pendant que le coffre s'agite, puis elle éclate à la révélation.
+  C'est toute la tension du geste ; une pastille sur la carte vendrait la mèche des jours à
+  l'avance. (Le front reçoit bien `rarity` dans les props — il en a besoin dès le clic, sans
+  aller-retour serveur — il ne la *montre* simplement pas.)
+  ⚠️ **Le coffre est un dessin, pas un 🎁** (`ChestSvg`, exporté par `ChestCard`) : le même
+  partout — carte du sac (`chest-mini`, 46 px), titre de la section (`chest-tiny`, 22 px),
+  modal qui s'ouvre (150 px). Ses **ferrures prennent la couleur de la rareté** (`.chest-trim`
+  → `--rar`) une fois la modale ouverte, ce qu'un emoji ne savait pas faire ; sur la carte,
+  sans `rar-*`, elles retombent sur leur or par défaut. C'est le cerclage du couvercle qui
+  porte la couleur aux petites tailles, les ferrures verticales disparaissant sous 30 px.
+  Le 🎁 reste dans les **textes** (titre de notification, tuile du Hub, FAQ) : Unicode n'a
+  pas d'emoji coffre.
+  `Chest#open!` idempotent (verrou + statut) crédite et journalise
   dans `rewards` (period `chest-<id>`), doublon acquis entre-temps → +30 💎.
 - **💥 Échec critique** (retour v1) : 1 attaque sur 10 rate (`PerformAction#crit_fail`) — 0 dégât
   et perte de **15 % du solde** (min 1, max 10 🍑), non multipliée par la meute. Taxe les
@@ -238,9 +295,30 @@ en dessous. Le reste suit la **silhouette**, déclarée par chaque fruit dans `c
 via `box` — `top` (ligne du crâne), `bottom` (ligne du sol), `half` (demi-largeur), `hatX`
 optionnel : le chapeau se pose sur le sommet **réel** (banane, carambole, ananas compris), les
 chaussures sous la vraie base, les gants à la vraie largeur (jamais sur les joues, grâce à un
-plancher). `FruitAvatar#anchors()` en déduit les positions et chaque pièce est **centrée** sur
-son point. Les pièces restent **serrées autour du fruit** : une pièce qui s'éloigne fait paraître
+plancher). Les pièces restent **serrées autour du fruit** : une pièce qui s'éloigne fait paraître
 l'avatar plus petit dans un cadre de taille fixe.
+
+⚠️ **`half` se MESURE, il ne s'estime pas.** C'est la demi-largeur du corps **à la ligne des
+bras** (y = 58) — pas la largeur maximale, et pas l'écart entre les deux pixels extrêmes :
+- posé à l'œil, il valait la largeur **max**, ce qui ne vaut que pour un fruit rond. Mesuré au
+  pixel sur la silhouette rendue, quatre fruits étaient faux de 4 à 13 unités : **banane 30 → 18**
+  et **carambole 31 → 17** sont étranglées à mi-hauteur, leurs bras flottaient à 13 unités du corps ;
+  papaye 15 → 12, durian/corossol 32 → 27.
+- on prend la plus longue plage opaque **contiguë** : une épine détachée du corps (les écailles
+  du fruit du dragon) n'est pas de la largeur, et la compter renvoyait les bras dans le vide —
+  le dragon reste donc à 24.
+Même principe que les planches de monstres : **vérifier par la mesure**. Re-mesurer après toute
+retouche d'une silhouette.
+
+⚠️ **Ancrage par le BORD, pas par le centre** (`from` + `bite` dans `anchors()`). `from: 'bottom'`
+pose le bord **bas** de la pièce à `y + bite`, `from: 'top'` son bord **haut** à `y − bite`.
+C'est ce qui fait tenir les **grosses pièces** : centré sur le même point, un casque audio
+descendait jusqu'aux yeux là où un bandeau plat se posait juste. Ancrés par le bas, les deux ont
+leur bord inférieur au même endroit et c'est le **haut** qui pousse dans le vide — changer la
+taille d'une pièce ne la déplace plus. Une pièce peut d'ailleurs imposer **sa** taille et **sa**
+morsure (`em`, `bite` dans `COSMETIC_ART`) : le réglage du slot est calibré pour une pièce
+moyenne, et les écouteurs veulent tomber au niveau des oreilles (`bite: 40`), bien plus bas que
+le bord d'un chapeau.
 
 ⚠️ **Un glyphe emoji pend sous le centre de sa boîte de ligne** : recentrer la boîte posait donc
 toutes les pièces trop bas (lunettes sous les yeux, gants au menton). La classe `.fav-glyph`
@@ -260,9 +338,15 @@ trois familles d'emojis ne marchent pas sur un avatar-fruit —
    côté il donnait **quatre mains** (d'où le dessin `mitten`, une seule moufle).
 
 Ces pièces portent une clé `art` et sont dessinées à plat : `sneakers`/`trail`/`ballet`/`skates`/
-`boots7` (les 5 paires de chaussures), `mitten`, `paw`, `gold_hat` (🎩 est noir et bleu, le nom
-promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `monocle`, `eyepatch`, `visor`,
-`bowtie`, `bib`, `bandana`.
+`boots7`/`worn_sneakers` (les 6 paires de chaussures), `mitten`, `paw`, `gold_hat` (🎩 est noir
+et bleu, le nom promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `monocle`,
+`eyepatch`, `visor`, `bowtie`, `bib`, `bandana` — et les trois de la panoplie du dimanche :
+`headphones` (🎧 est un casque vu de face, une masse noire sur le crâne ; dessiné, l'arceau
+passe **sur** la silhouette et les écouteurs tombent aux oreilles), `armband` (📱 seul flottait
+comme un objet posé là : ce qu'on porte, ce sont les sangles) et `towel` (🎽 était un débardeur,
+donc une **tenue**, alors que l'avatar est une tête).
+⚠️ Un dessin destiné au **chapeau** doit être **large et plat** : plus haut que large, mis à
+l'échelle pour atteindre les oreilles, il déborde d'un demi-fruit au-dessus du crâne.
 
 Trois drapeaux de mise en page, sur l'entrée `COSMETIC_ART` :
 - **`pair: true`** — le dessin contient déjà les deux pièces (chaussures) → jamais dupliqué, et
@@ -276,7 +360,7 @@ les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
-- **Catalogue : 69 pièces** (dont 7 de saison) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
+- **Catalogue : 75 pièces** (dont 7 de saison et 6 de panoplie) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
   **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween, médaille,
   loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue (comportement
   assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
@@ -494,6 +578,26 @@ une date de fin s'affichent dans un encadré violet en tête de l'onglet Cosmét
 son compte à rebours (« Encore 12 jours », « Dernier jour ! »). Ouvrir une collection = poser
 deux dates sur des lignes du seed, aucun code.
 
+**🎽 Panoplies** (`CosmeticSet`, `cosmetics.cosmetic_set_id`) : un thème, plusieurs pièces,
+**toutes de la même rareté** — validé par `Cosmetic#rarity_matches_set`, c'est ce qui rend le
+prix d'un ensemble lisible d'un coup d'œil. On achète **toujours à la pièce** : une panoplie ne
+se vend pas en bloc, elle range le rayon (son propre encadré, peint à sa rareté, avec un
+compteur « 3/6 » qui donne envie de la finir) et surtout elle **porte les promotions**.
+Ses pièces sont **exclues** du rayon permanent et du rayon de saison — une pièce n'apparaît
+que dans un rayon, et sa panoplie prime. Première panoplie au seed : **Coureur du dimanche**
+(6 pièces communes à 100 💎 — 🎧 écouteurs, 🎽 débardeur fluo, 📱 téléphone en brassard,
+baskets fatiguées `worn_sneakers`, ☕ café d'avant-course, 💨 souffle court).
+
+**🏷️ Promotions** (`cosmetic_sets.promo_percent` / `promo_from` / `promo_until`) — le **seul**
+endroit d'où un prix peut bouger, piloté depuis `/admin` (onglet Promos) ou
+`bin/rails season:promo`. ⚠️ **Rien n'est jamais écrit dans les prix** : `price_diamonds` reste
+le prix catalogue et `Cosmetic#current_price` retranche la remise **à la volée** (arrondie au
+multiple de 5 — une boutique n'affiche pas 72 💎). Conséquences : retirer le pourcentage
+rétablit les prix tout seul, rien ne peut « rester soldé » après un bug, et une promo terminée
+pendant qu'un onglet traînait ouvert se paie plein pot — `Purchase.cosmetic` relit
+`current_price` au moment du débit. Le front reçoit `price` (ce qu'on paie) et `full_price`
+(seulement s'il diffère, pour être barré) ; il **affiche** le prix, il ne le décide pas.
+
 Deux onglets : Objets · Cosmétiques. Les achats sont refusés proprement si monnaie insuffisante,
 cosmétique déjà possédé, ou pas d'équipe. **Ce qu'on achète part dans le sac** (`/sac`), qui a son
 propre onglet — la boutique vend, le sac utilise.
@@ -686,8 +790,24 @@ orange à l'écran et plus rien ne ressort. Aujourd'hui l'accent ne sert que dan
 Le reste sont des couleurs de **sens**, pas de décor, et restent donc rares : 🍑 `--peach`
 (boules), 💎 `--violet` (diamants et boutique de saison), `--citron` (récompenses, coffres,
 jours ×2, le ⚡ de l'arène), `--fraise` (camp adverse, pastilles d'alerte),
-`--mint`/`--good`/`--warn`/`--crit` (santé, soin, PV). Rareté cosmétiques :
-common/rare/epic/legendary.
+`--mint`/`--good`/`--warn`/`--crit` (santé, soin, PV).
+
+**Rareté — une seule échelle pour toute l'app** (bloc « Rareté » en **fin** de CSS, et
+`lib/rarity.js` pour les libellés). Gris → vert → violet → or (`--rar-common` `--rar-rare`
+`--rar-epic` `--rar-legendary`, chacun avec son `-ink` vérifié **AA sur l'aplat**) : la
+convention des jeux de loot, **moins le bleu**, qui se confondrait avec l'indigo de `--brand`
+(= « équipé / sélectionné »). Trois classes, et rien d'autre à connaître :
+- **`rar-<rareté>`** ne fait que **poser** `--rar` / `--rar-ink`, qui s'héritent ;
+- **`rar-tint`** = la carte **porte** la couleur (bordure + fond très léger ; halo en plus
+  pour le légendaire, seul à s'annoncer de loin). Séparé du porteur exprès : la modal
+  d'ouverture d'un coffre veut la couleur **sans** le fond clair, elle se joue sur du noir ;
+- **`rar-pill`** = la pastille pleine, **le seul endroit où la rareté s'écrit**.
+
+Appliqué à la vignette de boutique, la case d'armoire, la feuille d'achat, la carte de coffre
+et les gains d'une ouverture. Ajouter une rareté = un token + une ligne, **aucun composant**.
+Le bloc est volontairement en **fin de fichier** : à spécificité égale c'est la dernière règle
+qui gagne, donc la rareté repeint `.shop-cos` / `.av-card` sans surenchérir en sélecteurs —
+et `.av-card.on` (0-2-0) garde la priorité, l'état « équipé » prime sur la rareté.
 
 Deux détails qui font le rendu « mobile Nintendo » : les cartes blanches sont **décollées du
 fond** par une ombre très légère (`--shadow`, une seule règle groupée en tête de fichier — y
@@ -712,11 +832,13 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 ### Back-office de l'organisateur (`/admin`)
 Réservé au joueur dont la participation est `role: "admin"` (`Membership#admin?`) ; un autre
 joueur est renvoyé à l'accueil, et le lien n'apparaît que pour lui, en bas de l'écran compte.
-Il ne couvre **que les deux réglages qui se pilotent par des dates** et qu'on veut changer sans
-redéployer : les **journées ×2** (ajout/suppression) et les **fenêtres de la boutique de saison**
-(deux champs date par cosmétique, vides = pièce permanente). Une borne de fin court jusqu'au
-**bout de sa journée**, sinon la pièce expirerait à minuit pile. Le reste du contenu (créer une
-partie, des équipes) reste au seed.
+Il ne couvre **que les réglages qui se pilotent par des dates** et qu'on veut changer sans
+redéployer, en trois onglets : les **journées ×2** (ajout/suppression), les **fenêtres de la
+boutique de saison** (deux champs date par cosmétique, vides = pièce permanente) et les
+**promotions sur les panoplies** (pourcentage + deux dates ; pourcentage vide = promo arrêtée
+et prix d'origine rétablis, puisque rien n'a été écrit dans les prix). Une borne de fin court
+jusqu'au **bout de sa journée**, sinon elle expirerait à minuit pile. Le reste du contenu
+(créer une partie, des équipes) reste au seed.
 
 Les mêmes réglages en ligne de commande, pour le jour où on est en SSH (`lib/tasks/season.rake`) :
 ```bash
@@ -724,6 +846,8 @@ bin/rails season:show                                              # état des l
 NAME=Halloween DATE=2026-10-31 bin/rails season:special_day        # journée ×2
 NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
 NAMES='Parasol' bin/rails season:close                             # redevient permanent
+SET='Coureur du dimanche' PERCENT=20 UNTIL=2026-11-15 bin/rails season:promo
+SET='Coureur du dimanche' bin/rails season:unpromo                 # prix d'origine
 ```
 
 ## Roadmap (à faire, ordre suggéré)
@@ -753,6 +877,7 @@ MONTH=2026-06 bin/rails league:award_month         # décerne la récompense d'u
 bin/rails season:show                              # journées ×2 + fenêtres de la boutique
 NAME=Halloween DATE=2026-10-31 bin/rails season:special_day
 NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
+SET='Coureur du dimanche' PERCENT=20 UNTIL=2026-11-15 bin/rails season:promo
 ```
 
 ⚠️ **Vite 8 exige Node ≥ 20.12** (`node:util#styleText`). Node 16 fait planter `bin/dev` avec
@@ -783,7 +908,8 @@ commande (`bin/rails`, `bin/vite`). Il ne tue que du ruby ou du node, jamais un 
 qui aurait pris le 3000. C'est ce qui permet d'arrêter un serveur lancé depuis un autre
 terminal, ou par un agent, sans avoir de `Ctrl+C` sous la main.
 
-Quatre pièges, tous déjà réglés dans ce dépôt mais à refaire sur une machine neuve :
+Cinq pièges. Les quatre premiers sont déjà réglés dans ce dépôt, mais à refaire sur une
+machine neuve ; le dernier se contourne à chaque fois :
 
 1. **Bundler 4** — le `Gemfile.lock` est en `BUNDLED WITH 4.0.9`, RubyInstaller livre 2.5.x :
    `gem install bundler -v 4.0.9`.
@@ -797,6 +923,11 @@ Quatre pièges, tous déjà réglés dans ce dépôt mais à refaire sur une mac
 4. **MSYS2** — le paquet winget `RubyInstallerTeam.RubyWithDevKit.3.3` pose MSYS2 mais le
    compilateur est dans `ucrt64\bin`, pas `mingw64\bin` ; `ridk install 3` complète la chaîne
    (nécessaire pour bootsnap et websocket-driver, qui n'ont pas de gem précompilée Windows).
+
+5. **Tests en parallèle** — `parallelize` fait `fork()`, qui n'existe pas sous Windows : la
+   suite complète (87 tests, au-dessus du seuil de 50) meurt en `NotImplementedError` avant
+   d'avoir lancé quoi que ce soit. Lancer **`PARALLEL_WORKERS=1 ruby bin/rails test`** ; un
+   fichier seul passe sans rien (il reste sous le seuil).
 
 Les `VIPS-WARNING … vips-heif.dll` au démarrage sont **sans conséquence** : libvips cherche des
 modules de formats exotiques (HEIF, JXL, PDF) que le projet n'utilise pas.

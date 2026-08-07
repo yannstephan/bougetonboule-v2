@@ -4,7 +4,7 @@ import BottomNav from '../components/BottomNav'
 import TargetPicker from '../components/TargetPicker'
 import MonsterPicker from '../components/MonsterPicker'
 import Wardrobe from '../components/Wardrobe'
-import ChestCard, { ChestReveal } from '../components/ChestCard'
+import ChestCard, { ChestReveal, ChestSvg } from '../components/ChestCard'
 import Hud from '../components/Hud'
 import { itemEmoji } from '../lib/gameIcons'
 
@@ -78,7 +78,7 @@ function Items({ chests, armed, inventory, onUse }) {
     <>
       {chests.length > 0 && (
         <section className="bag-sec">
-          <h2 className="shop-h2">🎁 À ouvrir</h2>
+          <h2 className="shop-h2"><ChestSvg className="chest-tiny" /> À ouvrir</h2>
           {chests.map((c) => <ChestCard key={c.id} chest={c} />)}
         </section>
       )}

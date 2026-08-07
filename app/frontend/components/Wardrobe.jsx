@@ -68,7 +68,7 @@ function SlotRack({ slot, list, onToggle }) {
           </button>
         )}
         {list.map((c) => (
-          <button key={c.id} className={`av-card ${c.rarity} ${c.equipped ? 'on' : ''}`}
+          <button key={c.id} className={`av-card rar-tint rar-${c.rarity} ${c.equipped ? 'on' : ''}`}
                   onClick={() => onToggle(c)}>
             <CosmeticIcon art={c.art} emoji={c.emoji} className="e" />
             <span className="n">{c.name}</span>

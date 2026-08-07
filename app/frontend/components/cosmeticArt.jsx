@@ -99,6 +99,38 @@ const BucketHat = () => (
   </g>
 )
 
+// Casque audio. 🎧 est un casque VU DE FACE, posé à plat : sur une tête de fruit il faisait
+// une masse noire qui avalait le crâne. Dessiné, l'arceau passe SUR la silhouette et les
+// écouteurs tombent au niveau des oreilles (d'où sa `bite` de 26, plus profonde qu'un chapeau).
+// ⚠️ Le dessin est LARGE ET PLAT (il n'occupe que 30→84 en hauteur) : un casque plus haut
+// que large, mis à l'échelle pour que ses écouteurs atteignent les oreilles, aurait débordé
+// d'un demi-fruit au-dessus du crâne. Vérifié au rendu, pas à l'œil.
+const Headphones = () => (
+  <g>
+    <path d="M6 74 A44 44 0 0 1 94 74" fill="none" stroke="#2b303c" strokeWidth="13" strokeLinecap="round" />
+    <path d="M6 74 A44 44 0 0 1 94 74" fill="none" stroke="#5b6577" strokeWidth="5" strokeLinecap="round" />
+    <rect x="0" y="58" width="24" height="26" rx="11" fill="#2b303c" />
+    <rect x="76" y="58" width="24" height="26" rx="11" fill="#2b303c" />
+    <rect x="5" y="64" width="13" height="15" rx="6" fill="#98a2b3" />
+    <rect x="82" y="64" width="13" height="15" rx="6" fill="#98a2b3" />
+  </g>
+)
+
+// Serviette éponge autour du cou. Le débardeur 🎽 était une TENUE, et l'avatar est une tête :
+// une serviette dit le coureur du dimanche sans lui inventer un corps.
+// Les deux pans d'abord, le col PAR-DESSUS : c'est ce qui donne l'impression que la
+// serviette passe derrière la nuque. Pans volontairement courts (ils s'arrêtent à 78) —
+// plus longs, ils sortaient du cadre au lieu de pendre.
+const Towel = () => (
+  <g>
+    <path d="M24 50 L46 53 L44 78 L22 74 Z" fill="#eaf0fa" stroke="#cfd8e8" strokeWidth="2" />
+    <path d="M54 53 L76 50 L78 74 L56 78 Z" fill="#eaf0fa" stroke="#cfd8e8" strokeWidth="2" />
+    <path d="M23 58 L45 61 L44.6 68 L22.6 65 Z" fill="#ff7a59" />
+    <path d="M55 61 L77 58 L77.4 65 L55.4 68 Z" fill="#5b8def" />
+    <path d="M6 34 Q50 12 94 34 L94 52 Q50 30 6 52 Z" fill="#f4f7fd" stroke="#cfd8e8" strokeWidth="2" />
+  </g>
+)
+
 // ————— Gants —————
 
 // Une patte, UNE seule : 🐾 est déjà une paire d'empreintes, reflété il en faisait quatre.
@@ -110,6 +142,19 @@ const Paw = ({ color, pad }) => (
     <ellipse cx="57" cy="32" rx="8" ry="11.5" />
     <ellipse cx="71" cy="41" rx="8" ry="10.5" />
     <ellipse cx="50" cy="62" rx="11" ry="8" fill={pad} />
+  </g>
+)
+
+// Téléphone en brassard, sur UN bras (`single`) : 📱 seul flottait comme un objet posé là,
+// alors que ce qu'on porte, ce sont les sangles. Elles passent donc DERRIÈRE l'appareil.
+const ArmBand = () => (
+  <g>
+    <rect x="14" y="30" width="72" height="13" rx="6" fill="#c6f24a" />
+    <rect x="14" y="58" width="72" height="13" rx="6" fill="#c6f24a" />
+    <rect x="27" y="16" width="46" height="68" rx="10" fill="#2b303c" />
+    <rect x="33" y="24" width="34" height="46" rx="4" fill="#7fd4ff" />
+    <rect x="33" y="24" width="34" height="15" rx="4" fill="#bde9ff" />
+    <circle cx="50" cy="77" r="3.2" fill="#8d97a8" />
   </g>
 )
 
@@ -225,6 +270,10 @@ const Monocle = () => (
 // « cet emoji-là ne se duplique pas » sans le dessiner.
 export const COSMETIC_ART = {
   sneakers: { view: '8 38 84 42', pair: true, node: <Pair body="#ff7a59" sole="#ffffff" tongue="#ffb59f" /> },
+  // Les mêmes baskets, mais délavées : gris terne, semelle jaunie, lacets fanés. Tout le
+  // dessin est déjà paramétré — une panoplie « usée » ne coûte donc que quatre couleurs.
+  worn_sneakers: { view: '8 38 84 42', pair: true,
+    node: <Pair body="#9aa3ad" sole="#e6e0cf" tongue="#c3c9d1" lace="#d8d2c0" /> },
   trail: { view: '8 33 84 47', pair: true, node: <Pair body="#8a5a2b" sole="#3f2d1c" tongue="#c98a4b" lace="#f6c945" shaft={7} /> },
   ballet: { view: '8 40 84 36', pair: true, node: <Pair as={Flat} body="#ff9fc0" sole="#e6749b" trim="#ffd6e5" /> },
   skates: { view: '8 33 84 47', pair: true, node: <Pair as={Skate} body="#f2b100" sole="#fff3cc" tongue="#ffe08a" wheel="#4a4360" /> },
@@ -238,6 +287,11 @@ export const COSMETIC_ART = {
   bib: { view: '17 22 66 57', em: 0.26, node: <Bib /> },
   bandana: { view: '10 26 80 62', em: 0.3, node: <Bandana /> },
   mitten: { view: '22 24 66 60', em: 0.32, node: <Mitten body="#5f8cbb" cuff="#ff7a59" thumb="#41668f" /> },
+  // `bite` : les écouteurs doivent tomber au niveau des oreilles, bien plus bas que le bord
+  // d'un chapeau — c'est tout l'intérêt d'un réglage PAR PIÈCE (voir FruitAvatar).
+  headphones: { view: '0 26 100 62', em: 0.62, bite: 40, node: <Headphones /> },
+  armband: { view: '12 12 76 76', em: 0.26, single: true, node: <ArmBand /> },
+  towel: { view: '4 10 92 72', em: 0.5, bite: 29, node: <Towel /> },
   bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },
   cowboy_hat: { view: '8 30 84 52', em: 0.46, node: <CowboyHat /> },
   santa_hat: { view: '18 22 79 62', em: 0.46, node: <SantaHat /> },
