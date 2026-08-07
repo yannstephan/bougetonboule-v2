@@ -31,20 +31,28 @@ class Membership < ApplicationRecord
 
   # Nombre de messages des autres (équipe + général) postés depuis ma dernière lecture.
   # Alimente la pastille de l'onglet Chat.
-  def unread_messages_count
+  # Les non-lus CONVERSATION PAR CONVERSATION : c'est ce que le chat affiche sur ses onglets.
+  # Un total ne dit pas OÙ il faut aller, et c'est justement ce qu'on veut savoir en arrivant.
+  def unread_by_conversation
     last_read = conversation_reads.pluck(:conversation_id, :last_read_at).to_h
-    conversations.sum do |c|
+    conversations.to_h do |c|
       others = c.messages.where.not(membership_id: id)
-      (last_read[c.id] ? others.where("messages.created_at > ?", last_read[c.id]) : others).count
+      scope = last_read[c.id] ? others.where("messages.created_at > ?", last_read[c.id]) : others
+      [ c.id, scope.count ]
     end
   end
 
-  # « J'ouvre le chat » = tout est lu jusqu'à maintenant, dans mes deux conversations.
-  def mark_conversations_read!
-    now = Time.current
-    conversations.each do |c|
-      conversation_reads.find_or_initialize_by(conversation_id: c.id).update!(last_read_at: now)
-    end
+  # Le total, pour la pastille du 💬 dans le bandeau (partagée sur toutes les pages).
+  def unread_messages_count = unread_by_conversation.values.sum
+
+  # « J'ouvre un canal » = ce canal-LÀ est lu jusqu'à maintenant.
+  # ⚠️ Un seul, jamais les deux : marquer tout lu en ouvrant le chat effacerait la pastille
+  # de l'équipe alors qu'on vient de lire la partie, et les onglets ne diraient plus rien.
+  def mark_conversation_read!(conversation)
+    return if conversation.nil?
+
+    conversation_reads.find_or_initialize_by(conversation_id: conversation.id)
+                      .update!(last_read_at: Time.current)
   end
 
   private

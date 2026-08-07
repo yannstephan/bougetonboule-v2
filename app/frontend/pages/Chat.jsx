@@ -8,9 +8,13 @@ import MemePicker from '../components/MemePicker'
 const csrf = () =>
   (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
 
-export default function Chat({ conversations, memes }) {
-  const [active, setActive] = useState(0)
+export default function Chat({ conversations, memes, active_kind: activeKind }) {
+  // ⚠️ Le canal ouvert vit dans l'URL, pas dans un état local : c'est le serveur qui décide
+  // ce qui est LU, et il ne peut le savoir que si on le lui dit. Changer d'onglet est donc
+  // une visite (`?canal=…`), comme l'onglet du sac ou de la boutique.
+  const active = Math.max(0, conversations.findIndex((c) => c.kind === activeKind))
   const conv = conversations[active]
+  const openTab = (kind) => router.get('/chat', { canal: kind }, { preserveScroll: false })
   const scrollRef = useRef(null)
   const form = useForm({ body: '', authenticity_token: csrf() })
   const [picking, setPicking] = useState(false)
@@ -24,6 +28,9 @@ export default function Chat({ conversations, memes }) {
   }, [])
 
   useEffect(() => { scrollRef.current?.scrollTo(0, 1e7) }, [conversations, active])
+
+  // Le sondage garde l'URL, donc son `?canal=` : chaque tour marque lu le canal ouvert et
+  // rafraîchit la pastille de l'AUTRE. On voit arriver les messages d'à côté sans bouger.
 
   const send = (e) => {
     e.preventDefault()
@@ -52,8 +59,10 @@ export default function Chat({ conversations, memes }) {
 
       <div className="chat-tabs">
         {conversations.map((c, i) => (
-          <button key={c.id} className={`chat-tab ${i === active ? 'on' : ''}`} onClick={() => setActive(i)}>
+          <button key={c.id} className={`chat-tab ${i === active ? 'on' : ''}`}
+                  onClick={() => openTab(c.kind)}>
             {c.kind === 'team' ? '🛡️ ' : '🌍 '}{c.label}
+            {c.unread > 0 && <span className="chat-tab-b">{c.unread > 99 ? '99+' : c.unread}</span>}
           </button>
         ))}
       </div>

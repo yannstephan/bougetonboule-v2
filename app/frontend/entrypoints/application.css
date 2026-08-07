@@ -245,6 +245,12 @@ body{margin:0;background:var(--bg);color:var(--text);
 .tab-dot{display:inline-block;vertical-align:top;width:8px;height:8px;margin-left:4px;
   border-radius:50%;background:var(--fraise)}
 .chat-tab.on .tab-dot{background:#fff}
+/* Non-lus PAR CANAL : c'est la pastille qui dit où il faut aller. Le total du 💬 dans le
+   bandeau ne le dit pas, et c'est justement ce qu'on veut savoir en arrivant sur le chat. */
+.chat-tab-b{display:inline-grid;place-items:center;min-width:18px;height:18px;margin-left:6px;
+  padding:0 5px;border-radius:99px;background:var(--fraise);color:#fff;
+  font-size:10px;font-weight:800;font-variant-numeric:tabular-nums;vertical-align:1px}
+.chat-tab.on .chat-tab-b{background:var(--brand-ink);color:var(--brand)}
 /* Le chat tient EXACTEMENT dans l'écran : sa zone de messages défile, le composeur reste
    au-dessus de la nav. En `min-height`, la colonne grandissait avec les messages et la nav
    collée finissait par recouvrir le champ de saisie — chat inutilisable au doigt. */

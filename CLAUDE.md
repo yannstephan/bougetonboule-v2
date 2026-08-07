@@ -878,13 +878,24 @@ de 400 ms pour ne pas tirer une requête par lettre.
 zone de messages doit pouvoir rétrécir (`min-height:0`), sinon la colonne dépasse l'écran et la
 nav collée **recouvre le composeur** — le champ de saisie devient intouchable au doigt.
 
-### Pastille de messages non lus (💬 du HUD)
+### Messages non lus — deux niveaux
 `conversation_reads` (`membership` × `conversation` × `last_read_at`, index unique) mémorise la
-dernière lecture. `Membership#unread_messages_count` compte les messages **des autres** (équipe +
-général) postés après `last_read_at`, exposé globalement via `chat_unread` (`inertia_share`) et
-affiché en pastille sur le bouton **💬 du HUD**, à gauche de la cloche — donc visible depuis
-n'importe quel écran. Ouvrir le chat (`ChatController#show`) appelle
-`Membership#mark_conversations_read!` → la pastille retombe à 0.
+dernière lecture. `Membership#unread_by_conversation` compte les messages **des autres** postés
+après cette date, **canal par canal**. Deux affichages, qui ne disent pas la même chose :
+- **Le 💬 du HUD** porte le TOTAL (`chat_unread` via `inertia_share`), visible depuis n'importe
+  quel écran : il dit « il y a du neuf ».
+- **Les onglets du chat** portent le compte de LEUR canal : ils disent **où**.
+
+⚠️ **Ouvrir un canal ne marque que celui-là comme lu** (`mark_conversation_read!`, au singulier).
+Avant, ouvrir le chat marquait les deux conversations d'un coup : les onglets ne pouvaient donc
+rien afficher, et on perdait les non-lus de l'équipe en venant lire la partie.
+⚠️ **Le canal ouvert vient de l'URL** (`/chat?canal=team`), comme l'onglet du sac ou de la
+boutique — c'est le seul moyen pour le serveur de savoir ce qu'on lit. Changer d'onglet est
+donc une visite, pas un état local. Le **sondage de 8 s** garde l'URL : chaque tour marque lu
+le canal ouvert et rafraîchit la pastille de l'autre, on voit donc arriver les messages d'à
+côté sans bouger.
+⚠️ On marque lu **AVANT** de compter : le canal qu'on regarde doit être servi à 0, pas avec son
+état d'il y a une seconde.
 ⚠️ Le seed doit vider `ConversationRead` en tête du nettoyage (FK vers membership/conversation).
 
 ### Profil : pas de solde de 🍑

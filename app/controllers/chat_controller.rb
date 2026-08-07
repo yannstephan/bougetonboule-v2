@@ -8,24 +8,31 @@ class ChatController < ApplicationController
       m.game.conversations.general.first,
       m.game.conversations.team_chats.find_by(team_id: m.team_id)
     ].compact
+    # Le canal ouvert vient de l'URL (`?canal=team`), comme l'onglet du sac ou de la boutique :
+    # c'est le seul moyen pour le serveur de savoir CE QU'ON LIT, et donc ce qu'il doit
+    # marquer lu. Défaut : la conversation de la partie.
+    active = convs.find { |c| c.kind == params[:canal] } || convs.first
+    # ⚠️ Marquer AVANT de compter : le canal qu'on regarde doit afficher 0, pas son état
+    # d'il y a une seconde. L'autre garde sa pastille — c'est tout l'intérêt.
+    m.mark_conversation_read!(active)
+    unread = m.unread_by_conversation
+
     props = {
-      conversations: convs.map { |c| conv_json(c, m) },
-      # Recherche de memes : rechargement partiel Inertia (only: memes) plutôt qu'une
-      # API JSON à part — la convention du projet. La source est choisie par Memes :
-      # Giphy si une clé existe, sinon Imgflip qui n'en demande aucune.
+      conversations: convs.map { |c| conv_json(c, m, unread[c.id].to_i) },
+      active_kind: active&.kind,
+      # Recherche de GIF : rechargement partiel Inertia (only: memes) plutôt qu'une API JSON
+      # à part — la convention du projet. La source est choisie par Memes : Giphy si une clé
+      # existe, sinon les catalogues sans clé.
       memes: Memes.search(params[:meme_q])
     }
-    # Ouvrir le chat vaut lecture : la pastille de l'onglet retombe à zéro (calculée après, dans le
-    # partage Inertia, donc déjà 0 sur cette page).
-    m.mark_conversations_read!
     render inertia: "Chat", props:
   end
 
   private
 
-  def conv_json(c, m)
+  def conv_json(c, m, unread)
     {
-      id: c.id, kind: c.kind,
+      id: c.id, kind: c.kind, unread:,
       label: c.kind == "general" ? "Partie" : "Mon équipe",
       messages: messages_json(c, m)
     }
