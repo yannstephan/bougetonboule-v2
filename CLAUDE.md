@@ -962,6 +962,11 @@ en localStorage.
 - Créer un nouveau dossier sous `app/` (ex. `app/presenters`) demande un **redémarrage** du
   serveur : il n'est pas ajouté aux chemins d'autoload à chaud.
 - Après une migration, redémarrer aussi : Puma garde en cache la liste des colonnes.
+- **Toucher au `.env` demande un redémarrage** : `dotenv` lit le fichier au démarrage et
+  jamais après. Un serveur lancé avant l'ajout d'une clé continue de tourner sans elle —
+  silencieusement, puisque tous ces secrets sont optionnels. Symptôme vécu : la recherche de
+  GIF rendait une liste vide alors que `bin/rails runner` (un process neuf) trouvait 24
+  résultats. Vaut pour Giphy comme pour Strava, Google et VAPID.
 
 ## Design
 
