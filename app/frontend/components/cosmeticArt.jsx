@@ -496,6 +496,49 @@ const LuckyArms = () => (
   </g>
 )
 
+// ————— Panoplie de la ballerine —————
+
+// Diadème : trois pointes et leurs pierres sur un bandeau courbe. Bottom-flush, comme tout
+// ce qui se pose sur le crâne — c'est le bord de la BOÎTE qui s'y appuie, pas celui du dessin.
+const Tiara = ({ metal = '#e8cf7a', dark = '#b99a35', gem = '#7fd4ff' }) => (
+  <g>
+    <path d="M26 88 L34 56 L42 88 Z" fill={metal} />
+    <path d="M58 88 L66 56 L74 88 Z" fill={metal} />
+    <path d="M39 88 L50 38 L61 88 Z" fill={metal} />
+    <circle cx="50" cy="44" r="6" fill={gem} />
+    <circle cx="34" cy="61" r="4" fill={gem} />
+    <circle cx="66" cy="61" r="4" fill={gem} />
+    <path d="M6 98 q44 -20 88 0 L94 88 q-44 -18 -88 0 Z" fill={metal} stroke={dark} strokeWidth="2" />
+  </g>
+)
+
+// Tutu : deux épaisseurs de tulle qui s'évasent depuis la base du fruit, plus les coutures.
+// C'est une BANDE, pas un anneau (voir la règle du cou) — il s'arrête aux côtés du fruit.
+const Tutu = ({ tulle = '#ffd6e5', under = '#ffb3cd', seam = '#f78bb0' }) => (
+  <g>
+    <path d="M50 22 Q94 32 99 58 Q75 70 50 64 Q25 70 1 58 Q6 32 50 22 Z"
+          fill={under} stroke={seam} strokeWidth="2" />
+    <path d="M50 26 Q86 36 91 54 Q71 63 50 58 Q29 63 9 54 Q14 36 50 26 Z"
+          fill={tulle} stroke="#f9a8c4" strokeWidth="1.5" />
+    <g stroke={seam} strokeWidth="1.6" fill="none">
+      <path d="M24 36 L18 56 M37 30 L34 60 M50 28 L50 61 M63 30 L66 60 M76 36 L82 56" />
+    </g>
+  </g>
+)
+
+// Bras LEVÉS, en couronne au-dessus de la tête.
+// ⚠️ Le bras sort du fruit AVANT de monter : d'abord tracé en diagonale vers le haut, il
+// restait entièrement derrière la silhouette (le dessin passe en `back`) et l'on ne voyait
+// que la main flotter. Il part donc sur le côté puis se redresse à la verticale, dehors.
+const BalletArms = ({ sleeve = '#ffb3cd', hand = '#ffd6e5' }) => (
+  <g>
+    <path d="M42 76 Q13 70 12 30" fill="none" stroke={sleeve} strokeWidth="12" strokeLinecap="round" />
+    <path d="M58 76 Q87 70 88 30" fill="none" stroke={sleeve} strokeWidth="12" strokeLinecap="round" />
+    <ellipse cx="12" cy="22" rx="8.5" ry="10" fill={hand} />
+    <ellipse cx="88" cy="22" rx="8.5" ry="10" fill={hand} />
+  </g>
+)
+
 // ————— Accessoires —————
 
 // Maracas croisées. 🪇 n'existe qu'en Unicode 15 (2022) : carré vide sur les vieux
@@ -687,6 +730,12 @@ export const COSMETIC_ART = {
                   node: <Pair as={DressShoe} body="#16281d" sole="#0b120d" shine="#8d95a3" buckle="#f2b100" /> },
   lucky_arms: { view: '0 40 100 60', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
                 node: <LuckyArms /> },
+  // — Panoplie de la ballerine. Les chaussons sont les « Ballerines » qui existaient déjà
+  // (`ballet`) : la panoplie les rapatrie plutôt que d'en dessiner des sosies.
+  tiara: { view: '4 34 92 66', fit: 0.9, bite: 16, node: <Tiara /> },
+  tutu: { view: '0 20 100 52', fit: 1.15, bite: 24, node: <Tutu /> },
+  ballet_arms: { view: '0 10 100 74', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
+                 node: <BalletArms /> },
   cowboy_hat: { view: '8 30 84 52', fit: 1.155, bite: 18, node: <CowboyHat /> },
   santa_hat: { view: '18 22 79 62', fit: 1.155, bite: 18, node: <SantaHat /> },
   bucket_hat: { view: '10 34 80 48', fit: 1.095, bite: 18, node: <BucketHat /> },

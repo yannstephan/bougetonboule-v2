@@ -59,7 +59,6 @@ Cosmetic.create!([
   { name: "Tongs",              slot: "shoes", rarity: "common",   price_diamonds: 90,   source: "shop",  emoji: "🩴" },
   { name: "Baskets de course",  slot: "shoes", rarity: "common",   price_diamonds: 110,  source: "shop",  art: "sneakers" },
   { name: "Chaussures de rando", slot: "shoes", rarity: "rare",    price_diamonds: 240,  source: "shop",  art: "trail" },
-  { name: "Ballerines",         slot: "shoes", rarity: "rare",     price_diamonds: 250,  source: "shop",  art: "ballet" },
   { name: "Patins à glace",     slot: "shoes", rarity: "rare",     price_diamonds: 250,  source: "shop",  emoji: "⛸️" },
   { name: "Rollers dorés",      slot: "shoes", rarity: "epic",     price_diamonds: 500,  source: "shop",  art: "skates" },
   { name: "Bottes de sept lieues", slot: "shoes", rarity: "legendary", price_diamonds: 1000, source: "shop", art: "boots7" },
@@ -276,6 +275,28 @@ Cosmetic.create!([
     art: "buckle_shoes",   cosmetic_set: chanceux },
   { name: "Trèfle à quatre feuilles", slot: "aura", rarity: "rare", price_diamonds: nil, source: "set",
     emoji: "🍀",           cosmetic_set: chanceux }
+])
+
+# Huitième panoplie. Elle rapatrie les Ballerines, qui traînaient seules au catalogue.
+# ⚠️ Son aura, le Cygne, est la première créée POUR une panoplie plutôt que reprise parmi les
+# orphelines — et elle est ÉPIQUE alors que les pièces sont rares : seules les auras épiques
+# et légendaires dérivent en fond (voir AuraBackground), et un banc de cygnes qui glisse
+# lentement derrière l'écran est exactement ce que cette panoplie promet.
+ballerine = CosmeticSet.create!(
+  name: "La ballerine",
+  description: "Diadème, tutu et chaussons. Les bras en couronne, même en côte."
+)
+Cosmetic.create!([
+  { name: "Diadème",           slot: "hat",   rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "tiara",        cosmetic_set: ballerine },
+  { name: "Tutu",              slot: "neck",  rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "tutu",         cosmetic_set: ballerine },
+  { name: "Bras en couronne",  slot: "hands", rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "ballet_arms",  cosmetic_set: ballerine },
+  { name: "Ballerines",        slot: "shoes", rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "ballet",       cosmetic_set: ballerine },
+  { name: "Cygne",             slot: "aura",  rarity: "epic", price_diamonds: nil, source: "set",
+    emoji: "🦢",         cosmetic_set: ballerine }
 ])
 
 puts "Objets (power-ups)…"
