@@ -10,6 +10,7 @@ class Membership < ApplicationRecord
   has_many :items, through: :membership_items
   has_many :messages, dependent: :destroy
   has_many :chests, dependent: :destroy
+  has_many :rewards, dependent: :destroy
   has_many :conversation_reads, dependent: :destroy
 
   validates :user_id, uniqueness: { scope: :game_id }

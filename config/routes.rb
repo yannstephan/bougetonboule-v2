@@ -29,15 +29,19 @@ Rails.application.routes.draw do
   get   "courses/:id", to: "trainings#show", as: :training
 
   post  "coffres/:id/ouvrir", to: "chests#open", as: :open_chest
+  post  "serie/:week/reclamer", to: "rewards#claim_week", as: :claim_streak_week
 
   get   "boutique",           to: "shop#index",        as: :shop
   post  "boutique/items",     to: "shop#buy_item",     as: :buy_item
   post  "boutique/cosmetics", to: "shop#buy_cosmetic", as: :buy_cosmetic
-  post  "boutique/use",       to: "shop#use_item",     as: :use_item
+
+  # Le sac : objets + coffres + armoire des cosmétiques (onglet du footer)
+  get   "sac",           to: "inventory#show",     as: :inventory
+  post  "sac/utiliser",  to: "inventory#use_item", as: :use_item
+  post  "sac/equiper",   to: "inventory#equip",    as: :equip_cosmetic
 
   get   "avatar",       to: "avatars#show",   as: :avatar
   patch "avatar",       to: "avatars#update"
-  post  "avatar/equip", to: "avatars#equip",  as: :equip_avatar
 
   get  "chat", to: "chat#show", as: :chat
   post "conversations/:conversation_id/messages", to: "messages#create", as: :conversation_messages

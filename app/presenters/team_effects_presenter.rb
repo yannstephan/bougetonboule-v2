@@ -4,6 +4,9 @@
 # Deux sources unifiées : les TeamEffect (vent de dos/de face) et le bouclier du monstre
 # (porté par monster.protected_until).
 class TeamEffectsPresenter
+  # ⚠️ L'`emoji` porte l'effet à lui seul dans l'arène du Hub, qui n'affiche QUE le logo
+  # (EffectBadges, prop `compact`) : en choisir un qui se distingue des autres au premier
+  # coup d'œil. Le `name` reste l'infobulle et la version longue du Combat.
   KINDS = {
     "back_wind"   => { emoji: "🌬️", name: "Vent de dos" },
     "face_wind"   => { emoji: "🌪️", name: "Vent de face" },
@@ -36,14 +39,17 @@ class TeamEffectsPresenter
   # États permanents publics : la jauge de meute (paliers hebdo) et le monstre affamé.
   def permanent_chips
     chips = []
+    # `labelled` : cet effet garde son texte même dans l'arène du Hub, qui réduit les autres à
+    # leur emoji. Réservé à ceux dont le libellé porte un CHIFFRE — ici le palier de meute :
+    # 🐾 dit qu'il y a un bonus, pas qu'il vaut +30 %.
     if @team.pack_level.positive?
       chips << { kind: "pack", emoji: "🐾", name: "Meute +#{@team.pack_percent} %",
-                 until: nil, remaining: nil, by: nil }
+                 labelled: true, until: nil, remaining: nil, by: nil }
     end
     last_run = @team.last_run_at
     if @team.monster&.alive? && (last_run.nil? || last_run < GameRules::FAMINE_WARNING_AFTER.ago)
       chips << { kind: "hungry", emoji: "🍽️", name: "Monstre affamé",
-                 until: nil, remaining: nil, by: nil }
+                 labelled: false, until: nil, remaining: nil, by: nil }
     end
     chips
   end
@@ -54,6 +60,7 @@ class TeamEffectsPresenter
       kind: kind,
       emoji: meta[:emoji],
       name: label || meta[:name],
+      labelled: false,
       until: until_label(expires_at),
       remaining: remaining(expires_at),
       by: by

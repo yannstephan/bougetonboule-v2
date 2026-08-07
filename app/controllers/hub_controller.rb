@@ -19,12 +19,10 @@ class HubController < ApplicationController
       game: game_payload(m.game),
       event: event_payload(m.game),
       balls: m.balls,
-      weekly_streak: m.weekly_streak,
-      streak_jokers: m.streak_jokers,
+      streak: StreakPassPresenter.call(m),
       month_rank: month_rank(m),
       day_quota: day_quota(m, special),
       bag_count: m.membership_items.unused.count,
-      next_chest: m.chests.sealed.order(:created_at).first&.then { |c| { id: c.id, rarity: c.rarity } },
       special_day: special && { name: special.name, multiplier: special.multiplier.to_f },
       my_team: team_payload(m.team, viewer: m.team),
       opponent: m.team.opponent && team_payload(m.team.opponent, viewer: m.team)
@@ -69,11 +67,34 @@ class HubController < ApplicationController
   def team_payload(team, viewer:)
     {
       name: team.name,
-      color: team.color,
       fruit_family: team.fruit_family,
       total_balls: team.total_balls,
       effects: TeamEffectsPresenter.call(team),
-      monster: MonsterPresenter.call(team.monster, viewer_team: viewer)
+      monster: MonsterPresenter.call(team.monster, viewer_team: viewer),
+      runs: recent_runs(team)
     }
+  end
+
+  # Les 5 dernières sorties d'une équipe, pour le fil du Hub. Les courses **refusées** en sont
+  # exclues (convention du feed public : une course qui ne compte pas n'est vue que de son
+  # coureur), les **piégées** y restent — elles rapportent 0 mais elles ont bien eu lieu, et
+  # c'est justement ce qu'on veut voir passer.
+  def recent_runs(team)
+    Training.where(membership_id: team.memberships.select(:id)).real
+            .includes(membership: :user)
+            .recent.limit(5)
+            .map do |t|
+      { id: t.id, who: t.membership.display_name, km: t.distance_km.round(1),
+        balls: t.score.to_f.round, trapped: t.status == "trapped", day: short_day(t.date) }
+    end
+  end
+
+  # Date au plus court : la colonne fait une demi-largeur de téléphone.
+  def short_day(at)
+    case at.to_date
+    when Date.current  then "Auj."
+    when Date.yesterday then "Hier"
+    else at.strftime("%-d/%-m")
+    end
   end
 end

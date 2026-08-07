@@ -1,4 +1,6 @@
-import { Head, Link } from '@inertiajs/react'
+import { Head } from '@inertiajs/react'
+import Hud from '../components/Hud'
+import BottomNav from '../components/BottomNav'
 
 // Règles du jeu. Statique : le seul endroit qui décrit le fonctionnement actuel côté joueur.
 // À garder à jour quand une mécanique change (voir CLAUDE.md).
@@ -60,7 +62,7 @@ const SECTIONS = [
   {
     q: '🎒 Les objets (power-ups)',
     a: [
-      'Achetés avec tes boules 🍑 à la boutique, rangés dans ton sac, à usage unique. Tu les déclenches quand tu veux.',
+      'Achetés avec tes boules 🍑 à la boutique, rangés dans ton sac 🎒 (son propre onglet, à côté de la boutique), à usage unique. Tu les déclenches quand tu veux.',
       '🐺 Piège à loup (5 🍑) : tu vises un adversaire ; sa prochaine course rapporte 0 boule. Les autres voient seulement « X a posé un piège à loup », jamais qui est visé.',
       '🦿 Jambe de bois (4 🍑) : déjoue le prochain piège sur ta course — tu gardes tes boules. Discrète : personne n\'est prévenu tant qu\'elle n\'a pas servi.',
       '🌬️ Vent de dos (4 🍑) : ×1,5 sur les boules de toute ton équipe pendant 12 h. À déclencher avant les sorties du week-end !',
@@ -82,8 +84,12 @@ const SECTIONS = [
   {
     q: '🔥 La série hebdo (streak)',
     a: [
-      'Cours au moins une fois par semaine (du lundi au dimanche) et ta série grandit. Chaque lundi, elle paie en diamants : 10 💎 la 1re semaine, puis 20, 30, 40 et 50 — et 50 💎 chaque semaine ensuite.',
-      '🎁 Toutes les 5 semaines de série (5, 10, 15…), palier bonus : un cosmétique tiré au hasard parmi ceux que tu n\'as pas (ou 100 💎 si tu as déjà tout) — et tu gagnes un joker.',
+      'Cours au moins une fois par semaine (du lundi au dimanche) et ta série grandit. Elle paie en diamants : 10 💎 la 1re semaine, puis 20, 30, 40 et 50 — et 50 💎 chaque semaine ensuite.',
+      '⚡ Pas besoin d\'attendre le lundi : dès que ta course est importée, la semaine est sécurisée et le palier se débloque. Tu cours, c\'est gagné.',
+      'Une seule sortie suffit, et peu importe ce qu\'elle rapporte : même à 0 boule (plafond du jour déjà atteint, ou course piégée 🐺), elle compte pour ta série. Le loup te vole les boules de cette course, pas tes semaines.',
+      '🎉 Les gains ne tombent pas tout seuls : ils t\'attendent sur ta piste, sur l\'accueil. Le palier débloqué se met à clignoter, tu appuies sur « Réclamer » et tu encaisses. Rien ne se périme, tu peux venir les chercher quand tu veux.',
+      '🏁 La piste se lit par paliers de 5 semaines : quatre semaines de diamants, puis le gros lot au bout. Une fois le palier passé, la piste repart pour cinq nouvelles semaines.',
+      '🎁 Toutes les 5 semaines de série (5, 10, 15…), palier bonus : un cosmétique tiré au hasard parmi ceux que tu n\'as pas (ou 100 💎 si tu as déjà tout) — et tu gagnes un joker. Le joker, lui, arrive tout de suite, sans réclamation : c\'est un bouclier, il ne servirait à rien s\'il t\'attendait.',
       '🧊 Le joker (2 max en réserve) te sauve une semaine sans course : il se consomme et ta série est gelée au lieu de repartir à zéro. Blessure, vacances… tu ne perds pas tout.',
       'Semaine sans course et sans joker : la série retombe à zéro. Les jokers ne s\'achètent pas — ils se courent.',
       'Ta série est propre à chaque partie, mais les diamants gagnés sont à toi pour toujours.',
@@ -94,7 +100,7 @@ const SECTIONS = [
     a: [
       'Chaque course importée peut cacher un coffre (une chance sur ~7, maximum un par jour). Et au bout de 7 courses sans rien trouver, le suivant est garanti — la malchance a une limite.',
       'Quatre raretés : commun, rare, épique, légendaire. Plus c\'est rare, plus il y a de diamants dedans — et plus il y a de chances d\'y trouver un cosmétique que tu n\'as pas (toujours dans un légendaire).',
-      'Le coffre t\'attend sur le Hub : appuie sur « Ouvrir » pour découvrir ce qu\'il contient. Certains cosmétiques ne se trouvent QUE dans les coffres…',
+      'Le coffre t\'attend dans ton sac 🎒 (onglet du bas) : une pastille rouge s\'allume dessus tant qu\'il reste quelque chose à ouvrir. Appuie sur « Ouvrir » pour découvrir ce qu\'il contient. Certains cosmétiques ne se trouvent QUE dans les coffres…',
     ],
   },
   {
@@ -111,7 +117,7 @@ const SECTIONS = [
       'Ton avatar est un fruit, choisi dans la famille de ton équipe. Tu ne peux le personnaliser qu\'une fois affecté à une équipe.',
       'Plusieurs coéquipiers peuvent prendre le même fruit — l\'écran indique qui a déjà choisi quoi.',
       'Ton fruit n\'est qu\'une tête : les cosmétiques se posent autour. Sept emplacements — chapeau, lunettes, cou (nœud pap\', écharpe, collier…), bras, chaussures, accessoire posé à côté, et l\'aura en fond.',
-      'Ils s\'achètent en 💎 ou se gagnent, puis s\'équipent un par emplacement depuis l\'écran Avatar.',
+      'Ils s\'achètent en 💎 ou se gagnent, puis s\'équipent un par emplacement depuis ton sac 🎒, onglet 🎨 Armoire — l\'aperçu de ton fruit reste sous les yeux pendant que tu l\'habilles. Le choix du fruit lui-même, et ton compte, restent sur l\'écran Avatar.',
       '✨ Certaines pièces ne passent qu\'une fois par an : elles sont regroupées dans la « boutique de saison », en haut du rayon cosmétiques, avec le nombre de jours restants. Passé la date elles disparaissent (et ne tombent plus des coffres) — mais ce que tu as acheté reste à toi pour toujours.',
       'Certaines pièces ne sont jamais en vente : elles ne se gagnent que par les coffres, les séries, la ligue ou les événements de la saison. L\'🐺 Esprit du loup, par exemple, ne sort que des coffres…',
     ],
@@ -121,7 +127,8 @@ const SECTIONS = [
     a: [
       '« Pour toi » : ce qui te concerne directement — message d\'équipe, récompense, palier de meute, monstre affamé, vent de face ou chantilly reçue, et tout ce qui touche aux pièges (ta course piégée, ton piège réussi ou déjoué). Ce sont les seules poussées sur ton téléphone.',
       '« Activité de la partie » : le reste, en fil d\'activité (X a couru et ce que ça lui rapporte, X a activé un vent de dos, un piège a été posé…). Listé, mais jamais poussé.',
-      'Le chat général ne crée pas de notification : les messages non lus (équipe + général) sont signalés par une pastille sur l\'onglet Chat.',
+      '➕ Dans le chat, le bouton + à côté du champ ouvre une recherche de memes : tape un mot, touche celui qui te plaît, il part tout seul. Tu ne peux pas envoyer tes propres images — seulement des memes du catalogue.',
+      'Le chat général ne crée pas de notification : les messages non lus (équipe + général) sont signalés par une pastille sur le bouton 💬, en haut de l\'accueil à côté de la cloche.',
       'Active les notifications push depuis l\'écran 🔔 pour recevoir les alertes « Pour toi ».',
     ],
   },
@@ -131,10 +138,7 @@ export default function Faq() {
   return (
     <div className="shell">
       <Head title="Règles du jeu" />
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">📖 Règles du jeu</div>
-      </div>
+      <Hud />
 
       <main className="body">
         <div className="faq-hero">
@@ -173,6 +177,7 @@ export default function Faq() {
           </div>
         </div>
       </main>
+      <BottomNav />
     </div>
   )
 }

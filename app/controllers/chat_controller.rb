@@ -8,7 +8,13 @@ class ChatController < ApplicationController
       m.game.conversations.general.first,
       m.game.conversations.team_chats.find_by(team_id: m.team_id)
     ].compact
-    props = { conversations: convs.map { |c| conv_json(c, m) } }
+    props = {
+      conversations: convs.map { |c| conv_json(c, m) },
+      # Recherche de memes : rechargement partiel Inertia (only: memes) plutôt qu'une
+      # API JSON à part — la convention du projet. La source est choisie par Memes :
+      # Giphy si une clé existe, sinon Imgflip qui n'en demande aucune.
+      memes: Memes.search(params[:meme_q])
+    }
     # Ouvrir le chat vaut lecture : la pastille de l'onglet retombe à zéro (calculée après, dans le
     # partage Inertia, donc déjà 0 sur cette page).
     m.mark_conversations_read!
@@ -30,7 +36,7 @@ class ChatController < ApplicationController
                         .includes(membership: [ :team, :user ])
     scope.last(60).map do |msg|
       author = msg.membership
-      { id: msg.id, body: msg.body,
+      { id: msg.id, body: msg.body, meme_url: msg.meme_url, meme_title: msg.meme_title,
         membership_id: author.id,
         author: author.display_name,
         avatar: AvatarPresenter.new(author.user, membership: author).as_json,

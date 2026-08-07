@@ -1,80 +1,69 @@
 import { useEffect, useState } from 'react'
 
-// Décompte jusqu'au jour J de la course. `raceAt` = timestamp ISO fourni par le serveur.
-function remaining(target) {
-  const ms = Math.max(0, target - Date.now())
-  const s = Math.floor(ms / 1000)
-  return {
-    done: ms === 0,
-    d: Math.floor(s / 86400),
-    h: Math.floor((s % 86400) / 3600),
-    m: Math.floor((s % 3600) / 60),
-    s: s % 60,
-  }
+// Le jour J, en une seule ligne : une pastille « J-227 », le nom et la date de la course,
+// et la progression de la prépa. La version longue (jours/heures/min/sec + coureur qui
+// avance sur sa piste) prenait le tiers du Hub pour une info qu'on lit d'un coup d'œil.
+
+// Ce qu'affiche la pastille. Au-delà d'un jour on compte en jours ; le dernier jour, en
+// heures — sinon la pastille resterait figée sur « 0 J » pendant 24 h.
+function badge(target, now) {
+  const ms = target - now
+  if (ms <= 0) return { n: '🎉', u: 'jour J', done: true }
+
+  const days = Math.floor(ms / 86_400_000)
+  if (days >= 1) return { n: days, u: days > 1 ? 'jours' : 'jour' }
+
+  const hours = Math.max(1, Math.floor(ms / 3_600_000))
+  return { n: hours, u: hours > 1 ? 'heures' : 'heure', soon: true }
 }
 
-const pad = (n) => String(n).padStart(2, '0')
-
-// Progression 0→100 entre la ligne de départ (starts_at) et l'arrivée (raceAt).
-function progress(startAt, target) {
+// La prépa, comptée en semaines entre la ligne de départ (starts_at) et l'arrivée.
+// Une semaine parle plus qu'un pourcentage quand on prépare une course.
+function prep(startAt, target, now) {
   if (!startAt) return null
+
   const start = new Date(startAt).getTime()
   if (!(target > start)) return null
-  return Math.min(100, Math.max(0, ((Date.now() - start) / (target - start)) * 100))
+
+  const total = Math.max(1, Math.ceil((target - start) / 604_800_000))
+  const done = Math.min(Math.max(0, now - start), target - start)
+  return {
+    week: Math.min(total, Math.floor(done / 604_800_000) + 1),
+    total,
+    pct: (done / (target - start)) * 100,
+  }
 }
 
 export default function Countdown({ raceAt, startAt, name, location }) {
   const target = new Date(raceAt).getTime()
-  const [t, setT] = useState(() => remaining(target))
-  const [pct, setPct] = useState(() => progress(startAt, target))
+  const [now, setNow] = useState(() => Date.now())
 
+  // La minute suffit : plus rien ne bat à la seconde depuis qu'on affiche des jours.
   useEffect(() => {
-    const tick = () => { setT(remaining(target)); setPct(progress(startAt, target)) }
-    const id = setInterval(tick, 1000)
+    const id = setInterval(() => setNow(Date.now()), 60_000)
     return () => clearInterval(id)
-  }, [target, startAt])
+  }, [])
 
+  const left = badge(target, now)
+  const run = prep(startAt, target, now)
   const date = new Date(raceAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
-    <div className="countdown">
-      <div className="cd-head">
-        <span className="cd-flag">🏁</span>
-        <div>
-          <div className="cd-title">{name || 'Le jour de la course'}</div>
-          <div className="cd-date">{date}{location ? ` · ${location}` : ''}</div>
-        </div>
+    <div className="cd">
+      <div className={`cd-badge ${left.done ? 'go' : ''}`}>
+        <b>{left.n}</b>
+        <span>{left.u}</span>
       </div>
-      {t.done ? (
-        <div className="cd-go">C'est le grand jour ! 🎉</div>
-      ) : (
-        <div className="cd-grid">
-          <Unit n={t.d} l="jours" />
-          <Unit n={pad(t.h)} l="heures" />
-          <Unit n={pad(t.m)} l="min" />
-          <Unit n={pad(t.s)} l="sec" />
-        </div>
-      )}
-
-      {pct !== null && (
-        <div className="cd-progress">
-          <div className="cd-lane">
-            <span className="cd-runner" style={{ left: `${pct}%` }}>🏃</span>
-            <span className="cd-finish">🏁</span>
+      <div className="cd-main">
+        <div className="cd-name">{name || 'Le jour de la course'}</div>
+        <div className="cd-meta">{date}{location ? ` · ${location}` : ''}</div>
+        {run && (
+          <div className="cd-run">
+            <div className="cd-track"><i style={{ width: `${run.pct}%` }} /></div>
+            <span className="cd-week">Semaine {run.week}/{run.total}</span>
           </div>
-          <div className="cd-bar"><i style={{ width: `${pct}%` }} /></div>
-          <div className="cd-pct">{Math.round(pct)} % du parcours</div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function Unit({ n, l }) {
-  return (
-    <div className="cd-unit">
-      <div className="cd-n">{n}</div>
-      <div className="cd-l">{l}</div>
+        )}
+      </div>
     </div>
   )
 }

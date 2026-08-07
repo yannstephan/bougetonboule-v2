@@ -15,7 +15,12 @@ class ApplicationController < ActionController::Base
         }
       },
       vapid_public_key: Rails.application.config.x.vapid[:public_key],
+      # Le HUD est sur toutes les pages : son solde de 🍑 doit donc être partagé, pas servi
+      # écran par écran.
+      balls: current_membership&.balls || 0,
       chat_unread: current_membership&.unread_messages_count || 0,
+      # Pastille de l'onglet 🎒 : du nouveau dans le sac (aujourd'hui, un coffre scellé).
+      inventory_alert: current_membership&.chests&.sealed&.count || 0,
       flash: { notice: flash.notice, alert: flash.alert, chest: flash[:chest] }
     }
   end

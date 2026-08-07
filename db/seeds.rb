@@ -247,11 +247,18 @@ first = Membership.first
 Chest.create!(membership: first, rarity: "epic", reward_diamonds: 35,
               cosmetic: Cosmetic.find_by(name: "Haut-de-forme doré"))
 Notification.create!(user: first.user, game:, category: "chest", importance: "important",
-                     title: "Tu as trouvé un coffre épique", body: "Ouvre-le pour tes récompenses !")
+                     title: "Tu as trouvé un coffre épique",
+                     body: "Ouvre-le dans ton sac 🎒 !", link: "/sac")
+# La semaine écoulée est posée EN ATTENTE, pas créditée : c'est ce que fait désormais
+# WeeklyStreakJob, et c'est ce qui allume le bouton « Réclamer » sur la piste du Hub.
 if first.weekly_streak.positive?
+  gain = GameRules::STREAK_LADDER[[ first.weekly_streak, GameRules::STREAK_LADDER.size ].min - 1]
+  Reward.create!(user: first.user, membership: first, amount: gain, streak_week: first.weekly_streak,
+                 reward_type: "diamonds", source: "streak",
+                 period: (Date.current.beginning_of_week - 7).strftime("%G-W%V"))
   Notification.create!(user: first.user, game:, category: "streak", importance: "important",
                        title: "🔥 #{first.weekly_streak} semaines de course d'affilée !",
-                       body: "+#{GameRules::STREAK_LADDER[[ first.weekly_streak, GameRules::STREAK_LADDER.size ].min - 1]} 💎")
+                       body: "#{gain} 💎 à réclamer sur ta piste", link: "/")
 end
 
 puts "Cosmétiques possédés…"
@@ -266,8 +273,8 @@ puts "Cosmétiques possédés…"
 end
 
 puts "Vitrine (un compte qui possède TOUT)…"
-# Compte de démo pour juger le catalogue d'un coup d'œil : il possède les 45 pièces, donc
-# l'écran /avatar les liste toutes, slot par slot, et on peut les essayer en un clic.
+# Compte de démo pour juger le catalogue d'un coup d'œil : il possède toutes les pièces, donc
+# l'armoire du sac les liste toutes, slot par slot, et on peut les essayer en un clic.
 # Il ne court pas (0 km, 0 🍑) : il ne fausse ni la ligue ni la jauge de meute.
 showcase = User.create!(firstname: "Vitrine", email: "vitrine@btb.test",
                         password: DEMO_PASSWORD, diamonds: 0)
@@ -405,7 +412,7 @@ Team.all.each do |t|
        "#{t.total_balls} 🍑 en banque (créditées par les courses), meute +#{t.pack_percent} %"
 end
 puts "   Statuts de course : #{Training.group(:status).count} · #{Training.where.not(balls_credited_at: nil).count} créditées"
-puts "   Vitrine : vitrine@btb.test possède les #{Cosmetic.count} cosmétiques (écran /avatar)"
+puts "   Vitrine : vitrine@btb.test possède les #{Cosmetic.count} cosmétiques (/sac, onglet 🎨 Armoire)"
 puts "👉 Connexion démo : yann@btb.test / #{DEMO_PASSWORD} " \
      "(Yann/exo voit tout — vents, saladier 🥣 sur King-Coco, chip 🍦 sur les rouges, second souffle " \
      "de Framboitrix, jauge de meute, 🍑 créditées, sa course dont le piège a été déjoué). " \

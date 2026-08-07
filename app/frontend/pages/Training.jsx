@@ -1,6 +1,8 @@
 import { Head, Link } from '@inertiajs/react'
 import PlayerAvatar from '../components/PlayerAvatar'
 import RouteMap from '../components/RouteMap'
+import Hud from '../components/Hud'
+import BottomNav from '../components/BottomNav'
 
 const statusChip = {
   verified: { label: 'Validée', cls: 'ok' },
@@ -16,12 +18,13 @@ export default function Training({ training: t, author }) {
   return (
     <div className="shell">
       <Head title={t.title} />
-      <div className="subhead">
-        <Link href={`/joueurs/${author.id}`} className="back">←</Link>
-        <div className="ti">{t.title}</div>
-      </div>
+      <Hud />
 
       <main className="body">
+        {/* Le titre venait du bandeau de page, supprimé partout : il descend ici, car c'est
+            le nom Strava de la sortie — une info du contenu, pas un libellé de navigation. */}
+        <h1 className="tr-title">{t.title}</h1>
+
         <Link href={`/joueurs/${author.id}`} className="tr-author">
           <PlayerAvatar avatar={author.avatar} size={40} />
           <div>
@@ -66,6 +69,8 @@ export default function Training({ training: t, author }) {
           <img className="tr-photo" src={t.photo_url} alt={`Photo de la sortie ${t.title}`} loading="lazy" />
         )}
       </main>
+
+      <BottomNav />
     </div>
   )
 }

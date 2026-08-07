@@ -1,5 +1,7 @@
 import { Head, Link } from '@inertiajs/react'
 import PlayerAvatar from '../components/PlayerAvatar'
+import Hud from '../components/Hud'
+import BottomNav from '../components/BottomNav'
 
 const statusChip = {
   verified: { label: 'Validée', cls: 'ok' },
@@ -13,10 +15,7 @@ export default function Profile({ player, stats, trainings }) {
   return (
     <div className="shell">
       <Head title={player.name} />
-      <div className="subhead">
-        <Link href="/" className="back">←</Link>
-        <div className="ti">Profil</div>
-      </div>
+      <Hud />
 
       <main className="body">
         <div className="pf-head">
@@ -42,6 +41,8 @@ export default function Profile({ player, stats, trainings }) {
               {trainings.map((t) => <li key={t.id}><Run t={t} /></li>)}
             </ul>}
       </main>
+
+      <BottomNav />
     </div>
   )
 }

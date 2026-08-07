@@ -45,6 +45,9 @@ class ImportTraining
     training.save! if training.changed?
 
     credited = training.credit_balls!.to_i
+    # La semaine est sécurisée tout de suite : le palier de série se débloque en courant,
+    # pas au job du lundi suivant.
+    AdvanceStreak.for_training(training)
     DropChest.call(training)
     notify_runner(training, credited)
     broadcast_run(training)

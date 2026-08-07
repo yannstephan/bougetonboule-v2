@@ -4,19 +4,19 @@ class ShopController < ApplicationController
   RARITY_ORDER = %w[common rare epic legendary].freeze
 
   def index
+    # Le sac a quitté la boutique pour son propre onglet : les vieux liens y suivent.
+    return redirect_to inventory_path if params[:tab] == "inventory"
+
     m = current_membership
     render inertia: "Boutique", props: {
       has_team: m.present?,
-      initial_tab: %w[items cosmetics inventory].include?(params[:tab]) ? params[:tab] : "items",
+      initial_tab: params[:tab] == "cosmetics" ? "cosmetics" : "items",
       balls: m&.balls || 0,
       items: items_json(m),
       cosmetics: cosmetics_json,
       seasonal: seasonal_json,
-      inventory: inventory_json(m),
-      armed: armed_effects_json(m),
-      opponents: opponents_json(m),
-      team_names: m && { mine: m.team.name, foe: m.team.opponent&.name,
-                         mine_monster: m.team.monster&.name, foe_monster: m.team.opponent&.monster&.name }
+      # Pour l'essayage : la boutique montre la pièce SUR le fruit du joueur avant l'achat.
+      avatar: AvatarPresenter.new(current_user, membership: m).as_json
     }
   end
 
@@ -32,17 +32,6 @@ class ShopController < ApplicationController
   def buy_cosmetic
     cosmetic = Cosmetic.find(params[:cosmetic_id])
     result = Purchase.cosmetic(current_user, cosmetic, source_game: current_membership&.game)
-    flash[result.ok ? :notice : :alert] = result.message
-    redirect_to shop_path
-  end
-
-  # Utiliser un objet de l'inventaire (à usage unique) — réutilise la logique de combat.
-  def use_item
-    m = current_membership
-    return redirect_to shop_path, alert: "Aucune partie active." unless m
-
-    result = PerformAction.call(m, action_type: "use_item", item_id: params[:item_id],
-                                   target_id: params[:target_id], target_team: params[:target_team])
     flash[result.ok ? :notice : :alert] = result.message
     redirect_to shop_path
   end
@@ -71,43 +60,6 @@ class ShopController < ApplicationController
       { id: c.id, name: c.name, slot: c.slot, rarity: c.rarity, emoji: c.emoji, art: c.art,
         price: c.price_diamonds, owned: uc.present?, equipped: uc&.equipped || false,
         days_left: c.days_left }
-    end
-  end
-
-  # Adversaires ciblables par un piège à loup.
-  def opponents_json(membership)
-    foe = membership&.team&.opponent
-    return [] unless foe
-
-    foe.memberships.includes(:user).map { |m| { id: m.id, name: m.display_name } }
-  end
-
-  # Objets « à retardement » posés et pas encore résolus : jambe de bois armée (sur soi) et
-  # pièges à loup en attente (avec la cible). Ils ont quitté le sac mais restent en jeu.
-  def armed_effects_json(membership)
-    return [] unless membership
-
-    Action.joins(:item)
-          .where(items: { effect_type: %w[wooden_leg trap] }, resolved_at: nil, membership: membership)
-          .includes(:item)
-          .recent
-          .map do |a|
-      { effect_type: a.item.effect_type,
-        target: a.target.is_a?(Membership) ? a.target.display_name : nil,
-        placed_at: a.created_at.strftime("%-d/%-m à %H:%M") }
-    end
-  end
-
-  # Objets possédés (non utilisés), regroupés par type avec leur nombre.
-  def inventory_json(membership)
-    return [] unless membership
-
-    membership.membership_items.unused.includes(:item)
-              .group_by(&:item_id).map do |_item_id, rows|
-      item = rows.first.item
-      { item_id: item.id, name: item.name, description: item.description,
-        effect_type: item.effect_type, count: rows.size,
-        active: membership.team.item_effect_active?(item.effect_type) }
     end
   end
 end
