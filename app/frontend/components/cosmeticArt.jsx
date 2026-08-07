@@ -472,8 +472,10 @@ const ScholarArms = () => (
 
 // ————— Panoplie du chanceux —————
 
-// Un fer à cheval dans une main, le chaudron d'or dans l'autre. Les pièces sont dessinées
-// AVANT le bord du chaudron : elles doivent avoir l'air posées dedans, pas devant.
+// Une pinte dans une main, le chaudron d'or dans l'autre. Deux empilements comptent :
+// la bière est peinte DANS le verre translucide et la mousse par-dessus le bord, sinon on
+// voit un bloc ambre ; et les pièces passent AVANT le bord du chaudron, sinon elles ont
+// l'air posées devant plutôt que dedans.
 const LuckyArms = () => (
   <g>
     <path d="M44 42 L27 53 L17 66" fill="none" stroke="#2f7d4f" strokeWidth="14"
@@ -482,12 +484,10 @@ const LuckyArms = () => (
           strokeLinecap="round" strokeLinejoin="round" />
     <ellipse cx="19" cy="64" rx="8.5" ry="6" fill="#c9a227" transform="rotate(-42 19 64)" />
     <ellipse cx="81" cy="64" rx="8.5" ry="6" fill="#c9a227" transform="rotate(42 81 64)" />
-    <path d="M3 96 L3 84 a13 13 0 0 1 26 0 L29 96" fill="none" stroke="#aeb9c9"
-          strokeWidth="8" strokeLinecap="round" />
-    <g fill="#7e8899">
-      <circle cx="7" cy="87" r="1.7" /><circle cx="25" cy="87" r="1.7" />
-      <circle cx="9" cy="94" r="1.7" /><circle cx="23" cy="94" r="1.7" />
-    </g>
+    <path d="M5 71 L29 71 L25 98 L9 98 Z" fill="#dbe3ee" opacity="0.8" />
+    <path d="M8 76 L26 76 L23 96 L11 96 Z" fill="#e8a020" />
+    <path d="M4 72 q2 -11 13 -7 q11 -4 13 7 z" fill="#f9f5ec" />
+    <path d="M12 80 L12 93" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" opacity="0.55" />
     <g fill="#f2b100">
       <circle cx="78" cy="74" r="5" /><circle cx="88" cy="71" r="5.5" /><circle cx="96" cy="75" r="4.5" />
     </g>

@@ -707,8 +707,8 @@ nœud papillon de velours, livre et verre de vin, chaussures cirées → 🌈 **
 sommet du catalogue à **5 000 💎**. Elle **rapatrie** le haut-de-forme et le monocle, qui
 traînaient seuls au rayon légendaire : une panoplie n'oblige pas à inventer des sosies de ce
 qui existe déjà.
-Enfin **Le chanceux** (4 pièces **rares** à 250 💎 — chapeau de lutin, barbe rousse, fer à
-cheval et chaudron, souliers à boucle → 🍀 **Trèfle**). Trois de ses quatre pièces ne sont
+Enfin **Le chanceux** (4 pièces **rares** à 250 💎 — chapeau de lutin, barbe rousse, pinte et
+chaudron, souliers à boucle → 🍀 **Trèfle**). Trois de ses quatre pièces ne sont
 qu'un **paramétrage** de dessins existants (haut-de-forme, barbe, chaussure de ville) : quand
 les dessins sont découpés, une panoplie de plus ne coûte presque rien.
 ⚠️ **Pas de pièce au cou**, comme Le Père Noël : une **barbe descend jusqu'à la base du fruit**

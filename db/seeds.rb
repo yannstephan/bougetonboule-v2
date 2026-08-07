@@ -270,7 +270,7 @@ Cosmetic.create!([
     art: "leprechaun_hat", cosmetic_set: chanceux },
   { name: "Barbe rousse",      slot: "eyes",  rarity: "rare", price_diamonds: 250, source: "shop",
     art: "red_beard",      cosmetic_set: chanceux },
-  { name: "Fer à cheval et chaudron", slot: "hands", rarity: "rare", price_diamonds: 250, source: "shop",
+  { name: "Pinte et chaudron", slot: "hands", rarity: "rare", price_diamonds: 250, source: "shop",
     art: "lucky_arms",     cosmetic_set: chanceux },
   { name: "Souliers à boucle", slot: "shoes", rarity: "rare", price_diamonds: 250, source: "shop",
     art: "buckle_shoes",   cosmetic_set: chanceux },
