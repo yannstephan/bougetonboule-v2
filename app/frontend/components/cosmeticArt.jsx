@@ -568,13 +568,16 @@ const GhostSheet = ({ cloth = '#f7f9fd', fold = '#d9e1ec', hole = '#2b2f3a' }) =
 
 // Casquette multicolore SANS VISIÈRE : une calotte et trois quartiers de couleur, façon
 // parasol. Bottom-flush comme tout ce qui se pose sur le crâne.
+// ⚠️ Volontairement PLATE — deux fois plus large que haute. Une calotte haute avalait le
+// crâne : sur un avatar-tête, un chapeau se juge à sa hauteur, pas à sa largeur, et le bord
+// bas étant vissé au crâne, tout ce qu'on ajoute part vers le haut.
 const BeachCap = () => (
   <g>
-    <path d="M6 96 Q6 46 50 46 Q94 46 94 96 Z" fill="#4a7fd1" />
-    <path d="M50 46 L6 96 L28 96 Z" fill="#e23b54" />
-    <path d="M50 46 L39 96 L61 96 Z" fill="#f2b100" />
-    <path d="M50 46 L72 96 L94 96 Z" fill="#3aa76d" />
-    <circle cx="50" cy="44" r="6.5" fill="#f4f7fd" />
+    <path d="M6 96 Q6 58 50 58 Q94 58 94 96 Z" fill="#4a7fd1" />
+    <path d="M50 58 L6 96 L28 96 Z" fill="#e23b54" />
+    <path d="M50 58 L39 96 L61 96 Z" fill="#f2b100" />
+    <path d="M50 58 L72 96 L94 96 Z" fill="#3aa76d" />
+    <circle cx="50" cy="56" r="6" fill="#f4f7fd" />
   </g>
 )
 
@@ -835,7 +838,7 @@ export const COSMETIC_ART = {
   ghost_sheet: { view: '8 2 86 92', fit: 1.6, minEm: 0.85, maxEm: 1.02, from: 'center', dy: 30,
                  node: <GhostSheet /> },
   // — Panoplie du plagiste —
-  beach_cap: { view: '4 35 94 63', fit: 1.0, bite: 16, node: <BeachCap /> },
+  beach_cap: { view: '4 48 92 50', fit: 1.0, bite: 16, node: <BeachCap /> },
   beach_shades: { view: '0 32 100 34', fit: 0.95, node: <BeachShades /> },
   swim_shorts: { view: '8 20 84 40', fit: 1.05, bite: 30, node: <SwimShorts /> },
   beach_arms: { view: '0 40 100 60', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
