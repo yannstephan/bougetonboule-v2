@@ -47,7 +47,10 @@ const COMPACT_SLOTS = ['eyes', 'hat']
 function anchors({ top, bottom, half, hatX }) {
   const side = Math.max(half, 22) + 2 // les gants ne remontent jamais sur les joues
   return {
-    hat: { x: hatX, y: top, em: 0.36, from: 'bottom', bite: 14, half },
+    // em 0.48 : les chapeaux en EMOJI ne couvraient que ~57 % de la largeur du crâne, la
+    // moitié de ce que couvre un bonnet dessiné. Pas 1,5× comme les dessins — un emoji
+    // remplit toute sa boîte, il déborderait du cadre par le haut.
+    hat: { x: hatX, y: top, em: 0.48, from: 'bottom', bite: 14, half },
     eyes: { x: 50, y: EYE_LINE + 2, em: 0.34, half },
     // suspendu à la base du fruit : plus la pièce est grande, plus elle pend — elle ne
     // remonte jamais en plein ventre, là où on attend un cou.

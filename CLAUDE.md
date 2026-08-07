@@ -403,6 +403,13 @@ un anneau assez large pour ceinturer le corps mesure ~50 unités de diamètre, d
 remonte à la ligne des yeux **où qu'on l'accroche**. Même erreur de catégorie que le débardeur.
 Une ceinture de plomb, un collier à pointes ou une serviette marchent parce qu'ils ne se
 referment pas derrière : ils suivent la base du fruit et s'arrêtent là.
+⚠️ **Un chapeau doit couvrir la largeur du crâne** — 85 à 100 %, comme le bonnet de bain ou
+les bois de renne. Les chapeaux dessinés étaient réglés à `fit: 0.77`, soit ~60 % : ils avaient
+l'air posés sur la tête d'un autre. Ils sont passés à **`1.155` (×1,5)**, avec le `bite` à 18
+au lieu de 14 — l'ancrage pose le bord bas de la BOÎTE sur le crâne, et comme ces dessins
+laissent du vide sous eux, grandir les décollait de la tête. Les chapeaux en **emoji** montent
+de 0.36 à **0.48** seulement : un emoji remplit toute sa boîte, à 1,5× il sortirait du cadre
+par le haut.
 ⚠️ Un dessin destiné au **chapeau** doit être **large et plat** : plus haut que large, mis à
 l'échelle pour atteindre les oreilles, il déborde d'un demi-fruit au-dessus du crâne.
 

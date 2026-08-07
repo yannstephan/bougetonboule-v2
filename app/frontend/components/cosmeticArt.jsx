@@ -546,7 +546,12 @@ export const COSMETIC_ART = {
   // voit tout de suite qu'elles dépassent quand la tête est étroite. Les valeurs sont
   // calées pour redonner la taille d'aujourd'hui sur un fruit rond (demi-largeur 30), celui
   // sur lequel chaque dessin avait été réglé : seuls les fruits étroits changent.
-  gold_hat: { view: '12 16 76 64', fit: 0.77, node: <GoldHat /> },
+  // ⚠️ Les chapeaux DESSINÉS sont calibrés à 1,5× leur taille d'origine : à `fit: 0.77` ils
+  // ne couvraient que ~60 % de la largeur du crâne alors qu'un bonnet de bain ou des bois de
+  // renne en couvrent 90 à 100 %, et ils avaient l'air posés sur la tête d'un autre.
+  // Le `bite` passe de 14 à 18 avec : l'ancrage pose le bord bas de la BOÎTE sur le crâne,
+  // et comme ces dessins laissent du vide sous eux, grandir les décollait de la tête.
+  gold_hat: { view: '12 16 76 64', fit: 1.155, bite: 18, node: <GoldHat /> },
   eyepatch: { view: '0 20 100 50', em: 0.34, node: <EyePatch /> },
   visor: { view: '2 29 96 39', fit: 0.57, node: <Visor /> },
   bib: { view: '17 22 66 57', em: 0.26, node: <Bib /> },
@@ -590,9 +595,9 @@ export const COSMETIC_ART = {
   xmas_boots: { view: '8 25 84 55', pair: true,
                 node: <Pair body="#c0182f" sole="#3f434c" tongue="#f4f7fd" lace="#ffffff" shaft={14} /> },
   bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },
-  cowboy_hat: { view: '8 30 84 52', fit: 0.77, node: <CowboyHat /> },
-  santa_hat: { view: '18 22 79 62', fit: 0.77, node: <SantaHat /> },
-  bucket_hat: { view: '10 34 80 48', fit: 0.73, node: <BucketHat /> },
+  cowboy_hat: { view: '8 30 84 52', fit: 1.155, bite: 18, node: <CowboyHat /> },
+  santa_hat: { view: '18 22 79 62', fit: 1.155, bite: 18, node: <SantaHat /> },
+  bucket_hat: { view: '10 34 80 48', fit: 1.095, bite: 18, node: <BucketHat /> },
   monocle: { view: '51 21 50 75', em: 0.44, node: <Monocle /> },
 }
 
