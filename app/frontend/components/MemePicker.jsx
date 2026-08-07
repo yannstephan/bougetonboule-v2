@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { router } from '@inertiajs/react'
 
-// Recherche de memes pour le chat. On ne peut PAS envoyer une image quelconque : seuls les
-// memes des catalogues passent, et le serveur revérifie l'hôte.
+// Recherche de GIF pour le chat (Giphy). On ne peut PAS envoyer une image quelconque : seules
+// les URL des sources connues passent, et le serveur revérifie l'hôte.
+// ⚠️ Le vocabulaire côté JOUEUR dit « GIF » ; le code garde `meme_*` — renommer une colonne
+// et six fichiers pour un mot ne vaut pas la migration.
 //
 // ⚠️ La feuille s'ouvre sur un CATALOGUE À FEUILLETER, pas sur un champ vide. Sans clé Giphy,
 // les sources libres sont petites et leurs titres sont en anglais : chercher « bébé » ou
@@ -38,17 +40,17 @@ export default function MemePicker({ memes = [], onPick, onClose }) {
   return (
     <div className="tp-backdrop" onClick={onClose}>
       <div className="tp-sheet meme-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="tp-title">Ajouter un meme</div>
+        <div className="tp-title">Ajouter un GIF</div>
 
-        <input className="field" autoFocus value={q} placeholder="Filtrer… (drake, cat, boss)"
+        <input className="field" autoFocus value={q} placeholder="Chercher un GIF… (bravo, course, fatigué)"
                onChange={(e) => setQ(e.target.value)} />
 
         <div className="meme-grid">
           {loading && memes.length === 0 && <p className="meme-hint">Recherche…</p>}
           {!loading && memes.length === 0 && (
             <p className="meme-hint">
-              Rien pour « {q} ». Les titres sont en anglais — essaie <b>cat</b>, <b>boss</b>,
-              <b> drake</b>… ou vide le champ pour tout parcourir.
+              Rien pour « {q} ». Essaie un autre mot, ou vide le champ pour voir les GIF
+              du moment.
             </p>
           )}
           {memes.map((m) => (

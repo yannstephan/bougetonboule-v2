@@ -37,7 +37,7 @@ export default function Chat({ conversations, memes }) {
     })
   }
 
-  // Un meme part seul, sans passer par le champ texte : c'est une réaction, pas une légende.
+  // Un GIF part seul, sans passer par le champ texte : c'est une réaction, pas une légende.
   const sendMeme = (meme) => {
     setPicking(false)
     router.post(`/conversations/${conv.id}/messages`,
@@ -73,7 +73,7 @@ export default function Chat({ conversations, memes }) {
             (Imgflip) prend le relais quand Giphy n'est pas configuré, donc il n'y a jamais
             de bouton qui n'ouvre rien. */}
         <button className="meme-btn" type="button" onClick={() => setPicking(true)}
-                title="Ajouter un meme" aria-label="Ajouter un meme">+</button>
+                title="Ajouter un GIF" aria-label="Ajouter un GIF">+</button>
         <button className="send" type="submit" disabled={form.processing}>➤</button>
       </form>
 

@@ -17,7 +17,7 @@ class Message < ApplicationRecord
   def preview(limit = 90)
     return body.truncate(limit) if body.present?
 
-    "🖼️ #{meme_title.presence || 'un meme'}"
+    "🖼️ #{meme_title.presence || 'un GIF'}"
   end
 
   private

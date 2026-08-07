@@ -13,7 +13,13 @@ class Giphy
   LIMIT = 24
 
   # Les hôtes d'où peuvent venir les GIF (voir Memes.allowed?).
-  HOSTS = %w[media.giphy.com i.giphy.com].freeze
+  # ⚠️ `giphy.com` et RIEN de plus précis : Giphy sert ses images depuis media0.giphy.com …
+  # media4.giphy.com, tirés au hasard d'un appel à l'autre. Lister « media.giphy.com » les
+  # refusait tous — l'image n'est ni égale à cet hôte, ni un sous-domaine de celui-ci — et
+  # `parse` jetait donc CHAQUE résultat en silence : la recherche rendait une liste vide même
+  # avec une clé valide. Le suffixe reste sûr, `giphy.com.attaquant.test` ne finit pas par
+  # « .giphy.com » (verrouillé par un test).
+  HOSTS = %w[giphy.com].freeze
 
   # Deux noms acceptés : `GIPHY_KEY` (le plus court, celui du .env) et `GIPHY_API_KEY`
   # (la convention des autres secrets du projet). Sinon les credentials Rails chiffrés.

@@ -839,8 +839,8 @@ style atténué). Une notif peut porter un **`link`** (colonne `notifications.li
 devient alors cliquable (chevron ›). Les notifs « nouvelle course » pointent vers `/courses/:id`.
 
 
-### Memes dans le chat (`Memes`, `components/MemePicker.jsx`)
-Le bouton **+** du composeur ouvre une recherche de memes ; on touche une vignette, elle part
+### GIF dans le chat (`Memes`, `components/MemePicker.jsx`)
+Le bouton **+** du composeur ouvre une recherche de **GIF** ; on touche une vignette, elle part
 **seule** (c'est une réaction, pas une légende). Deux colonnes sur `messages` : `meme_url` +
 `meme_title`, et `body` devient facultatif — un meme seul est un message valide.
 
@@ -848,8 +848,19 @@ Le bouton **+** du composeur ouvre une recherche de memes ; on touche une vignet
 jamais un bouton mort :
 - **Imgflip** par défaut — **aucune clé, aucune inscription**, ~100 modèles populaires mis en
   cache une journée et filtrés par nom en mémoire. La recherche marche dès l'installation.
-- **Giphy** dès que la clé existe (`GIPHY_KEY` ou `GIPHY_API_KEY`) — vraie recherche, catalogue immense. Secret
-  **optionnel** comme Strava/Google/VAPID : c'est une amélioration, pas un prérequis.
+- **Giphy** dès que la clé existe (`GIPHY_KEY` ou `GIPHY_API_KEY`) — vraie recherche de GIF,
+  catalogue immense. Secret **optionnel** comme Strava/Google/VAPID : c'est une amélioration,
+  pas un prérequis. ⚠️ C'est **Giphy qui porte l'intention** (des GIF de réaction) ; les
+  catalogues sans clé ne servent que des modèles de meme FIXES — un repli, pas la cible.
+  ⚠️ L'hôte autorisé est **`giphy.com`** et rien de plus précis : Giphy sert ses images depuis
+  `media0.giphy.com` … `media4.giphy.com`, tirés au hasard d'un appel à l'autre. Lister
+  « media.giphy.com » les refusait tous et la recherche rendait une liste **vide même avec une
+  clé valide**, sans le moindre message. Verrouillé par un test sur les cinq sous-domaines.
+  ⚠️ Le vocabulaire côté **joueur** dit « GIF » ; le code garde `meme_*` (colonnes, service,
+  composant) — renommer une colonne et six fichiers pour un mot ne vaut pas la migration.
+  ⚠️ **Aucun test ne touche le réseau** : ceux du repli retirent la clé de l'ENV, ceux de Giphy
+  en posent une factice et remplacent l'appel HTTP. Sans ça, un `.env` qui porte une clé faisait
+  partir la suite chez Giphy. Pas de `stub` : minitest 6 a sorti `minitest/mock` de la gem.
 
 ⚠️ **`meme_url` n'est PAS un champ d'image libre, et ça doit le rester.** Le Gemfile porte une
 décision explicite (« l'app ne stocke aucune pièce jointe ») : rien n'est envoyé ni hébergé ici,
