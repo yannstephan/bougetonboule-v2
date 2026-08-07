@@ -389,18 +389,18 @@ et bleu, le nom promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `m
 `eyepatch`, `visor`, `bowtie`, `bib`, `bandana` ; les quatre du loup (`wolf_ears`, `scar`
 — taille **fixe**, le visage étant le même sur tous les fruits —, `spiked_collar`,
 `wolf_paws`) ; les cinq du plongeur (`swim_cap`,
-`dive_mask` — vitre **translucide**, un masque opaque effaçait le regard —, `dive_gauge`,
+`dive_mask` — vitre **translucide**, un masque opaque effaçait le regard —, `weight_belt`,
 `flippers` qui passent par le même `<Pair />` que les chaussures, `wetsuit_arms`) ; et les
 trois de la panoplie du dimanche :
 `headphones` (🎧 est un casque vu de face, une masse noire sur le crâne ; dessiné, l'arceau
 passe **sur** la silhouette et les écouteurs tombent aux oreilles), `armband` (📱 seul flottait
 comme un objet posé là : ce qu'on porte, ce sont les sangles) et `towel` (🎽 était un débardeur,
 donc une **tenue**, alors que l'avatar est une tête).
-⚠️ **Le cou d'un avatar-tête est une petite zone où une pièce PEND, elle n'entoure rien.**
-Une bouée de sauvetage a été dessinée puis jetée : un anneau assez large pour ceinturer le
-corps mesure ~50 unités de diamètre, donc son sommet remonte à la ligne des yeux **où qu'on
-l'accroche**. Même erreur de catégorie que le débardeur — d'où le manomètre au bout de son
-flexible, qui pend.
+⚠️ **Au cou, une BANDE, jamais un anneau.** Une bouée de sauvetage a été dessinée puis jetée :
+un anneau assez large pour ceinturer le corps mesure ~50 unités de diamètre, donc son sommet
+remonte à la ligne des yeux **où qu'on l'accroche**. Même erreur de catégorie que le débardeur.
+Une ceinture de plomb, un collier à pointes ou une serviette marchent parce qu'ils ne se
+referment pas derrière : ils suivent la base du fruit et s'arrêtent là.
 ⚠️ Un dessin destiné au **chapeau** doit être **large et plat** : plus haut que large, mis à
 l'échelle pour atteindre les oreilles, il déborde d'un demi-fruit au-dessus du crâne.
 
@@ -653,8 +653,8 @@ Ses pièces sont **exclues** du rayon permanent et du rayon de saison — une pi
 que dans un rayon, et sa panoplie prime. Trois panoplies au seed :
 **Coureur du dimanche** (6 pièces **communes** à 100 💎 — écouteurs, serviette éponge,
 téléphone en brassard, baskets fatiguées, ☕ café d'avant-course, 💨 souffle court) et
-**Le plongeur** (5 pièces **rares** à 250 💎 — bonnet de bain, masque et tuba, manomètre,
-harpon et lampe, palmes → 🐠 Banc de poissons) et **Le loup** (6 pièces **épiques** à 500 💎 —
+**Le plongeur** (5 pièces **rares** à 250 💎 — bonnet de bain, masque et tuba, ceinture de
+plomb, harpon et lampe, palmes → 🐠 Banc de poissons) et **Le loup** (6 pièces **épiques** à 500 💎 —
 oreilles, balafre, collier à pointes, patte, coussinets, 🦴 os à ronger → 🐺 **Esprit du loup**,
 qui n'existe plus que là). Deux paliers : le rayon d'entrée, puis un objectif
 de collection à 1 500 💎 pour qui a déjà tout le commun — c'est plus qu'une saison parfaite

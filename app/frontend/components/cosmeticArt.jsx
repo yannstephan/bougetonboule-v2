@@ -166,18 +166,23 @@ const DiveMask = () => (
   </g>
 )
 
-// Manomètre au bout de son flexible.
-// ⚠️ C'était une bouée de sauvetage, et c'était impossible : un anneau assez large pour
-// entourer le corps a un diamètre de ~50 unités, donc son haut remonte à la ligne des yeux
-// quel que soit l'endroit où on l'accroche. Même erreur de catégorie que le débardeur — le
-// cou d'un avatar-tête est une petite zone où une pièce PEND, elle n'entoure rien.
-const DiveGauge = () => (
+// Ceinture de plomb : une sangle et ses plombs enfilés dessus, boucle dorée au milieu.
+// ⚠️ Une BANDE, pas un anneau. Une bouée de sauvetage a été dessinée ici puis jetée : un
+// anneau assez large pour entourer le corps a un diamètre de ~50 unités, donc son haut
+// remonte à la ligne des yeux quel que soit l'endroit où on l'accroche. Une ceinture ne se
+// referme pas derrière — elle suit la base du fruit et s'arrête là.
+// ⚠️ Les plombs sont plus COURTS que la sangle et espacés : à hauteur égale et collés, ils
+// la masquaient entièrement et l'ensemble devenait un bloc gris.
+const WeightBelt = () => (
   <g>
-    <path d="M58 4 q-20 24 -8 48" fill="none" stroke="#1f2a44" strokeWidth="11" strokeLinecap="round" />
-    <circle cx="50" cy="72" r="25" fill="#1f2a44" />
-    <circle cx="50" cy="72" r="17" fill="#f4f7fd" />
-    <path d="M50 72 L61 62" stroke="#e23b54" strokeWidth="4" strokeLinecap="round" />
-    <circle cx="50" cy="72" r="3" fill="#1f2a44" />
+    <path d="M4 30 Q50 52 96 30 L96 56 Q50 78 4 56 Z" fill="#2b3240" stroke="#1b2029" strokeWidth="2" />
+    <g fill="#9aa2b0" stroke="#5c6473" strokeWidth="2">
+      <rect x="8" y="28" width="14" height="30" rx="3" />
+      <rect x="27" y="34" width="14" height="30" rx="3" />
+      <rect x="59" y="34" width="14" height="30" rx="3" />
+      <rect x="78" y="28" width="14" height="30" rx="3" />
+    </g>
+    <rect x="44" y="38" width="12" height="30" rx="3" fill="#c9a227" stroke="#8d6f13" strokeWidth="2" />
   </g>
 )
 
@@ -441,9 +446,7 @@ export const COSMETIC_ART = {
   flippers: { view: '8 36 84 50', pair: true, node: <Pair as={Fin} body="#1f9ecb" foot="#0f6f92" rib="#0b5a78" /> },
   swim_cap: { view: '2 28 96 70', fit: 1.05, node: <SwimCap /> },
   dive_mask: { view: '0 4 100 72', fit: 0.9, node: <DiveMask /> },
-  // Taille FIXE, sans `fit` : un objet qui pend au bout d'un flexible n'a pas de raison de
-  // grossir avec la tête, contrairement à ce qui se pose dessus.
-  dive_gauge: { view: '22 0 56 100', em: 0.3, node: <DiveGauge /> },
+  weight_belt: { view: '2 26 96 54', fit: 0.8, bite: 28, node: <WeightBelt /> },
   // fit 1.6 : le fruit occupe alors ~63 % de la boîte, et les avant-bras se logent dans le
   // tiers qui reste de chaque côté, quelle que soit sa largeur.
   wetsuit_arms: { view: '3 22 98 72', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
