@@ -953,12 +953,16 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
   combat étant dans l'image, le bouton ne le dessine plus.
   ⚠️ **Contrat d'un écusson** (à respecter pour tout remplaçant) : carré, détouré, 128 px, WebP,
   et surtout **lisible à 36 px** — c'est la seule taille qui compte, une planche agrandie est
-  toujours trompeuse. Le découpage se fait par masque de saturation quand la source arrive avec
-  un damier peint : le fond est le gris NEUTRE de clarté moyenne, tout le reste est du contenu.
-  ⚠️ Et il faut **effacer tout ce qui sort de la boîte détectée** : le carré final est plus
-  large que le sticker, il mord donc sur ses voisins de la planche et embarque des bouts de leur
-  contour blanc, qui flottent ensuite à côté de l'icône. Le remplissage du carré n'est qu'un
-  cadre, pas du contenu. Ça ne se voit qu'en posant l'écusson sur un fond criard — le magenta
+  toujours trompeuse. Découpage : **exiger une source à vraie transparence** — c'est son
+  canal alpha qui dit où est le contenu, et lui seul donne un bord correctement lissé. Une
+  planche d'IA arrive souvent avec un damier **peint dans l'image** (alpha plein) : on peut la
+  détourer par masque de saturation (le fond est le gris NEUTRE de clarté moyenne, tout le reste
+  est du contenu), mais c'est un pis-aller, le bord doit alors être approximé au flou.
+  ⚠️ Dans les deux cas, il faut **effacer tout ce qui sort de la boîte détectée** : le carré
+  final est plus large que le sticker, il mord donc sur ses voisins de la planche et embarque
+  des bouts de leur contour blanc, qui flottent ensuite à côté de l'icône. Le remplissage du
+  carré n'est qu'un cadre, pas du contenu. Ça ne se voit **pas** sur les plaques du footer, où
+  le fond est clair comme le parasite : il faut poser l'écusson sur un fond criard — le magenta
   est fait pour ça.
 
 ⚠️ **La nav du bas est en `z-index:10`, comme le bandeau, et l'avatar est en
