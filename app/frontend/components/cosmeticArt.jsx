@@ -581,19 +581,27 @@ const BeachCap = () => (
   </g>
 )
 
-// Lunettes de soleil. Verres TRANSLUCIDES, contrairement à celles du Père Noël : sur une
-// panoplie d'été on veut garder le regard, c'est ce qui rend l'avatar avenant.
-const BeachShades = () => (
+// Lunettes de soleil, forme wayfarer.
+// ⚠️ Verres OPAQUES et monture SOMBRE. Premier jet raté : verres verts translucides et
+// monture jaune, ça faisait des lunettes de piscine. Des lunettes de soleil se reconnaissent
+// à trois choses — le verre noir, le sourcil épais qui barre le haut, et le reflet en
+// diagonale. Sans le reflet, les verres font deux trous dans la figure.
+// C'est le même arbitrage que le masque de plongée, tranché dans l'autre sens : là on voulait
+// garder le regard, ici c'est le verre teinté qui EST la pièce.
+const BeachShades = ({ frame = '#1f2a3a', glass = '#23262e', shine = '#6b7488' }) => (
   <g>
-    <rect x="0" y="42" width="17" height="7" rx="3" fill="#f2b100" />
-    <rect x="83" y="42" width="17" height="7" rx="3" fill="#f2b100" />
-    <rect x="14" y="36" width="34" height="26" rx="11" fill="#12b58a" opacity="0.55" />
-    <rect x="52" y="36" width="34" height="26" rx="11" fill="#12b58a" opacity="0.55" />
-    <g fill="none" stroke="#f2b100" strokeWidth="6">
-      <rect x="12" y="34" width="38" height="30" rx="13" />
-      <rect x="50" y="34" width="38" height="30" rx="13" />
+    <rect x="0" y="40" width="17" height="8" rx="3" fill={frame} />
+    <rect x="83" y="40" width="17" height="8" rx="3" fill={frame} />
+    <path d="M15 40 H47 V56 Q47 68 31 68 Q15 68 15 56 Z" fill={glass} />
+    <path d="M53 40 H85 V56 Q85 68 69 68 Q53 68 53 56 Z" fill={glass} />
+    <path d="M20 62 L34 43" stroke={shine} strokeWidth="5" strokeLinecap="round" opacity="0.7" />
+    <path d="M58 62 L72 43" stroke={shine} strokeWidth="5" strokeLinecap="round" opacity="0.7" />
+    <g fill="none" stroke={frame} strokeWidth="6" strokeLinejoin="round">
+      <path d="M15 40 H47 V56 Q47 68 31 68 Q15 68 15 56 Z" />
+      <path d="M53 40 H85 V56 Q85 68 69 68 Q53 68 53 56 Z" />
     </g>
-    <rect x="46" y="41" width="8" height="5" fill="#f2b100" />
+    <path d="M8 32 Q50 27 92 32 L92 43 Q50 38 8 43 Z" fill={frame} />
+    <rect x="44" y="38" width="12" height="7" rx="2" fill={frame} />
   </g>
 )
 
@@ -857,7 +865,7 @@ export const COSMETIC_ART = {
                  node: <GhostSheet /> },
   // — Panoplie du plagiste —
   beach_cap: { view: '4 48 92 50', fit: 1.0, bite: 16, node: <BeachCap /> },
-  beach_shades: { view: '0 32 100 34', fit: 0.95, node: <BeachShades /> },
+  beach_shades: { view: '0 25 100 46', fit: 1.05, node: <BeachShades /> },
   swim_shorts: { view: '8 20 84 40', fit: 1.05, bite: 30, node: <SwimShorts /> },
   beach_arms: { view: '0 40 100 60', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
                 node: <BeachArms /> },
