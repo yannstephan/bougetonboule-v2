@@ -108,14 +108,10 @@ Cosmetic.create!([
     available_from: ETE[0], available_until: ETE[1] },
   { name: "Bouée canard",       slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop", emoji: "🦆",
     available_from: ETE[0], available_until: ETE[1] },
-  { name: "Araignée porte-poisse", slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop", emoji: "🕷️",
-    available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
   { name: "Toile de sorcière",  slot: "aura", rarity: "rare",      price_diamonds: nil,  source: "set", emoji: "🕸️",
     available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] },
-  { name: "Sapin scintillant",  slot: "aura", rarity: "rare",      price_diamonds: nil,  source: "set", emoji: "🎄",
-    available_from: NOEL[0], available_until: NOEL[1] },
-  { name: "Renne du traîneau",  slot: "sidekick", rarity: "rare",  price_diamonds: 260,  source: "shop", emoji: "🦌",
-    available_from: NOEL[0], available_until: NOEL[1] }
+  { name: "Araignée porte-poisse", slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop", emoji: "🕷️",
+    available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] }
 ])
 
 puts "Panoplies…"
@@ -190,6 +186,32 @@ Cosmetic.create!([
   # La récompense : l'aura ne s'achète pas, elle tombe quand les six autres sont réunies.
   { name: "Esprit du loup",    slot: "aura",     rarity: "legendary", price_diamonds: nil, source: "set",
     emoji: "🐺",          cosmetic_set: loup }
+])
+
+# Quatrième panoplie, et la première SAISONNIÈRE : ses six pièces portent la fenêtre de Noël,
+# donc le rayon entier apparaît le 1er décembre et disparaît le 6 janvier — `sets_json` ne
+# retient que les pièces disponibles et saute une panoplie qui n'en a plus aucune.
+# Elle récupère le Renne, qui traînait seul au catalogue, et donne une maison au Sapin
+# scintillant, une des auras orphelines.
+noel = CosmeticSet.create!(
+  name: "Noël",
+  description: "Les bois sur la tête, la guirlande autour du cou, et un renne qui suit."
+)
+Cosmetic.create!([
+  { name: "Bois de renne",       slot: "hat",      rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "antlers",      cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] },
+  { name: "Lunettes de ski",     slot: "eyes",     rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "ski_goggles",  cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] },
+  { name: "Guirlande lumineuse", slot: "neck",     rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "garland",      cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] },
+  { name: "Moufles rouges",      slot: "hands",    rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "xmas_mitten",  cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] },
+  { name: "Bottes de Noël",      slot: "shoes",    rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "xmas_boots",   cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] },
+  { name: "Renne du traîneau",   slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop",
+    emoji: "🦌",         cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] },
+  { name: "Sapin scintillant",   slot: "aura",     rarity: "rare", price_diamonds: nil, source: "set",
+    emoji: "🎄",         cosmetic_set: noel, available_from: NOEL[0], available_until: NOEL[1] }
 ])
 
 puts "Objets (power-ups)…"

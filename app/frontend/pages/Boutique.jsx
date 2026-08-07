@@ -167,6 +167,11 @@ function SetShelf({ set, diamonds, onBuy, onTry, tried }) {
     <section className={`shop-set rar-tint rar-${set.rarity}`}>
       <div className="shop-set-head">
         <span className="t">🎽 {set.name}</span>
+        {set.days_left != null && (
+          <span className="shop-cos-left" style={{ position: 'static', transform: 'none' }}>
+            ⏳ {daysLabel(set.days_left)}
+          </span>
+        )}
         {set.promo && (
           <span className="shop-promo">−{set.promo.percent}% · {promoLabel(set.promo.days_left)}</span>
         )}

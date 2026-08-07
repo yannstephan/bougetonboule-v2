@@ -93,6 +93,25 @@ class CosmeticSetTest < ActiveSupport::TestCase
     assert_match(/epic/, intruse.errors[:rarity].to_sentence)
   end
 
+  # Une panoplie SAISONNIÈRE : ses pièces portent la fenêtre, donc le rayon entier apparaît
+  # et disparaît avec elles. C'est ce qui permet une collection de Noël sans une ligne de code.
+  test "hors de sa fenêtre, une panoplie n'a plus aucune pièce disponible" do
+    s = set
+    piece(s, available_from: 3.weeks.ago, available_until: 1.week.ago)
+    piece(s, available_from: 3.weeks.ago, available_until: 1.week.ago)
+
+    assert_empty s.cosmetics.select(&:available?)
+  end
+
+  test "dans sa fenêtre, elle est disponible et sait combien de jours il reste" do
+    s = set
+    piece(s, available_from: 1.week.ago, available_until: 9.days.from_now)
+
+    dispo = s.cosmetics.select(&:available?)
+    assert_equal 1, dispo.size
+    assert_equal 9, dispo.first.days_left
+  end
+
   test "un pourcentage hors de 1..90 est refusé" do
     assert_not CosmeticSet.new(name: "A", promo_percent: 0).valid?
     assert_not CosmeticSet.new(name: "B", promo_percent: 95).valid?

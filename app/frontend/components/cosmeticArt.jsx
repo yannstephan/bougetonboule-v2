@@ -311,6 +311,48 @@ const PawFoot = ({ x, fur, pad }) => (
   </g>
 )
 
+// ————— Panoplie de Noël —————
+
+// Bois de renne. Écartés comme les oreilles de loup, et bottom-flush : c'est le bord de la
+// BOÎTE qui se pose sur le crâne, pas celui du dessin.
+const Antlers = ({ horn = '#8a5a2b' }) => (
+  <g fill="none" stroke={horn} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M36 98 L26 60 L16 32" /><path d="M27 66 L8 50" /><path d="M22 44 L36 32" />
+    <path d="M64 98 L74 60 L84 32" /><path d="M73 66 L92 50" /><path d="M78 44 L64 32" />
+  </g>
+)
+
+// Lunettes de ski. Même leçon que le masque de plongée : l'écran d'abord et TRANSLUCIDE,
+// la monture par-dessus AU TRAIT — un verre posé sur une monture pleine devient opaque et
+// efface le regard.
+const SkiGoggles = () => (
+  <g>
+    <rect x="16" y="34" width="68" height="32" rx="14" fill="#ffcf5c" opacity="0.5" />
+    <rect x="0" y="42" width="100" height="13" rx="6" fill="#c0182f" />
+    <rect x="14" y="30" width="72" height="40" rx="17" fill="none" stroke="#2b3240" strokeWidth="9" />
+    <path d="M26 40 q12 -6 24 -1" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" fill="none" opacity="0.75" />
+  </g>
+)
+
+// Guirlande lumineuse : un fil qui pend et ses ampoules posées dessus. Une BANDE, pas un
+// anneau — comme la ceinture de plomb et le collier à pointes (voir CLAUDE.md).
+const Bulb = ({ x, y, color }) => (
+  <g fill={color}>
+    <path d={`M${x} ${y - 3} l-4 4 l4 9 l4 -9 z`} />
+    <circle cx={x} cy={y + 7} r="6.5" />
+  </g>
+)
+const Garland = () => (
+  <g>
+    <path d="M2 24 Q50 62 98 24" fill="none" stroke="#2f5d3a" strokeWidth="5" strokeLinecap="round" />
+    <Bulb x={17.8} y={35} color="#e23b54" />
+    <Bulb x={31.6} y={41} color="#f2b100" />
+    <Bulb x={50} y={44} color="#3aa76d" />
+    <Bulb x={68.4} y={41} color="#4a7fd1" />
+    <Bulb x={82.2} y={35} color="#e23b54" />
+  </g>
+)
+
 // ————— Accessoires —————
 
 // Maracas croisées. 🪇 n'existe qu'en Unicode 15 (2022) : carré vide sur les vieux
@@ -456,6 +498,15 @@ export const COSMETIC_ART = {
   scar: { view: '11 25 20 50', em: 0.5, node: <Scar /> },
   spiked_collar: { view: '4 8 92 58', fit: 0.8, bite: 23, node: <SpikedCollar /> },
   wolf_paws: { view: '8 42 84 44', pair: true, node: <Pair as={PawFoot} fur="#6b6f7a" pad="#3f434c" /> },
+  // — Panoplie de Noël. Deux pièces ne sont qu'un RECOLORIAGE : les dessins de la moufle et
+  // de la chaussure sont déjà paramétrés, une panoplie de plus ne coûte que des couleurs.
+  antlers: { view: '4 28 92 74', fit: 1.0, node: <Antlers /> },
+  ski_goggles: { view: '0 28 100 44', fit: 0.9, node: <SkiGoggles /> },
+  garland: { view: '0 20 100 40', fit: 0.85, bite: 26, node: <Garland /> },
+  xmas_mitten: { view: '22 24 66 60', em: 0.32,
+                 node: <Mitten body="#c0182f" cuff="#f4f7fd" thumb="#8e1122" /> },
+  xmas_boots: { view: '8 25 84 55', pair: true,
+                node: <Pair body="#c0182f" sole="#3f434c" tongue="#f4f7fd" lace="#ffffff" shaft={14} /> },
   bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },
   cowboy_hat: { view: '8 30 84 52', fit: 0.77, node: <CowboyHat /> },
   santa_hat: { view: '18 22 79 62', fit: 0.77, node: <SantaHat /> },
