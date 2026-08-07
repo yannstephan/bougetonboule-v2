@@ -11,7 +11,11 @@ class Message < ApplicationRecord
                        allow_blank: true
   validate :meme_from_provider
 
-  scope :chronological, -> { order(created_at: :asc) }
+  # ⚠️ L'`id` départage : le seed pose des `created_at` à la main, deux messages peuvent donc
+  # partager la seconde. Sans ce second critère, l'ordre serait indéterminé — et la pagination
+  # du chat, qui remonte le fil avec un curseur (created_at, id), sauterait ou répéterait des
+  # messages à la frontière d'une page.
+  scope :chronological, -> { order(:created_at, :id) }
 
   # Ce qu'on met dans une notification ou un aperçu : le texte, sinon le meme.
   def preview(limit = 90)

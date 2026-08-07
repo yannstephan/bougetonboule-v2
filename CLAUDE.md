@@ -874,6 +874,44 @@ La recherche passe par un **rechargement partiel Inertia** (`only: ['memes']`, `
 non par une API JSON à part, comme le veut la convention du projet ; la frappe est temporisée
 de 400 ms pour ne pas tirer une requête par lettre.
 
+### Le fil du chat ne part jamais en entier
+Une conversation de saison finit à plusieurs milliers de messages, et l'écran se **recharge
+toutes les 8 s**. Trois économies, dans l'ordre de ce qu'elles rapportent :
+
+1. **Les props coûteuses sont `InertiaRails.optional`** (`memes`, `older`) : le bloc n'est
+   évalué **que** si le front nomme la prop dans un `only:`. Avant, `Memes.search` partait chez
+   **Giphy à chaque tour de sondage** — huit appels par minute et par onglet ouvert, pour un
+   panneau que personne n'avait ouvert. C'est de loin le plus gros gain de l'écran, bien avant
+   la pagination. ⚠️ Corollaire : `MemePicker` doit **aller chercher** son catalogue à
+   l'ouverture, il ne lui arrive plus tout cuit avec la page.
+2. **Seule la conversation OUVERTE porte ses messages** : le front ne rend jamais le fil de
+   l'onglet fermé, qui n'a besoin que de son libellé et de sa pastille. Changer d'onglet est
+   une visite, elle le servira à ce moment-là. La moitié du poids, sans rien perdre.
+3. **Pagination par curseur**, `ChatController::PAGE` = **30**. La page servie est la plus
+   **récente** ; on remonte avec `?avant=<id>` en rechargement partiel `only: ['older']`.
+   Le serveur tire **un message de plus** que la page pour répondre « y en a-t-il encore ? »
+   sans un second COUNT.
+
+⚠️ **Le curseur est le couple `(created_at, id)`, pas l'id seul** — c'est l'ordre exact de
+`Message.chronological`. Le seed pose des `created_at` à la main, deux messages peuvent donc
+partager la seconde : sans l'`id` en second critère, la frontière d'une page sauterait ou
+répéterait un message.
+
+⚠️ **Le front ACCUMULE, il ne remplace pas.** La fenêtre du serveur glisse d'un cran à chaque
+message reçu : si le front ne gardait que la dernière réponse, le message qui sort de la fenêtre
+laisserait un **trou** dans le fil. Il fusionne donc par `id` et retrie sur `ts` (un
+timestamp servi exprès pour ça — `on`/`at` sont des libellés à la minute, deux messages de la
+même minute s'y égalisent).
+
+⚠️ **Deux besoins opposés dans le même conteneur** : coller au bas quand un message arrive, et
+ne pas bouger d'un pixel quand on greffe une page devant. On mémorise la distance au bas avant
+de charger et on la restaure — ça revient à ancrer la vue sur le message qu'on lisait. Et le
+sondage ne redescend au bas **que si on y était déjà** (`NEAR_BOTTOM`), sinon lire l'historique
+serait impossible : toutes les 8 s, la vue vous reprendrait.
+
+⚠️ Le verrou du chargement est une **`ref`**, pas l'état `loading` : le défilement tire des
+dizaines d'événements par seconde qui partagent tous le même rendu, donc la même valeur d'état.
+
 ⚠️ Le chat est le seul écran en **`height:100dvh`** (`.chat-shell`) et non `min-height` : sa
 zone de messages doit pouvoir rétrécir (`min-height:0`), sinon la colonne dépasse l'écran et la
 nav collée **recouvre le composeur** — le champ de saisie devient intouchable au doigt.

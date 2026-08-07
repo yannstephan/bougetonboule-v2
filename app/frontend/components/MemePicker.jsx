@@ -19,21 +19,26 @@ export default function MemePicker({ memes = [], onPick, onClose }) {
   const timer = useRef(null)
   const first = useRef(true)
 
+  // ⚠️ Le catalogue n'arrive plus avec la page : côté serveur `memes` est une prop `optional`,
+  // qui n'est calculée QUE si on la réclame. C'est donc l'ouverture de la feuille qui va la
+  // chercher — et en échange, la page du chat ne tape plus chez Giphy à chaque rechargement,
+  // sondage de 8 s compris.
   useEffect(() => {
-    // À l'ouverture, les memes servis avec la page suffisent : pas de requête inutile.
-    if (first.current) { first.current = false; return undefined }
-
     clearTimeout(timer.current)
     setLoading(true)
-    timer.current = setTimeout(() => {
-      router.reload({
-        only: ['memes'],
-        data: { meme_q: q },
-        preserveState: true,
-        preserveScroll: true,
-        onFinish: () => setLoading(false),
-      })
-    }, 400)
+    const fetchNow = () => router.reload({
+      only: ['memes'],
+      data: { meme_q: q },
+      preserveState: true,
+      preserveScroll: true,
+      onFinish: () => setLoading(false),
+    })
+
+    // À l'ouverture on y va tout de suite ; ensuite seulement on temporise, sinon on tirerait
+    // une requête par lettre sur une API tierce.
+    if (first.current) { first.current = false; fetchNow(); return undefined }
+
+    timer.current = setTimeout(fetchNow, 400)
     return () => clearTimeout(timer.current)
   }, [q])
 

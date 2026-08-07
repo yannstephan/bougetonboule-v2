@@ -312,6 +312,13 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* min-height:0 : sans lui, un enfant flex refuse de descendre sous la hauteur de son
    contenu — la colonne dépassait 100dvh et la nav collée recouvrait le composeur. */
 .chat-scroll{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:12px 14px}
+/* Le haut du fil : « il en reste », « ça arrive », ou « c'est le début ». Sans repère, remonter
+   donne l'impression que la conversation commence là où le chargement s'est arrêté. */
+.chat-more{align-self:center;font-size:11px;color:var(--muted);padding:4px 12px;margin:2px 0 6px}
+.chat-more-btn{background:var(--surface-2);border:1px solid var(--line);border-radius:99px;
+  font:inherit;font-size:11px;font-weight:700;color:var(--brand);cursor:pointer}
+.chat-more-btn:hover{border-color:var(--brand)}
+
 .chat-day{align-self:center;font-size:10px;font-weight:700;color:var(--muted);background:var(--surface-2);
   border:1px solid var(--line);border-radius:999px;padding:3px 11px;margin:4px 0}
 .msg{max-width:85%;display:flex;gap:8px;align-items:flex-end}
