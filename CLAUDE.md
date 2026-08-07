@@ -1165,6 +1165,15 @@ directement dans une partie remplie. Le seed **rejoue de vrais événements par 
   10:59/km de Nico) : notif importante avec le motif, sortie visible mais à 0 🍑 ;
 - le fil de notifications (importantes vs secondaires) et la **pastille de non-lus** du Chat.
 
+- le **chat rempli** : 12 messages sur trois jours dans la partie, 6 dans chaque équipe, avec
+  des **GIF**, de quoi juger les séparateurs de journée et les bulles. ⚠️ Un **point de lecture**
+  est posé exprès au milieu (`ConversationRead`) : sans lui tout serait non lu et les deux
+  pastilles afficheraient le même gros chiffre. Là, on lit **4 côté partie, 3 côté équipe**, et
+  7 sur le 💬 du bandeau — c'est ce contraste qui montre à quoi elles servent.
+  ⚠️ Les URL de GIF sont **figées**, jamais tirées de l'API au seed : Giphy limite la clé
+  gratuite (429 au bout de quelques dizaines d'appels) et un seed qui dépend du réseau est un
+  seed qui casse.
+
 Reseeder (`bin/rails db:seed`) régénère tout ça. La **famine** (🍽️) et la **fin de partie** (🏁)
 ne sont pas forcées dans le seed : ce sont des jobs temporels et les déclencher abîmerait l'état
 de démo (équipe affamée / partie terminée).

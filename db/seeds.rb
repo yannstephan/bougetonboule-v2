@@ -536,20 +536,58 @@ end
 end
 
 puts "Messages…"
+# Une vraie discussion, sur trois jours : c'est ce qui permet de juger les séparateurs de
+# journée, les bulles longues, les GIF, et surtout les PASTILLES DE NON-LUS par canal.
+# ⚠️ Les URL de GIF sont figées, jamais tirées de l'API au seed : Giphy limite la clé gratuite
+# (429 au bout de quelques dizaines d'appels), et un seed qui dépend du réseau est un seed qui
+# casse. Forme stable `media.giphy.com/media/<id>/200w.gif` — la variante légère, celle qui
+# convient à une bulle de chat.
+GIF = ->(id, title) { { meme_url: "https://media.giphy.com/media/#{id}/200w.gif", meme_title: title } }
+mem = ->(name) { Membership.joins(:user).find_by(users: { firstname: name }) }
+
 general = game.general_conversation
-[ [ "Yann", "Allez les exotiques, on a un mois à gagner 🌴" ],
- [ "Chloé", "Vous allez pleurer, Framboitrix a faim 🍒" ],
- [ "Inès", "10 km ce matin, King-Coco vous salue 🥥" ],
- [ "Théo", "Qui court demain matin ?" ] ].each_with_index do |(name, body), i|
-  m = Membership.joins(:user).find_by(users: { firstname: name })
-  Message.create!(conversation: general, membership: m, body:, created_at: (4 - i).hours.ago)
+[ [ "Chloé", "Bon. Qui a eu l'idée de mettre la ligne d'arrivée en haut d'une côte ?", 2.days.ago - 3.hours ],
+ [ "Yann", "Celui qui a dessiné le parcours court en descente uniquement 🌴", 2.days.ago - 2.hours ],
+ [ "Inès", "12 km ce matin avant le boulot. King-Coco vous salue 🥥", 2.days.ago ],
+ [ "Max", "Framboitrix a repris 400 PV cette nuit, on est loin d'avoir fini 🍒", 1.day.ago - 5.hours ],
+ [ "Théo", "Quelqu'un court demain matin ? 7h au bord de l'Erdre", 1.day.ago - 2.hours ],
+ [ "Léa", "Moi ! Mais 7h30, j'ai pas ton courage", 1.day.ago - 1.hour ],
+ [ "Yann", nil, 1.day.ago, GIF["xT9IgG50Fb7Mi0prBC", "Running Late GIF"] ],
+ [ "Nico", "J'ai couru 8 km, le piège à loup m'a tout pris. Je suis pas bien.", 6.hours.ago ],
+ [ "Chloé", "C'était moi 🐺 désolée pas désolée", 5.hours.ago ],
+ [ "Inès", "On est à 3 jours de la fin du mois, il reste des boules à dépenser !", 3.hours.ago ],
+ [ "Max", nil, 2.hours.ago, GIF["26tn33aiTi1jkl6H6", "Nervous Sweating GIF"] ],
+ [ "Théo", "Allez, dernier effort. On les tient.", 40.minutes.ago ]
+].each do |name, body, at, gif|
+  Message.create!({ conversation: general, membership: mem[name], body:, created_at: at }.merge(gif || {}))
 end
 
-game.conversations.team_chats.find_each do |conv|
-  conv.team.memberships.limit(2).each_with_index do |m, i|
-    Message.create!(conversation: conv, membership: m, created_at: (2 - i).hours.ago,
-                    body: i.zero? ? "On concentre les attaques ce soir ?" : "Ok, je garde mes boules 🍑")
-  end
+# Le canal d'équipe : plus tactique, et plus court — c'est là qu'on parle vraiment.
+[ [ "Yann", "On concentre les attaques ce soir, après 20h ?", 1.day.ago - 4.hours ],
+ [ "Inès", "Ok. Je garde mes 🍑 jusque-là.", 1.day.ago - 3.hours ],
+ [ "Théo", "J'ai un saladier en réserve si ça chauffe 🥣", 1.day.ago ],
+ [ "Léa", "Framboitrix est sous 25 %, leurs soins coûtent 1 🍑. Ça va être long.", 8.hours.ago ],
+ [ "Inès", "Raison de plus pour taper tous en même temps.", 4.hours.ago ],
+ [ "Théo", nil, 90.minutes.ago, GIF["l41lFw057lAJQMwg0", "Lets Go GIF"] ]
+].each do |name, body, at, gif|
+  conv = game.conversations.team_chats.find_by(team_id: exo.id)
+  Message.create!({ conversation: conv, membership: mem[name], body:, created_at: at }.merge(gif || {}))
+end
+
+# L'autre camp discute aussi : sans ça, se connecter en max@btb.test tombe sur un canal vide.
+rouge_conv = game.conversations.team_chats.find_by(team_id: rouges.id)
+[ [ "Max", "King-Coco est à 46 %. On l'achève avant la fin du mois.", 1.day.ago ],
+ [ "Chloé", "J'ai posé un piège sur Nico. Ça devrait les calmer 🐺", 7.hours.ago ],
+ [ "Nico", "Je garde 20 🍑 pour la dernière salve.", 2.hours.ago ]
+].each { |name, body, at| Message.create!(conversation: rouge_conv, membership: mem[name], body:, created_at: at) }
+
+# ⚠️ Le point de LECTURE de Yann, posé exprès entre deux messages : sans lui, tout serait non
+# lu et les deux pastilles afficheraient le même gros chiffre. Là, on voit ce qu'elles servent
+# à montrer — 5 non lus côté partie, 2 côté équipe, et un total de 7 sur le 💬 du bandeau.
+yann_m = mem["Yann"]
+{ general => 5.hours.ago - 30.minutes, game.conversations.team_chats.find_by(team_id: exo.id) => 9.hours.ago }
+  .each do |conv, at|
+  ConversationRead.create!(membership: yann_m, conversation: conv, last_read_at: at)
 end
 
 puts "Activité simulée (pour voir le feed de notifications)…"
