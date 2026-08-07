@@ -438,7 +438,12 @@ catalogue reste en emoji, et le sera par défaut.
   équipé, et le rayon n'affiche **que** les pièces de l'emplacement choisi, avec une case
   « Retirer » quand on porte quelque chose. Empiler tout le catalogue d'un coup obligeait à
   scroller entre la pièce et l'avatar. `/avatar` y renvoie par un bouton.
-- Le seed crée **`vitrine@btb.test`**, un compte qui **possède les 69 pièces** (et ne court pas,
+- ⚠️ **Le solde de 💎 du compte de démo est CALCULÉ**, jamais posé en dur : il vaut le coût de
+toutes les panoplies + 1 500 de marge. Ajouter une panoplie remonte donc le solde tout seul —
+sinon la nouvelle serait invendable le jour de son arrivée, et c'est exactement le moment où
+l'on veut la regarder. (Les auras n'y entrent pas : elles ne s'achètent pas.)
+
+Le seed crée **`vitrine@btb.test`**, un compte qui **possède les 69 pièces** (et ne court pas,
   donc ne fausse ni la ligue ni la meute) : l'armoire liste tout le catalogue, slot par slot,
   pour juger le rendu d'un coup d'œil.
 

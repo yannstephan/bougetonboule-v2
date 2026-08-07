@@ -407,6 +407,15 @@ plongeur.cosmetics.reject(&:aura?).each do |piece|
 end
 yann_user.user_cosmetics.joins(:cosmetic).find_by(cosmetics: { slot: "aura" })&.update!(equipped: true)
 
+# ⚠️ Le compte de démo doit pouvoir s'offrir TOUTES les panoplies sans courir six mois : le
+# solde est CALCULÉ à partir du catalogue, jamais posé en dur. Ajouter une panoplie remonte
+# donc le solde tout seul — sinon la nouvelle serait invendable le jour de son arrivée, et
+# c'est exactement le moment où l'on veut la regarder.
+# Les auras ne comptent pas : elles ne s'achètent pas, elles tombent quand la panoplie est
+# complète (UnlockSetAura). La marge sert au reste du rayon.
+panoplies = Cosmetic.where.not(cosmetic_set_id: nil).sum(:price_diamonds)
+yann_user.update!(diamonds: panoplies + 1_500)
+
 puts "Vitrine (un compte qui possède TOUT)…"
 # Compte de démo pour juger le catalogue d'un coup d'œil : il possède toutes les pièces, donc
 # l'armoire du sac les liste toutes, slot par slot, et on peut les essayer en un clic.
