@@ -629,6 +629,24 @@ const BeachArms = () => (
   </g>
 )
 
+// Château de sable — l'aura de la panoplie.
+// ⚠️ Première aura DESSINÉE : Unicode n'a pas de château de sable (🏰 est un château fort).
+// Le fond de page sait déjà afficher un dessin comme un emoji, il n'y avait donc rien à
+// changer — mais c'est la preuve qu'une aura n'est pas condamnée à un glyphe existant.
+// Volontairement TRAPU et à gros aplats : semé à 22-34 px et à 12 % d'opacité, un dessin fin
+// disparaît. Les créneaux et le drapeau sont ce qui le rend reconnaissable à cette taille.
+const SandCastle = ({ sand = '#e8b96a', light = '#f2cf8e', dark = '#c99a45', flag = '#e23b54' }) => (
+  <g>
+    <path d="M4 90 q46 -12 92 0 v8 h-92 z" fill={dark} />
+    <path d="M12 90 V54 h7 v-7 h7 v7 h7 v-7 h7 v7 h6 v36 z" fill={sand} />
+    <path d="M54 90 V54 h6 v-7 h7 v7 h7 v-7 h7 v7 h7 v36 z" fill={sand} />
+    <path d="M34 90 V38 h7 v-8 h7 v8 h7 v-8 h7 v8 h4 v52 z" fill={light} />
+    <path d="M44 90 v-15 q6 -7 12 0 v15 z" fill={dark} />
+    <path d="M50 30 V10" stroke="#a87f33" strokeWidth="3" strokeLinecap="round" />
+    <path d="M51 11 l17 6 l-17 6 z" fill={flag} />
+  </g>
+)
+
 // Une tong, vue de face : la semelle et sa bride en Y. Passe par <Pair /> comme les autres
 // paires — même moule, même ancre, jamais dupliquée.
 const FlipFlop = ({ x, sole, edge, strap }) => (
@@ -845,6 +863,7 @@ export const COSMETIC_ART = {
                 node: <BeachArms /> },
   flip_flops: { view: '8 45 84 45', pair: true,
                 node: <Pair as={FlipFlop} sole="#f2b100" edge="#c9930a" strap="#e23b54" /> },
+  sandcastle: { view: '2 8 96 92', node: <SandCastle /> },
   cowboy_hat: { view: '8 30 84 52', fit: 1.155, bite: 18, node: <CowboyHat /> },
   santa_hat: { view: '18 22 79 62', fit: 1.155, bite: 18, node: <SantaHat /> },
   bucket_hat: { view: '10 34 80 48', fit: 1.095, bite: 18, node: <BucketHat /> },

@@ -350,8 +350,8 @@ scope pour les trois : c'est ce qui garantit qu'aucun n'oublie la règle).
 - La boutique **montre l'aura avant qu'elle soit gagnée**, en pied de son rayon, avec le
   compte des pièces restantes : c'est elle qui donne une raison de finir la collection.
 - Toutes les auras du seed sont donc `price_diamonds: nil` + `source: "set"`.
-- ⚠️ **6 auras du catalogue n'ont pas encore de panoplie** et sont donc *inobtenables* —
-  voir la roadmap.
+- ⚠️ **7 auras du catalogue n'ont pas encore de panoplie** et sont donc *inobtenables* —
+  voir la roadmap (le Tournesol y est retourné, le plagiste ayant son château).
 
 ⚠️ **L'aura n'est plus sur l'avatar : elle peint le FOND DE PAGE**
 (`components/AuraBackground.jsx`). C'était une couronne de 6 emojis derrière le fruit, et elle
@@ -453,7 +453,7 @@ les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
-- **Catalogue : 112 pièces** (dont 3 de saison et 55 réparties en 10 panoplies) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
+- **Catalogue : 113 pièces** (dont 4 de saison et 55 réparties en 10 panoplies) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
   **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween, médaille,
   loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue (comportement
   assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
@@ -737,8 +737,12 @@ c'est la seule pièce du jeu bornée par le BAS (`minEm`) — un fruit étroit d
 drap qu'un fruit large. Ce qui déborde déborde **exprès** : palmes de l'ananas, pointes de la
 carambole, queue d'une cerise. On doit pouvoir deviner qui est dessous.
 Et **Le plagiste** (5 pièces **communes** à 100 💎 — casquette multicolore sans visière,
-lunettes de soleil, short de bain, pelle et seau, tongs → 🌻 **Tournesol**), deuxième panoplie
-d'entrée à côté du Coureur du dimanche.
+lunettes de soleil, short de bain, pelle et seau, tongs → **Château de sable**), deuxième
+panoplie d'entrée à côté du Coureur du dimanche.
+⚠️ Son aura est la **première dessinée** : Unicode n'a pas de château de sable. Le fond de page
+sait déjà afficher un dessin comme un emoji, il n'y a donc rien eu à changer — mais c'est la
+preuve qu'**une aura n'est pas condamnée à un glyphe existant**. Un motif de fond se dessine
+**trapu et à gros aplats** : semé à 22-34 px et à 12 % d'opacité, un trait fin disparaît.
 ⚠️ Ses jambes de short sont **volontairement courtes** : plus longues, elles descendaient sur
 les tongs et les effaçaient. Le cou d'un avatar-tête est **juste au-dessus des pieds** — tout
 ce qui y pend se dispute la place avec les chaussures (le tutu de la ballerine a la même

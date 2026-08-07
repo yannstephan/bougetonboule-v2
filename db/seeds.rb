@@ -100,6 +100,8 @@ Cosmetic.create!([
     available_from: ETE[0], available_until: ETE[1] },
   { name: "Bouée canard",       slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop", emoji: "🦆",
     available_from: ETE[0], available_until: ETE[1] },
+  { name: "Tournesol",          slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set", emoji: "🌻",
+    available_from: ETE[0], available_until: ETE[1] },
   { name: "Araignée porte-poisse", slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop", emoji: "🕷️",
     available_from: HALLOWEEN[0], available_until: HALLOWEEN[1] }
 ])
@@ -328,8 +330,8 @@ Cosmetic.create!([
     art: "beach_arms",    cosmetic_set: plagiste },
   { name: "Tongs de plage",        slot: "shoes", rarity: "common", price_diamonds: 100, source: "shop",
     art: "flip_flops",    cosmetic_set: plagiste },
-  { name: "Tournesol",             slot: "aura",  rarity: "common", price_diamonds: nil, source: "set",
-    emoji: "🌻",          cosmetic_set: plagiste }
+  { name: "Château de sable",      slot: "aura",  rarity: "common", price_diamonds: nil, source: "set",
+    art: "sandcastle",    cosmetic_set: plagiste }
 ])
 
 puts "Objets (power-ups)…"
