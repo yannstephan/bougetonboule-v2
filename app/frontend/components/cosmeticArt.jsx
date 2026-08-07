@@ -47,6 +47,19 @@ const Flat = ({ x, body, sole, trim }) => (
   </g>
 )
 
+// Palme, vue de face : le chausson en haut, la voilure qui s'évase vers le bas. Elle passe
+// par <Pair /> comme les chaussures — même moule, donc même ancre et même garantie de ne
+// jamais être dupliquée.
+const Fin = ({ x, body, foot, rib }) => (
+  <g transform={`translate(${x} 0)`}>
+    <path d="M-12 52 q12 -4 24 0 l7 30 q-19 7 -38 0 z" fill={body} />
+    <g stroke={rib} strokeWidth="1.8" opacity=".55">
+      <path d="M-6 58 l-4 22 M0 57 l0 23 M6 58 l4 22" />
+    </g>
+    <path d="M-13 40 h26 q3 0 3 5 v9 q-16 -5 -32 0 v-9 q0 -5 3 -5 z" fill={foot} />
+  </g>
+)
+
 // Roller : la tige d'une basket posée sur une platine à trois roues.
 const Skate = ({ x, body, sole, tongue, wheel }) => (
   <g transform={`translate(${x} 0)`}>
@@ -128,6 +141,43 @@ const Towel = () => (
     <path d="M23 58 L45 61 L44.6 68 L22.6 65 Z" fill="#ff7a59" />
     <path d="M55 61 L77 58 L77.4 65 L55.4 68 Z" fill="#5b8def" />
     <path d="M6 34 Q50 12 94 34 L94 52 Q50 30 6 52 Z" fill="#f4f7fd" stroke="#cfd8e8" strokeWidth="2" />
+  </g>
+)
+
+// Bonnet de bain : il épouse le crâne, donc `fit` ~1 (voir sizeOf). Le liseré suit la
+// courbure plutôt que d'être droit — c'est ce qui fait qu'il se lit comme moulé sur la tête.
+const SwimCap = ({ body = '#1f7fd1', stripe = '#ffffff' }) => (
+  <g>
+    <path d="M4 96 Q4 32 50 32 Q96 32 96 96 Q50 76 4 96 Z" fill={body} />
+    <path d="M16 56 Q50 43 84 56" fill="none" stroke={stripe} strokeWidth="7" strokeLinecap="round" opacity=".85" />
+  </g>
+)
+
+// Masque + tuba. La vitre est TRANSLUCIDE : un masque opaque effaçait le visage, alors que
+// c'est le regard derrière la vitre qui fait tout le charme de la pièce.
+const DiveMask = () => (
+  <g>
+    <path d="M92 70 L92 20 q0 -9 -9 -9" fill="none" stroke="#f2b100" strokeWidth="9" strokeLinecap="round" />
+    <rect x="83" y="8" width="12" height="9" rx="4" fill="#e8863a" />
+    <rect x="2" y="44" width="96" height="10" rx="5" fill="#1f2a44" />
+    <rect x="17" y="29" width="66" height="38" rx="14" fill="#8fd8ff" opacity="0.4" />
+    <rect x="12" y="24" width="76" height="48" rx="17" fill="none" stroke="#1f2a44" strokeWidth="9" />
+    <path d="M25 38 q11 -5 22 0" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" fill="none" opacity="0.7" />
+  </g>
+)
+
+// Manomètre au bout de son flexible.
+// ⚠️ C'était une bouée de sauvetage, et c'était impossible : un anneau assez large pour
+// entourer le corps a un diamètre de ~50 unités, donc son haut remonte à la ligne des yeux
+// quel que soit l'endroit où on l'accroche. Même erreur de catégorie que le débardeur — le
+// cou d'un avatar-tête est une petite zone où une pièce PEND, elle n'entoure rien.
+const DiveGauge = () => (
+  <g>
+    <path d="M58 4 q-20 24 -8 48" fill="none" stroke="#1f2a44" strokeWidth="11" strokeLinecap="round" />
+    <circle cx="50" cy="72" r="25" fill="#1f2a44" />
+    <circle cx="50" cy="72" r="17" fill="#f4f7fd" />
+    <path d="M50 72 L61 62" stroke="#e23b54" strokeWidth="4" strokeLinecap="round" />
+    <circle cx="50" cy="72" r="3" fill="#1f2a44" />
   </g>
 )
 
@@ -299,6 +349,16 @@ export const COSMETIC_ART = {
   headphones: { view: '0 26 100 62', fit: 1.1, minEm: 0.38, bite: 40, node: <Headphones /> },
   armband: { view: '12 12 76 76', em: 0.26, single: true, node: <ArmBand /> },
   towel: { view: '4 10 92 72', fit: 0.83, bite: 29, node: <Towel /> },
+  // — Panoplie du plongeur —
+  flippers: { view: '8 36 84 50', pair: true, node: <Pair as={Fin} body="#1f9ecb" foot="#0f6f92" rib="#0b5a78" /> },
+  swim_cap: { view: '2 28 96 70', fit: 1.05, node: <SwimCap /> },
+  dive_mask: { view: '0 4 100 72', fit: 0.9, node: <DiveMask /> },
+  // Taille FIXE, sans `fit` : un objet qui pend au bout d'un flexible n'a pas de raison de
+  // grossir avec la tête, contrairement à ce qui se pose dessus.
+  dive_gauge: { view: '22 0 56 100', em: 0.3, node: <DiveGauge /> },
+  // 🔦 est une lampe vue de biais : reflétée, elle en faisait deux. `single` la garde d'un
+  // seul côté, comme la baguette magique — et l'emoji suffit, inutile de la dessiner.
+  dive_light: { single: true, em: 0.28, emoji: '🔦' },
   bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },
   cowboy_hat: { view: '8 30 84 52', fit: 0.77, node: <CowboyHat /> },
   santa_hat: { view: '18 22 79 62', fit: 0.77, node: <SantaHat /> },

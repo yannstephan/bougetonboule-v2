@@ -354,11 +354,19 @@ trois familles d'emojis ne marchent pas sur un avatar-fruit —
 Ces pièces portent une clé `art` et sont dessinées à plat : `sneakers`/`trail`/`ballet`/`skates`/
 `boots7`/`worn_sneakers` (les 6 paires de chaussures), `mitten`, `paw`, `gold_hat` (🎩 est noir
 et bleu, le nom promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `monocle`,
-`eyepatch`, `visor`, `bowtie`, `bib`, `bandana` — et les trois de la panoplie du dimanche :
+`eyepatch`, `visor`, `bowtie`, `bib`, `bandana` ; les cinq du plongeur (`swim_cap`,
+`dive_mask` — vitre **translucide**, un masque opaque effaçait le regard —, `dive_gauge`,
+`flippers` qui passent par le même `<Pair />` que les chaussures, `dive_light` = 🔦 en
+`single`) ; et les trois de la panoplie du dimanche :
 `headphones` (🎧 est un casque vu de face, une masse noire sur le crâne ; dessiné, l'arceau
 passe **sur** la silhouette et les écouteurs tombent aux oreilles), `armband` (📱 seul flottait
 comme un objet posé là : ce qu'on porte, ce sont les sangles) et `towel` (🎽 était un débardeur,
 donc une **tenue**, alors que l'avatar est une tête).
+⚠️ **Le cou d'un avatar-tête est une petite zone où une pièce PEND, elle n'entoure rien.**
+Une bouée de sauvetage a été dessinée puis jetée : un anneau assez large pour ceinturer le
+corps mesure ~50 unités de diamètre, donc son sommet remonte à la ligne des yeux **où qu'on
+l'accroche**. Même erreur de catégorie que le débardeur — d'où le manomètre au bout de son
+flexible, qui pend.
 ⚠️ Un dessin destiné au **chapeau** doit être **large et plat** : plus haut que large, mis à
 l'échelle pour atteindre les oreilles, il déborde d'un demi-fruit au-dessus du crâne.
 
@@ -374,7 +382,7 @@ les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
-- **Catalogue : 75 pièces** (dont 7 de saison et 6 de panoplie) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
+- **Catalogue : 81 pièces** (dont 7 de saison et 12 réparties en 2 panoplies) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
   **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween, médaille,
   loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue (comportement
   assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
@@ -598,9 +606,13 @@ prix d'un ensemble lisible d'un coup d'œil. On achète **toujours à la pièce*
 se vend pas en bloc, elle range le rayon (son propre encadré, peint à sa rareté, avec un
 compteur « 3/6 » qui donne envie de la finir) et surtout elle **porte les promotions**.
 Ses pièces sont **exclues** du rayon permanent et du rayon de saison — une pièce n'apparaît
-que dans un rayon, et sa panoplie prime. Première panoplie au seed : **Coureur du dimanche**
-(6 pièces communes à 100 💎 — 🎧 écouteurs, 🎽 débardeur fluo, 📱 téléphone en brassard,
-baskets fatiguées `worn_sneakers`, ☕ café d'avant-course, 💨 souffle court).
+que dans un rayon, et sa panoplie prime. Deux panoplies au seed :
+**Coureur du dimanche** (6 pièces **communes** à 100 💎 — écouteurs, serviette éponge,
+téléphone en brassard, baskets fatiguées, ☕ café d'avant-course, 💨 souffle court) et
+**Le plongeur** (6 pièces **rares** à 250 💎 — bonnet de bain, masque et tuba, manomètre,
+🔦 lampe, palmes, 🐠 banc de poissons). Deux paliers : le rayon d'entrée, puis un objectif
+de collection à 1 500 💎 pour qui a déjà tout le commun — c'est plus qu'une saison parfaite
+(~1 100 💎), et c'est assumé : une panoplie rare se complète sur la durée, ou pendant une promo.
 
 **🏷️ Promotions** (`cosmetic_sets.promo_percent` / `promo_from` / `promo_until`) — le **seul**
 endroit d'où un prix peut bouger, piloté depuis `/admin` (onglet Promos) ou

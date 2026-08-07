@@ -69,7 +69,10 @@ function anchors({ top, bottom, half, hatX }) {
 }
 
 // Le centre de la pièce, une fois qu'on connaît sa taille. Sans `from`, c'est l'ancre.
-function centerY(at, em, bite) {
+// Un dessin peut imposer sa propre morsure : le slot est réglé pour la pièce type, et les
+// écouteurs doivent tomber au niveau des oreilles, bien plus bas que le bord d'un chapeau.
+function centerY(at, em, drawn) {
+  const bite = drawn?.bite ?? at.bite ?? 0
   const half = em * 50
   if (at.from === 'bottom') return at.y + bite - half // bord bas posé à y + bite
   if (at.from === 'top') return at.y - bite + half    // bord haut posé à y − bite
@@ -144,7 +147,7 @@ function Cosmetic({ slot, worn, at }) {
     const a = { ...at, ...(at.art || {}) }
     const em = sizeOf(drawn, a)
     return (
-      <span className={`fav-slot fav-${slot}`} style={pin(a.x, centerY(a, em, drawn.bite ?? a.bite ?? 0), em)}>
+      <span className={`fav-slot fav-${slot}`} style={pin(a.x, centerY(a, em, drawn), em)}>
         <Art node={drawn.node} />
       </span>
     )
@@ -159,7 +162,7 @@ function Cosmetic({ slot, worn, at }) {
   // — un casque audio, une paire de chaussures — ne tient pas au même endroit qu'un nœud
   // papillon. C'est là qu'on rattrape un emoji qui remplit toute sa boîte.
   const em = sizeOf(drawn, at)
-  const y = centerY(at, em, drawn?.bite ?? at.bite ?? 0)
+  const y = centerY(at, em, drawn)
   const glyph = drawn?.emoji || emoji
   const draw = (x, mirror) => (
     <span key={x} style={pin(x, y, em)}

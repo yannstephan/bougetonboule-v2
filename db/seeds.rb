@@ -143,6 +143,28 @@ Cosmetic.create!([
     emoji: "💨",              cosmetic_set: dimanche }
 ])
 
+# Deuxième panoplie, un cran au-dessus : rare (250 💎 la pièce). Elle donne un objectif de
+# collection à qui a déjà tout le rayon commun. Cinq pièces sur six sont dessinées — un
+# plongeur, ça ne se raconte pas avec des emojis posés à plat.
+plongeur = CosmeticSet.create!(
+  name: "Le plongeur",
+  description: "Palmes, masque et tuba. Il ne court pas vite, mais il ne s'essouffle jamais."
+)
+Cosmetic.create!([
+  { name: "Bonnet de bain",    slot: "hat",      rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "swim_cap",     cosmetic_set: plongeur },
+  { name: "Masque et tuba",    slot: "eyes",     rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "dive_mask",    cosmetic_set: plongeur },
+  { name: "Manomètre",         slot: "neck",     rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "dive_gauge",   cosmetic_set: plongeur },
+  { name: "Lampe de plongée",  slot: "hands",    rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "dive_light",   cosmetic_set: plongeur },
+  { name: "Palmes",            slot: "shoes",    rarity: "rare", price_diamonds: 250, source: "shop",
+    art: "flippers",     cosmetic_set: plongeur },
+  { name: "Banc de poissons",  slot: "aura",     rarity: "rare", price_diamonds: 250, source: "shop",
+    emoji: "🐠",         cosmetic_set: plongeur }
+])
+
 puts "Objets (power-ups)…"
 # Prix calibrés sur les données de la saison v1 (~10 🍑/semaine pour un actif médian).
 # Le booster n'est plus un objet : c'est la jauge de meute (PackLevelJob), gagnée en courant.
