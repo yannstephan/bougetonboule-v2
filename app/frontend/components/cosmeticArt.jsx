@@ -570,11 +570,11 @@ const GhostSheet = ({ cloth = '#f7f9fd', fold = '#d9e1ec', hole = '#2b2f3a' }) =
 // parasol. Bottom-flush comme tout ce qui se pose sur le crâne.
 const BeachCap = () => (
   <g>
-    <path d="M6 96 Q6 30 50 30 Q94 30 94 96 Z" fill="#4a7fd1" />
-    <path d="M50 30 L6 96 L28 96 Z" fill="#e23b54" />
-    <path d="M50 30 L39 96 L61 96 Z" fill="#f2b100" />
-    <path d="M50 30 L72 96 L94 96 Z" fill="#3aa76d" />
-    <circle cx="50" cy="28" r="7" fill="#f4f7fd" />
+    <path d="M6 96 Q6 46 50 46 Q94 46 94 96 Z" fill="#4a7fd1" />
+    <path d="M50 46 L6 96 L28 96 Z" fill="#e23b54" />
+    <path d="M50 46 L39 96 L61 96 Z" fill="#f2b100" />
+    <path d="M50 46 L72 96 L94 96 Z" fill="#3aa76d" />
+    <circle cx="50" cy="44" r="6.5" fill="#f4f7fd" />
   </g>
 )
 
@@ -835,7 +835,7 @@ export const COSMETIC_ART = {
   ghost_sheet: { view: '8 2 86 92', fit: 1.6, minEm: 0.85, maxEm: 1.02, from: 'center', dy: 30,
                  node: <GhostSheet /> },
   // — Panoplie du plagiste —
-  beach_cap: { view: '4 19 94 79', fit: 1.0, bite: 16, node: <BeachCap /> },
+  beach_cap: { view: '4 35 94 63', fit: 1.0, bite: 16, node: <BeachCap /> },
   beach_shades: { view: '0 32 100 34', fit: 0.95, node: <BeachShades /> },
   swim_shorts: { view: '8 20 84 40', fit: 1.05, bite: 30, node: <SwimShorts /> },
   beach_arms: { view: '0 40 100 60', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
