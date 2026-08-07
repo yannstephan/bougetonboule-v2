@@ -353,6 +353,27 @@ const Garland = () => (
   </g>
 )
 
+// Bras de manteau et moufles. Même construction que les bras de combinaison du plongeur :
+// le dessin contient les DEUX bras (`pair`) et passe DERRIÈRE le fruit (`back`), donc
+// l'épaule est masquée par le corps et seul l'avant-bras ressort.
+// ⚠️ Les moufles se tiennent PRÈS du corps : posées plus bas et plus au large, elles se
+// lisaient comme deux pommes flottant à côté du fruit. Le revers de fourrure fait la
+// jonction — sans lui, la manche verte et la moufle rouge paraissaient décollées.
+const XmasArms = () => (
+  <g>
+    <path d="M44 44 L27 57 L16 72" fill="none" stroke="#1f5b3a" strokeWidth="14"
+          strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M56 44 L73 57 L84 72" fill="none" stroke="#1f5b3a" strokeWidth="14"
+          strokeLinecap="round" strokeLinejoin="round" />
+    <ellipse cx="12" cy="80" rx="10" ry="11" fill="#c0182f" />
+    <ellipse cx="3" cy="74" rx="5" ry="6" fill="#c0182f" />
+    <ellipse cx="88" cy="80" rx="10" ry="11" fill="#c0182f" />
+    <ellipse cx="97" cy="74" rx="5" ry="6" fill="#c0182f" />
+    <ellipse cx="18" cy="70" rx="9" ry="6" fill="#f4f7fd" transform="rotate(-42 18 70)" />
+    <ellipse cx="82" cy="70" rx="9" ry="6" fill="#f4f7fd" transform="rotate(42 82 70)" />
+  </g>
+)
+
 // ————— Accessoires —————
 
 // Maracas croisées. 🪇 n'existe qu'en Unicode 15 (2022) : carré vide sur les vieux
@@ -503,8 +524,8 @@ export const COSMETIC_ART = {
   antlers: { view: '4 28 92 74', fit: 1.0, node: <Antlers /> },
   ski_goggles: { view: '0 28 100 44', fit: 0.9, node: <SkiGoggles /> },
   garland: { view: '0 20 100 40', fit: 0.85, bite: 26, node: <Garland /> },
-  xmas_mitten: { view: '22 24 66 60', em: 0.32,
-                 node: <Mitten body="#c0182f" cuff="#f4f7fd" thumb="#8e1122" /> },
+  xmas_arms: { view: '0 40 100 54', pair: true, back: true, fit: 1.6, minEm: 0.6, maxEm: 1.05,
+               node: <XmasArms /> },
   xmas_boots: { view: '8 25 84 55', pair: true,
                 node: <Pair body="#c0182f" sole="#3f434c" tongue="#f4f7fd" lace="#ffffff" shaft={14} /> },
   bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },

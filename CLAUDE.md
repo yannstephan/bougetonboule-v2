@@ -389,9 +389,9 @@ Ces pièces portent une clé `art` et sont dessinées à plat : `sneakers`/`trai
 et bleu, le nom promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `monocle`,
 `eyepatch`, `visor`, `bowtie`, `bib`, `bandana` ; les quatre du loup (`wolf_ears`, `scar`
 — taille **fixe**, le visage étant le même sur tous les fruits —, `spiked_collar`,
-`wolf_paws`) ; les cinq de Noël, dont **deux ne sont qu'un recoloriage** (`xmas_mitten`,
-`xmas_boots`) — les dessins de la moufle et de la chaussure étant déjà paramétrés, une
-panoplie de plus ne coûte que des couleurs ; les cinq du plongeur (`swim_cap`,
+`wolf_paws`) ; les cinq de Noël, dont `xmas_boots` qui n'est qu'un **recoloriage** de la
+chaussure — le dessin étant déjà paramétré, une panoplie de plus ne coûte que des couleurs —
+et `xmas_arms`, deux bras de manteau à moufles bâtis comme ceux du plongeur ; les cinq du plongeur (`swim_cap`,
 `dive_mask` — vitre **translucide**, un masque opaque effaçait le regard —, `weight_belt`,
 `flippers` qui passent par le même `<Pair />` que les chaussures, `wetsuit_arms`) ; et les
 trois de la panoplie du dimanche :
