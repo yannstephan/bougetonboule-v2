@@ -12,9 +12,9 @@ import boutique from '../assets/nav/boutique.webp'
 // sert tels quels (~5 Ko pièce, 128 px, détourés).
 //
 // ⚠️ Ils portent LEUR PROPRE fond — un écusson crème cerné de blanc, un disque orange pour
-// le combat. La plaque grise des onglets faisait donc doublon et les rapetissait : au repos,
-// l'écusson est SEUL et occupe toute la place (36 px). Seul l'onglet actif reçoit sa plaque
-// indigo, qui devient un vrai contraste au lieu d'un cadre de plus.
+// le combat. Ils se posent quand même sur une plaque : grise au repos, indigo sur l'onglet
+// actif. C'est la plaque qui aligne les cinq destinations ; sans elle, les écussons flottaient
+// sur le blanc de la barre et seul l'onglet actif ressemblait encore à un bouton.
 // ⚠️ Le disque orange du combat est DANS l'image : le bouton n'en dessine plus.
 //
 // Conséquence : ils ne suivent pas la couleur de l'onglet et ne sont pas atténués au repos.

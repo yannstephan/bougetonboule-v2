@@ -140,11 +140,12 @@ body{margin:0;background:var(--bg);color:var(--text);
    à plat, indigo pour l'actif, orange réservé au combat (charte 60-30-10). */
 .nav{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px 13px;
   border-top:1px solid var(--line);background:var(--surface);position:sticky;bottom:0;z-index:10}
-/* ⚠️ Pas de plaque au REPOS : les emblèmes portent leur propre écusson (voir navIcons.jsx),
-   un fond gris par-dessus faisait doublon et les rapetissait. La plaque est réservée à
-   l'onglet actif, où elle devient un vrai contraste au lieu d'un cadre de plus. */
+/* Chaque onglet est une PLAQUE, y compris au repos : un fond gris très doux qui pose les cinq
+   destinations sur la même ligne de base. Sans lui, les écusson flottaient sur le blanc de la
+   barre et l'onglet actif était le seul objet dessiné — on ne lisait plus une barre d'onglets
+   mais une plaque indigo entourée d'autocollants. */
 .nav .n{display:flex;align-items:center;justify-content:center;height:50px;padding:0 7px;
-  border-radius:16px;background:none;color:var(--muted);
+  border-radius:16px;background:var(--surface-2);color:var(--muted);
   transition:background .2s ease,padding .2s ease}
 /* La plaque active : indigo plein, son encre, et un cran plus haut que les autres. */
 .nav .n.on{background:var(--brand);color:var(--brand-ink);padding:0 12px 0 7px;
@@ -181,7 +182,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* La pastille se pose sur le coin de l'écusson : liseré de la couleur de la BARRE au repos,
    de la plaque quand l'onglet est actif. */
 .nav-dot{position:absolute;top:-1px;right:-1px;width:11px;height:11px;border-radius:50%;
-  background:var(--fraise);border:2px solid var(--surface)}
+  background:var(--fraise);border:2px solid var(--surface-2)}
 .nav .n.on .nav-dot{border-color:var(--brand)}
 
 /* Auth */

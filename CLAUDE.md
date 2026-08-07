@@ -947,10 +947,11 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
   pour la même raison : une illustration ne se paramètre pas, et vouloir la refaire en SVG
   revient à la redessiner en moins bien. ~5 Ko pièce, 128 px, détourés.
   ⚠️ Ils portent **leur propre fond** — écusson crème cerné de blanc, disque orange pour le
-  combat. La plaque grise des onglets faisait donc **doublon** et les rapetissait : au repos
-  l'écusson est **seul** et prend toute la place (36 px), et **seul l'onglet actif** reçoit sa
-  plaque indigo, qui devient un vrai contraste au lieu d'un cadre de plus. Le disque orange du
-  combat étant dans l'image, le bouton ne le dessine plus.
+  combat — et se posent quand même sur une **plaque** : `--surface-2` au repos, **indigo** sur
+  l'onglet actif. C'est la plaque qui aligne les cinq destinations ; sans elle les écussons
+  flottaient sur le blanc de la barre et l'onglet actif était le seul objet encore dessiné —
+  on ne lisait plus une barre d'onglets mais une plaque indigo entourée d'autocollants. Le
+  disque orange du combat étant dans l'image, le bouton ne le dessine plus.
   ⚠️ **Le ⚔️ déborde par le haut** : plus gros que les autres (60 px contre 36) et remonté de
   14 px, il **coupe le filet supérieur de la barre**. C'est ce qui le sort du rang — un CTA
   permanent ne se range pas dans la file, il se pose dessus. Le débord se fait au `translate`,
