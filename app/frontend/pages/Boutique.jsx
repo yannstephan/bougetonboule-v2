@@ -1,6 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import BottomNav from '../components/BottomNav'
+import AuraBackground from '../components/AuraBackground'
 import PlayerAvatar from '../components/PlayerAvatar'
 import BuyConfirm from '../components/BuyConfirm'
 import { CosmeticIcon } from '../components/cosmeticArt'
@@ -119,7 +120,12 @@ function Cosmetics({ cosmetics, seasonal = [], sets = [], diamonds, onBuy, avata
     <>
       {avatar?.fruit && (
         <div className="av-sticky">
-          <div className="av-stage"><PlayerAvatar avatar={preview} size={132} /></div>
+          {/* Essayer une AURA change le fond de la cabine, pas l'avatar : c'est là que
+              l'aura vit maintenant (voir AuraBackground). */}
+          <div className="av-stage">
+            <AuraBackground aura={preview?.cosmetics?.aura} local />
+            <PlayerAvatar avatar={preview} size={132} />
+          </div>
           <div className="shop-try">
             {worn.length === 0
               ? <span className="shop-try-hint">Touche une pièce pour l'essayer sur ton fruit.</span>

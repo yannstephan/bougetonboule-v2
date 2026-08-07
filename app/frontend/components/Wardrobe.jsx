@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import AuraBackground from './AuraBackground'
 import PlayerAvatar from './PlayerAvatar'
 import { CosmeticIcon } from './cosmeticArt'
 
@@ -24,7 +25,13 @@ export default function Wardrobe({ avatar, cosmetics, slots, onToggle }) {
   return (
     <>
       <div className="av-sticky">
-        <div className="av-stage"><PlayerAvatar avatar={avatar} size={132} /></div>
+        {/* L'aura ne se pose plus sur l'avatar mais sur le fond : l'aperçu en montre donc
+            une version bornée, sinon équiper une aura ne se verrait qu'après avoir quitté
+            l'armoire (voir AuraBackground). */}
+        <div className="av-stage">
+          <AuraBackground aura={avatar?.cosmetics?.aura} local />
+          <PlayerAvatar avatar={avatar} size={132} />
+        </div>
         <div className="av-tabs">
           {slots.map((key) => (
             <button key={key} className={`av-tab ${active === key ? 'on' : ''}`} onClick={() => setTab(key)}>

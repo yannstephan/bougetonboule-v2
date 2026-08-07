@@ -315,7 +315,6 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* pièces dessinées (cosmeticArt.jsx) : un SVG à la place du glyphe emoji */
 .fav-art{display:block;width:1em;height:1em;overflow:visible}
 .cos-art{display:block;width:1em;height:1em}
-.fav-aura{z-index:0;opacity:.5}
 .fav-shoes{z-index:2}
 .fav-sidekick{z-index:2}
 .fav-hands{z-index:3}
@@ -326,6 +325,23 @@ body{margin:0;background:var(--bg);color:var(--text);
    passe « devant » du composant, mais son z-index la fait repasser sous .fav-svg (1).
    Après les .fav-<slot> : à spécificité égale, c'est la dernière règle qui gagne. */
 .fav-behind{z-index:0}
+
+/* Fond de page « aura » (components/AuraBackground.jsx) : les motifs de l'aura équipée,
+   semés sur tout l'écran. C'est ce que l'aura est devenue — en couronne derrière l'avatar,
+   elle était condensée et on ne pouvait pas l'élargir sans sortir du cadre.
+   ⚠️ `z-index:-1` et non `0` : une couche positionnée à 0 passerait PAR-DESSUS le contenu
+   en flux normal. À -1, elle se glisse entre le fond du body et le contenu de `.shell`.
+   Elle est donc montée en FRÈRE de `.hud`, jamais dedans : `.hud` est collé avec un
+   z-index, il crée un contexte d'empilement dont on ne peut plus passer sous le contenu.
+   Très pâle : c'est une ambiance, pas un décor — le texte doit rester lisible par-dessus,
+   et la charte 60-30-10 tient parce que ce fond ne porte aucune couleur d'interface. */
+.aura-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;opacity:.12}
+.aura-motif{position:absolute;line-height:1}
+.aura-glyph{display:block}
+/* Variante bornée à son conteneur, plus franche : l'essayage d'une aura dans la cabine ou
+   l'armoire, là où le fond du site n'a pas encore changé. */
+.aura-bg.local{position:absolute;z-index:0;opacity:.35;border-radius:inherit}
+@media (prefers-color-scheme:dark){.aura-bg{opacity:.16}}
 
 /* monstres SVG */
 .mon{position:relative;display:inline-grid;place-items:center;flex:none;line-height:1}
@@ -387,8 +403,11 @@ body{margin:0;background:var(--bg);color:var(--text);
    fouille un rayon — on juge le rendu sans faire l'aller-retour avec le haut de page. */
 .av-sticky{position:sticky;top:var(--hud-h);z-index:5;margin:-14px -14px 0;padding:14px 14px 8px;
   background:var(--bg);display:flex;flex-direction:column;gap:10px}
-.av-stage{display:grid;place-items:center;padding:16px 0;background:var(--surface-2);
-  border:1px solid var(--line);border-radius:var(--r)}
+/* `position:relative` + `overflow:hidden` : l'aperçu porte le fond d'aura essayée, borné
+   à son cadre (.aura-bg.local). */
+.av-stage{position:relative;overflow:hidden;display:grid;place-items:center;padding:16px 0;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r)}
+.av-stage .fav{position:relative;z-index:1}
 .av-tabs{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .av-tabs::-webkit-scrollbar{display:none}
 .av-tab{position:relative;flex:none;background:var(--surface);border:1px solid var(--line);

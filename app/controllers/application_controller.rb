@@ -21,9 +21,20 @@ class ApplicationController < ActionController::Base
       chat_unread: current_membership&.unread_messages_count || 0,
       # Pastille de l'onglet 🎒 : du nouveau dans le sac (aujourd'hui, un coffre scellé).
       inventory_alert: current_membership&.chests&.sealed&.count || 0,
+      # L'aura équipée peint le FOND de toutes les pages (voir AuraBackground) : elle est
+      # donc partagée comme le solde de 🍑, et non servie écran par écran. Une page peut la
+      # remplacer en servant `page_aura` — c'est ce que fait le profil d'un joueur.
+      aura: aura_json(current_user),
       flash: { notice: flash.notice, alert: flash.alert, chest: flash[:chest] }
     }
   end
+
+  # L'aura d'un joueur, telle que le fond de page la consomme. `nil` = pas d'aura, pas de fond.
+  def aura_json(user)
+    piece = user&.user_cosmetics&.includes(:cosmetic)&.find { |uc| uc.equipped && uc.cosmetic.slot == "aura" }
+    piece && { emoji: piece.cosmetic.emoji, art: piece.cosmetic.art }
+  end
+  helper_method :aura_json
 
   private
 

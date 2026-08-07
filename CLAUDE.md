@@ -339,10 +339,28 @@ toutes les pièces trop bas (lunettes sous les yeux, gants au menton). La classe
 remonte le glyphe de `.115em` de sa propre taille ; les dessins SVG, déjà centrés dans leur
 viewBox, n'y touchent pas.
 
-L'**aura** est une couronne de 6 petits emojis **derrière** le fruit (`z-index` 0 < `.fav-svg`),
-assez rapprochée (rayon 33) pour que la silhouette en masque une partie, et translucide (`.5`) —
-un seul gros emoji avalait l'avatar, une couronne trop large flottait à côté au lieu d'être
-derrière. Sous **44 px** (chat, ligue, listes) seuls aura/lunettes/chapeau sont rendus — sinon
+⚠️ **L'aura n'est plus sur l'avatar : elle peint le FOND DE PAGE**
+(`components/AuraBackground.jsx`). C'était une couronne de 6 emojis derrière le fruit, et elle
+étouffait : dans un cadre de taille fixe on ne peut pas l'élargir sans la faire sortir du cadre.
+Une aura veut de la place, la page en a, l'avatar non. Le slot `aura` n'a pas bougé, seul son
+rendu a changé — c'est toujours un cosmétique qu'on achète et qu'on équipe.
+- **Pour soi** : l'aura équipée est partagée par `inertia_share` (comme le solde de 🍑) et
+  montée par le **Hud**, qui est sur toutes les pages — un écran nouveau n'a rien à déclarer.
+- **Chez les autres** : le profil d'un joueur sert `page_aura`, qui **prime**. Cliquer sur
+  quelqu'un, c'est entrer chez lui, et son aura donne l'ambiance à sa page. ⚠️ Un joueur sans
+  aura sert `page_aura: null` **explicitement** : c'est ce nil qui efface la mienne, sinon on
+  verrait la sienne par défaut (garde `pageAura !== undefined`, verrouillée par un test).
+- ⚠️ Le fond est un **frère** de `.hud`, jamais son enfant : `.hud` est collé avec un z-index,
+  donc tout ce qu'on y mettrait passerait par-dessus le contenu. Et il est en **`z-index:-1`**,
+  pas 0 — une couche positionnée à 0 passe par-dessus le contenu en flux normal ; à -1 elle se
+  glisse entre le fond du `body` et le contenu de `.shell`.
+- Semis **déterministe** : grille décalée d'une demi-case une ligne sur deux, plus un déport et
+  une inclinaison par motif. En grille pure c'était du papier millimétré ; au hasard, les motifs
+  se regroupaient en paquets. Très pâle (12 %) : c'est une ambiance, pas un décor.
+- La **cabine d'essai** et l'**armoire** en montrent une version bornée à l'aperçu
+  (`.aura-bg.local`) — sans ça, essayer une aura ne se verrait qu'après avoir quitté l'écran.
+
+Sous **44 px** (chat, ligue, listes) seuls lunettes et chapeau sont rendus sur l'avatar — sinon
 c'est une bouillie d'emojis.
 **Emoji par défaut, SVG quand l'emoji ne peut pas** (`cosmetics.art` → `components/cosmeticArt.jsx`) :
 trois familles d'emojis ne marchent pas sur un avatar-fruit —

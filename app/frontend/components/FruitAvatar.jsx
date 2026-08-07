@@ -19,24 +19,17 @@ import { artFor } from './cosmeticArt'
 // pose sur la figure, quel que soit le fruit.
 const EYE_LINE = 52
 
-const BACK_SLOTS = ['aura']
-const FRONT_SLOTS = ['shoes', 'sidekick', 'hands', 'neck', 'eyes', 'hat']
-
-// L'aura vit DERRIÈRE le fruit : une couronne de petits emojis, assez rapprochée pour que
-// la silhouette en cache une partie (z-index 0 < .fav-svg), et translucide. Un seul gros
-// emoji avalait l'avatar ; une couronne trop large flottait à côté au lieu d'être derrière.
-const AURA_RADIUS = 33
-const AURA_ANGLES = [-155, -120, -60, -25, 25, 155] // symétriques, hors de l'axe vertical
-const AURA_HALO = AURA_ANGLES.map((deg) => {
-  const rad = (deg * Math.PI) / 180
-  return [50 + AURA_RADIUS * Math.cos(rad), EYE_LINE + 2 + AURA_RADIUS * Math.sin(rad)]
-})
+// ⚠️ L'aura n'est PLUS ICI. C'était une couronne de six emojis derrière le fruit, et elle
+// étouffait : dans un cadre de taille fixe on ne peut pas l'élargir sans la faire sortir du
+// cadre. Elle est devenue le FOND DE PAGE (components/AuraBackground.jsx) — une aura veut de
+// la place, la page en a, l'avatar non. Le slot `aura` existe toujours, seul son rendu a changé.
+const SLOTS = ['shoes', 'sidekick', 'hands', 'neck', 'eyes', 'hat']
 
 // En dessous de cette taille (chat, ligue, listes), l'avatar ne fait plus que quelques
 // dizaines de pixels : on n'y garde que les pièces lisibles, sinon c'est une bouillie
 // d'emojis. Le rendu complet reste sur le Hub et l'écran avatar.
 const COMPACT_BELOW = 44
-const COMPACT_SLOTS = ['aura', 'eyes', 'hat']
+const COMPACT_SLOTS = ['eyes', 'hat']
 
 // Ancres en unités du viewBox (0-100). `em` = taille relative à l'avatar, `spread` = écart
 // symétrique pour les paires (gants, chaussures).
@@ -103,20 +96,16 @@ function sizeOf(drawn, at) {
 export default function FruitAvatar({ fruit, size = 96, cosmetics = {}, showCosmetics = true, face = true }) {
   const p = fruitParams(fruit)
   const at = anchors(fruitBox(fruit))
-  const worn = (slots) => {
-    if (!showCosmetics) return []
-    const kept = size < COMPACT_BELOW ? slots.filter((s) => COMPACT_SLOTS.includes(s)) : slots
-    return kept.filter((s) => cosmetics[s])
-  }
+  const kept = showCosmetics ? (size < COMPACT_BELOW ? SLOTS.filter((s) => COMPACT_SLOTS.includes(s)) : SLOTS) : []
+  const worn = kept.filter((s) => cosmetics[s])
 
   return (
     <span className="fav" style={{ width: size, height: size, fontSize: size }}>
-      {worn(BACK_SLOTS).map((s) => <Cosmetic key={s} slot={s} worn={cosmetics[s]} at={at[s]} />)}
       <svg viewBox="0 0 100 100" className="fav-svg" role="img" aria-label={fruit || 'fruit'}>
         <Body p={p} />
         {face && <Face />}
       </svg>
-      {worn(FRONT_SLOTS).map((s) => <Cosmetic key={s} slot={s} worn={cosmetics[s]} at={at[s]} />)}
+      {worn.map((s) => <Cosmetic key={s} slot={s} worn={cosmetics[s]} at={at[s]} />)}
     </span>
   )
 }
@@ -128,17 +117,6 @@ function Cosmetic({ slot, worn, at }) {
   const { emoji, art } = typeof worn === 'string' ? { emoji: worn } : (worn || {})
   const drawn = artFor(art)
 
-  if (slot === 'aura') {
-    const glyph = drawn?.emoji || emoji
-    const em = drawn?.em || 0.22
-    return (
-      <>
-        {AURA_HALO.map(([x, y], i) => (
-          <span key={i} className="fav-slot fav-glyph fav-aura" style={pin(x, y, em)}>{glyph}</span>
-        ))}
-      </>
-    )
-  }
   if (!at) return null
 
   // Un dessin `pair` contient déjà les deux pièces (les chaussures de face) : il occupe

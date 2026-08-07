@@ -24,6 +24,9 @@ class ProfilesController < ApplicationController
         team: { name: m.team.name, color: m.team.color, family: m.team.fruit_family },
         is_me: m.user_id == current_user.id
       },
+      # Entrer sur le profil de quelqu'un, c'est entrer chez lui : c'est SON aura qui peint
+      # le fond, pas la nôtre (voir AuraBackground). `page_aura` prime sur l'aura partagée.
+      page_aura: aura_json(m.user),
       # Pas de solde de 🍑 ici : la réserve d'un joueur ne se voit que sur sa propre page d'accueil.
       stats: {
         total_km: (scoring.sum(&:distance_meters) / 1000.0).round(1),
