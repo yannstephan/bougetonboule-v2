@@ -185,7 +185,9 @@ function Cosmetics({ cosmetics, seasonal = [], sets = [], diamonds, onBuy, avata
 // son propre fruit — la question devant un rayon de panoplies est « est-ce que ça me va ? »,
 // pas « combien coûte ce chapeau ». Le compteur et le reste à payer suffisent au reste.
 // L'aperçu est monté exactement comme la cabine d'essai : mêmes pièces posées sur le même
-// avatar, aucun aller-retour serveur.
+// avatar, aucun aller-retour serveur. Et le FOND de la carte porte l'aura de la panoplie —
+// c'est la seule façon de la montrer, puisqu'elle ne se pose pas sur l'avatar mais derrière
+// l'écran : la carte donne donc à voir la tenue ET son décor, d'un coup.
 function SetCard({ set, avatar, onOpen }) {
   const owned = set.pieces.filter((p) => p.owned).length
   const done = owned === set.pieces.length
@@ -200,6 +202,7 @@ function SetCard({ set, avatar, onOpen }) {
 
   return (
     <button type="button" className={`shop-set-card rar-tint rar-${set.rarity}`} onClick={onOpen}>
+      <AuraBackground aura={set.reward} local />
       <span className="shop-set-look">
         <PlayerAvatar avatar={worn} size={96} />
       </span>

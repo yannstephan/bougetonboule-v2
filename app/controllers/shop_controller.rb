@@ -72,8 +72,10 @@ class ShopController < ApplicationController
       { id: set.id, name: set.name, description: set.description, rarity: pieces.first.rarity,
         days_left:,
         promo: set.promo? ? { percent: set.promo_percent, days_left: set.promo_days_left } : nil,
+        # `rarity` : la carte de la panoplie peint son aura en fond, et seules les épiques
+        # et légendaires y dérivent (voir AuraBackground).
         reward: aura && { name: aura.name, emoji: aura.emoji, art: aura.art,
-                          owned: owned.include?(aura.id) },
+                          rarity: aura.rarity, owned: owned.include?(aura.id) },
         pieces: serialize_cosmetics(pieces) }
     end
   end

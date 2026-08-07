@@ -691,7 +691,9 @@ le compteur (`3/6`), ce qu'il reste à payer, et la promo ou le compte à rebour
 **Les pièces et leurs boutons d'achat n'apparaissent qu'une fois la panoplie ouverte**, avec un
 bouton **« Tout essayer »** qui pose l'ensemble dans la cabine d'un coup. L'aperçu de la carte
 est monté exactement comme la cabine d'essai (mêmes pièces sur le même avatar) : **aucun
-aller-retour serveur**. Les pièces hors panoplie gardent leur grille, sous « À la pièce ».
+aller-retour serveur**. Et le **fond de la carte porte l'aura** de la panoplie — c'est la seule
+façon de la montrer, puisqu'elle ne se pose pas sur l'avatar mais derrière l'écran : la carte
+donne donc à voir la tenue **et son décor**, d'un coup. Les pièces hors panoplie gardent leur grille, sous « À la pièce ».
 Ses pièces sont **exclues** du rayon permanent et du rayon de saison — une pièce n'apparaît
 que dans un rayon, et sa panoplie prime. Neuf panoplies au seed :
 **Coureur du dimanche** (6 pièces **communes** à 100 💎 — écouteurs, serviette éponge,

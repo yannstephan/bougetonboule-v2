@@ -703,9 +703,14 @@ body{margin:0;background:var(--bg);color:var(--text);
    d'achat n'apparaissent qu'une fois entré. Deux colonnes : à trois, l'aperçu devenait trop
    petit pour qu'on juge la tenue, ce qui est tout l'intérêt de la carte. */
 .shop-sets{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.shop-set-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;
-  border-width:1.5px;border-style:solid;border-radius:var(--r);padding:10px 8px 11px;
-  font:inherit;color:inherit;cursor:pointer;text-align:center}
+.shop-set-card{position:relative;overflow:hidden;display:flex;flex-direction:column;
+  align-items:center;gap:4px;border-width:1.5px;border-style:solid;border-radius:var(--r);
+  padding:10px 8px 11px;font:inherit;color:inherit;cursor:pointer;text-align:center}
+/* ⚠️ Le fond d'aura est POSITIONNÉ : sans z-index sur le contenu, il passerait par-dessus
+   les enfants en flux normal, qui se peignent avant les éléments positionnés. */
+.shop-set-card .shop-set-look,.shop-set-card .shop-set-name,.shop-set-card .shop-set-meta{
+  position:relative;z-index:1}
+.shop-set-card .shop-promo,.shop-set-card .shop-set-left{z-index:1}
 .shop-set-look{display:grid;place-items:center;height:96px}
 .shop-set-name{font-weight:800;font-size:12px;line-height:1.2}
 .shop-set-meta{display:flex;align-items:center;gap:7px;font-size:11px}
