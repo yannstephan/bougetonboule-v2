@@ -54,17 +54,17 @@ const COMPACT_SLOTS = ['aura', 'eyes', 'hat']
 function anchors({ top, bottom, half, hatX }) {
   const side = Math.max(half, 22) + 2 // les gants ne remontent jamais sur les joues
   return {
-    hat: { x: hatX, y: top, em: 0.36, from: 'bottom', bite: 14 },
-    eyes: { x: 50, y: EYE_LINE + 2, em: 0.34 },
+    hat: { x: hatX, y: top, em: 0.36, from: 'bottom', bite: 14, half },
+    eyes: { x: 50, y: EYE_LINE + 2, em: 0.34, half },
     // suspendu à la base du fruit : plus la pièce est grande, plus elle pend — elle ne
     // remonte jamais en plein ventre, là où on attend un cou.
-    neck: { x: 50, y: Math.min(bottom, 88), em: 0.2, from: 'top', bite: 17 },
-    hands: { x: 50, y: EYE_LINE + 6, em: 0.22, spread: side },
+    neck: { x: 50, y: Math.min(bottom, 88), em: 0.2, from: 'top', bite: 17, half },
+    hands: { x: 50, y: EYE_LINE + 6, em: 0.22, spread: side, half },
     // `art` : une paire dessinée est bien plus large qu'un emoji, elle a sa propre ancre.
-    shoes: { x: 50, y: Math.min(bottom + 4, 91), em: 0.22, spread: 10,
+    shoes: { x: 50, y: Math.min(bottom + 4, 91), em: 0.22, spread: 10, half,
              art: { y: Math.min(bottom + 3, 89), em: 0.38 } },
     // en bas à droite, sous les gants et à l'écart des chaussures (qui restent centrées)
-    sidekick: { x: Math.min(Math.max(50 + half + 10, 75), 85), y: bottom - 5, em: 0.26 },
+    sidekick: { x: Math.min(Math.max(50 + half + 10, 75), 85), y: bottom - 5, em: 0.26, half },
   }
 }
 
@@ -74,6 +74,27 @@ function centerY(at, em, bite) {
   if (at.from === 'bottom') return at.y + bite - half // bord bas posé à y + bite
   if (at.from === 'top') return at.y - bite + half    // bord haut posé à y − bite
   return at.y
+}
+
+// Taille de la pièce.
+// ⚠️ Une pièce LARGE — celle qui doit épouser la tête, casque, visière, bandana, chapeau à
+// bord — ne peut pas avoir une taille fixe : mesurés au pixel, les fruits vont de 12 (papaye)
+// à 30 (durian) de demi-largeur, un rapport de 2,5×. Un casque calibré pour un fruit rond
+// déborde de 8 unités de chaque côté sur une mangue.
+// Elle déclare donc `fit` = sa largeur en MULTIPLE de celle du fruit (1 = exactement la
+// tête, 1.1 = 10 % de plus, .77 = un peu plus étroit), et le calcul suit la silhouette.
+// Les bornes évitent les deux extrêmes : sans plancher, la papaye recevrait un casque de
+// 7 px sur un avatar de 132 — proportionné, mais illisible, et invisible en 44 px.
+// Tout ce qui se pose À CÔTÉ (gourde, aura) ou d'un seul côté garde une taille fixe :
+// un objet posé près du fruit n'a aucune raison de suivre sa largeur.
+const FIT_MIN = 0.3
+const FIT_MAX = 0.7
+
+function sizeOf(drawn, at) {
+  if (drawn?.fit == null) return drawn?.em || at.em
+
+  const headWidth = (at.half * 2) / 100
+  return Math.min(Math.max(headWidth * drawn.fit, drawn.minEm ?? FIT_MIN), drawn.maxEm ?? FIT_MAX)
 }
 
 export default function FruitAvatar({ fruit, size = 96, cosmetics = {}, showCosmetics = true, face = true }) {
@@ -121,7 +142,7 @@ function Cosmetic({ slot, worn, at }) {
   // toute la largeur, garde l'ancre dédiée du slot (`at.art`) et n'est jamais dupliqué.
   if (drawn?.pair) {
     const a = { ...at, ...(at.art || {}) }
-    const em = drawn.em || a.em
+    const em = sizeOf(drawn, a)
     return (
       <span className={`fav-slot fav-${slot}`} style={pin(a.x, centerY(a, em, drawn.bite ?? a.bite ?? 0), em)}>
         <Art node={drawn.node} />
@@ -133,11 +154,11 @@ function Cosmetic({ slot, worn, at }) {
   // ⚠️ La pièce doit représenter UN bras : 🧤 et 🐾 sont déjà des paires et en donnaient
   // quatre — d'où les dessins `mitten` et `paw`. Un emoji-paire dans un slot symétrique
   // est un bug de contenu. `single` = la pièce ne se porte que d'un côté (une baguette).
-  // ⚠️ Une pièce peut imposer SA taille et SA morsure (`em`, `bite` dans le registre des
-  // dessins) : le réglage du slot est calibré pour une pièce moyenne, et une forme large
+  // ⚠️ Une pièce peut imposer SA taille et SA morsure (`em`/`fit`, `bite` dans le registre
+  // des dessins) : le réglage du slot est calibré pour une pièce moyenne, et une forme large
   // — un casque audio, une paire de chaussures — ne tient pas au même endroit qu'un nœud
   // papillon. C'est là qu'on rattrape un emoji qui remplit toute sa boîte.
-  const em = drawn?.em || at.em
+  const em = sizeOf(drawn, at)
   const y = centerY(at, em, drawn?.bite ?? at.bite ?? 0)
   const glyph = drawn?.emoji || emoji
   const draw = (x, mirror) => (

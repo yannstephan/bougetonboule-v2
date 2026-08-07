@@ -310,6 +310,20 @@ bras** (y = 58) — pas la largeur maximale, et pas l'écart entre les deux pixe
 Même principe que les planches de monstres : **vérifier par la mesure**. Re-mesurer après toute
 retouche d'une silhouette.
 
+⚠️ **Une pièce LARGE épouse la tête, elle n'a pas de taille fixe** (`fit` dans `COSMETIC_ART`,
+`sizeOf()` dans `FruitAvatar`). Mesurés au pixel, les fruits vont de **12 (papaye) à 30 (durian)**
+de demi-largeur — un rapport de **2,5×** : un casque calibré pour un fruit rond débordait de
+8 unités de chaque côté sur une mangue. `fit` exprime la largeur en **multiple de celle du
+fruit** (`1` = exactement la tête, `1.1` = 10 % de plus pour un casque dont les écouteurs se
+posent sur les côtés, `.77` pour un haut-de-forme un peu plus étroit), bornée par
+`FIT_MIN`/`FIT_MAX` — sans plancher, la papaye recevrait un casque de 7 px sur un avatar de
+132, proportionné mais illisible, et invisible à 44 px. Les valeurs de `fit` des pièces
+existantes sont calées pour **redonner leur taille d'avant sur un fruit rond** (demi-largeur 30),
+celui sur lequel elles avaient été réglées : seuls les fruits étroits changent.
+Réservé aux pièces larges (casque, visière, bandana, serviette, chapeaux à bord) : tout ce qui
+se pose **à côté** — gourde, aura, accessoire — garde une taille fixe, un objet posé près du
+fruit n'ayant aucune raison de suivre sa largeur.
+
 ⚠️ **Ancrage par le BORD, pas par le centre** (`from` + `bite` dans `anchors()`). `from: 'bottom'`
 pose le bord **bas** de la pièce à `y + bite`, `from: 'top'` son bord **haut** à `y − bite`.
 C'est ce qui fait tenir les **grosses pièces** : centré sur le même point, un casque audio

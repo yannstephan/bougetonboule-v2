@@ -281,21 +281,28 @@ export const COSMETIC_ART = {
   maracas: { view: '9 9 82 85', em: 0.3, node: <Maracas /> },
   paw: { view: '18 20 66 60', em: 0.3, node: <Paw color="#6c5ce7" pad="#a99bff" /> },
   wand: { single: true, em: 0.28, emoji: '🪄' },
-  gold_hat: { view: '12 16 76 64', em: 0.46, node: <GoldHat /> },
+  // ⚠️ `fit` au lieu de `em` = la pièce épouse la TÊTE (voir sizeOf dans FruitAvatar) : sa
+  // largeur est un multiple de celle du fruit. Réservé aux pièces LARGES — celles dont on
+  // voit tout de suite qu'elles dépassent quand la tête est étroite. Les valeurs sont
+  // calées pour redonner la taille d'aujourd'hui sur un fruit rond (demi-largeur 30), celui
+  // sur lequel chaque dessin avait été réglé : seuls les fruits étroits changent.
+  gold_hat: { view: '12 16 76 64', fit: 0.77, node: <GoldHat /> },
   eyepatch: { view: '0 20 100 50', em: 0.34, node: <EyePatch /> },
-  visor: { view: '2 29 96 39', em: 0.34, node: <Visor /> },
+  visor: { view: '2 29 96 39', fit: 0.57, node: <Visor /> },
   bib: { view: '17 22 66 57', em: 0.26, node: <Bib /> },
-  bandana: { view: '10 26 80 62', em: 0.3, node: <Bandana /> },
+  bandana: { view: '10 26 80 62', fit: 0.5, node: <Bandana /> },
   mitten: { view: '22 24 66 60', em: 0.32, node: <Mitten body="#5f8cbb" cuff="#ff7a59" thumb="#41668f" /> },
   // `bite` : les écouteurs doivent tomber au niveau des oreilles, bien plus bas que le bord
   // d'un chapeau — c'est tout l'intérêt d'un réglage PAR PIÈCE (voir FruitAvatar).
-  headphones: { view: '0 26 100 62', em: 0.62, bite: 40, node: <Headphones /> },
+  // 1.1 : les écouteurs se posent SUR les côtés de la tête, ils doivent donc la dépasser
+  // un peu. Plancher relevé à .38 — en dessous on ne reconnaît plus un casque.
+  headphones: { view: '0 26 100 62', fit: 1.1, minEm: 0.38, bite: 40, node: <Headphones /> },
   armband: { view: '12 12 76 76', em: 0.26, single: true, node: <ArmBand /> },
-  towel: { view: '4 10 92 72', em: 0.5, bite: 29, node: <Towel /> },
+  towel: { view: '4 10 92 72', fit: 0.83, bite: 29, node: <Towel /> },
   bowtie: { view: '10 24 80 52', em: 0.26, node: <BowTie /> },
-  cowboy_hat: { view: '8 30 84 52', em: 0.46, node: <CowboyHat /> },
-  santa_hat: { view: '18 22 79 62', em: 0.46, node: <SantaHat /> },
-  bucket_hat: { view: '10 34 80 48', em: 0.44, node: <BucketHat /> },
+  cowboy_hat: { view: '8 30 84 52', fit: 0.77, node: <CowboyHat /> },
+  santa_hat: { view: '18 22 79 62', fit: 0.77, node: <SantaHat /> },
+  bucket_hat: { view: '10 34 80 48', fit: 0.73, node: <BucketHat /> },
   monocle: { view: '51 21 50 75', em: 0.44, node: <Monocle /> },
 }
 
