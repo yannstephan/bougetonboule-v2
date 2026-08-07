@@ -138,7 +138,7 @@ body{margin:0;background:var(--bg);color:var(--text);
    se réduisent à leur icône. C'est la barre de Clash of Clans — on lit d'un coup où l'on est,
    sans que cinq mots se disputent la largeur d'un téléphone. Mais le rendu reste le nôtre :
    à plat, indigo pour l'actif, orange réservé au combat (charte 60-30-10). */
-.nav{display:flex;align-items:center;gap:4px;padding:8px 6px 13px;
+.nav{display:flex;align-items:center;gap:3px;padding:8px 6px 13px;
   border-top:1px solid var(--line);background:var(--surface);position:sticky;bottom:0;z-index:10}
 /* ⚠️ Deux demi-barres de LARGEUR ÉGALE — `flex:1 1 0`, donc une largeur qui ne doit rien à leur
    contenu. C'est ce qui cloue le ⚔️ au milieu : en flux simple, le libellé qui s'ouvre poussait
@@ -146,16 +146,16 @@ body{margin:0;background:var(--bg);color:var(--text);
    d'un CTA permanent doit être le MÊME partout, c'est ce qui permet de le viser sans regarder.
    Quand la place manque vraiment (petit téléphone), c'est le libellé qui se tronque — la plaque
    peut rétrécir (`min-width:0`) et le libellé est en `overflow:hidden`. Jamais le centre. */
-.nav-side{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:space-evenly;gap:4px}
+.nav-side{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:space-evenly;gap:3px}
 /* Chaque onglet est une PLAQUE, y compris au repos : un fond gris très doux qui pose les cinq
    destinations sur la même ligne de base. Sans lui, les écusson flottaient sur le blanc de la
    barre et l'onglet actif était le seul objet dessiné — on ne lisait plus une barre d'onglets
    mais une plaque indigo entourée d'autocollants. */
-.nav .n{display:flex;align-items:center;justify-content:center;height:50px;padding:0 7px;
+.nav .n{display:flex;align-items:center;justify-content:center;height:50px;padding:0 6px;
   min-width:0;border-radius:16px;background:var(--surface-2);color:var(--muted);
   transition:background .2s ease,padding .2s ease}
 /* La plaque active : indigo plein, son encre, et un cran plus haut que les autres. */
-.nav .n.on{background:var(--brand);color:var(--brand-ink);padding:0 10px 0 7px;
+.nav .n.on{background:var(--brand);color:var(--brand-ink);padding:0 10px 0 6px;
   box-shadow:0 3px 10px color-mix(in srgb,var(--brand) 32%,transparent)}
 /* ⚠️ Le libellé s'OUVRE en largeur au lieu d'apparaître d'un coup : sinon la barre saute à
    chaque changement de page. Coupé sous prefers-reduced-motion comme le reste du jeu. */
@@ -167,32 +167,33 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* Le combat reste le CTA permanent de l'app, mais son disque orange est DANS l'image :
    le bouton ne le dessine plus, il se contente de faire de la place et de porter l'anneau
    indigo quand on est sur l'écran de combat.
-   ⚠️ Il DÉBORDE par le haut : plus gros que les autres onglets, il monte de 14 px et coupe le
-   filet supérieur de la barre. C'est ce qui le sort du rang — un CTA permanent ne se range pas
-   dans la file, il se pose dessus. Le débord se fait au `translate` et non par la boîte : la
-   hauteur de la barre ne bouge pas d'un pixel, donc rien à recalculer ailleurs (`--hud-h` et
-   les fonds de page ignorent l'affaire).
+   ⚠️ Il DÉBORDE par le haut : deux fois la taille des autres écussons (72 px contre 36), remonté
+   de 20 px, il dépasse de 23 px au-dessus du filet supérieur de la barre. C'est ce qui le sort
+   du rang — un CTA permanent ne se range pas dans la file, il se pose dessus. Le débord se fait
+   au `translate` et non par la boîte : la hauteur de la barre ne bouge pas d'un pixel, donc rien
+   à recalculer ailleurs (`--hud-h` et les fonds de page ignorent l'affaire). La place vient des
+   gouttières et des rembourrages des plaques, resserrés d'autant.
    Pas de collerette à dessiner : l'écusson porte déjà son liseré blanc, c'est LUI qui tranche
    le filet. Une seconde bague par-dessus ferait un double cerne. */
-.nav .center{width:60px;height:60px;flex:none;border-radius:50%;display:grid;place-items:center;
-  position:relative;z-index:1;translate:0 -14px;
-  box-shadow:0 6px 14px color-mix(in srgb,var(--accent) 40%,transparent)}
-.nav .center .nav-emblem{width:60px;height:60px}
+.nav .center{width:72px;height:72px;flex:none;border-radius:50%;display:grid;place-items:center;
+  position:relative;z-index:1;translate:0 -20px;
+  box-shadow:0 8px 18px color-mix(in srgb,var(--accent) 42%,transparent)}
+.nav .center .nav-emblem{width:72px;height:72px}
 .nav .center.on{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--brand),
-  0 6px 14px color-mix(in srgb,var(--brand) 36%,transparent)}
+  0 8px 18px color-mix(in srgb,var(--brand) 38%,transparent)}
 @media (prefers-reduced-motion:reduce){.nav .n,.nav .n .lb{transition:none}}
 .nav-ic{position:relative;flex:none;display:inline-grid;place-items:center}
 /* Sous ~420 px la barre n'a plus de quoi porter « Boutique » en entier : on reprend la place
    sur les rembourrages et sur les écussons AU REPOS plutôt que sur le libellé, qui est la
    seule chose que la barre ait à dire. */
 @media (max-width:420px){
-  .nav{gap:3px;padding:8px 5px 13px}
-  .nav-side{gap:3px}
-  .nav .n{padding:0 5px}
-  .nav .n.on{padding:0 8px 0 5px}
+  .nav{gap:2px;padding:8px 4px 13px}
+  .nav-side{gap:2px}
+  .nav .n{padding:0 4px}
+  .nav .n.on{padding:0 8px 0 4px}
   .nav-emblem{width:32px;height:32px}
-  .nav .center{width:56px;height:56px}
-  .nav .center .nav-emblem{width:56px;height:56px}
+  .nav .center{width:66px;height:66px}
+  .nav .center .nav-emblem{width:66px;height:66px}
 }
 .nav-badge{position:absolute;top:-5px;right:-9px;min-width:16px;height:16px;border-radius:99px;
   background:var(--fraise);color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;
@@ -328,7 +329,10 @@ body{margin:0;background:var(--bg);color:var(--text);
 .msg.me .bub{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);border-bottom-left-radius:14px;border-bottom-right-radius:4px}
 .msg.me .who{color:var(--brand)}
 .chat-empty{color:var(--faint);text-align:center;font-size:13px;margin:auto}
-.chat-input{display:flex;gap:9px;padding:10px 14px;border-top:1px solid var(--line);align-items:center}
+/* ⚠️ Le rembourrage bas est calé sur le DÉBORD du bouton Combat (23 px) : c'est le seul écran
+   où quelque chose d'interactif se trouve juste au-dessus de la barre, et le disque viendrait
+   sinon couvrir le bas du champ de saisie, pile au milieu — là où le doigt tape. */
+.chat-input{display:flex;gap:9px;padding:10px 14px 25px;border-top:1px solid var(--line);align-items:center}
 .chat-input .field{flex:1;margin:0}
 .chat-input .send{width:40px;height:40px;border-radius:50%;background:var(--brand);color:var(--brand-ink);border:none;
   display:grid;place-items:center;font-size:16px;cursor:pointer;flex:none}

@@ -958,12 +958,17 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
   flottaient sur le blanc de la barre et l'onglet actif était le seul objet encore dessiné —
   on ne lisait plus une barre d'onglets mais une plaque indigo entourée d'autocollants. Le
   disque orange du combat étant dans l'image, le bouton ne le dessine plus.
-  ⚠️ **Le ⚔️ déborde par le haut** : plus gros que les autres (60 px contre 36) et remonté de
-  14 px, il **coupe le filet supérieur de la barre**. C'est ce qui le sort du rang — un CTA
-  permanent ne se range pas dans la file, il se pose dessus. Le débord se fait au `translate`,
-  pas par la boîte : **la hauteur de la barre ne bouge pas**, donc rien à recalculer ailleurs.
-  Et pas de collerette à dessiner : l'écusson porte déjà son liseré blanc, c'est lui qui tranche
-  le filet — une seconde bague par-dessus ferait un double cerne.
+  ⚠️ **Le ⚔️ déborde par le haut** : **deux fois** la taille des autres écussons (72 px contre
+  36) et remonté de 20 px, il dépasse de **23 px** au-dessus du filet de la barre. C'est ce qui
+  le sort du rang — un CTA permanent ne se range pas dans la file, il se pose dessus. Le débord
+  se fait au `translate`, pas par la boîte : **la hauteur de la barre ne bouge pas**, donc rien
+  à recalculer ailleurs ; la place en largeur vient des gouttières et des rembourrages des
+  plaques, resserrés d'autant. Et pas de collerette à dessiner : l'écusson porte déjà son liseré
+  blanc, c'est lui qui tranche le filet — une seconde bague par-dessus ferait un double cerne.
+  ⚠️ Corollaire : **le chat rembourre son composeur de 25 px en bas** (`.chat-input`). C'est le
+  seul écran où quelque chose d'**interactif** se trouve juste au-dessus de la barre ; sans ça
+  le disque couvrait le bas du champ de saisie, pile au milieu — là où le doigt tape. Tout écran
+  qui collerait un contrôle au bas de la page doit faire pareil.
   ⚠️ **Contrat d'un écusson** (à respecter pour tout remplaçant) : carré, détouré, 128 px, WebP,
   et surtout **lisible à 36 px** — c'est la seule taille qui compte, une planche agrandie est
   toujours trompeuse. Découpage : **exiger une source à vraie transparence** — c'est son
