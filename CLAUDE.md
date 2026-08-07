@@ -936,6 +936,12 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
 - **`components/BottomNav.jsx`** — **Hub · Ligue · ⚔️ Combat · 🎒 Sac · Boutique**. Le **Chat
   n'y est pas** : il est passé dans le HUD à gauche de la cloche — deux boutons de même nature
   (ce qu'on a reçu) plutôt qu'une destination de jeu, et un onglet de moins en bas.
+  ⚠️ **Le ⚔️ ne bouge jamais latéralement.** La barre est faite de **deux demi-barres de largeur
+  égale** (`.nav-side`, `flex:1 1 0` — une largeur qui ne doit rien à leur contenu) encadrant le
+  bouton central. En flux simple, le libellé qui s'ouvre poussait ses voisins et le bouton
+  glissait d'un écran à l'autre : le point central d'un CTA permanent doit être le **même
+  partout**, c'est ce qui permet de le viser sans regarder. Quand la place manque (petit
+  téléphone), c'est le **libellé** qui se tronque — jamais le centre qui se déplace.
   ⚠️ Chaque onglet est une **plaque**, et **seule celle de la page courante porte son libellé** ;
   les autres se réduisent à leur icône. C'est la barre de Clash of Clans, mais rendue à notre
   charte : à plat, **indigo** pour l'actif, **orange réservé au combat**. Le libellé s'**ouvre en

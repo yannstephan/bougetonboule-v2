@@ -138,24 +138,31 @@ body{margin:0;background:var(--bg);color:var(--text);
    se réduisent à leur icône. C'est la barre de Clash of Clans — on lit d'un coup où l'on est,
    sans que cinq mots se disputent la largeur d'un téléphone. Mais le rendu reste le nôtre :
    à plat, indigo pour l'actif, orange réservé au combat (charte 60-30-10). */
-.nav{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px 13px;
+.nav{display:flex;align-items:center;gap:4px;padding:8px 6px 13px;
   border-top:1px solid var(--line);background:var(--surface);position:sticky;bottom:0;z-index:10}
+/* ⚠️ Deux demi-barres de LARGEUR ÉGALE — `flex:1 1 0`, donc une largeur qui ne doit rien à leur
+   contenu. C'est ce qui cloue le ⚔️ au milieu : en flux simple, le libellé qui s'ouvre poussait
+   ses voisins et le bouton central glissait latéralement d'un écran à l'autre. Le point central
+   d'un CTA permanent doit être le MÊME partout, c'est ce qui permet de le viser sans regarder.
+   Quand la place manque vraiment (petit téléphone), c'est le libellé qui se tronque — la plaque
+   peut rétrécir (`min-width:0`) et le libellé est en `overflow:hidden`. Jamais le centre. */
+.nav-side{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:space-evenly;gap:4px}
 /* Chaque onglet est une PLAQUE, y compris au repos : un fond gris très doux qui pose les cinq
    destinations sur la même ligne de base. Sans lui, les écusson flottaient sur le blanc de la
    barre et l'onglet actif était le seul objet dessiné — on ne lisait plus une barre d'onglets
    mais une plaque indigo entourée d'autocollants. */
 .nav .n{display:flex;align-items:center;justify-content:center;height:50px;padding:0 7px;
-  border-radius:16px;background:var(--surface-2);color:var(--muted);
+  min-width:0;border-radius:16px;background:var(--surface-2);color:var(--muted);
   transition:background .2s ease,padding .2s ease}
 /* La plaque active : indigo plein, son encre, et un cran plus haut que les autres. */
-.nav .n.on{background:var(--brand);color:var(--brand-ink);padding:0 12px 0 7px;
+.nav .n.on{background:var(--brand);color:var(--brand-ink);padding:0 10px 0 7px;
   box-shadow:0 3px 10px color-mix(in srgb,var(--brand) 32%,transparent)}
 /* ⚠️ Le libellé s'OUVRE en largeur au lieu d'apparaître d'un coup : sinon la barre saute à
    chaque changement de page. Coupé sous prefers-reduced-motion comme le reste du jeu. */
 .nav .n .lb{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;font-size:12px;font-weight:800;
   transition:max-width .24s ease,opacity .18s ease,margin .24s ease}
-.nav .n.on .lb{max-width:90px;opacity:1;margin-left:7px}
-.nav-emblem{display:block;width:36px;height:36px;object-fit:contain;
+.nav .n.on .lb{max-width:78px;opacity:1;margin-left:6px}
+.nav-emblem{display:block;flex:none;width:36px;height:36px;object-fit:contain;
   -webkit-user-drag:none;user-select:none}
 /* Le combat reste le CTA permanent de l'app, mais son disque orange est DANS l'image :
    le bouton ne le dessine plus, il se contente de faire de la place et de porter l'anneau
@@ -174,7 +181,19 @@ body{margin:0;background:var(--bg);color:var(--text);
 .nav .center.on{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--brand),
   0 6px 14px color-mix(in srgb,var(--brand) 36%,transparent)}
 @media (prefers-reduced-motion:reduce){.nav .n,.nav .n .lb{transition:none}}
-.nav-ic{position:relative;display:inline-grid;place-items:center}
+.nav-ic{position:relative;flex:none;display:inline-grid;place-items:center}
+/* Sous ~420 px la barre n'a plus de quoi porter « Boutique » en entier : on reprend la place
+   sur les rembourrages et sur les écussons AU REPOS plutôt que sur le libellé, qui est la
+   seule chose que la barre ait à dire. */
+@media (max-width:420px){
+  .nav{gap:3px;padding:8px 5px 13px}
+  .nav-side{gap:3px}
+  .nav .n{padding:0 5px}
+  .nav .n.on{padding:0 8px 0 5px}
+  .nav-emblem{width:32px;height:32px}
+  .nav .center{width:56px;height:56px}
+  .nav .center .nav-emblem{width:56px;height:56px}
+}
 .nav-badge{position:absolute;top:-5px;right:-9px;min-width:16px;height:16px;border-radius:99px;
   background:var(--fraise);color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;
   padding:0 3px;line-height:1;border:2px solid var(--surface)}

@@ -41,14 +41,18 @@ export default function BottomNav() {
     </Link>
   )
 
+  // ⚠️ Les deux moitiés sont des CONTENEURS, pas juste un ordre d'items : elles ont la même
+  // largeur (`flex:1 1 0`), quoi qu'elles contiennent. C'est ce qui garde le ⚔️ exactement au
+  // milieu — sinon le libellé qui s'ouvre pousse ses voisins et le bouton central se déplace
+  // d'un écran à l'autre, alors que c'est le seul dont la position doive se retenir.
   return (
     <nav className="nav">
-      {TABS.slice(0, 2).map(tab)}
+      <div className="nav-side">{TABS.slice(0, 2).map(tab)}</div>
       <Link href="/combat" className={`center ${path.startsWith('/combat') ? 'on' : ''}`}
             title="Combattre" aria-label="Combattre">
         <CombatIcon />
       </Link>
-      {TABS.slice(2).map(tab)}
+      <div className="nav-side">{TABS.slice(2).map(tab)}</div>
     </nav>
   )
 }
