@@ -134,22 +134,42 @@ body{margin:0;background:var(--bg);color:var(--text);
 .tile-alert{border-color:var(--citron)}
 .tile-alert .td{color:var(--text);font-weight:700}
 
-.nav{display:flex;align-items:center;justify-content:space-around;padding:9px 10px 14px;
+/* La nav du bas, en PLAQUES : seule celle de la page courante porte son libellé, les autres
+   se réduisent à leur icône. C'est la barre de Clash of Clans — on lit d'un coup où l'on est,
+   sans que cinq mots se disputent la largeur d'un téléphone. Mais le rendu reste le nôtre :
+   à plat, indigo pour l'actif, orange réservé au combat (charte 60-30-10). */
+.nav{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px 13px;
   border-top:1px solid var(--line);background:var(--surface);position:sticky;bottom:0;z-index:10}
-.nav .n{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--faint);font-weight:600}
-.nav .n.on{color:var(--brand)} .nav .n .ic{font-size:20px}
+.nav .n{display:flex;align-items:center;justify-content:center;height:44px;padding:0 13px;
+  border-radius:14px;background:var(--surface-2);color:var(--muted);
+  transition:background .2s ease,color .2s ease}
+/* La plaque active : indigo plein, son encre, et un cran plus haut que les autres. */
+.nav .n.on{background:var(--brand);color:var(--brand-ink);
+  box-shadow:0 3px 10px color-mix(in srgb,var(--brand) 32%,transparent)}
+/* ⚠️ Le libellé s'OUVRE en largeur au lieu d'apparaître d'un coup : sinon la barre saute à
+   chaque changement de page. Coupé sous prefers-reduced-motion comme le reste du jeu. */
+.nav .n .lb{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;font-size:12px;font-weight:800;
+  transition:max-width .24s ease,opacity .18s ease,margin .24s ease}
+.nav .n.on .lb{max-width:90px;opacity:1;margin-left:7px}
+.nav-svg{display:block;width:22px;height:22px}
 /* Le bouton rond du combat est le CTA permanent de l'app : même orange que COMBATTRE.
    Sur l'écran de combat, il porte l'anneau indigo des onglets actifs. */
-.nav .center{width:52px;height:52px;border-radius:50%;background:var(--accent);color:var(--accent-ink);
-  display:grid;place-items:center;font-size:23px;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 40%,transparent)}
+.nav .center{width:52px;height:52px;flex:none;border-radius:50%;background:var(--accent);
+  color:var(--accent-ink);display:grid;place-items:center;
+  box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 40%,transparent)}
+.nav .center .nav-svg{width:26px;height:26px}
 .nav .center.on{box-shadow:0 0 0 3px var(--surface),0 0 0 6px var(--brand)}
+@media (prefers-reduced-motion:reduce){.nav .n,.nav .n .lb{transition:none}}
 .nav-ic{position:relative;display:inline-grid;place-items:center}
 .nav-badge{position:absolute;top:-5px;right:-9px;min-width:16px;height:16px;border-radius:99px;
   background:var(--fraise);color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;
   padding:0 3px;line-height:1;border:2px solid var(--surface)}
 /* Pastille muette : « du nouveau ici », sans chiffre (onglet 🎒) */
-.nav-dot{position:absolute;top:-2px;right:-5px;width:10px;height:10px;border-radius:50%;
-  background:var(--fraise);border:2px solid var(--surface)}
+/* ⚠️ La pastille se cerne de la couleur de SA PLAQUE, pas de la barre : sur l'onglet actif
+   le fond est indigo, un liseré blanc y ferait une tache. */
+.nav-dot{position:absolute;top:-3px;right:-6px;width:10px;height:10px;border-radius:50%;
+  background:var(--fraise);border:2px solid var(--surface-2)}
+.nav .n.on .nav-dot{border-color:var(--brand)}
 
 /* Auth */
 .auth-wrap{min-height:100dvh;display:grid;place-items:center;padding:20px}

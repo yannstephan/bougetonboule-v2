@@ -936,6 +936,17 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
 - **`components/BottomNav.jsx`** — **Hub · Ligue · ⚔️ Combat · 🎒 Sac · Boutique**. Le **Chat
   n'y est pas** : il est passé dans le HUD à gauche de la cloche — deux boutons de même nature
   (ce qu'on a reçu) plutôt qu'une destination de jeu, et un onglet de moins en bas.
+  ⚠️ Chaque onglet est une **plaque**, et **seule celle de la page courante porte son libellé** ;
+  les autres se réduisent à leur icône. C'est la barre de Clash of Clans, mais rendue à notre
+  charte : à plat, **indigo** pour l'actif, **orange réservé au combat**. Le libellé s'**ouvre en
+  largeur** (`max-width`) au lieu d'apparaître d'un coup — sinon la barre saute à chaque
+  changement de page.
+  ⚠️ Les icônes sont **dessinées** (`components/navIcons.jsx`), pas en emoji, pour **une** raison :
+  elles doivent prendre la couleur de leur onglet (`currentColor`) — l'encre de la plaque indigo
+  quand il est actif, le gris muet sinon. Un emoji garde ses couleurs quoi qu'il arrive. C'est la
+  **seule** famille d'icônes du jeu qui a besoin de ça : partout ailleurs, l'emoji EST l'identité
+  de la chose. Les détails secondaires (anses de la coupe, poche du sac) sont peints dans la même
+  couleur à opacité réduite, pour rester lisibles sur n'importe quel fond.
 
 ⚠️ **La nav du bas est en `z-index:10`, comme le bandeau, et l'avatar est en
 `isolation:isolate`.** L'avatar distribue des z-index de 0 à 6 entre ses pièces (aura derrière,
