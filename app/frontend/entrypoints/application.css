@@ -152,6 +152,10 @@ body{margin:0;background:var(--bg);color:var(--text);
   transition:max-width .24s ease,opacity .18s ease,margin .24s ease}
 .nav .n.on .lb{max-width:90px;opacity:1;margin-left:7px}
 .nav-svg{display:block;width:22px;height:22px}
+/* ⚠️ Les emblèmes ont leurs couleurs propres, ils ne suivent pas celle de l'onglet : au repos
+   on les DÉSATURE et on les atténue, comme dans les jeux dont vient cette barre. C'est ce
+   contraste qui fait ressortir l'onglet actif, pas un changement de teinte. */
+.nav .n:not(.on) .nav-svg{filter:saturate(.5);opacity:.72}
 /* Le bouton rond du combat est le CTA permanent de l'app : même orange que COMBATTRE.
    Sur l'écran de combat, il porte l'anneau indigo des onglets actifs. */
 .nav .center{width:52px;height:52px;flex:none;border-radius:50%;background:var(--accent);

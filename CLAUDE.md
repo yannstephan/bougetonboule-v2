@@ -941,12 +941,16 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
   charte : à plat, **indigo** pour l'actif, **orange réservé au combat**. Le libellé s'**ouvre en
   largeur** (`max-width`) au lieu d'apparaître d'un coup — sinon la barre saute à chaque
   changement de page.
-  ⚠️ Les icônes sont **dessinées** (`components/navIcons.jsx`), pas en emoji, pour **une** raison :
-  elles doivent prendre la couleur de leur onglet (`currentColor`) — l'encre de la plaque indigo
-  quand il est actif, le gris muet sinon. Un emoji garde ses couleurs quoi qu'il arrive. C'est la
-  **seule** famille d'icônes du jeu qui a besoin de ça : partout ailleurs, l'emoji EST l'identité
-  de la chose. Les détails secondaires (anses de la coupe, poche du sac) sont peints dans la même
-  couleur à opacité réduite, pour rester lisibles sur n'importe quel fond.
+  ⚠️ Les icônes sont des **emblèmes dessinés** (`components/navIcons.jsx`) avec leurs **couleurs
+  propres** — hutte à toit de palmes, trophée doré, épées d'acier, sac orangé, échoppe à store
+  rayé. Pas des pictogrammes monochromes : un pictogramme dit « maison », un emblème dit « le Hub
+  de CE jeu ». Ils ne suivent donc **pas** la couleur de l'onglet : l'état actif est porté par la
+  **plaque** (indigo + libellé), et les emblèmes au repos sont **désaturés et atténués**
+  (`.nav .n:not(.on) .nav-svg`), comme dans les jeux dont vient cette barre.
+  ⚠️ Dessinés pour être lus à **22 px** : quatre à six aplats, pas un de plus, et des couleurs
+  franches. Tout détail plus fin disparaît — une maquette agrandie est trompeuse, c'est toujours
+  la **taille réelle** qui tranche. Seul le combat vit sur le disque orange : ses lames sont
+  claires et ses poignées sombres, un métal foncé s'y serait perdu.
 
 ⚠️ **La nav du bas est en `z-index:10`, comme le bandeau, et l'avatar est en
 `isolation:isolate`.** L'avatar distribue des z-index de 0 à 6 entre ses pièces (aura derrière,
