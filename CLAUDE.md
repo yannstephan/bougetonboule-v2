@@ -1008,11 +1008,25 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
   pour la même raison : une illustration ne se paramètre pas, et vouloir la refaire en SVG
   revient à la redessiner en moins bien. ~5 Ko pièce, 128 px, détourés.
   ⚠️ Ils portent **leur propre fond** — écusson crème cerné de blanc, disque orange pour le
-  combat — et se posent quand même sur une **plaque** : `--surface-2` au repos, **indigo** sur
+  combat — et se posent quand même sur une **plaque** : `--nav-plate` au repos, **indigo** sur
   l'onglet actif. C'est la plaque qui aligne les cinq destinations ; sans elle les écussons
-  flottaient sur le blanc de la barre et l'onglet actif était le seul objet encore dessiné —
-  on ne lisait plus une barre d'onglets mais une plaque indigo entourée d'autocollants. Le
-  disque orange du combat étant dans l'image, le bouton ne le dessine plus.
+  flottaient et l'onglet actif était le seul objet encore dessiné — on ne lisait plus une barre
+  d'onglets mais une plaque indigo entourée d'autocollants. Le disque orange du combat étant
+  dans l'image, le bouton ne le dessine plus.
+  ⚠️ **La barre est MARINE dans les deux thèmes** (`--nav-bg` / `--nav-plate` / `--nav-on`,
+  ses propres jetons). C'est le seul élément du jeu peint en dur : elle n'appartient pas à la
+  page, elle la **borde**, et c'est ce contraste qui la détache du contenu sans lui coûter une
+  couleur de la charte. Elle porte des **coins hauts arrondis** et **aucun filet** — sur un
+  aplat sombre, la séparation est déjà faite ; sans les coins, la barre se lit comme une page
+  coupée net. Les liserés des pastilles suivent la plaque, jamais `--surface`.
+  ⚠️ La plaque active est **figée sur l'indigo du thème clair** (`#4f46e5`), thème sombre
+  compris : la barre est une surface sombre en permanence, l'indigo pâle du thème sombre s'y
+  comporterait comme un fond clair. **C'est là que le ratio de contraste trompe** — sur le
+  papier l'indigo pâle sépare mieux de la barre (4,8:1 contre 2,3:1), mais la plaque est une
+  **surface**, pas du texte, et ce qu'on y pose est un écusson à **liseré blanc** : sur
+  l'indigo pâle il se délave et l'écusson s'écrase. Vérifié au rendu, comme les planches de
+  monstres — la séparation d'avec le marine se fait par la **saturation**, que la luminance
+  ne mesure pas.
   ⚠️ **Le ⚔️ déborde par le haut** : **deux fois** la taille des autres écussons (72 px contre
   36) et remonté de 20 px, il dépasse de **23 px** au-dessus du filet de la barre. C'est ce qui
   le sort du rang — un CTA permanent ne se range pas dans la file, il se pose dessus. Le débord

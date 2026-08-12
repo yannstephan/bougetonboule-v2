@@ -31,6 +31,21 @@
   --rar-rare:var(--mint);        --rar-rare-ink:var(--mint-ink);
   --rar-epic:var(--violet);      --rar-epic-ink:#150a2e;
   --rar-legendary:var(--citron); --rar-legendary-ink:var(--citron-ink);
+  /* La barre du bas est le SEUL élément peint en dur des deux thèmes : un bandeau marine, clair
+     ou sombre. C'est volontaire — elle n'appartient pas à la page, elle la borde, et c'est ce
+     contraste qui la détache du contenu sans lui coûter une couleur de la charte. Elle a donc
+     ses propres jetons (redéclarés à l'identique en thème sombre, plus bas) plutôt que de
+     détourner --surface, qui veut dire « une carte » partout ailleurs. */
+  --nav-bg:#232845; --nav-plate:#2f3557; --nav-ink:#c7cee9;
+  /* ⚠️ La plaque ACTIVE est FIGÉE sur l'indigo du thème clair, dans les DEUX thèmes : la barre
+     est une surface sombre en permanence, l'indigo pâle du thème sombre s'y comporterait comme
+     un fond clair. Vérifié au rendu, et c'est là que le calcul de contraste trompe : sur le
+     papier, l'indigo pâle sépare mieux de la barre (4,8:1 contre 2,3:1) — mais la plaque est
+     une SURFACE, pas du texte, et ce qu'on y pose est un écusson à liseré BLANC. Sur l'indigo
+     pâle, ce liseré se délave et l'écusson s'écrase ; sur l'indigo plein il claque, et la
+     séparation d'avec le marine se fait par la saturation, que le ratio de luminance ne
+     mesure pas. */
+  --nav-on:#4f46e5; --nav-on-ink:#fff;
   /* Hauteur du bandeau collé : 14 + 38 (avatar) + 12 + 1 de bordure. Tout ce qui colle
      en dessous doit partir de là, sinon ça glisse sous le HUD. */
   --hud-h:65px;
@@ -44,6 +59,10 @@
     --peach:#ff8a6b; --citron:#ffc63a; --citron-ink:#3a2b00; --fraise:#ff466b;
     --mint:#2fd6a3; --violet:#a78bfa; --good:#2fd6a3; --warn:#ffb03a; --crit:#ff5c72;
     --rar-common:#94a3b8; --rar-common-ink:#0f1420;
+    /* ⚠️ La barre du bas ne bascule PAS : elle est marine dans les deux thèmes, c'est sa
+       définition. On la remonte à peine pour qu'elle se détache du fond sombre de la page,
+       qui est plus noir qu'elle. */
+    --nav-bg:#1b2039; --nav-plate:#2a3050; --nav-ink:#c7cee9;
     --shadow:none; /* sur fond sombre une ombre ne se voit pas, elle salit le contour */
   }
 }
@@ -138,8 +157,12 @@ body{margin:0;background:var(--bg);color:var(--text);
    se réduisent à leur icône. C'est la barre de Clash of Clans — on lit d'un coup où l'on est,
    sans que cinq mots se disputent la largeur d'un téléphone. Mais le rendu reste le nôtre :
    à plat, indigo pour l'actif, orange réservé au combat (charte 60-30-10). */
+/* ⚠️ Marine, pas blanche, et les COINS HAUTS ARRONDIS : sans eux un aplat sombre en pied de
+   page ne se lit pas comme une barre mais comme une page coupée net. Pas de filet non plus —
+   le contraste du bandeau fait à lui seul la séparation qu'une hairline allait chercher. */
 .nav{display:flex;align-items:center;gap:3px;padding:8px 6px 13px;
-  border-top:1px solid var(--line);background:var(--surface);position:sticky;bottom:0;z-index:10}
+  background:var(--nav-bg);border-radius:22px 22px 0 0;
+  position:sticky;bottom:0;z-index:10}
 /* ⚠️ Deux demi-barres de LARGEUR ÉGALE — `flex:1 1 0`, donc une largeur qui ne doit rien à leur
    contenu. C'est ce qui cloue le ⚔️ au milieu : en flux simple, le libellé qui s'ouvre poussait
    ses voisins et le bouton central glissait latéralement d'un écran à l'autre. Le point central
@@ -152,11 +175,11 @@ body{margin:0;background:var(--bg);color:var(--text);
    barre et l'onglet actif était le seul objet dessiné — on ne lisait plus une barre d'onglets
    mais une plaque indigo entourée d'autocollants. */
 .nav .n{display:flex;align-items:center;justify-content:center;height:50px;padding:0 6px;
-  min-width:0;border-radius:16px;background:var(--surface-2);color:var(--muted);
+  min-width:0;border-radius:16px;background:var(--nav-plate);color:var(--nav-ink);
   transition:background .2s ease,padding .2s ease}
 /* La plaque active : indigo plein, son encre, et un cran plus haut que les autres. */
-.nav .n.on{background:var(--brand);color:var(--brand-ink);padding:0 10px 0 6px;
-  box-shadow:0 3px 10px color-mix(in srgb,var(--brand) 32%,transparent)}
+.nav .n.on{background:var(--nav-on);color:var(--nav-on-ink);padding:0 10px 0 6px;
+  box-shadow:0 3px 10px color-mix(in srgb,var(--nav-on) 30%,transparent)}
 /* ⚠️ Le libellé s'OUVRE en largeur au lieu d'apparaître d'un coup : sinon la barre saute à
    chaque changement de page. Coupé sous prefers-reduced-motion comme le reste du jeu. */
 .nav .n .lb{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;font-size:12px;font-weight:800;
@@ -179,8 +202,8 @@ body{margin:0;background:var(--bg);color:var(--text);
   position:relative;z-index:1;translate:0 -20px;
   box-shadow:0 8px 18px color-mix(in srgb,var(--accent) 42%,transparent)}
 .nav .center .nav-emblem{width:72px;height:72px}
-.nav .center.on{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--brand),
-  0 8px 18px color-mix(in srgb,var(--brand) 38%,transparent)}
+.nav .center.on{box-shadow:0 0 0 3px var(--nav-bg),0 0 0 5px var(--nav-on),
+  0 8px 18px color-mix(in srgb,var(--nav-on) 38%,transparent)}
 @media (prefers-reduced-motion:reduce){.nav .n,.nav .n .lb{transition:none}}
 .nav-ic{position:relative;flex:none;display:inline-grid;place-items:center}
 /* Sous ~420 px la barre n'a plus de quoi porter « Boutique » en entier : on reprend la place
@@ -197,13 +220,13 @@ body{margin:0;background:var(--bg);color:var(--text);
 }
 .nav-badge{position:absolute;top:-5px;right:-9px;min-width:16px;height:16px;border-radius:99px;
   background:var(--fraise);color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;
-  padding:0 3px;line-height:1;border:2px solid var(--surface)}
+  padding:0 3px;line-height:1;border:2px solid var(--nav-plate)}
 /* Pastille muette : « du nouveau ici », sans chiffre (onglet 🎒) */
 /* La pastille se pose sur le coin de l'écusson : liseré de la couleur de la BARRE au repos,
    de la plaque quand l'onglet est actif. */
 .nav-dot{position:absolute;top:-1px;right:-1px;width:11px;height:11px;border-radius:50%;
-  background:var(--fraise);border:2px solid var(--surface-2)}
-.nav .n.on .nav-dot{border-color:var(--brand)}
+  background:var(--fraise);border:2px solid var(--nav-plate)}
+.nav .n.on .nav-dot{border-color:var(--nav-on)}
 
 /* Auth */
 .auth-wrap{min-height:100dvh;display:grid;place-items:center;padding:20px}
