@@ -36,7 +36,11 @@
      contraste qui la détache du contenu sans lui coûter une couleur de la charte. Elle a donc
      ses propres jetons (redéclarés à l'identique en thème sombre, plus bas) plutôt que de
      détourner --surface, qui veut dire « une carte » partout ailleurs. */
-  --nav-bg:#232845; --nav-plate:#2f3557; --nav-ink:#c7cee9;
+  /* ⚠️ L'encre du marine est BLANCHE, pas un gris-bleu clair. Les chiffres du bandeau (🍑 et 💎)
+     sont les valeurs les plus lues de l'app : les atténuer sur un fond sombre, c'est appliquer
+     un réflexe de thème clair là où il ne vaut plus — sur du marine, un gris clair ne repose
+     pas l'œil, il enlève de l'information. */
+  --nav-bg:#232845; --nav-plate:#2f3557; --nav-ink:#fff;
   /* ⚠️ La plaque ACTIVE est FIGÉE sur l'indigo du thème clair, dans les DEUX thèmes : la barre
      est une surface sombre en permanence, l'indigo pâle du thème sombre s'y comporterait comme
      un fond clair. Vérifié au rendu, et c'est là que le calcul de contraste trompe : sur le
@@ -63,7 +67,7 @@
     /* ⚠️ La barre du bas ne bascule PAS : elle est marine dans les deux thèmes, c'est sa
        définition. On la remonte à peine pour qu'elle se détache du fond sombre de la page,
        qui est plus noir qu'elle. */
-    --nav-bg:#1b2039; --nav-plate:#2a3050; --nav-ink:#c7cee9;
+    --nav-bg:#1b2039; --nav-plate:#2a3050; --nav-ink:#fff;
     --shadow:none; /* sur fond sombre une ombre ne se voit pas, elle salit le contour */
   }
 }
