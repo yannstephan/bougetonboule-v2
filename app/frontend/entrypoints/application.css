@@ -859,9 +859,13 @@ body{margin:0;background:var(--bg);color:var(--text);
 .tr-title{margin:0;font-size:18px;font-weight:800;line-height:1.25}
 
 /* profil joueur */
-.pf-head{display:flex;align-items:center;gap:14px}
-.pf-id{min-width:0}
-.pf-name{font-weight:800;font-size:20px;display:flex;align-items:center;gap:8px}
+/* Le haut d'un profil : le personnage en grand sur la scène de l'armoire, l'identité dessous.
+   C'était un avatar de 72 px à côté du nom — de quoi reconnaître quelqu'un, pas de quoi voir
+   ce qu'il porte, alors que c'est la seule chose que l'app permette de montrer. */
+.pf-head{display:flex;flex-direction:column;gap:10px}
+.pf-stage{padding:22px 0}
+.pf-id{min-width:0;text-align:center}
+.pf-name{font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center;gap:8px}
 .pf-me{font-size:10px;font-weight:800;background:var(--brand);color:var(--brand-ink);border-radius:999px;padding:2px 8px}
 .pf-team{font-size:13px;font-weight:700}
 .pf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}

@@ -638,6 +638,15 @@ Chaque **participation** (Membership) a une page profil consultable par **tout j
 partie** (les deux clans — `ApplicationController#shares_game?`). Elle liste ses sorties (date,
 heure, km, 🍑, statut) et lie vers le détail de chacune.
 
+⚠️ **Le personnage s'y voit en GRAND**, sur la même scène que l'armoire et la cabine d'essai
+(`.av-stage`, 132 px, aura bornée au cadre). C'était une vignette de 72 px à côté du nom : de
+quoi reconnaître quelqu'un, pas de quoi voir **ce qu'il porte** — alors que la tenue est
+justement la seule chose que le jeu donne à montrer aux autres. La scène reçoit `page_aura` et
+non l'aura de l'avatar : c'est la même pièce, mais celle-là porte sa **rareté**, donc une aura
+épique ou légendaire dérive dans le cadre comme elle dérive derrière la page, au lieu d'y faire
+un îlot figé. Et la scène est un **aplat opaque** : sans ce fond borné, elle serait le seul
+rectangle vide d'une page entièrement peinte par l'aura du joueur.
+
 Le **détail d'une sortie** (`/courses/:id`) montre ce qu'on récupère de Strava : titre,
 description, durée, allure, dénivelé, **tracé du parcours** et photo. Les champs sont stockés sur
 `trainings` (`title`, `description`, `moving_time`, `elapsed_time`, `elevation_gain`,

@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react'
 import PlayerAvatar from '../components/PlayerAvatar'
+import AuraBackground from '../components/AuraBackground'
 import Hud from '../components/Hud'
 import BottomNav from '../components/BottomNav'
 
@@ -11,15 +12,26 @@ const statusChip = {
   protected: { label: 'Protégée', cls: 'wait' },
 }
 
-export default function Profile({ player, stats, trainings }) {
+export default function Profile({ player, stats, trainings, page_aura: pageAura }) {
   return (
     <div className="shell">
       <Head title={player.name} />
       <Hud />
 
       <main className="body">
+        {/* Le personnage en grand, sur la même scène que l'armoire et la cabine d'essai
+            (`.av-stage`) : entrer sur le profil de quelqu'un, c'est le voir tel qu'il s'est
+            habillé, pas déduire sa tenue d'une vignette de 72 px.
+            ⚠️ Son aura peint DÉJÀ toute la page (`page_aura`), mais la scène est un aplat
+            opaque : sans le fond borné, elle serait le seul rectangle vide de l'écran. On lui
+            passe `page_aura` et non l'aura de l'avatar — c'est la même pièce, mais celle-là
+            porte sa RARETÉ, donc une aura épique ou légendaire dérive dans le cadre comme
+            elle dérive derrière la page, au lieu d'y faire un îlot figé. */}
         <div className="pf-head">
-          <PlayerAvatar avatar={player.avatar} size={72} />
+          <div className="av-stage pf-stage">
+            <AuraBackground aura={pageAura} local />
+            <PlayerAvatar avatar={player.avatar} size={132} />
+          </div>
           <div className="pf-id">
             <div className="pf-name">{player.name}{player.is_me && <span className="pf-me">toi</span>}</div>
             <div className="pf-team" style={{ color: player.team.color }}>
