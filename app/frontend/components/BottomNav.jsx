@@ -48,8 +48,9 @@ export default function BottomNav() {
   return (
     <nav className="nav">
       <div className="nav-side">{TABS.slice(0, 2).map(tab)}</div>
-      <Link href="/combat" className={`center ${path.startsWith('/combat') ? 'on' : ''}`}
-            title="Combattre" aria-label="Combattre">
+      {/* Pas de classe `on` ici : le ⚔️ n'a pas d'état actif à porter, il est déjà le seul
+          bouton rond, orange et débordant de la barre (voir le CSS pour le pourquoi). */}
+      <Link href="/combat" className="center" title="Combattre" aria-label="Combattre">
         <CombatIcon />
       </Link>
       <div className="nav-side">{TABS.slice(2).map(tab)}</div>

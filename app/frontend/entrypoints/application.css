@@ -214,8 +214,12 @@ body{margin:0;background:var(--bg);color:var(--text);
   position:relative;z-index:1;translate:0 -20px;
   box-shadow:0 8px 18px color-mix(in srgb,var(--accent) 42%,transparent)}
 .nav .center .nav-emblem{width:72px;height:72px}
-.nav .center.on{box-shadow:0 0 0 3px var(--nav-bg),0 0 0 5px var(--nav-on),
-  0 8px 18px color-mix(in srgb,var(--nav-on) 38%,transparent)}
+/* ⚠️ Pas d'état ACTIF sur le ⚔️, contrairement aux quatre plaques. Il portait un anneau indigo
+   quand on était sur l'écran de combat : posé autour d'un écusson qui a DÉJÀ son liseré blanc,
+   ça faisait un double cerne, et un halo bleu sur le seul objet orange de l'écran. Il n'en a de
+   toute façon pas besoin — il est deux fois plus gros que les autres, il déborde de la barre et
+   il est le seul rond : on ne peut pas le confondre avec autre chose, ni se demander où l'on est
+   quand on le regarde. */
 @media (prefers-reduced-motion:reduce){.nav .n,.nav .n .lb{transition:none}}
 .nav-ic{position:relative;flex:none;display:inline-grid;place-items:center}
 /* Sous ~420 px la barre n'a plus de quoi porter « Boutique » en entier : on reprend la place
