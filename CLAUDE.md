@@ -550,7 +550,7 @@ Le terrain occupe l'écran, la boîte de commandes tient le pied de page :
 │   NOUS                       │  nous sommes au PREMIER PLAN : plus bas, plus GRAND (52 %)
 │   🥥             [ma carte]  │
 ├──────────────────────────────┤
-│ Que fait King-Coco ?    🍑   │  le menu, comme la boîte de dialogue du modèle
+│ Que faites-vous ?       🍑   │  le menu, comme la boîte de dialogue du modèle
 │ [ATTAQUER] [SOIGNER]         │
 │ [POWER-UPS] [RETOUR]         │
 └──────────────────────────────┘
@@ -579,6 +579,10 @@ de guerre est déjà géré par la chantilly. Ce qui doit rester caché l'est d�
 
 ⚠️ La jauge de **notre** monstre passe vert → orange → rouge en descendant ; celle de
 l'adversaire reste **rouge quoi qu'il arrive** : c'est une cible, pas une santé.
+
+⚠️ Le menu dit « **Que faites-vous ?** », pas « Que fait <monstre> ? ». On ne dirige pas une
+créature, on **décide à plusieurs** — le monstre ne fait qu'encaisser ; et le « vous » rappelle
+qu'on n'attaque jamais seul.
 
 Les **power-ups** sont passés dans une feuille du bas (`ItemPicker`), la même que `TargetPicker`
 et `MonsterPicker` — un seul geste à apprendre. Un objet **déjà en cours y reste listé, grisé**

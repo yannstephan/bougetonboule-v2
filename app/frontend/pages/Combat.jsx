@@ -127,12 +127,12 @@ export default function Combat({
         <div className="pkm-field"><p className="pkm-none">Pas encore d'adversaire.</p></div>
       )}
 
-      {/* La boîte de commandes. Son titre nomme le monstre qui agit : c'est LUI qu'on pilote,
-          pas un menu abstrait — et ça rappelle qui est de notre côté quand la chantilly a
-          brouillé les deux camps. */}
+      {/* La boîte de commandes. Elle s'adresse à L'ÉQUIPE, pas au monstre : ici on ne dirige
+          pas une créature, on décide à plusieurs — le monstre, lui, ne fait qu'encaisser.
+          Le « vous » est aussi ce qui rappelle qu'on n'attaque jamais seul. */}
       <div className="pkm-menu">
         <div className="pkm-ask">
-          <span>Que fait {mine?.name || 'ton monstre'} ?</span>
+          <span>Que faites-vous ?</span>
           <b className="pkm-purse">🍑 {balls}<i>/{walletCap}</i></b>
         </div>
 
