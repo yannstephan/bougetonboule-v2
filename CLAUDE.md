@@ -988,6 +988,13 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
 - **`components/Hud.jsx`** — avatar (→ `/avatar`), 🍑, 💎, puis 📖 FAQ · 💬 Chat · 🔔 Notifs.
   Il ne prend **aucune prop** : tout vient d'`inertia_share` (dont `balls`, partagé exprès pour
   lui), donc l'ajouter à un écran ne demande rien à son contrôleur.
+  ⚠️ **Il partage sa peinture avec la nav du bas** (`--nav-bg` / `--nav-plate` / `--nav-on`,
+  marine dans les deux thèmes), avec des **coins arrondis en miroir** des siens : les deux
+  bandeaux **encadrent** la page, et c'est ce cadre qui sépare ce qui appartient au jeu de ce
+  qui appartient à l'écran. Pastilles et boutons ronds passent en `--nav-plate`, l'icône de la
+  page courante en **indigo plein** — sur du marine, l'ancien contour teinté ne se voyait plus.
+  ⚠️ `--hud-h` vaut **64** et non 65 : le bandeau n'a plus de filet d'un pixel, le contraste du
+  marine fait la séparation. Tout ce qui colle dessous (`.av-sticky`) en dépend.
 - **`components/BottomNav.jsx`** — **Hub · Ligue · ⚔️ Combat · 🎒 Sac · Boutique**. Le **Chat
   n'y est pas** : il est passé dans le HUD à gauche de la cloche — deux boutons de même nature
   (ce qu'on a reçu) plutôt qu'une destination de jeu, et un onglet de moins en bas.
@@ -1142,7 +1149,9 @@ couleurs s'éclaircissent pour rester lisibles en texte, donc leur encre bascule
 **Toute nouvelle paire aplat/texte se vérifie au ratio AA (4,5:1).**
 
 Mobile-first, `.shell` centré max 460px. Stats en `font-variant-numeric: tabular-nums`.
-Le `theme-color` du manifeste et du layout suit `--brand` (#4f46e5).
+⚠️ Le `theme-color` du manifeste et du layout est celui du **bandeau** (`#232845`), pas celui de
+la marque : c'est la bande que le navigateur peint **au-dessus** du HUD, une autre couleur y
+dessinerait une frontière.
 Tout ce qui **colle** sous le bandeau part de `--hud-h` (65 px) et non de `top:0`, sinon ça
 glisse dessous : c'est le cas des aperçus d'avatar de l'armoire et de la cabine d'essai.
 
