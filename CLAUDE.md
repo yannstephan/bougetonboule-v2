@@ -538,10 +538,55 @@ registre : à resituer dès qu'une nouvelle série cadre le visage ailleurs, sin
   personnage n'est plus debout.
 - **`creamed`** : chantilly plein les yeux tant que l'effet dure (= `masked`, donc pour la seule
   équipe aveuglée, celle qui voit « ??? »).
-- **`shielded`** : saladier translucide retourné (= `protected`), le monstre se tasse dessous. En **Combat**, l'attaque secoue + flashe en rouge le monstre
-adverse (💥 + « -N ») et le soin fait gonfler mon monstre avec une lueur verte (✨ + « +N »),
-piloté par état React dans `pages/Combat.jsx` (classes `.impact` / `.healpulse`, guard
-`prefers-reduced-motion`).
+- **`shielded`** : saladier translucide retourné (= `protected`), le monstre se tasse dessous.
+
+### L'écran de combat (`/combat`) — un combat de Pokémon
+Le terrain occupe l'écran, la boîte de commandes tient le pied de page :
+
+```
+┌──────────────────────────────┐
+│ [carte ennemi]        🌿     │  l'adversaire est LOIN : plus haut, plus PETIT (38 %)
+│                     ennemi   │
+│   NOUS                       │  nous sommes au PREMIER PLAN : plus bas, plus GRAND (52 %)
+│   🥥             [ma carte]  │
+├──────────────────────────────┤
+│ Que fait King-Coco ?    🍑   │  le menu, comme la boîte de dialogue du modèle
+│ [ATTAQUER] [SOIGNER]         │
+│ [POWER-UPS] [RETOUR]         │
+└──────────────────────────────┘
+```
+
+Deux principes portent tout le rendu, et ils ne coûtent **aucun décor** :
+- **La profondeur.** L'ennemi est servi plus petit et posé plus haut : c'est ce qui dit « il est
+  en face ». Chacun a son **ombre elliptique** au sol (dérivée du vert du terrain), qui l'ancre
+  au lieu de le laisser flotter sur un aplat.
+- **La diagonale.** Carte à gauche / monstre à droite en haut, l'inverse en bas. L'œil descend
+  en zigzag et ne confond jamais les deux camps — même barbouillés de chantilly.
+
+Le **terrain** est le seul aplat de **décor** du jeu (un vert très pâle), et il est **dérivé de
+`--mint`** plutôt qu'inventé : il suit donc le thème sombre tout seul.
+
+⚠️ **Un seul bouton orange** (charte 60-30-10) : attaquer est l'action du jeu, tout le reste se
+range derrière. Soigner porte l'indigo, power-ups et retour restent neutres. Chaque commande dit
+**son coût et sa conséquence** sous son libellé — `1 🍑 · échec 1/10`, `2 🍑 · +10 PV` : une
+chance sur dix de tout perdre ne se découvre pas après coup, elle s'annonce là où l'on décide.
+Le porte-monnaie s'affiche **avec son plafond** (`81/100`) — c'est lui qui dit qu'il est temps
+de dépenser.
+
+⚠️ **Écart assumé avec le modèle** : Pokémon cache les PV chiffrés de l'adversaire. Ici on les
+**montre** — savoir s'il reste 300 ou 3 000 PV décide de tout un tour de jeu, et le brouillard
+de guerre est déjà géré par la chantilly. Ce qui doit rester caché l'est déjà.
+
+⚠️ La jauge de **notre** monstre passe vert → orange → rouge en descendant ; celle de
+l'adversaire reste **rouge quoi qu'il arrive** : c'est une cible, pas une santé.
+
+Les **power-ups** sont passés dans une feuille du bas (`ItemPicker`), la même que `TargetPicker`
+et `MonsterPicker` — un seul geste à apprendre. Un objet **déjà en cours y reste listé, grisé**
+plutôt que de disparaître : sinon on croit l'avoir perdu, alors que c'est son effet qui tourne.
+
+L'attaque secoue + flashe en rouge le monstre adverse (💥 + « -N ») et le soin fait gonfler le
+nôtre avec une lueur verte (✨ + « +N »), piloté par état React dans `pages/Combat.jsx` (classes
+`.impact` / `.healpulse`, guard `prefers-reduced-motion`).
 
 ### Le compte à rebours (Hub)
 En haut du Hub, `components/Countdown.jsx` : **une seule ligne compacte** (`.cd`) — pastille du

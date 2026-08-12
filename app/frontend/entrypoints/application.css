@@ -265,29 +265,63 @@ body{margin:0;background:var(--bg);color:var(--text);
    où l'on est. Une ligne de texte de moins à porter sur chaque écran. */
 .nav .n.dis{opacity:.45}
 
-/* combat */
-.cbt-top{padding:14px;text-align:center;border-bottom:1px solid var(--line)}
-.cbt-enemy-name{font-weight:800;font-size:15px}
+/* combat — mis en page comme un COMBAT POKÉMON (voir pages/Combat.jsx pour le pourquoi) :
+   l'adversaire en haut à droite et plus petit, nous en bas à gauche et plus grands, la boîte
+   de commandes en pied d'écran. La profondeur et la diagonale font tout le travail : aucun
+   décor à dessiner, et on ne confond jamais les deux camps. */
+.pkm-field{flex:1;position:relative;display:flex;flex-direction:column;justify-content:space-between;
+  gap:4px;padding:10px 12px 4px;overflow:hidden;
+  /* Le terrain : un vert très pâle DÉRIVÉ de --mint, pas une couleur inventée. C'est le seul
+     aplat de décor du jeu, et il ne sert qu'ici — c'est lui qui fait lire « une scène ». */
+  background:color-mix(in srgb,var(--mint) 7%,var(--surface-2))}
+.pkm-none{margin:auto;color:var(--muted)}
+.pkm-row{display:flex;align-items:center;gap:8px}
+/* ⚠️ Les deux tailles ne sont PAS un réglage esthétique : c'est ce qui dit qui est loin et qui
+   est au premier plan. L'ennemi occupe 38 % de la largeur, nous 52 %. */
+.pkm-row.foe .pkm-slot{width:38%}
+.pkm-row.mine .pkm-slot{width:52%}
+.pkm-slot{position:relative;flex:none;aspect-ratio:1;display:grid;place-items:center}
+.pkm-slot .mon{position:relative;z-index:1}
+/* L'ombre au sol : sans elle le monstre flotte au milieu d'un aplat. Elle est dérivée du vert
+   du terrain, donc elle suit le thème toute seule. */
+.pkm-shadow{position:absolute;left:14%;right:14%;bottom:1%;height:8%;border-radius:50%;z-index:0;
+  background:color-mix(in srgb,var(--mint) 38%,transparent);filter:blur(2px)}
+/* L'ennemi respire — un balancement lent, celui d'avant l'attaque. */
+.pkm-row.foe .pkm-mon{animation:hit 2.6s ease-in-out infinite}
+@keyframes hit{0%,100%{transform:translateX(0)}14%{transform:translateX(-5px)}28%{transform:translateX(4px)}42%{transform:translateX(0)}}
+
+/* La plaque d'identité d'un camp — le pendant de la barre de PV de Pokémon. Bordure franche
+   et pleine : c'est ce trait épais qui la détache du terrain, comme dans le modèle. */
+.pkm-card{flex:1 1 0;min-width:0;background:var(--surface);border:2px solid var(--text);
+  border-radius:14px;padding:8px 10px;box-shadow:var(--shadow)}
+.pkm-who{display:flex;align-items:center;gap:6px}
+.pkm-who .n{font-weight:800;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pkm-tag{margin-left:auto;flex:none;font-size:9px;font-weight:800;border-radius:999px;padding:2px 7px;letter-spacing:.03em}
+.pkm-tag.foe{background:color-mix(in srgb,var(--fraise) 15%,var(--surface));color:var(--fraise)}
+.pkm-tag.mine{background:color-mix(in srgb,var(--brand) 14%,var(--surface));color:var(--brand)}
+.pkm-hp{display:flex;align-items:center;gap:7px;margin-top:6px}
+.pkm-hp .lb{flex:none;font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.04em}
+.pkm-hp .bigbar{display:block;flex:1;height:9px;margin-top:0}
+.pkm-foot{display:flex;align-items:center;gap:6px;margin-top:6px}
+.pkm-num{margin-left:auto;flex:none;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
+
 .bigbar{height:14px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin-top:8px}
-.bigbar>i{display:block;height:100%;border-radius:99px}
+.bigbar>i{display:block;height:100%;border-radius:99px;transition:width .35s ease}
 .bigbar>i.crit{background:var(--crit)}
 .bigbar>i.good{background:var(--good)}
 .bigbar>i.warn{background:var(--warn)}
-/* PV masqués par un fumigène : barre rayée neutre, pleine largeur */
+/* PV masqués par la chantilly : barre rayée neutre, pleine largeur */
 .bigbar>i.unknown{background:repeating-linear-gradient(45deg,var(--surface-3) 0 8px,var(--muted) 8px 10px);opacity:.45}
 .hp-num{font-variant-numeric:tabular-nums;font-size:12px;font-weight:800;margin-top:5px}
-.arena-scene{flex:1;position:relative;display:grid;place-items:center;overflow:hidden;background:var(--surface-2)}
-.foe-mon{font-size:110px;line-height:1;animation:hit 2.6s ease-in-out infinite}
-@keyframes hit{0%,100%{transform:translateX(0)}14%{transform:translateX(-5px)}28%{transform:translateX(4px)}42%{transform:translateX(0)}}
-.my-corner{position:absolute;bottom:10px;left:14px;font-size:50px}
-.dmg{position:absolute;top:30%;left:44%;font-weight:800;font-size:30px;color:var(--fraise);
-  font-variant-numeric:tabular-nums;animation:floatup 1.2s ease-out forwards;pointer-events:none;z-index:2}
+
+/* Les chiffres qui montent, sur le terrain : le dégât côté ennemi, le soin côté nous. */
+.dmg{position:absolute;top:12%;right:16%;font-weight:800;font-size:30px;color:var(--fraise);
+  font-variant-numeric:tabular-nums;animation:floatup 1.2s ease-out forwards;pointer-events:none;z-index:4}
 @keyframes floatup{0%{opacity:0;transform:translateY(10px) scale(.7)}20%{opacity:1}100%{opacity:0;transform:translateY(-40px) scale(1.1)}}
-/* Soin : +PV vert qui monte près de mon monstre (coin bas-gauche). */
-.heal-float{position:absolute;bottom:62px;left:18px;font-weight:800;font-size:26px;color:var(--good);
-  font-variant-numeric:tabular-nums;animation:floatup 1.1s ease-out forwards;pointer-events:none;z-index:2}
+.heal-float{position:absolute;bottom:22%;left:14%;font-weight:800;font-size:26px;color:var(--good);
+  font-variant-numeric:tabular-nums;animation:floatup 1.1s ease-out forwards;pointer-events:none;z-index:4}
 /* Attaque : le monstre adverse encaisse (secousse + flash rouge), remplace l'animation d'attente. */
-.foe-mon-svg.impact{animation:impact .55s ease-out}
+.pkm-mon.impact{animation:impact .55s ease-out}
 @keyframes impact{
   0%{transform:translateX(0) scale(1);filter:none}
   15%{transform:translateX(-9px) rotate(-4deg) scale(1.05);filter:brightness(1.5) drop-shadow(0 0 7px var(--crit))}
@@ -297,33 +331,57 @@ body{margin:0;background:var(--bg);color:var(--text);
   100%{transform:translateX(0)}
 }
 /* Soin : mon monstre gonfle avec une lueur verte. */
-.my-corner-svg.healpulse{animation:healpulse .75s ease-out}
+.pkm-mon.healpulse{animation:healpulse .75s ease-out}
 @keyframes healpulse{
   0%{transform:scale(1);filter:none}
   30%{transform:scale(1.28);filter:brightness(1.25) drop-shadow(0 0 9px var(--good))}
   60%{transform:scale(1.08);filter:brightness(1.1) drop-shadow(0 0 5px var(--good))}
   100%{transform:scale(1);filter:none}
 }
-/* Éclats d'impact / étincelles de soin. */
-.burst{position:absolute;top:34%;left:50%;font-size:46px;pointer-events:none;z-index:3;
+/* Éclats d'impact / étincelles de soin — posés DANS l'emplacement du monstre, donc toujours
+   sur lui quelle que soit la taille de l'écran. */
+.burst{position:absolute;top:28%;left:50%;font-size:44px;pointer-events:none;z-index:3;
   animation:burst .55s ease-out forwards}
 @keyframes burst{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}
   35%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}
   100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}
-.heal-spark{position:absolute;bottom:58px;left:30px;font-size:22px;pointer-events:none;z-index:3;
+.heal-spark{position:absolute;top:32%;left:50%;font-size:26px;pointer-events:none;z-index:3;
   animation:burst .75s ease-out forwards}
 @media (prefers-reduced-motion:reduce){
-  .foe-mon-svg,.foe-mon-svg.impact,.my-corner-svg.healpulse{animation:none}
+  .pkm-row.foe .pkm-mon,.pkm-mon.impact,.pkm-mon.healpulse{animation:none}
   .burst,.heal-spark{display:none}
 }
-.act-gems{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:14px;border-top:1px solid var(--line)}
-.gem-btn{border:none;border-radius:var(--r);aspect-ratio:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:3px;cursor:pointer;font:inherit;background:var(--fraise);color:#fff;transition:filter .12s}
-.gem-btn:disabled{opacity:.4;cursor:not-allowed}
-.gem-btn:not(:disabled):active{transform:translateY(1px)}
-.gem-btn .e{font-size:22px}.gem-btn .c{font-size:10px;font-weight:800;font-variant-numeric:tabular-nums}
-.gem-btn.heal{background:var(--mint);color:var(--mint-ink)}
-.gem-btn.item{background:var(--violet);color:#fff}
+
+/* La boîte de commandes : le menu de Pokémon. Son titre nomme le monstre qu'on pilote. */
+.pkm-menu{padding:12px 14px;border-top:1px solid var(--line);background:var(--surface)}
+.pkm-ask{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;margin-bottom:10px}
+.pkm-purse{margin-left:auto;flex:none;background:var(--surface-2);border-radius:999px;
+  padding:4px 10px;font-size:12px;font-variant-numeric:tabular-nums}
+.pkm-purse i{font-style:normal;color:var(--muted)}
+.pkm-cmds{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pkm-cmd{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:11px 12px;
+  border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2);color:var(--text);
+  font:inherit;text-align:left;text-decoration:none;cursor:pointer;transition:filter .12s}
+.pkm-cmd .t{display:flex;align-items:center;gap:7px;font-weight:800;font-size:14px;letter-spacing:.02em}
+.pkm-cmd .i{font-size:16px}
+.pkm-cmd .h{font-size:11px;font-weight:700;color:var(--muted)}
+.pkm-cmd:disabled{opacity:.45;cursor:not-allowed}
+.pkm-cmd:not(:disabled):active{transform:translateY(1px)}
+/* ⚠️ UN seul bouton orange sur l'écran (charte 60-30-10) : attaquer est l'action du jeu, tout
+   le reste se range derrière. Soigner porte l'indigo, les deux autres restent neutres. */
+.pkm-cmd.atk{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.pkm-cmd.atk .h{color:color-mix(in srgb,var(--accent-ink) 70%,transparent)}
+.pkm-cmd.heal{background:color-mix(in srgb,var(--brand) 9%,var(--surface));
+  border-color:color-mix(in srgb,var(--brand) 22%,var(--line));color:var(--brand)}
+
+/* Les power-ups dans la feuille du bas : un objet en cours reste listé, grisé — sinon on
+   croit l'avoir perdu, alors que c'est son effet qui tourne. */
+.pk-item{display:flex;align-items:center;gap:10px}
+.pk-item .e{font-size:20px}
+.pk-item .n{font-weight:700}
+.pk-item .s{margin-left:auto;font-size:10px;font-weight:800;color:var(--muted)}
+.tp-opt:disabled{opacity:.5;cursor:not-allowed}
+.tp-opt:disabled:hover{border-color:var(--line);color:inherit}
 
 /* chat */
 .chat-tabs{display:flex;gap:8px;padding:12px 14px 6px}
@@ -493,8 +551,6 @@ body{margin:0;background:var(--bg);color:var(--text);
 .mon-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .mon-layer.front{z-index:2}
 .stage-mon{animation:bob 4s ease-in-out infinite}
-.foe-mon-svg{animation:hit 2.6s ease-in-out infinite}
-.my-corner-svg{position:absolute;bottom:10px;left:14px}
 /* Usure : à partir du 2e palier de PV franchi, le monstre tangue de plus en plus. */
 .mon.wear2 .mon-svg{animation:groggy 4.2s ease-in-out infinite}
 .mon.wear3 .mon-svg{animation:groggy 2.6s ease-in-out infinite}

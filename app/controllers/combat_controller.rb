@@ -14,8 +14,15 @@ class CombatController < ApplicationController
     foe = m.team.opponent
     {
       balls: m.balls,
+      # Le porte-monnaie s'affiche en « 81/100 » : le plafond fait partie de l'info, c'est lui
+      # qui dit qu'il est temps de dépenser (le crédit d'une course est tronqué au-delà).
+      wallet_cap: GameRules::WALLET_CAP,
       multiplier: m.team.combat_multiplier.to_f,
+      attack_cost: GameRules::ATTACK_COST,
       heal_cost: m.team.heal_cost,
+      # 0,10 → « échec 1/10 » sous le bouton attaquer. Une chance sur dix de tout perdre ne
+      # se découvre pas après coup : elle est annoncée là où l'on décide.
+      crit_fail_chance: GameRules::CRIT_FAIL_CHANCE,
       my_team:  { name: m.team.name, fruit_family: m.team.fruit_family,
                   effects: TeamEffectsPresenter.call(m.team),
                   monster: MonsterPresenter.call(m.team.monster, viewer_team: m.team) },
