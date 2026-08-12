@@ -989,9 +989,9 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
   Il ne prend **aucune prop** : tout vient d'`inertia_share` (dont `balls`, partagé exprès pour
   lui), donc l'ajouter à un écran ne demande rien à son contrôleur.
   ⚠️ **Il partage sa peinture avec la nav du bas** (`--nav-bg` / `--nav-plate` / `--nav-on`,
-  marine dans les deux thèmes), avec des **coins arrondis en miroir** des siens : les deux
-  bandeaux **encadrent** la page, et c'est ce cadre qui sépare ce qui appartient au jeu de ce
-  qui appartient à l'écran. Pastilles et boutons ronds passent en `--nav-plate`, l'icône de la
+  marine dans les deux thèmes) : les deux bandeaux **encadrent** la page, et c'est ce cadre qui
+  sépare ce qui appartient au jeu de ce qui appartient à l'écran. **Bords à angle droit** — un
+  bandeau qui touche les deux côtés de l'écran ne s'arrondit pas, il se coupe. Pastilles et boutons ronds passent en `--nav-plate`, l'icône de la
   page courante en **indigo plein** — sur du marine, l'ancien contour teinté ne se voyait plus.
   ⚠️ `--hud-h` vaut **64** et non 65 : le bandeau n'a plus de filet d'un pixel, le contraste du
   marine fait la séparation. Tout ce qui colle dessous (`.av-sticky`) en dépend.
@@ -1023,9 +1023,9 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
   ⚠️ **La barre est MARINE dans les deux thèmes** (`--nav-bg` / `--nav-plate` / `--nav-on`,
   ses propres jetons). C'est le seul élément du jeu peint en dur : elle n'appartient pas à la
   page, elle la **borde**, et c'est ce contraste qui la détache du contenu sans lui coûter une
-  couleur de la charte. Elle porte des **coins hauts arrondis** et **aucun filet** — sur un
-  aplat sombre, la séparation est déjà faite ; sans les coins, la barre se lit comme une page
-  coupée net. Les liserés des pastilles suivent la plaque, jamais `--surface`.
+  couleur de la charte. Elle est **à angle droit** et sans **aucun filet** — sur un aplat
+  sombre, la séparation est déjà faite. Les liserés des pastilles suivent la plaque, jamais
+  `--surface`.
   ⚠️ La plaque active est **figée sur l'indigo du thème clair** (`#4f46e5`), thème sombre
   compris : la barre est une surface sombre en permanence, l'indigo pâle du thème sombre s'y
   comporterait comme un fond clair. **C'est là que le ratio de contraste trompe** — sur le
