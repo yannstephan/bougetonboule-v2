@@ -18,7 +18,7 @@ import { familyEmoji } from '../lib/gameIcons'
 //   │   NOUS                      │   nous sommes AU PREMIER PLAN : plus bas, plus grand
 //   │   🥥            [ma carte]  │
 //   ├─────────────────────────────┤
-//   │ Que fait King-Coco ?   🍑   │   le menu de commandes, comme la boîte de dialogue
+//   │ Que faites-vous ?      🍑   │   le menu de commandes, comme la boîte de dialogue
 //   │ [ATTAQUER] [SOIGNER]        │
 //   │ [POWER-UPS] [RETOUR]        │
 //   └─────────────────────────────┘
