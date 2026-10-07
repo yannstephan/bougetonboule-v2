@@ -41,11 +41,14 @@ class ClaimRewardTest < ActiveSupport::TestCase
   end
 
   test "le lundi ne recompte pas une semaine déjà sécurisée à l'import" do
-    ImportTraining.call(@membership, strava_activity(start_date: 3.days.ago.iso8601))
+    ran_at = 3.days.ago
+    ImportTraining.call(@membership, strava_activity(start_date: ran_at.iso8601))
     before = @membership.reload.weekly_streak
 
+    # On juge la semaine de la course, pas « cette semaine » : un lundi, mardi ou mercredi,
+    # il y a 3 jours tombe dans la semaine précédente et le test devenait dépendant du jour.
     assert_no_difference -> { Reward.count } do
-      WeeklyStreakJob.perform_now(Date.current.beginning_of_week)
+      WeeklyStreakJob.perform_now(ran_at.to_date.beginning_of_week)
     end
     assert_equal before, @membership.reload.weekly_streak
   end
