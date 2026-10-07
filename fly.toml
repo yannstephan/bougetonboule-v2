@@ -1,0 +1,66 @@
+# Déploiement Fly.io — https://fly.io/docs/reference/configuration/
+#
+# UNE seule machine, UN seul volume : SQLite est un fichier, il ne se partage pas entre
+# machines. Ne jamais `fly scale count 2` — ce serait deux bases divergentes.
+#
+# ⚠️ Le nom d'app est GLOBAL chez Fly : si « bougetonboule » est déjà pris, `fly launch`
+# proposera un suffixe — le reporter ici (et dans config.hosts si on sert l'URL .fly.dev).
+#
+# ⚠️ TOUTES les clés de premier niveau doivent rester EN TÊTE, avant le premier en-tête de
+# table : en TOML, une clé posée après `[[vm]]` appartiendrait à `vm`, pas au fichier.
+
+app = "bougetonboule"
+primary_region = "cdg"  # Paris
+
+# Rails au démarrage (eager load) peut frôler le plafond de 1 Go : un peu de swap évite un
+# OOM kill au déploiement. Jamais sollicité en régime normal.
+swap_size_mb = 512
+
+[build]
+  dockerfile = "Dockerfile"
+
+# ⚠️ PAS de `release_command` : il s'exécute sur une machine éphémère SANS le volume, donc
+# sans la base — les migrations y seraient jouées dans le vide. Elles sont jouées au
+# démarrage par bin/docker-entrypoint (`db:prepare`), qui voit le vrai volume.
+
+[env]
+  # Solid Queue tourne DANS Puma (plugin dans config/puma.rb) : aucun worker à payer.
+  SOLID_QUEUE_IN_PUMA = "true"
+  # 1 Go de RAM : un seul worker Puma, 3 threads — à garder aligné avec le pool de
+  # connexions de config/database.yml (max_connections = RAILS_MAX_THREADS).
+  WEB_CONCURRENCY = "1"
+  RAILS_MAX_THREADS = "3"
+  # Thruster écoute par défaut sur le port 80. Le conteneur tourne en utilisateur non-root
+  # (USER 1000 dans le Dockerfile) et c'est l'hôte qui décide si un non-root peut prendre un
+  # port < 1024 : vrai sous Docker, pas garanti dans une microVM. 8080 supprime la question.
+  HTTP_PORT = "8080"
+
+# Les 4 bases SQLite (jeu, cache, queue, cable) vivent ici. Équivalent exact du volume
+# Docker que déclarait Kamal : il survit aux déploiements, le conteneur non.
+[[mounts]]
+  source = "btb_storage"
+  destination = "/rails/storage"
+
+[http_service]
+  internal_port = 8080  # = HTTP_PORT ci-dessus (Thruster)
+  force_https = true
+
+  # ⚠️ NE JAMAIS réactiver l'arrêt automatique. Une machine arrêtée ne fait pas tourner
+  # Solid Queue : toutes les tâches de config/recurring.yml (famine quotidienne, jauge de
+  # meute et streak du lundi, récompense de ligue du 1er) sauteraient SANS AUCUNE ERREUR.
+  # C'est le piège du dyno Eco d'Heroku. Une machine allumée 24/7 est le prix d'un jeu
+  # qui tourne.
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    method = "GET"
+    path = "/up"
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "30s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1gb"

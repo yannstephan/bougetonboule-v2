@@ -21,10 +21,10 @@ L'événement **Odyssea 2027** (mars 2027) oppose deux clans : **🌴 Fruits exo
 ## Stack
 
 - **Rails 8.1** + **Inertia.js** + **React** (Vite) + **Tailwind v4**, base **SQLite**
-- **Solid Queue/Cache/Cable** (pas de Redis), **Kamal** pour le déploiement, stubs **PWA**
+- **Solid Queue/Cache/Cable** (pas de Redis), **Fly.io** pour le déploiement, stubs **PWA**
 - Auth maison par session : email/mot de passe (`has_secure_password`) + **Google** (OmniAuth)
 - Ruby **3.3.6** recommandé (voir `.ruby-version`) — non verrouillé strictement par Bundler
-- Objectif hébergement : **~5-6 €/mois** (VPS Hetzner + SQLite, webhooks, PWA), voir plus bas
+- Objectif hébergement : **~6 $/mois** (Fly.io + SQLite sur volume, webhooks, PWA), voir « Production »
 
 ## Économie (règle d'or : jamais de pay-to-win)
 
@@ -726,6 +726,71 @@ NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
 NAMES='Parasol' bin/rails season:close                             # redevient permanent
 ```
 
+## Production (Fly.io)
+
+Hébergé sur **Fly.io** (`fly.toml`), pas sur Kamal : pas de machine à administrer, et le
+Dockerfile est le même. Les fichiers Kamal (`config/deploy.yml`, `.kamal/`) restent dans le
+dépôt au stade template — **ils ne sont pas la voie de déploiement**, juste une porte de
+sortie si on veut un jour reprendre un VPS.
+
+**Domaine : `bougetonboule.fr`** (déclaré dans `config.hosts` et `action_mailer`).
+
+```bash
+fly deploy              # construit l'image et déploie
+fly logs                # journaux en direct
+fly ssh console          # shell dans la machine
+fly ssh console -C "/rails/bin/rails console"
+fly secrets set STRAVA_CLIENT_ID=… STRAVA_CLIENT_SECRET=…   # redéploie automatiquement
+```
+
+Quatre décisions qui tiennent le tout, chacune documentée dans `fly.toml` :
+
+- **Une seule machine, un seul volume.** SQLite est un fichier : deux instances = deux bases
+  divergentes. Ne jamais `fly scale count 2`.
+- **`auto_stop_machines = "off"` — à ne jamais réactiver.** Une machine arrêtée ne fait pas
+  tourner Solid Queue (qui vit *dans* Puma, `SOLID_QUEUE_IN_PUMA`), donc toutes les tâches de
+  `config/recurring.yml` — famine quotidienne, jauge de meute et streak du lundi, récompense de
+  ligue du 1er — sauteraient **sans aucune erreur**. C'est le piège du dyno Eco d'Heroku.
+- **Pas de `release_command`.** Il tourne sur une machine éphémère sans le volume, donc sans la
+  base. Les migrations sont jouées au démarrage par `bin/docker-entrypoint` (`db:prepare`).
+- **Garde de production sur le seed** (`db/seeds.rb`) : `db:prepare` charge les seeds sur une
+  base neuve, et le seed commence par un `delete_all` de toutes les tables. Sans la garde, la
+  première prod naissait avec les 15 joueurs de démo. `SEED_DEMO=1` force si besoin.
+
+⚠️ **Node est requis dans le Dockerfile** (étape de build uniquement) : `assets:precompile`
+déclenche `vite build`, et `node_modules` est exclu par `.dockerignore`. Sans Node, l'image ne
+se construit pas du tout. L'image finale ne contient que le bundle compilé dans `public/vite`.
+
+### Sauvegardes
+Fly prend un **snapshot quotidien** du volume (5 jours de rétention), mais sa propre
+documentation dit de **ne pas s'en servir comme sauvegarde principale** : un volume = une copie
+sur un seul hôte. Le filet réel est une copie nocturne hors-plateforme — `sqlite3 .backup`
+(jamais un `cp` : copier une base en cours d'écriture la corrompt) envoyée vers un stockage
+distant. **Une sauvegarde jamais restaurée n'est pas une sauvegarde** : tester la restauration
+fait partie de la mise en place.
+
+### Bascule Strava depuis la v1
+L'app API Strava est **la même que la v1** (client 181497, niveau standard, 999 athlètes
+autorisés) — donc rien à redemander, mais deux ressources y sont **uniques par app** :
+
+1. **Un seul abonnement webhook.** Supprimer celui de la v1 avant de créer le nouveau :
+   `bin/rails strava:view` → `SUB_ID=… bin/rails strava:delete` →
+   `CALLBACK_URL=https://bougetonboule.fr/strava/webhook bin/rails strava:subscribe`.
+2. **Un seul « Authorization Callback Domain ».** Le pointer sur `bougetonboule.fr` casse les
+   *nouvelles* connexions Strava de la v1 (les tokens déjà émis continuent de se rafraîchir).
+   Les deux sites ne peuvent donc pas accueillir de nouveaux coureurs en parallèle : c'est une
+   bascule nette.
+
+Les 17 athlètes déjà connectés ont **déjà autorisé cette app** : leur reconnexion sur la v2 est
+un aller-retour sans écran de consentement.
+
+⚠️ **Clause d'affichage de l'API Strava** (avenant du 11/11/2024) : une app tierce ne doit pas
+montrer les données d'activité d'un athlète à quelqu'un d'autre que lui. Aujourd'hui le
+`RunFeed`, la page profil et `/courses/:id` (allure, dénivelé, **tracé**, photo) sont visibles
+par tout joueur de la même partie (`shares_game?`). Le tier étant déjà accordé, ce n'est pas un
+verrou d'accès mais un risque résiduel — décision en attente. Mitigation si on la prend : le
+détail reste au coureur, les autres ne voient que les 🍑 (donnée de jeu dérivée, pas Strava).
+
 ## Roadmap (à faire, ordre suggéré)
 
 1. **Admin de partie** — créer Event/Game/Teams depuis l'app (l'écran `/admin` existe déjà pour
@@ -733,8 +798,9 @@ NAMES='Parasol' bin/rails season:close                             # redevient p
    pas : le contrôle anti-triche est 100 % automatique, voir la section dédiée).
 2. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
    en console, il n'y a pas d'écran pour rejoindre une équipe.
-3. **Déploiement** (Kamal, VPS) — y ajouter le **mot de passe oublié** (nécessite un SMTP,
-   ex. Brevo comme la v1) et une limitation des tentatives de connexion (rack-attack).
+3. **Déploiement** — la configuration est posée (voir « Production »), restent le
+   **mot de passe oublié** (SMTP déjà câblé dans `production.rb`, inerte sans `SMTP_ADDRESS` ;
+   Brevo comme la v1) et une limitation des tentatives de connexion (rack-attack).
 
 ## Commandes utiles
 
