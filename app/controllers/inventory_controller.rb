@@ -4,19 +4,19 @@
 # c'est le seul endroit d'où l'on équipe. Accessible par son onglet du footer, près de la boutique.
 class InventoryController < ApplicationController
   before_action :require_authentication
+  before_action :require_membership
 
   def show
     m = current_membership
     render inertia: "Inventaire", props: {
-      has_team: m.present?,
       initial_tab: params[:tab] == "wardrobe" ? "wardrobe" : "items",
-      balls: m&.balls || 0,
+      balls: m.balls,
       chests: chests_json(m),
       inventory: inventory_json(m),
       armed: armed_effects_json(m),
       opponents: opponents_json(m),
-      team_names: m && { mine: m.team.name, foe: m.team.opponent&.name,
-                         mine_monster: m.team.monster&.name, foe_monster: m.team.opponent&.monster&.name },
+      team_names: { mine: m.team.name, foe: m.team.opponent&.name,
+                   mine_monster: m.team.monster&.name, foe_monster: m.team.opponent&.monster&.name },
       avatar: AvatarPresenter.new(current_user, membership: m).as_json,
       cosmetics: owned_cosmetics,
       slots: Cosmetic::SLOTS
@@ -26,8 +26,6 @@ class InventoryController < ApplicationController
   # Utiliser un objet du sac (à usage unique) — réutilise la logique de combat.
   def use_item
     m = current_membership
-    return redirect_to inventory_path, alert: "Aucune partie active." unless m
-
     result = PerformAction.call(m, action_type: "use_item", item_id: params[:item_id],
                                    target_id: params[:target_id], target_team: params[:target_team])
     flash[result.ok ? :notice : :alert] = result.message
@@ -61,15 +59,11 @@ class InventoryController < ApplicationController
 
   # Les coffres pas encore ouverts, du plus ancien au plus récent.
   def chests_json(membership)
-    return [] unless membership
-
     membership.chests.sealed.order(:created_at).map { |c| { id: c.id, rarity: c.rarity } }
   end
 
   # Objets possédés (non utilisés), regroupés par type avec leur nombre.
   def inventory_json(membership)
-    return [] unless membership
-
     membership.membership_items.unused.includes(:item)
               .group_by(&:item_id).map do |_item_id, rows|
       item = rows.first.item
@@ -82,8 +76,6 @@ class InventoryController < ApplicationController
   # Objets « à retardement » posés et pas encore résolus : jambe de bois armée (sur soi) et
   # pièges à loup en attente (avec la cible). Ils ont quitté le sac mais restent en jeu.
   def armed_effects_json(membership)
-    return [] unless membership
-
     Action.joins(:item)
           .where(items: { effect_type: %w[wooden_leg trap] }, resolved_at: nil, membership: membership)
           .includes(:item)
@@ -97,9 +89,9 @@ class InventoryController < ApplicationController
 
   # Adversaires ciblables par un piège à loup.
   def opponents_json(membership)
-    foe = membership&.team&.opponent
+    foe = membership.team.opponent
     return [] unless foe
 
-    foe.memberships.includes(:user).map { |m| { id: m.id, name: m.display_name } }
+    foe.roster_json
   end
 end

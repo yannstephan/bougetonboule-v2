@@ -22,7 +22,6 @@ class Membership < ApplicationRecord
 
   def display_name = user.firstname.presence || user.email.to_s.split("@").first
   def fruit_name = FruitCatalog.name_for(fruit)
-  def fruit_chosen? = fruit.present?
 
   # Les deux conversations d'une participation : le chat général + le chat de son équipe.
   def conversations

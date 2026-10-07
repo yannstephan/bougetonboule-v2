@@ -6,13 +6,11 @@ import BuyConfirm from '../components/BuyConfirm'
 import { CosmeticIcon } from '../components/cosmeticArt'
 import Hud from '../components/Hud'
 import { itemEmoji } from '../lib/gameIcons'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
+import { csrf } from '../lib/csrf'
 
 const rarityLabel = { common: 'Commun', rare: 'Rare', epic: 'Épique', legendary: 'Légendaire' }
 
-export default function Boutique({ has_team, initial_tab, balls, items, cosmetics, seasonal, avatar }) {
+export default function Boutique({ initial_tab, balls, items, cosmetics, seasonal, avatar }) {
   const { auth, flash } = usePage().props
   const diamonds = auth.user?.diamonds ?? 0
   const [tab, setTab] = useState(initial_tab || 'items')
@@ -49,7 +47,7 @@ export default function Boutique({ has_team, initial_tab, balls, items, cosmetic
       </div>
 
       <main className="body">
-        {tab === 'items' && <Items items={items} balls={balls} hasTeam={has_team} onBuy={askItem} />}
+        {tab === 'items' && <Items items={items} balls={balls} onBuy={askItem} />}
         {tab === 'cosmetics' && (
           <Cosmetics cosmetics={cosmetics} seasonal={seasonal} diamonds={diamonds}
                      onBuy={askCosmetic} avatar={avatar} />
@@ -63,10 +61,7 @@ export default function Boutique({ has_team, initial_tab, balls, items, cosmetic
   )
 }
 
-function Items({ items, balls, hasTeam, onBuy }) {
-  if (!hasTeam) {
-    return <p className="shop-empty">Rejoins une partie pour acheter des objets : ils s'achètent en 🍑 boules, gagnées en courant.</p>
-  }
+function Items({ items, balls, onBuy }) {
   return (
     <div className="shop-list">
       {items.map((it) => (

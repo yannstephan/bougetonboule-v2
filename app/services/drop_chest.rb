@@ -55,6 +55,6 @@ class DropChest
   def maybe_cosmetic(rarity)
     return nil unless rand < GameRules::CHEST_COSMETIC_CHANCE.fetch(rarity)
 
-    Cosmetic.available.where.not(id: @m.user.user_cosmetics.select(:cosmetic_id)).order("RANDOM()").first
+    Cosmetic.random_unowned_for(@m.user)
   end
 end

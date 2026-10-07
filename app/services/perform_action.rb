@@ -151,7 +151,7 @@ class PerformAction
     TeamEffect.create!(team: foe, kind: "face_wind", modifier: GameRules::FACE_WIND_MODIFIER,
                        expires_at: until_at, created_by: @m)
     consume(mi, "🌪️ #{@m.user.firstname} a lancé un vent de face sur #{foe.name}")
-    Notification.broadcast(foe.memberships.includes(:user).map(&:user),
+    Notification.broadcast(foe.users,
                            game: @m.game, importance: "important", category: "effect",
                            title: "🌪️ Vent de face !",
                            body: "#{@m.user.firstname} souffle contre vous : −25 % de boules jusqu'à #{until_at.strftime('%H:%M')}.")
@@ -171,7 +171,7 @@ class PerformAction
     until_at = GameRules::SMOKE_DURATION.from_now
     TeamEffect.create!(team: foe, kind: "smoke", masked_team:, expires_at: until_at, created_by: @m)
     consume(mi, "🍦 #{@m.user.firstname} a collé de la chantilly dans les yeux de #{monster.name}")
-    Notification.broadcast(foe.memberships.includes(:user).map(&:user),
+    Notification.broadcast(foe.users,
                            game: @m.game, importance: "important", category: "effect",
                            title: "🍦 Chantilly !",
                            body: "#{@m.user.firstname} barbouille #{monster.name} de chantilly : vous ne voyez plus ses PV jusqu'à #{until_at.strftime('%H:%M')}.")
@@ -202,7 +202,7 @@ class PerformAction
   # except_team : équipe déjà prévenue par une notification importante dédiée.
   def broadcast_effect(body, except_team: nil)
     recipients = other_players
-    recipients -= except_team.memberships.includes(:user).map(&:user) if except_team
+    recipients -= except_team.users if except_team
     Notification.broadcast(recipients, game: @m.game, category: "effect",
                            title: "✨ Effet d'équipe", body:)
   end

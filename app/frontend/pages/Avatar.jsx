@@ -3,13 +3,11 @@ import FruitAvatar from '../components/FruitAvatar'
 import PlayerAvatar from '../components/PlayerAvatar'
 import Hud from '../components/Hud'
 import BottomNav from '../components/BottomNav'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
+import { csrf } from '../lib/csrf'
 
 // Le fruit-avatar et le compte. Les cosmétiques se rangent et s'équipent dans le sac
 // (/sac, onglet 🎨) : un seul chemin pour habiller son fruit.
-export default function Avatar({ has_team, strava_connected, is_admin, team, fruits, avatar }) {
+export default function Avatar({ strava_connected, is_admin, team, fruits, avatar }) {
   const { flash } = usePage().props
 
   const pickFruit = (key) =>
@@ -38,32 +36,26 @@ export default function Avatar({ has_team, strava_connected, is_admin, team, fru
 
         <div className="av-stage"><PlayerAvatar avatar={avatar} size={132} /></div>
 
-        {!has_team ? (
-          <NoTeam />
-        ) : (
-          <>
-            <Link href="/sac?tab=wardrobe" className="btn ghost">🎨 Habiller mon fruit (armoire du sac)</Link>
+        <Link href="/sac?tab=wardrobe" className="btn ghost">🎨 Habiller mon fruit (armoire du sac)</Link>
 
-            <section className="av-sec">
-              <h2>Ton fruit · {team.family_label}</h2>
-              <p className="av-hint">
-                Choisis le fruit qui te représente dans l'équipe {team.name}. Plusieurs joueurs
-                peuvent porter le même — on t'indique qui l'a déjà pris.
-              </p>
-              <div className="fruit-grid">
-                {fruits.map((f) => (
-                  <button key={f.key} className={`fruit-pick ${f.mine ? 'on' : ''}`} onClick={() => pickFruit(f.key)}>
-                    <FruitAvatar fruit={f.key} size={64} showCosmetics={false} />
-                    <span className="fruit-name">{f.name}</span>
-                    {f.taken_by.length > 0 && (
-                      <span className="fruit-taken">déjà : {f.taken_by.join(', ')}</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </section>
-          </>
-        )}
+        <section className="av-sec">
+          <h2>Ton fruit · {team.family_label}</h2>
+          <p className="av-hint">
+            Choisis le fruit qui te représente dans l'équipe {team.name}. Plusieurs joueurs
+            peuvent porter le même — on t'indique qui l'a déjà pris.
+          </p>
+          <div className="fruit-grid">
+            {fruits.map((f) => (
+              <button key={f.key} className={`fruit-pick ${f.mine ? 'on' : ''}`} onClick={() => pickFruit(f.key)}>
+                <FruitAvatar fruit={f.key} size={64} showCosmetics={false} />
+                <span className="fruit-name">{f.name}</span>
+                {f.taken_by.length > 0 && (
+                  <span className="fruit-taken">déjà : {f.taken_by.join(', ')}</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </section>
 
         <section className="av-sec">
           <h2>Compte Strava</h2>
@@ -84,25 +76,11 @@ export default function Avatar({ has_team, strava_connected, is_admin, team, fru
           <Link href="/admin" className="btn ghost">🛠️ Organisation de la partie</Link>
         )}
 
-        <Link href="/" className="btn primary">C'est bon !</Link>
+        <Link href="/" className="btn brand">C'est bon !</Link>
         <button type="button" className="btn-logout" onClick={logout}>Se déconnecter</button>
       </main>
 
       <BottomNav />
-    </div>
-  )
-}
-
-function NoTeam() {
-  return (
-    <div className="av-empty" style={{ textAlign: 'center' }}>
-      <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>
-        Tu n'es pas encore dans une équipe.
-      </p>
-      <p>
-        Ton avatar se choisit une fois que tu as rejoint une partie : chaque équipe a sa propre
-        famille de fruits (exotiques ou rouges). Reviens ici dès que tu es affecté·e à une équipe.
-      </p>
     </div>
   )
 }

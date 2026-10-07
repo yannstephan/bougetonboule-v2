@@ -1,5 +1,6 @@
 class NotificationsController < ApplicationController
   before_action :require_authentication
+  before_action :require_membership
 
   def index
     # On sérialise avec l'état actuel (les non-lues restent surlignées pour CETTE visite)…

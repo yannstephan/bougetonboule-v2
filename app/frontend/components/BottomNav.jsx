@@ -8,11 +8,21 @@ import { Link, usePage } from '@inertiajs/react'
 // plus tard ne puisse pas oublier de se déclarer.
 export default function BottomNav() {
   const page = usePage()
-  const { inventory_alert: bagAlert = 0 } = page.props
+  const { inventory_alert: bagAlert = 0, has_team: hasTeam = false } = page.props
   const path = (page.url || '/').split('?')[0]
   // Les pages de détail (profil, sortie, admin) n'ont pas d'onglet : rien ne s'allume, et
   // c'est normal — on y arrive depuis un lien, pas depuis la barre.
   const cls = (p) => `n ${path === p || (p !== '/' && path.startsWith(p)) ? 'on' : ''}`
+
+  // Sans équipe, Ligue/Combat/Sac/Boutique ne mènent qu'à un aller-retour vers le Hub
+  // (voir ApplicationController#require_membership) : seul le Hub reste dans la barre.
+  if (!hasTeam) {
+    return (
+      <nav className="nav">
+        <Link href="/" className={cls('/')}><span className="ic">🏠</span>Hub</Link>
+      </nav>
+    )
+  }
 
   return (
     <nav className="nav">

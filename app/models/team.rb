@@ -8,6 +8,7 @@ class Team < ApplicationRecord
   has_one  :monster, dependent: :destroy
   has_one  :conversation, dependent: :nullify
   has_many :memberships, dependent: :destroy
+  has_many :users, through: :memberships
   has_many :team_effects, dependent: :destroy
 
   validates :name, presence: true
@@ -47,4 +48,7 @@ class Team < ApplicationRecord
 
   def fruits = FruitCatalog.fruits_for(fruit_family)
   def fruit_keys = FruitCatalog.keys_for(fruit_family)
+
+  # Liste ciblable (TargetPicker) : qui est dans cette équipe, pour un piège ou une pastille.
+  def roster_json = memberships.includes(:user).map { |m| { id: m.id, name: m.display_name } }
 end

@@ -9,4 +9,11 @@ class TeamEffect < ApplicationRecord
   validates :kind, inclusion: { in: KINDS }
 
   scope :active, -> { where("expires_at IS NULL OR expires_at > ?", Time.current) }
+
+  # Vents (dos/face) couvrant un instant donné — utilisé pour juger une course à sa date
+  # réelle (TrainingScorer) et pour l'expliquer ensuite (TrainingPresenter).
+  scope :winds_at, ->(at) {
+    where(kind: %w[back_wind face_wind])
+      .where("created_at <= :at AND (expires_at IS NULL OR expires_at >= :at)", at:)
+  }
 end

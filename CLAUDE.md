@@ -262,7 +262,7 @@ trois familles d'emojis ne marchent pas sur un avatar-fruit —
 Ces pièces portent une clé `art` et sont dessinées à plat : `sneakers`/`trail`/`ballet`/`skates`/
 `boots7` (les 5 paires de chaussures), `mitten`, `paw`, `gold_hat` (🎩 est noir et bleu, le nom
 promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `monocle`, `eyepatch`, `visor`,
-`bowtie`, `bib`, `bandana`.
+`bowtie`, `bib`, `bandana`, `wand` (la baguette magique, `single: true`), `maracas`.
 
 Trois drapeaux de mise en page, sur l'entrée `COSMETIC_ART` :
 - **`pair: true`** — le dessin contient déjà les deux pièces (chaussures) → jamais dupliqué, et
@@ -296,7 +296,10 @@ catalogue reste en emoji, et le sera par défaut.
 `/avatar` fait donc **le fruit + le compte** (accès en tapant l'avatar du Hud) :
 **connecter/déconnecter Strava** (`StravaController#connect` / `#disconnect`, prop
 `strava_connected`) et **se déconnecter** (`DELETE /logout`). Les deux boutons de suppression
-demandent une confirmation.
+demandent une confirmation. ⚠️ **L'avatar est lié à l'équipe** (famille de fruits) : `/avatar`
+passe par `require_membership` comme le reste du jeu, pas d'accès partiel sans équipe. Avant
+d'en avoir une, Strava se connecte directement depuis l'onboarding du Hub, et se déconnecter
+depuis le même écran (voir « Rejoindre une partie »).
 
 `AvatarPresenter.new(user, membership:)` est le **seul** endroit qui sérialise un avatar (fruit +
 cosmétiques), affiché dans le Hub, le chat, le classement et l'écran avatar. Côté React, le
@@ -434,7 +437,7 @@ est **plus gros** : sur une piste, la récompense majeure se voit de loin.
 de la semaine passe en `claimable` et le bouton s'allume. C'est la course qui débloque le
 palier, l'app ne fait que le montrer.
 
-**Réclamer** (`POST /recompenses/:id/reclamer` → `RewardsController#claim` → `ClaimReward`) :
+**Réclamer** (`POST /serie/:week/reclamer` → `RewardsController#claim_week` → `ClaimReward`) :
 - les gains vivent dans `rewards` avec `claimed_at` nil = en attente, et `streak_week` pour se
   placer sur la piste (le `period` ISO ne suffit pas, il devient ambigu après un retour à zéro) ;
 - `ClaimReward` est idempotent comme l'ouverture d'un coffre (verrou + relecture dans la
@@ -681,7 +684,13 @@ la fatigue visuelle et garder le jeu lisible sur un écran de téléphone. Token
 | **10 %** | pop | **`--accent` orange** + `--accent-ink` | **uniquement les CTA** : COMBATTRE (et son bouton rond du footer), Acheter, Utiliser, Installer, Enregistrer |
 
 ⚠️ **Dans le doute, c'est `--brand`.** La force de l'accent vient de sa rareté : un 4e bouton
-orange à l'écran et plus rien ne ressort. Aujourd'hui l'accent ne sert que dans **6 règles**.
+orange à l'écran et plus rien ne ressort. Aujourd'hui l'accent ne sert que dans **7 règles CSS**,
+toutes rattachées aux CTA ci-dessus : COMBATTRE compte pour 2 (`.btn.combat` + le bouton rond du
+footer `.nav .center`), Acheter pour 2 (`.shop-buy` au rayon + `.btn.primary` à la confirmation —
+cette même classe sert aussi la sauvegarde d'une journée ×2 dans `/admin`, un geste
+« Enregistrer »), Utiliser pour 1 (`.shop-use`), Installer pour 1 (`.install-hint .ih-btn`),
+Enregistrer pour 1 (`.adm-save`). Tout le reste (connexion, inscription, confirmation de fruit,
+réclamation d'une récompense déjà gagnée…) passe par `.btn.brand`, pas par l'accent.
 
 Le reste sont des couleurs de **sens**, pas de décor, et restent donc rares : 🍑 `--peach`
 (boules), 💎 `--violet` (diamants et boutique de saison), `--citron` (récompenses, coffres,
@@ -709,14 +718,36 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 - Schéma BDD : https://claude.ai/code/artifact/3711a673-bfcb-4368-a42d-27b3a0ea751e
 - Plan de démarrage : https://claude.ai/code/artifact/cb6fd930-ef35-4163-8164-a8e48dff3238
 
+### Rejoindre une partie — pas d'auto-inscription
+Un joueur ne choisit jamais son équipe : c'est l'organisateur qui l'affecte, depuis l'onglet
+**Joueurs** du back-office (voir ci-dessous). Tant qu'il n'a pas de `Membership` dans une partie
+`active` (`ApplicationController#current_membership`), un joueur connecté ne peut **que**
+connecter Strava, se déconnecter du compte, et lire la FAQ — tout le reste (combat, ligue, chat,
+boutique, sac, notifications, **et l'avatar**, lié à l'équipe via la famille de fruits) redirige
+vers le Hub via le garde partagé `require_membership` (`ApplicationController`), posé en
+`before_action` sur chaque contrôleur concerné. Le Hub lui-même bascule sur un écran d'accueil
+(`Hub.jsx` → `Onboarding`) avec le lien de connexion Strava **et** le bouton de déconnexion —
+le seul autre endroit qui l'affichait, l'écran avatar, n'est plus accessible sans équipe.
+Hud et BottomNav lisent `has_team` (partagé par `inertia_share`) pour ne pas afficher de liens
+qui ne mèneraient qu'à cet aller-retour : sans équipe, le Hud désactive le lien de l'avatar et
+masque 💬/🔔, et la nav du bas ne garde que le Hub.
+
 ### Back-office de l'organisateur (`/admin`)
 Réservé au joueur dont la participation est `role: "admin"` (`Membership#admin?`) ; un autre
 joueur est renvoyé à l'accueil, et le lien n'apparaît que pour lui, en bas de l'écran compte.
-Il ne couvre **que les deux réglages qui se pilotent par des dates** et qu'on veut changer sans
-redéployer : les **journées ×2** (ajout/suppression) et les **fenêtres de la boutique de saison**
-(deux champs date par cosmétique, vides = pièce permanente). Une borne de fin court jusqu'au
-**bout de sa journée**, sinon la pièce expirerait à minuit pile. Le reste du contenu (créer une
-partie, des équipes) reste au seed.
+Trois réglages, aucun ne demande de redéployer :
+- **Joueurs** — **le seul chemin pour rejoindre une partie** (pas d'auto-inscription, voir
+  « Rejoindre une partie » plus bas) : chaque équipe liste ses membres avec un sélecteur
+  pour en changer un d'équipe (`AdminController#update_membership` — remet son fruit à zéro,
+  l'ancienne famille ne correspond pas forcément à la nouvelle), et les comptes pas encore
+  dans la partie attendent sous la liste avec un sélecteur + « Affecter »
+  (`#create_membership`, crée le `Membership`, `role: "player"`, `balls: 0`).
+- **Journées ×2** (ajout/suppression).
+- **Boutique de saison** — fenêtres de disponibilité des cosmétiques (deux champs date par
+  cosmétique, vides = pièce permanente). Une borne de fin court jusqu'au **bout de sa
+  journée**, sinon la pièce expirerait à minuit pile.
+
+Créer la partie elle-même (Event/Game/Teams) reste au seed.
 
 Les mêmes réglages en ligne de commande, pour le jour où on est en SSH (`lib/tasks/season.rake`) :
 ```bash
@@ -852,11 +883,10 @@ détail reste au coureur, les autres ne voient que les 🍑 (donnée de jeu dér
 ## Roadmap (à faire, ordre suggéré)
 
 1. **Admin de partie** — créer Event/Game/Teams depuis l'app (l'écran `/admin` existe déjà pour
-   les journées spéciales et la boutique de saison ; la validation manuelle des courses n'existe
-   pas : le contrôle anti-triche est 100 % automatique, voir la section dédiée).
-2. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
-   en console, il n'y a pas d'écran pour rejoindre une équipe.
-3. **Déploiement** — la configuration est posée (voir « Production »), restent le
+   les journées spéciales, la boutique de saison et l'affectation des joueurs ; la validation
+   manuelle des courses n'existe pas : le contrôle anti-triche est 100 % automatique, voir la
+   section dédiée).
+2. **Déploiement** — la configuration est posée (voir « Production »), restent le
    **mot de passe oublié** (SMTP déjà câblé dans `production.rb`, inerte sans `SMTP_ADDRESS` ;
    Brevo comme la v1) et une limitation des tentatives de connexion (rack-attack).
 

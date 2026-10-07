@@ -46,7 +46,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* Cartes blanches sur fond slate : une ombre très légère les décolle du fond, sans aucun
    relief 3D — on reste en flat design, on ajoute juste de la profondeur. Une seule règle
    groupée : toute nouvelle carte s'ajoute ici plutôt que d'inventer son ombre. */
-.arena,.cd,.tile,.lg-card,.lg-row,.shop-card,.shop-cos,.notif,.auth-card,.fx-card,
+.arena,.cd,.tile,.lg-card,.lg-row,.shop-card,.shop-cos,.notif,.auth-card,
 .chest-card,.strava-row{box-shadow:var(--shadow)}
 .shop-card.armed{box-shadow:none}
 
@@ -55,8 +55,6 @@ body{margin:0;background:var(--bg);color:var(--text);
    visibles quand on fait défiler. */
 .hud{display:flex;align-items:center;gap:8px;padding:14px 14px 12px;border-bottom:1px solid var(--line);
   position:sticky;top:0;z-index:10;background:var(--bg)}
-.lvl{width:38px;height:38px;border-radius:50%;background:var(--citron);color:var(--citron-ink);
-  display:grid;place-items:center;font-weight:800;font-size:16px;flex:none}
 .curr{display:inline-flex;align-items:center;gap:5px;background:var(--surface-2);border:1px solid var(--line);
   border-radius:999px;padding:5px 11px;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}
 /* Les boutons ronds du HUD. Seul le premier pousse le groupe à droite ; les suivants se collent
@@ -78,29 +76,15 @@ body{margin:0;background:var(--bg);color:var(--text);
 .specialday .x2{margin-left:auto;font-weight:900;background:var(--citron-ink);color:var(--citron);
   padding:2px 9px;border-radius:999px;font-size:12px}
 
-.stage{flex:1;min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r)}
-.monster{font-size:92px;line-height:1;animation:bob 4s ease-in-out infinite}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-.mname{font-weight:800;font-size:19px;margin-top:6px}
-.mtag{font-size:12px;color:var(--muted)}
-
-.vs-mini{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);
-  border-radius:var(--r);padding:11px 13px}
-.vs-mini .side{flex:1}
-.vs-mini .row{display:flex;justify-content:space-between;font-size:11px;font-variant-numeric:tabular-nums;margin-bottom:5px}
-.vs-mini .row b{font-weight:800}
-.minibar{height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
-.minibar>i{display:block;height:100%;border-radius:99px}
-.minibar>i.good{background:var(--good)} .minibar>i.crit{background:var(--crit)}
-.vs-mini .vlabel{font-weight:800;font-size:12px;color:var(--faint)}
-
 .btn{border:none;border-radius:var(--r);padding:14px 16px;font:inherit;font-weight:800;cursor:pointer;
   display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;transition:filter .12s}
 .btn:hover{filter:brightness(.97)} .btn:active{transform:translateY(1px)}
 /* Les 10 % : le CTA principal de chaque écran, et lui seul. */
 .btn.combat{background:var(--accent);color:var(--accent-ink);font-size:17px}
 .btn.primary{background:var(--accent);color:var(--accent-ink);width:100%}
+/* Les 30 % : action principale d'un écran qui n'est ni un achat ni le combat (connexion,
+   inscription, confirmation, réclamation d'une récompense déjà gagnée). */
+.btn.brand{background:var(--brand);color:var(--brand-ink);width:100%}
 .btn.strava{background:var(--strava);color:#fff}
 .btn.ghost{background:var(--surface);border:1px solid var(--line-2);color:var(--muted);font-size:13px}
 
@@ -135,9 +119,6 @@ body{margin:0;background:var(--bg);color:var(--text);
   display:grid;place-items:center;font-size:23px;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 40%,transparent)}
 .nav .center.on{box-shadow:0 0 0 3px var(--surface),0 0 0 6px var(--brand)}
 .nav-ic{position:relative;display:inline-grid;place-items:center}
-.nav-badge{position:absolute;top:-5px;right:-9px;min-width:16px;height:16px;border-radius:99px;
-  background:var(--fraise);color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;
-  padding:0 3px;line-height:1;border:2px solid var(--surface)}
 /* Pastille muette : « du nouveau ici », sans chiffre (onglet 🎒) */
 .nav-dot{position:absolute;top:-2px;right:-5px;width:10px;height:10px;border-radius:50%;
   background:var(--fraise);border:2px solid var(--surface)}
@@ -326,7 +307,6 @@ body{margin:0;background:var(--bg);color:var(--text);
 .mon-art{object-fit:contain}
 .mon-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .mon-layer.front{z-index:2}
-.stage-mon{animation:bob 4s ease-in-out infinite}
 .foe-mon-svg{animation:hit 2.6s ease-in-out infinite}
 .my-corner-svg{position:absolute;bottom:10px;left:14px}
 /* Usure : à partir du 2e palier de PV franchi, le monstre tangue de plus en plus. */
@@ -403,21 +383,6 @@ body{margin:0;background:var(--bg);color:var(--text);
 .av-card.on.rare,.av-card.on.epic,.av-card.on.legendary{border-color:var(--brand)}
 .av-sec h2{margin:0 0 8px;font-size:13px;font-weight:800}
 .av-sec{display:flex;flex-direction:column}
-.av-grid{display:flex;flex-wrap:wrap;gap:8px}
-.av-chip{background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:8px;
-  min-width:52px;cursor:pointer;font:inherit;color:var(--text);display:flex;flex-direction:column;
-  align-items:center;gap:3px}
-.av-chip .e{font-size:24px;line-height:1}
-.av-chip .n{font-size:9px;font-weight:600;color:var(--muted);max-width:70px;text-align:center}
-.av-chip.on{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 10%,var(--surface))}
-.av-chip.color{width:44px;height:44px;min-width:0;border-radius:50%;padding:0}
-.av-chip.color.on{border-color:var(--text);box-shadow:0 0 0 2px var(--surface) inset}
-.av-chip.rare{border-color:color-mix(in srgb,var(--mint) 45%,var(--line))}
-.av-chip.epic{border-color:color-mix(in srgb,var(--violet) 45%,var(--line))}
-.av-chip.legendary{border-color:color-mix(in srgb,var(--citron) 60%,var(--line))}
-.av-slot{margin-bottom:10px}
-.av-slot-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
-  color:var(--muted);margin-bottom:5px}
 .av-empty{font-size:12px;color:var(--muted);line-height:1.45;margin:0}
 .av-hint{font-size:12px;color:var(--muted);line-height:1.4;margin:0 0 10px}
 
@@ -560,8 +525,6 @@ body{margin:0;background:var(--bg);color:var(--text);
 }
 
 /* effets actifs (visibles par tous) */
-.fx-card{display:flex;flex-direction:column;gap:7px;background:var(--surface);border:1px solid var(--line);
-  border-radius:var(--r);padding:11px 12px}
 .fx-line{display:flex;align-items:flex-start;gap:8px}
 .fx-label{font-size:11px;font-weight:800;color:var(--muted);flex:none;width:34px;padding-top:3px}
 .fx-row{display:flex;flex-wrap:wrap;gap:6px;flex:1}
@@ -843,7 +806,6 @@ body{margin:0;background:var(--bg);color:var(--text);
 .faq-hero p{margin:0 0 12px}
 .faq-hero-vs{display:flex;align-items:center;justify-content:center;gap:14px;font-size:26px;margin-bottom:10px}
 .faq-hero-vs b{font-size:14px;color:var(--fraise)}
-.faq-intro{margin:0;color:var(--muted);font-size:13px}
 .faq-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .faq-item[open]{border-color:color-mix(in srgb,var(--brand) 30%,var(--line))}
 .faq-q{list-style:none;cursor:pointer;padding:14px;font-weight:700;font-size:14px;
@@ -861,6 +823,9 @@ body{margin:0;background:var(--bg);color:var(--text);
 .faq-gold-b{font-size:12px;color:var(--muted);line-height:1.45;margin-top:2px}
 
 /* Back-office organisateur (/admin) : dense et sans fioriture, ce n'est pas un écran de jeu. */
+.adm-team{margin-bottom:16px}
+.adm-team-h{margin:0 0 8px;font-size:13px;font-weight:800}
+.adm-item select.field{flex:none;width:auto;margin:0}
 .adm-tabs{display:flex;gap:8px}
 .adm-tab{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;
   font:inherit;font-weight:700;font-size:12px;color:var(--muted);cursor:pointer}

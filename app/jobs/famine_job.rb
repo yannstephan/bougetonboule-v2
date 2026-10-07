@@ -39,14 +39,14 @@ class FamineJob < ApplicationJob
   end
 
   def announce(team, monster, lost)
-    Notification.broadcast(team.memberships.includes(:user).map(&:user),
+    Notification.broadcast(team.users,
                            game: team.game, importance: "important", category: "famine",
                            title: "🍽️ #{monster.name} a faim !",
                            body: "Personne n'a couru depuis 3 jours : #{monster.name} perd #{lost} PV. " \
                                  "Nourris-le en allant courir !")
     return unless team.opponent
 
-    Notification.broadcast(team.opponent.memberships.includes(:user).map(&:user),
+    Notification.broadcast(team.opponent.users,
                            game: team.game, category: "famine",
                            title: "🍽️ Monstre affamé",
                            body: "#{monster.name} dépérit (−#{lost} PV) : #{team.name} ne court plus.")
