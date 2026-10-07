@@ -40,6 +40,11 @@ swap_size_mb = 512
 [[mounts]]
   source = "btb_storage"
   destination = "/rails/storage"
+  # 3 Go à 0,15 $/Go = 0,45 $/mois. Large exprès : la base devrait peser ~30 Mo en fin de
+  # saison et la rotation des sauvegardes est bornée à 11 copies (storage/backups), donc
+  # ~400 Mo au pire. Un volume plein = SQLite qui ne peut plus écrire = jeu à l'arrêt ; ce
+  # n'est pas là qu'il faut économiser 30 centimes.
+  initial_size = "3gb"
 
 [http_service]
   internal_port = 8080  # = HTTP_PORT ci-dessus (Thruster)

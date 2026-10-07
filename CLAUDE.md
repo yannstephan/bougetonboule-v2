@@ -761,13 +761,71 @@ Quatre décisions qui tiennent le tout, chacune documentée dans `fly.toml` :
 déclenche `vite build`, et `node_modules` est exclu par `.dockerignore`. Sans Node, l'image ne
 se construit pas du tout. L'image finale ne contient que le bundle compilé dans `public/vite`.
 
-### Sauvegardes
+### Sauvegardes (`BackupDatabase` · `DatabaseBackupJob` · `lib/tasks/backup.rake`)
 Fly prend un **snapshot quotidien** du volume (5 jours de rétention), mais sa propre
 documentation dit de **ne pas s'en servir comme sauvegarde principale** : un volume = une copie
-sur un seul hôte. Le filet réel est une copie nocturne hors-plateforme — `sqlite3 .backup`
-(jamais un `cp` : copier une base en cours d'écriture la corrompt) envoyée vers un stockage
-distant. **Une sauvegarde jamais restaurée n'est pas une sauvegarde** : tester la restauration
-fait partie de la mise en place.
+sur un seul hôte.
+
+**Rotation datée, jamais d'écrasement.** Écraser la copie de la veille ne protège que du cas
+« le fichier a disparu à l'instant » ; le cas réel le plus fréquent est « je découvre mardi
+qu'un truc a mal tourné samedi », où un emplacement unique a déjà été rempli trois fois par le
+problème. On garde donc **les 7 dernières nuits + les 4 derniers lundis** (`DAILY_KEPT` /
+`WEEKLY_KEPT`) : 11 copies au maximum, ce qui **borne** la place occupée et permet de remonter
+à ~5 semaines.
+
+- **`VACUUM INTO`**, pas un `cp` : instantané *cohérent* d'une base en cours d'écriture (et
+  compactée au passage). Copier un fichier SQLite vivant produit une base corrompue, le WAL
+  n'y étant pas intégré.
+- Écriture en `.part` puis **renommage atomique** : une sauvegarde interrompue laisse un
+  `.part`, jamais une demi-copie d'apparence valide.
+- **Pas de compression**, volontairement : une restauration se fait sous stress, et un
+  `.sqlite3` brut s'ouvre directement pour inspection. Le gain de place ne vaut pas ça.
+- **Seule la base de jeu** est sauvegardée : cache / queue / cable se reconstruisent seules.
+- Planifiée par **Solid Queue** (`config/recurring.yml`, 3h30) — **Fly n'a pas de cron
+  système**, c'est pour ça que ce n'est pas une crontab.
+
+⚠️ **Portée exacte** : les copies vivent sur **le même volume** que l'original. Ça protège de
+la fausse manœuvre (suppression, migration ratée, bug découvert trois jours plus tard), **pas**
+de la perte du volume. Pour couvrir ça, un seul point à brancher : envoyer le fichier rendu par
+`BackupDatabase.call` vers un stockage distant (Cloudflare R2, Backblaze).
+
+```bash
+bin/rails backup:now       # sauvegarde immédiate + élagage
+bin/rails backup:list      # ce qu'on a sous la main
+bin/rails backup:verify    # LE test de restauration — non destructif
+CONFIRM=oui FILE=storage/backups/production-2026-10-07.sqlite3 bin/rails backup:restore
+```
+
+**`backup:verify` est le test à relancer régulièrement** : il ouvre la copie et contrôle son
+intégrité (`PRAGMA integrity_check`), que son **schéma** correspond à celui qu'attend le code
+(une copie saine au mauvais schéma est restaurable mais ne démarre pas) et qu'elle n'est pas
+vide. **Une sauvegarde jamais vérifiée n'est pas une sauvegarde.**
+
+La restauration demande `CONFIRM=oui`, vérifie l'intégrité **avant** de toucher à quoi que ce
+soit, et **met l'ancienne base de côté** au lieu de l'écraser. ⚠️ Elle supprime aussi les
+`-wal`/`-shm` : un WAL resté là appartient à l'**ancienne** base et SQLite le rejouerait
+par-dessus le fichier restauré, le corrompant. Arrêter la machine d'abord
+(`fly machine stop`), sinon Puma écrit pendant la bascule.
+
+### Limitation du débit (`rack-attack`)
+`config/initializers/rack_attack.rb`. L'enjeu **n'est pas** le vol de comptes — les mots de
+passe sont en bcrypt — c'est la **disponibilité** : bcrypt coûte volontairement ~100 ms de CPU
+par essai, donc quelques centaines de tentatives par minute saturent l'unique vCPU et
+ralentissent le jeu pour tout le monde. Un domaine public se fait scanner par des bots dans les
+jours suivant sa mise en ligne, sans malveillance particulière.
+
+- **Limites** : `/login` 10/min par IP **et** 10/20 min par email visé (pour qu'un attaquant
+  réparti sur plusieurs IP ne puisse pas marteler un compte précis), `/register` 5/h par IP,
+  et un garde-fou général de 300/5 min par IP — assez haut pour qu'un joueur ne le touche jamais.
+- ⚠️ **`/strava/webhook` est en liste blanche, et doit le rester** : les sorties arrivent en
+  rafale le dimanche matin et **une requête refusée = une course perdue**. Même chose pour
+  `/up`, frappé toutes les 15 s par le contrôle de santé. **Tout nouvel endpoint appelé par une
+  machine plutôt que par un joueur doit être ajouté à ces listes blanches.**
+- Compteurs en **mémoire** (`MemoryStore`) et non dans Solid Cache : une seule machine, un seul
+  worker Puma (`WEB_CONCURRENCY=1`), et Solid Cache est une base SQLite — on ne veut pas une
+  écriture disque par requête juste pour compter.
+- **Désactivé en test** (`Rack::Attack.enabled = false`), sinon des tests qui postent plusieurs
+  fois sur `/login` deviendraient instables sans rapport avec ce qu'ils vérifient.
 
 ### Bascule Strava depuis la v1
 L'app API Strava est **la même que la v1** (client 181497, niveau standard, 999 athlètes

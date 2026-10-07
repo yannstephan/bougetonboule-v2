@@ -24,6 +24,11 @@ module BougetonbouleV2
     # Tout le jeu se joue à l'heure française : le quota journalier de boules, les journées
     # spéciales et les échéances d'effets doivent tomber sur le bon jour pour les joueurs.
     config.time_zone = "Europe/Paris"
+
+    # Le Gemfile acte que l'app ne stocke AUCUNE pièce jointe (les photos de sortie sont des
+    # URL Strava), donc pas d'image_processing. Sans ce réglage, Active Storage avertit à
+    # chaque démarrage qu'il manque la gem — un message inquiétant pour rien dans les logs.
+    config.active_storage.variant_processor = :disabled
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end
