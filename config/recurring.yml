@@ -20,6 +20,11 @@ production:
   famine_and_season_end:
     class: FamineJob
     schedule: every day at 5am
+  # Sauvegarde de la base de jeu : rotation datée sur le volume (voir BackupDatabase).
+  # Pas de cron système sur Fly, d'où une tâche Solid Queue — qui tourne dans Puma.
+  database_backup:
+    class: DatabaseBackupJob
+    schedule: every day at 3:30am
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

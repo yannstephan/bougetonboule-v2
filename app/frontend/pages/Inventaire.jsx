@@ -7,14 +7,12 @@ import Wardrobe from '../components/Wardrobe'
 import ChestCard, { ChestReveal } from '../components/ChestCard'
 import Hud from '../components/Hud'
 import { itemEmoji } from '../lib/gameIcons'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
+import { csrf } from '../lib/csrf'
 
 // Le sac tient les deux inventaires du joueur : les objets de la partie (🍑, à usage unique)
 // et l'armoire des cosmétiques (💎, globale). C'est le seul endroit d'où l'on ouvre un coffre
 // et d'où l'on équipe une pièce.
-export default function Inventaire({ has_team, initial_tab, balls, chests, inventory, armed,
+export default function Inventaire({ initial_tab, balls, chests, inventory, armed,
                                      opponents, team_names, avatar, cosmetics, slots }) {
   const { auth, flash } = usePage().props
   const diamonds = auth.user?.diamonds ?? 0
@@ -37,22 +35,18 @@ export default function Inventaire({ has_team, initial_tab, balls, chests, inven
       <Head title="Mon sac" />
       <Hud />
 
-      {has_team && (
-        <div className="chat-tabs">
-          <button className={`chat-tab ${tab === 'items' ? 'on' : ''}`} onClick={() => setTab('items')}>
-            🎒 Objets{chests.length > 0 && <span className="tab-dot" />}
-          </button>
-          <button className={`chat-tab ${tab === 'wardrobe' ? 'on' : ''}`} onClick={() => setTab('wardrobe')}>🎨 Armoire</button>
-        </div>
-      )}
+      <div className="chat-tabs">
+        <button className={`chat-tab ${tab === 'items' ? 'on' : ''}`} onClick={() => setTab('items')}>
+          🎒 Objets{chests.length > 0 && <span className="tab-dot" />}
+        </button>
+        <button className={`chat-tab ${tab === 'wardrobe' ? 'on' : ''}`} onClick={() => setTab('wardrobe')}>🎨 Armoire</button>
+      </div>
 
       {flash?.notice && <div className="flash ok" style={{ margin: '10px 14px 0' }}>{flash.notice}</div>}
       {flash?.alert && <div className="flash err" style={{ margin: '10px 14px 0' }}>{flash.alert}</div>}
 
       <main className="body">
-        {!has_team ? (
-          <p className="shop-empty">Rejoins une partie pour avoir un sac : les objets s'achètent en 🍑 boules, gagnées en courant.</p>
-        ) : tab === 'wardrobe' ? (
+        {tab === 'wardrobe' ? (
           <Wardrobe avatar={avatar} cosmetics={cosmetics} slots={slots} onToggle={toggleCosmetic} />
         ) : (
           <Items chests={chests} armed={armed} inventory={inventory} onUse={useItem} />

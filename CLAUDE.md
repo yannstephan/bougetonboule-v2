@@ -21,10 +21,10 @@ L'événement **Odyssea 2027** (mars 2027) oppose deux clans : **🌴 Fruits exo
 ## Stack
 
 - **Rails 8.1** + **Inertia.js** + **React** (Vite) + **Tailwind v4**, base **SQLite**
-- **Solid Queue/Cache/Cable** (pas de Redis), **Kamal** pour le déploiement, stubs **PWA**
+- **Solid Queue/Cache/Cable** (pas de Redis), **Fly.io** pour le déploiement, stubs **PWA**
 - Auth maison par session : email/mot de passe (`has_secure_password`) + **Google** (OmniAuth)
 - Ruby **3.3.6** recommandé (voir `.ruby-version`) — non verrouillé strictement par Bundler
-- Objectif hébergement : **~5-6 €/mois** (VPS Hetzner + SQLite, webhooks, PWA), voir plus bas
+- Objectif hébergement : **~6 $/mois** (Fly.io + SQLite sur volume, webhooks, PWA), voir « Production »
 
 ## Économie (règle d'or : jamais de pay-to-win)
 
@@ -262,7 +262,7 @@ trois familles d'emojis ne marchent pas sur un avatar-fruit —
 Ces pièces portent une clé `art` et sont dessinées à plat : `sneakers`/`trail`/`ballet`/`skates`/
 `boots7` (les 5 paires de chaussures), `mitten`, `paw`, `gold_hat` (🎩 est noir et bleu, le nom
 promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `monocle`, `eyepatch`, `visor`,
-`bowtie`, `bib`, `bandana`.
+`bowtie`, `bib`, `bandana`, `wand` (la baguette magique, `single: true`), `maracas`.
 
 Trois drapeaux de mise en page, sur l'entrée `COSMETIC_ART` :
 - **`pair: true`** — le dessin contient déjà les deux pièces (chaussures) → jamais dupliqué, et
@@ -296,7 +296,10 @@ catalogue reste en emoji, et le sera par défaut.
 `/avatar` fait donc **le fruit + le compte** (accès en tapant l'avatar du Hud) :
 **connecter/déconnecter Strava** (`StravaController#connect` / `#disconnect`, prop
 `strava_connected`) et **se déconnecter** (`DELETE /logout`). Les deux boutons de suppression
-demandent une confirmation.
+demandent une confirmation. ⚠️ **L'avatar est lié à l'équipe** (famille de fruits) : `/avatar`
+passe par `require_membership` comme le reste du jeu, pas d'accès partiel sans équipe. Avant
+d'en avoir une, Strava se connecte directement depuis l'onboarding du Hub, et se déconnecter
+depuis le même écran (voir « Rejoindre une partie »).
 
 `AvatarPresenter.new(user, membership:)` est le **seul** endroit qui sérialise un avatar (fruit +
 cosmétiques), affiché dans le Hub, le chat, le classement et l'écran avatar. Côté React, le
@@ -434,7 +437,7 @@ est **plus gros** : sur une piste, la récompense majeure se voit de loin.
 de la semaine passe en `claimable` et le bouton s'allume. C'est la course qui débloque le
 palier, l'app ne fait que le montrer.
 
-**Réclamer** (`POST /recompenses/:id/reclamer` → `RewardsController#claim` → `ClaimReward`) :
+**Réclamer** (`POST /serie/:week/reclamer` → `RewardsController#claim_week` → `ClaimReward`) :
 - les gains vivent dans `rewards` avec `claimed_at` nil = en attente, et `streak_week` pour se
   placer sur la piste (le `period` ISO ne suffit pas, il devient ambigu après un retour à zéro) ;
 - `ClaimReward` est idempotent comme l'ouverture d'un coffre (verrou + relecture dans la
@@ -681,7 +684,13 @@ la fatigue visuelle et garder le jeu lisible sur un écran de téléphone. Token
 | **10 %** | pop | **`--accent` orange** + `--accent-ink` | **uniquement les CTA** : COMBATTRE (et son bouton rond du footer), Acheter, Utiliser, Installer, Enregistrer |
 
 ⚠️ **Dans le doute, c'est `--brand`.** La force de l'accent vient de sa rareté : un 4e bouton
-orange à l'écran et plus rien ne ressort. Aujourd'hui l'accent ne sert que dans **6 règles**.
+orange à l'écran et plus rien ne ressort. Aujourd'hui l'accent ne sert que dans **7 règles CSS**,
+toutes rattachées aux CTA ci-dessus : COMBATTRE compte pour 2 (`.btn.combat` + le bouton rond du
+footer `.nav .center`), Acheter pour 2 (`.shop-buy` au rayon + `.btn.primary` à la confirmation —
+cette même classe sert aussi la sauvegarde d'une journée ×2 dans `/admin`, un geste
+« Enregistrer »), Utiliser pour 1 (`.shop-use`), Installer pour 1 (`.install-hint .ih-btn`),
+Enregistrer pour 1 (`.adm-save`). Tout le reste (connexion, inscription, confirmation de fruit,
+réclamation d'une récompense déjà gagnée…) passe par `.btn.brand`, pas par l'accent.
 
 Le reste sont des couleurs de **sens**, pas de décor, et restent donc rares : 🍑 `--peach`
 (boules), 💎 `--violet` (diamants et boutique de saison), `--citron` (récompenses, coffres,
@@ -709,14 +718,36 @@ Maquettes de référence (privées, pour l'humain — Claude ne peut pas les ouv
 - Schéma BDD : https://claude.ai/code/artifact/3711a673-bfcb-4368-a42d-27b3a0ea751e
 - Plan de démarrage : https://claude.ai/code/artifact/cb6fd930-ef35-4163-8164-a8e48dff3238
 
+### Rejoindre une partie — pas d'auto-inscription
+Un joueur ne choisit jamais son équipe : c'est l'organisateur qui l'affecte, depuis l'onglet
+**Joueurs** du back-office (voir ci-dessous). Tant qu'il n'a pas de `Membership` dans une partie
+`active` (`ApplicationController#current_membership`), un joueur connecté ne peut **que**
+connecter Strava, se déconnecter du compte, et lire la FAQ — tout le reste (combat, ligue, chat,
+boutique, sac, notifications, **et l'avatar**, lié à l'équipe via la famille de fruits) redirige
+vers le Hub via le garde partagé `require_membership` (`ApplicationController`), posé en
+`before_action` sur chaque contrôleur concerné. Le Hub lui-même bascule sur un écran d'accueil
+(`Hub.jsx` → `Onboarding`) avec le lien de connexion Strava **et** le bouton de déconnexion —
+le seul autre endroit qui l'affichait, l'écran avatar, n'est plus accessible sans équipe.
+Hud et BottomNav lisent `has_team` (partagé par `inertia_share`) pour ne pas afficher de liens
+qui ne mèneraient qu'à cet aller-retour : sans équipe, le Hud désactive le lien de l'avatar et
+masque 💬/🔔, et la nav du bas ne garde que le Hub.
+
 ### Back-office de l'organisateur (`/admin`)
 Réservé au joueur dont la participation est `role: "admin"` (`Membership#admin?`) ; un autre
 joueur est renvoyé à l'accueil, et le lien n'apparaît que pour lui, en bas de l'écran compte.
-Il ne couvre **que les deux réglages qui se pilotent par des dates** et qu'on veut changer sans
-redéployer : les **journées ×2** (ajout/suppression) et les **fenêtres de la boutique de saison**
-(deux champs date par cosmétique, vides = pièce permanente). Une borne de fin court jusqu'au
-**bout de sa journée**, sinon la pièce expirerait à minuit pile. Le reste du contenu (créer une
-partie, des équipes) reste au seed.
+Trois réglages, aucun ne demande de redéployer :
+- **Joueurs** — **le seul chemin pour rejoindre une partie** (pas d'auto-inscription, voir
+  « Rejoindre une partie » plus bas) : chaque équipe liste ses membres avec un sélecteur
+  pour en changer un d'équipe (`AdminController#update_membership` — remet son fruit à zéro,
+  l'ancienne famille ne correspond pas forcément à la nouvelle), et les comptes pas encore
+  dans la partie attendent sous la liste avec un sélecteur + « Affecter »
+  (`#create_membership`, crée le `Membership`, `role: "player"`, `balls: 0`).
+- **Journées ×2** (ajout/suppression).
+- **Boutique de saison** — fenêtres de disponibilité des cosmétiques (deux champs date par
+  cosmétique, vides = pièce permanente). Une borne de fin court jusqu'au **bout de sa
+  journée**, sinon la pièce expirerait à minuit pile.
+
+Créer la partie elle-même (Event/Game/Teams) reste au seed.
 
 Les mêmes réglages en ligne de commande, pour le jour où on est en SSH (`lib/tasks/season.rake`) :
 ```bash
@@ -726,15 +757,138 @@ NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
 NAMES='Parasol' bin/rails season:close                             # redevient permanent
 ```
 
+## Production (Fly.io)
+
+Hébergé sur **Fly.io** (`fly.toml`), pas sur Kamal : pas de machine à administrer, et le
+Dockerfile est le même. Les fichiers Kamal (`config/deploy.yml`, `.kamal/`) restent dans le
+dépôt au stade template — **ils ne sont pas la voie de déploiement**, juste une porte de
+sortie si on veut un jour reprendre un VPS.
+
+**Domaine : `bougetonboule.fr`** (déclaré dans `config.hosts` et `action_mailer`).
+
+```bash
+fly deploy              # construit l'image et déploie
+fly logs                # journaux en direct
+fly ssh console          # shell dans la machine
+fly ssh console -C "/rails/bin/rails console"
+fly secrets set STRAVA_CLIENT_ID=… STRAVA_CLIENT_SECRET=…   # redéploie automatiquement
+```
+
+Quatre décisions qui tiennent le tout, chacune documentée dans `fly.toml` :
+
+- **Une seule machine, un seul volume.** SQLite est un fichier : deux instances = deux bases
+  divergentes. Ne jamais `fly scale count 2`.
+- **`auto_stop_machines = "off"` — à ne jamais réactiver.** Une machine arrêtée ne fait pas
+  tourner Solid Queue (qui vit *dans* Puma, `SOLID_QUEUE_IN_PUMA`), donc toutes les tâches de
+  `config/recurring.yml` — famine quotidienne, jauge de meute et streak du lundi, récompense de
+  ligue du 1er — sauteraient **sans aucune erreur**. C'est le piège du dyno Eco d'Heroku.
+- **Pas de `release_command`.** Il tourne sur une machine éphémère sans le volume, donc sans la
+  base. Les migrations sont jouées au démarrage par `bin/docker-entrypoint` (`db:prepare`).
+- **Garde de production sur le seed** (`db/seeds.rb`) : `db:prepare` charge les seeds sur une
+  base neuve, et le seed commence par un `delete_all` de toutes les tables. Sans la garde, la
+  première prod naissait avec les 15 joueurs de démo. `SEED_DEMO=1` force si besoin.
+
+⚠️ **Node est requis dans le Dockerfile** (étape de build uniquement) : `assets:precompile`
+déclenche `vite build`, et `node_modules` est exclu par `.dockerignore`. Sans Node, l'image ne
+se construit pas du tout. L'image finale ne contient que le bundle compilé dans `public/vite`.
+
+### Sauvegardes (`BackupDatabase` · `DatabaseBackupJob` · `lib/tasks/backup.rake`)
+Fly prend un **snapshot quotidien** du volume (5 jours de rétention), mais sa propre
+documentation dit de **ne pas s'en servir comme sauvegarde principale** : un volume = une copie
+sur un seul hôte.
+
+**Rotation datée, jamais d'écrasement.** Écraser la copie de la veille ne protège que du cas
+« le fichier a disparu à l'instant » ; le cas réel le plus fréquent est « je découvre mardi
+qu'un truc a mal tourné samedi », où un emplacement unique a déjà été rempli trois fois par le
+problème. On garde donc **les 7 dernières nuits + les 4 derniers lundis** (`DAILY_KEPT` /
+`WEEKLY_KEPT`) : 11 copies au maximum, ce qui **borne** la place occupée et permet de remonter
+à ~5 semaines.
+
+- **`VACUUM INTO`**, pas un `cp` : instantané *cohérent* d'une base en cours d'écriture (et
+  compactée au passage). Copier un fichier SQLite vivant produit une base corrompue, le WAL
+  n'y étant pas intégré.
+- Écriture en `.part` puis **renommage atomique** : une sauvegarde interrompue laisse un
+  `.part`, jamais une demi-copie d'apparence valide.
+- **Pas de compression**, volontairement : une restauration se fait sous stress, et un
+  `.sqlite3` brut s'ouvre directement pour inspection. Le gain de place ne vaut pas ça.
+- **Seule la base de jeu** est sauvegardée : cache / queue / cable se reconstruisent seules.
+- Planifiée par **Solid Queue** (`config/recurring.yml`, 3h30) — **Fly n'a pas de cron
+  système**, c'est pour ça que ce n'est pas une crontab.
+
+⚠️ **Portée exacte** : les copies vivent sur **le même volume** que l'original. Ça protège de
+la fausse manœuvre (suppression, migration ratée, bug découvert trois jours plus tard), **pas**
+de la perte du volume. Pour couvrir ça, un seul point à brancher : envoyer le fichier rendu par
+`BackupDatabase.call` vers un stockage distant (Cloudflare R2, Backblaze).
+
+```bash
+bin/rails backup:now       # sauvegarde immédiate + élagage
+bin/rails backup:list      # ce qu'on a sous la main
+bin/rails backup:verify    # LE test de restauration — non destructif
+CONFIRM=oui FILE=storage/backups/production-2026-10-07.sqlite3 bin/rails backup:restore
+```
+
+**`backup:verify` est le test à relancer régulièrement** : il ouvre la copie et contrôle son
+intégrité (`PRAGMA integrity_check`), que son **schéma** correspond à celui qu'attend le code
+(une copie saine au mauvais schéma est restaurable mais ne démarre pas) et qu'elle n'est pas
+vide. **Une sauvegarde jamais vérifiée n'est pas une sauvegarde.**
+
+La restauration demande `CONFIRM=oui`, vérifie l'intégrité **avant** de toucher à quoi que ce
+soit, et **met l'ancienne base de côté** au lieu de l'écraser. ⚠️ Elle supprime aussi les
+`-wal`/`-shm` : un WAL resté là appartient à l'**ancienne** base et SQLite le rejouerait
+par-dessus le fichier restauré, le corrompant. Arrêter la machine d'abord
+(`fly machine stop`), sinon Puma écrit pendant la bascule.
+
+### Limitation du débit (`rack-attack`)
+`config/initializers/rack_attack.rb`. L'enjeu **n'est pas** le vol de comptes — les mots de
+passe sont en bcrypt — c'est la **disponibilité** : bcrypt coûte volontairement ~100 ms de CPU
+par essai, donc quelques centaines de tentatives par minute saturent l'unique vCPU et
+ralentissent le jeu pour tout le monde. Un domaine public se fait scanner par des bots dans les
+jours suivant sa mise en ligne, sans malveillance particulière.
+
+- **Limites** : `/login` 10/min par IP **et** 10/20 min par email visé (pour qu'un attaquant
+  réparti sur plusieurs IP ne puisse pas marteler un compte précis), `/register` 5/h par IP,
+  et un garde-fou général de 300/5 min par IP — assez haut pour qu'un joueur ne le touche jamais.
+- ⚠️ **`/strava/webhook` est en liste blanche, et doit le rester** : les sorties arrivent en
+  rafale le dimanche matin et **une requête refusée = une course perdue**. Même chose pour
+  `/up`, frappé toutes les 15 s par le contrôle de santé. **Tout nouvel endpoint appelé par une
+  machine plutôt que par un joueur doit être ajouté à ces listes blanches.**
+- Compteurs en **mémoire** (`MemoryStore`) et non dans Solid Cache : une seule machine, un seul
+  worker Puma (`WEB_CONCURRENCY=1`), et Solid Cache est une base SQLite — on ne veut pas une
+  écriture disque par requête juste pour compter.
+- **Désactivé en test** (`Rack::Attack.enabled = false`), sinon des tests qui postent plusieurs
+  fois sur `/login` deviendraient instables sans rapport avec ce qu'ils vérifient.
+
+### Bascule Strava depuis la v1
+L'app API Strava est **la même que la v1** (client 181497, niveau standard, 999 athlètes
+autorisés) — donc rien à redemander, mais deux ressources y sont **uniques par app** :
+
+1. **Un seul abonnement webhook.** Supprimer celui de la v1 avant de créer le nouveau :
+   `bin/rails strava:view` → `SUB_ID=… bin/rails strava:delete` →
+   `CALLBACK_URL=https://bougetonboule.fr/strava/webhook bin/rails strava:subscribe`.
+2. **Un seul « Authorization Callback Domain ».** Le pointer sur `bougetonboule.fr` casse les
+   *nouvelles* connexions Strava de la v1 (les tokens déjà émis continuent de se rafraîchir).
+   Les deux sites ne peuvent donc pas accueillir de nouveaux coureurs en parallèle : c'est une
+   bascule nette.
+
+Les 17 athlètes déjà connectés ont **déjà autorisé cette app** : leur reconnexion sur la v2 est
+un aller-retour sans écran de consentement.
+
+⚠️ **Clause d'affichage de l'API Strava** (avenant du 11/11/2024) : une app tierce ne doit pas
+montrer les données d'activité d'un athlète à quelqu'un d'autre que lui. Aujourd'hui le
+`RunFeed`, la page profil et `/courses/:id` (allure, dénivelé, **tracé**, photo) sont visibles
+par tout joueur de la même partie (`shares_game?`). Le tier étant déjà accordé, ce n'est pas un
+verrou d'accès mais un risque résiduel — décision en attente. Mitigation si on la prend : le
+détail reste au coureur, les autres ne voient que les 🍑 (donnée de jeu dérivée, pas Strava).
+
 ## Roadmap (à faire, ordre suggéré)
 
 1. **Admin de partie** — créer Event/Game/Teams depuis l'app (l'écran `/admin` existe déjà pour
-   les journées spéciales et la boutique de saison ; la validation manuelle des courses n'existe
-   pas : le contrôle anti-triche est 100 % automatique, voir la section dédiée).
-2. **Rejoindre une partie depuis l'app** — aujourd'hui un `Membership` se crée encore à la main
-   en console, il n'y a pas d'écran pour rejoindre une équipe.
-3. **Déploiement** (Kamal, VPS) — y ajouter le **mot de passe oublié** (nécessite un SMTP,
-   ex. Brevo comme la v1) et une limitation des tentatives de connexion (rack-attack).
+   les journées spéciales, la boutique de saison et l'affectation des joueurs ; la validation
+   manuelle des courses n'existe pas : le contrôle anti-triche est 100 % automatique, voir la
+   section dédiée).
+2. **Déploiement** — la configuration est posée (voir « Production »), restent le
+   **mot de passe oublié** (SMTP déjà câblé dans `production.rb`, inerte sans `SMTP_ADDRESS` ;
+   Brevo comme la v1) et une limitation des tentatives de connexion (rack-attack).
 
 ## Commandes utiles
 

@@ -4,9 +4,7 @@ import PlayerAvatar from '../components/PlayerAvatar'
 import Hud from '../components/Hud'
 import BottomNav from '../components/BottomNav'
 import MemePicker from '../components/MemePicker'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
+import { csrf } from '../lib/csrf'
 
 export default function Chat({ conversations, memes }) {
   const [active, setActive] = useState(0)

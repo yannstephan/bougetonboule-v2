@@ -1,5 +1,6 @@
 class ShopController < ApplicationController
   before_action :require_authentication
+  before_action :require_membership
 
   RARITY_ORDER = %w[common rare epic legendary].freeze
 
@@ -9,9 +10,8 @@ class ShopController < ApplicationController
 
     m = current_membership
     render inertia: "Boutique", props: {
-      has_team: m.present?,
       initial_tab: params[:tab] == "cosmetics" ? "cosmetics" : "items",
-      balls: m&.balls || 0,
+      balls: m.balls,
       items: items_json(m),
       cosmetics: cosmetics_json,
       seasonal: seasonal_json,
@@ -39,7 +39,7 @@ class ShopController < ApplicationController
   private
 
   def items_json(membership)
-    owned = membership ? membership.membership_items.unused.group(:item_id).count : {}
+    owned = membership.membership_items.unused.group(:item_id).count
     Item.not_miscellaneous.order(:price).map do |item|
       { id: item.id, name: item.name, description: item.description,
         effect_type: item.effect_type, price: item.price, owned: owned[item.id] || 0 }

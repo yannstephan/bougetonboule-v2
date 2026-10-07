@@ -7,6 +7,7 @@ class Chest < ApplicationRecord
   belongs_to :cosmetic, optional: true
 
   validates :rarity, inclusion: { in: RARITIES }
+  validates :status, inclusion: { in: STATUSES }
 
   scope :sealed, -> { where(status: "sealed") }
 

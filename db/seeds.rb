@@ -1,4 +1,16 @@
 # Jeu de données de démonstration — valide le schéma et sert d'exemple.
+
+# ——— Garde de production ———
+# `bin/docker-entrypoint` lance `db:prepare` au démarrage du conteneur, et `db:prepare`
+# charge CE fichier quand la base est neuve. Sans cette garde, la toute première prod
+# naîtrait avec les 15 joueurs de démo, la partie Odyssea factice et le mot de passe
+# `odyssea2027` — et le `delete_all` ci-dessous effacerait la vraie base à chaque
+# reseed accidentel. `SEED_DEMO=1` force le seed si on le veut vraiment.
+if Rails.env.production? && ENV["SEED_DEMO"] != "1"
+  puts "⏭️  Seed de démonstration ignoré en production (SEED_DEMO=1 pour forcer)."
+  return
+end
+
 puts "Nettoyage…"
 Game.update_all(winner_team_id: nil) # FK games → teams : à détacher avant de supprimer les équipes
 [ Reward, Chest, ConversationRead, Message, Conversation, Notification, PushSubscription,

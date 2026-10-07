@@ -14,6 +14,7 @@ class Cosmetic < ApplicationRecord
   validates :name, :slot, :rarity, presence: true
   validates :slot, inclusion: { in: SLOTS }
   validates :rarity, inclusion: { in: RARITIES }
+  validates :source, inclusion: { in: SOURCES }
 
   scope :purchasable, -> { where.not(price_diamonds: nil) }
   scope :by_slot, ->(slot) { where(slot:) }
@@ -26,6 +27,12 @@ class Cosmetic < ApplicationRecord
   }
   # Les pièces à durée limitée, celles qui garnissent la « boutique de saison ».
   scope :seasonal, -> { where.not(available_from: nil).or(where.not(available_until: nil)) }
+
+  # Tirage (coffre, cadeau de série, récompense de ligue) : une pièce du catalogue du moment
+  # que l'utilisateur ne possède pas encore, ou nil si son armoire est déjà complète.
+  def self.random_unowned_for(user)
+    available.where.not(id: user.user_cosmetics.select(:cosmetic_id)).to_a.sample
+  end
 
   def seasonal? = available_from.present? || available_until.present?
 

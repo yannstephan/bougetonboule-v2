@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react'
+import { Head, Link, router, usePage } from '@inertiajs/react'
 import BottomNav from '../components/BottomNav'
 import Monster from '../components/Monster'
 import EffectBadges from '../components/EffectBadges'
@@ -7,6 +7,7 @@ import InstallHint from '../components/InstallHint'
 import StreakPass from '../components/StreakPass'
 import Hud from '../components/Hud'
 import { familyEmoji } from '../lib/gameIcons'
+import { csrf } from '../lib/csrf'
 
 // Ce qu'annonce la tuile « Mon sac ». Un coffre à ouvrir passe devant tout le reste.
 const bagLine = (chests, items) => {
@@ -176,6 +177,12 @@ function RunColumn({ runs = [], mine = false }) {
 }
 
 function Onboarding({ user }) {
+  const logout = () => {
+    if (confirm('Se déconnecter de ce compte ?')) {
+      router.delete('/logout', { data: { authenticity_token: csrf() } })
+    }
+  }
+
   return (
     <main className="body onboard">
       <div className="big">🍑</div>
@@ -184,6 +191,7 @@ function Onboarding({ user }) {
       {!user?.strava_connected
         ? <a className="btn strava" href="/strava/connect">◎ Connecter Strava</a>
         : <p style={{ color: 'var(--good)', fontWeight: 700 }}>✅ Strava connecté — en attente d'une partie.</p>}
+      <button type="button" className="btn-logout" onClick={logout}>Se déconnecter</button>
     </main>
   )
 }

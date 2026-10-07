@@ -21,7 +21,7 @@ const SECTIONS = [
     q: '✅ Quelles courses comptent ?',
     a: [
       'Le jeu accepte les courses à pied, dehors ou sur tapis, importées automatiquement depuis Strava. Tout est vérifié par le jeu, tout de suite : une course compte, ou elle ne compte pas — et si elle ne compte pas, tu reçois une notification qui t\'explique exactement pourquoi.',
-      'Ce n\'est pas une course à pied ? Vélo, marche, randonnée, natation… ça ne rapporte rien. Et une sortie ajoutée à la main sur Strava (sans montre ni téléphone) ne compte jamais.',
+      'Ce n\'est pas une course à pied ? Vélo, marche, randonnée, natation… ça ne rapporte rien. Et une sortie ajoutée à la main sur Strava (sans montre ni téléphone), ou que Strava signale lui-même comme suspecte, ne compte jamais.',
       'Trop courte ou trop longue : il faut au moins 2 km, et pas plus de 80 km.',
       'L\'allure doit rester entre 3:00 et 9:30 au kilomètre. Plus lent, c\'est de la marche ; plus rapide, ce n\'est plus de la course à pied. Ton allure est affichée sur chacune de tes sorties.',
       'Sur tapis (ou en salle), il n\'y a pas de tracé GPS : ajoute ta fréquence cardiaque, ou à défaut une photo de l\'écran avec tes stats. Photo visible par tout le monde sur ta sortie — pas de triche discrète 😇',
@@ -77,7 +77,7 @@ const SECTIONS = [
     q: '💎 Les diamants, c\'est quoi ?',
     a: [
       'La deuxième monnaie, celle-ci est globale (elle te suit d\'une partie à l\'autre).',
-      'On en gagne surtout avec la série hebdo (voir ci-dessous), et aussi via les coffres, le classement et la fin de partie.',
+      'On en gagne surtout avec la série hebdo (voir ci-dessous), et aussi via les coffres et le classement.',
       'On ne les dépense que sur des cosmétiques. Jamais de boules, jamais d\'avantage de combat : c\'est la règle d\'or, aucun pay-to-win.',
     ],
   },
@@ -98,7 +98,7 @@ const SECTIONS = [
   {
     q: '🎁 Les coffres',
     a: [
-      'Chaque course importée peut cacher un coffre (une chance sur ~7, maximum un par jour). Et au bout de 7 courses sans rien trouver, le suivant est garanti — la malchance a une limite.',
+      'Chaque course qui te rapporte des boules peut cacher un coffre (une chance sur ~7, maximum un par jour) — une course piégée, refusée ou à 0 boule n\'en propose pas. Et au bout de 7 courses sans rien trouver, le suivant est garanti — la malchance a une limite.',
       'Quatre raretés : commun, rare, épique, légendaire. Plus c\'est rare, plus il y a de diamants dedans — et plus il y a de chances d\'y trouver un cosmétique que tu n\'as pas (toujours dans un légendaire).',
       'Le coffre t\'attend dans ton sac 🎒 (onglet du bas) : une pastille rouge s\'allume dessus tant qu\'il reste quelque chose à ouvrir. Appuie sur « Ouvrir » pour découvrir ce qu\'il contient. Certains cosmétiques ne se trouvent QUE dans les coffres…',
     ],
@@ -119,13 +119,13 @@ const SECTIONS = [
       'Ton fruit n\'est qu\'une tête : les cosmétiques se posent autour. Sept emplacements — chapeau, lunettes, cou (nœud pap\', écharpe, collier…), bras, chaussures, accessoire posé à côté, et l\'aura en fond.',
       'Ils s\'achètent en 💎 ou se gagnent, puis s\'équipent un par emplacement depuis ton sac 🎒, onglet 🎨 Armoire — l\'aperçu de ton fruit reste sous les yeux pendant que tu l\'habilles. Le choix du fruit lui-même, et ton compte, restent sur l\'écran Avatar.',
       '✨ Certaines pièces ne passent qu\'une fois par an : elles sont regroupées dans la « boutique de saison », en haut du rayon cosmétiques, avec le nombre de jours restants. Passé la date elles disparaissent (et ne tombent plus des coffres) — mais ce que tu as acheté reste à toi pour toujours.',
-      'Certaines pièces ne sont jamais en vente : elles ne se gagnent que par les coffres, les séries, la ligue ou les événements de la saison. L\'🐺 Esprit du loup, par exemple, ne sort que des coffres…',
+      'Certaines pièces ne sont jamais en vente : elles ne se gagnent que par les coffres, les séries, la ligue ou les événements de la saison. L\'🐺 Esprit du loup, par exemple, peut tomber d\'un coffre, d\'un cadeau de série ou de la récompense de ligue…',
     ],
   },
   {
     q: '🔔 Les notifications',
     a: [
-      '« Pour toi » : ce qui te concerne directement — message d\'équipe, récompense, palier de meute, monstre affamé, vent de face ou chantilly reçue, et tout ce qui touche aux pièges (ta course piégée, ton piège réussi ou déjoué). Ce sont les seules poussées sur ton téléphone.',
+      '« Pour toi » : ce qui te concerne directement — message d\'équipe, récompense, palier de meute, monstre affamé, second souffle, vent de face ou chantilly reçue, tout ce qui touche aux pièges (ta course piégée, ton piège réussi ou déjoué), ta course retirée du jeu, et la fin de la partie. Ce sont les seules poussées sur ton téléphone.',
       '« Activité de la partie » : le reste, en fil d\'activité (X a couru et ce que ça lui rapporte, X a activé un vent de dos, un piège a été posé…). Listé, mais jamais poussé.',
       '➕ Dans le chat, le bouton + à côté du champ ouvre une recherche de memes : tape un mot, touche celui qui te plaît, il part tout seul. Tu ne peux pas envoyer tes propres images — seulement des memes du catalogue.',
       'Le chat général ne crée pas de notification : les messages non lus (équipe + général) sont signalés par une pastille sur le bouton 💬, en haut de l\'accueil à côté de la cloche.',

@@ -21,6 +21,9 @@ class ApplicationController < ActionController::Base
       chat_unread: current_membership&.unread_messages_count || 0,
       # Pastille de l'onglet 🎒 : du nouveau dans le sac (aujourd'hui, un coffre scellé).
       inventory_alert: current_membership&.chests&.sealed&.count || 0,
+      # Hud/BottomNav masquent les destinations de jeu tant que l'admin n'a pas affecté
+      # le joueur à une équipe — seuls Strava et la FAQ restent accessibles.
+      has_team: current_membership.present?,
       flash: { notice: flash.notice, alert: flash.alert, chest: flash[:chest] }
     }
   end
@@ -37,5 +40,13 @@ class ApplicationController < ActionController::Base
     @current_membership ||= current_user.memberships
       .joins(:game).where(games: { status: "active" })
       .includes(:game, team: :monster).first
+  end
+
+  # Garde partagée par tout ce qui suppose une équipe : tant que l'admin n'a pas affecté le
+  # joueur (voir /admin), seuls Strava et la FAQ restent accessibles (cf. Hub en mode onboarding).
+  def require_membership
+    return if current_membership
+
+    redirect_to root_path, alert: "Rejoins une équipe pour accéder à ça — en attendant, connecte Strava et jette un œil à la FAQ."
   end
 end

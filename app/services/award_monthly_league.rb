@@ -39,7 +39,7 @@ class AwardMonthlyLeague
 
   def grant(winner)
     user = winner.membership.user
-    cosmetic = drawable_cosmetics(user).sample
+    cosmetic = Cosmetic.random_unowned_for(user)
 
     if cosmetic
       UserCosmetic.create!(user:, cosmetic:, acquired_at: Time.current, source_game: @game)
@@ -51,11 +51,6 @@ class AwardMonthlyLeague
       Reward.create!(user:, membership: winner.membership, amount: FALLBACK_DIAMONDS,
                      period: @period, reward_type: "diamonds", source: "rank")
     end
-  end
-
-  # Tout ce que le gagnant ne possède pas encore, quelle que soit la source.
-  def drawable_cosmetics(user)
-    Cosmetic.available.where.not(id: user.user_cosmetics.select(:cosmetic_id))
   end
 
   def notify(winner, reward)
