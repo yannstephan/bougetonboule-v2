@@ -21,12 +21,24 @@ class ApplicationController < ActionController::Base
       chat_unread: current_membership&.unread_messages_count || 0,
       # Pastille de l'onglet 🎒 : du nouveau dans le sac (aujourd'hui, un coffre scellé).
       inventory_alert: current_membership&.chests&.sealed&.count || 0,
+      # L'aura équipée peint le FOND de toutes les pages (voir AuraBackground) : elle est
+      # donc partagée comme le solde de 🍑, et non servie écran par écran. Une page peut la
+      # remplacer en servant `page_aura` — c'est ce que fait le profil d'un joueur.
+      aura: aura_json(current_user),
       # Hud/BottomNav masquent les destinations de jeu tant que l'admin n'a pas affecté
       # le joueur à une équipe — seuls Strava et la FAQ restent accessibles.
       has_team: current_membership.present?,
       flash: { notice: flash.notice, alert: flash.alert, chest: flash[:chest] }
     }
   end
+
+  # L'aura d'un joueur, telle que le fond de page la consomme. `nil` = pas d'aura, pas de fond.
+  def aura_json(user)
+    piece = user&.user_cosmetics&.includes(:cosmetic)&.find { |uc| uc.equipped && uc.cosmetic.slot == "aura" }
+    # `rarity` : seules les auras épiques et légendaires s'animent en fond (AuraBackground).
+    piece && { emoji: piece.cosmetic.emoji, art: piece.cosmetic.art, rarity: piece.cosmetic.rarity }
+  end
+  helper_method :aura_json
 
   private
 

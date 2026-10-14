@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { router } from '@inertiajs/react'
 
-// Recherche de memes pour le chat. On ne peut PAS envoyer une image quelconque : seuls les
-// memes des catalogues passent, et le serveur revérifie l'hôte.
+// Recherche de GIF pour le chat (Giphy). On ne peut PAS envoyer une image quelconque : seules
+// les URL des sources connues passent, et le serveur revérifie l'hôte.
+// ⚠️ Le vocabulaire côté JOUEUR dit « GIF » ; le code garde `meme_*` — renommer une colonne
+// et six fichiers pour un mot ne vaut pas la migration.
 //
 // ⚠️ La feuille s'ouvre sur un CATALOGUE À FEUILLETER, pas sur un champ vide. Sans clé Giphy,
 // les sources libres sont petites et leurs titres sont en anglais : chercher « bébé » ou
@@ -17,38 +19,43 @@ export default function MemePicker({ memes = [], onPick, onClose }) {
   const timer = useRef(null)
   const first = useRef(true)
 
+  // ⚠️ Le catalogue n'arrive plus avec la page : côté serveur `memes` est une prop `optional`,
+  // qui n'est calculée QUE si on la réclame. C'est donc l'ouverture de la feuille qui va la
+  // chercher — et en échange, la page du chat ne tape plus chez Giphy à chaque rechargement,
+  // sondage de 8 s compris.
   useEffect(() => {
-    // À l'ouverture, les memes servis avec la page suffisent : pas de requête inutile.
-    if (first.current) { first.current = false; return undefined }
-
     clearTimeout(timer.current)
     setLoading(true)
-    timer.current = setTimeout(() => {
-      router.reload({
-        only: ['memes'],
-        data: { meme_q: q },
-        preserveState: true,
-        preserveScroll: true,
-        onFinish: () => setLoading(false),
-      })
-    }, 400)
+    const fetchNow = () => router.reload({
+      only: ['memes'],
+      data: { meme_q: q },
+      preserveState: true,
+      preserveScroll: true,
+      onFinish: () => setLoading(false),
+    })
+
+    // À l'ouverture on y va tout de suite ; ensuite seulement on temporise, sinon on tirerait
+    // une requête par lettre sur une API tierce.
+    if (first.current) { first.current = false; fetchNow(); return undefined }
+
+    timer.current = setTimeout(fetchNow, 400)
     return () => clearTimeout(timer.current)
   }, [q])
 
   return (
     <div className="tp-backdrop" onClick={onClose}>
       <div className="tp-sheet meme-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="tp-title">Ajouter un meme</div>
+        <div className="tp-title">Ajouter un GIF</div>
 
-        <input className="field" autoFocus value={q} placeholder="Filtrer… (drake, cat, boss)"
+        <input className="field" autoFocus value={q} placeholder="Chercher un GIF… (bravo, course, fatigué)"
                onChange={(e) => setQ(e.target.value)} />
 
         <div className="meme-grid">
           {loading && memes.length === 0 && <p className="meme-hint">Recherche…</p>}
           {!loading && memes.length === 0 && (
             <p className="meme-hint">
-              Rien pour « {q} ». Les titres sont en anglais — essaie <b>cat</b>, <b>boss</b>,
-              <b> drake</b>… ou vide le champ pour tout parcourir.
+              Rien pour « {q} ». Essaie un autre mot, ou vide le champ pour voir les GIF
+              du moment.
             </p>
           )}
           {memes.map((m) => (

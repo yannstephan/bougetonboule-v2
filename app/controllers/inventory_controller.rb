@@ -59,7 +59,12 @@ class InventoryController < ApplicationController
 
   # Les coffres pas encore ouverts, du plus ancien au plus récent.
   def chests_json(membership)
-    membership.chests.sealed.order(:created_at).map { |c| { id: c.id, rarity: c.rarity } }
+    return [] unless membership
+
+    # loot_rarity, pas rarity : c'est le plus beau contenu qui donne sa couleur et sa durée
+    # à l'ouverture (voir Chest#loot_rarity). Le front ne l'AFFICHE pas sur la carte scellée —
+    # il en a seulement besoin dès le clic, sans aller-retour serveur.
+    membership.chests.sealed.order(:created_at).map { |c| { id: c.id, rarity: c.loot_rarity } }
   end
 
   # Objets possédés (non utilisés), regroupés par type avec leur nombre.

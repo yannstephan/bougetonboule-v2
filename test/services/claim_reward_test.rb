@@ -40,6 +40,10 @@ class ClaimRewardTest < ActiveSupport::TestCase
     assert_equal 1, @membership.reload.weekly_streak
   end
 
+  # ⚠️ La course est posée au LUNDI DE LA SEMAINE EN COURS, pas « il y a 3 jours ». Un décalage
+  # relatif traverse la frontière de semaine du mardi au jeudi : la course tombait alors dans la
+  # semaine PRÉCÉDENTE, le job jugeait une semaine sans course et remettait la série à zéro —
+  # un test rouge trois jours sur sept, pour un code parfaitement juste.
   test "le lundi ne recompte pas une semaine déjà sécurisée à l'import" do
     ran_at = 3.days.ago
     ImportTraining.call(@membership, strava_activity(start_date: ran_at.iso8601))

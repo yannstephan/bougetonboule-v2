@@ -1,5 +1,6 @@
 import PlayerAvatar from './PlayerAvatar'
 import { CosmeticIcon } from './cosmeticArt'
+import { rarityLabel } from '../lib/rarity'
 
 // Confirmation d'achat. On ne dépense jamais une monnaie gagnée en courant sur un geste
 // involontaire : la feuille rappelle CE qu'on achète, CE que ça coûte et CE qu'il restera.
@@ -10,7 +11,7 @@ import { CosmeticIcon } from './cosmeticArt'
 export default function BuyConfirm({ buy, avatar, onConfirm, onClose }) {
   if (!buy) return null
 
-  const { name, price, currency, emoji, art, slot, description } = buy
+  const { name, price, currency, emoji, art, slot, description, rarity } = buy
   const cosmetic = currency === '💎'
   const balance = buy.balance ?? 0
   const left = balance - price
@@ -23,12 +24,13 @@ export default function BuyConfirm({ buy, avatar, onConfirm, onClose }) {
       <div className="tp-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="tp-title">Confirmer l'achat</div>
 
-        <div className="buy-what">
+        <div className={`buy-what ${rarity ? `rar-tint rar-${rarity}` : ''}`}>
           {preview
             ? <PlayerAvatar avatar={preview} size={96} />
             : <CosmeticIcon art={art} emoji={emoji} className="buy-icon" />}
           <div className="buy-id">
             <div className="buy-name">{name}</div>
+            {rarity && <span className="rar-pill">{rarityLabel(rarity)}</span>}
             {description && <div className="buy-desc">{description}</div>}
           </div>
         </div>

@@ -19,66 +19,103 @@ import { artFor } from './cosmeticArt'
 // pose sur la figure, quel que soit le fruit.
 const EYE_LINE = 52
 
-const BACK_SLOTS = ['aura']
-const FRONT_SLOTS = ['shoes', 'sidekick', 'hands', 'neck', 'eyes', 'hat']
-
-// L'aura vit DERRIÈRE le fruit : une couronne de petits emojis, assez rapprochée pour que
-// la silhouette en cache une partie (z-index 0 < .fav-svg), et translucide. Un seul gros
-// emoji avalait l'avatar ; une couronne trop large flottait à côté au lieu d'être derrière.
-const AURA_RADIUS = 33
-const AURA_ANGLES = [-155, -120, -60, -25, 25, 155] // symétriques, hors de l'axe vertical
-const AURA_HALO = AURA_ANGLES.map((deg) => {
-  const rad = (deg * Math.PI) / 180
-  return [50 + AURA_RADIUS * Math.cos(rad), EYE_LINE + 2 + AURA_RADIUS * Math.sin(rad)]
-})
+// ⚠️ L'aura n'est PLUS ICI. C'était une couronne de six emojis derrière le fruit, et elle
+// étouffait : dans un cadre de taille fixe on ne peut pas l'élargir sans la faire sortir du
+// cadre. Elle est devenue le FOND DE PAGE (components/AuraBackground.jsx) — une aura veut de
+// la place, la page en a, l'avatar non. Le slot `aura` existe toujours, seul son rendu a changé.
+const SLOTS = ['shoes', 'sidekick', 'hands', 'neck', 'eyes', 'hat']
 
 // En dessous de cette taille (chat, ligue, listes), l'avatar ne fait plus que quelques
 // dizaines de pixels : on n'y garde que les pièces lisibles, sinon c'est une bouillie
 // d'emojis. Le rendu complet reste sur le Hub et l'écran avatar.
 const COMPACT_BELOW = 44
-const COMPACT_SLOTS = ['aura', 'eyes', 'hat']
+const COMPACT_SLOTS = ['eyes', 'hat']
 
-// Ancres en unités du viewBox (0-100), centre de la pièce. `em` = taille relative à
-// l'avatar, `spread` = écart symétrique pour les paires (gants, chaussures).
+// Ancres en unités du viewBox (0-100). `em` = taille relative à l'avatar, `spread` = écart
+// symétrique pour les paires (gants, chaussures).
 //
 // Tout ce qui touche au visage se cale sur la LIGNE DES YEUX (y=52, commune à tous les
 // fruits) plutôt que sur la silhouette : lunettes dessus, gants juste en dessous. Seuls
 // le chapeau, le cou, les chaussures et l'accessoire suivent le fruit (crâne / base /
 // largeur), et de près — une pièce qui s'éloigne fait paraître l'avatar plus petit.
+//
+// ⚠️ `from` + `bite` : quel BORD de la pièce tombe sur le repère, et de combien il mord
+// dedans — au lieu de centrer la pièce sur le repère. C'est ce qui fait tenir les GROSSES
+// pièces : centré, un chapeau haut descendait jusqu'aux yeux là où un bandeau plat se
+// posait juste ; ancré par le bas, les deux ont leur bord inférieur au même endroit et
+// c'est le haut qui pousse dans le vide. Changer la taille d'une pièce ne la déplace plus.
 function anchors({ top, bottom, half, hatX }) {
   const side = Math.max(half, 22) + 2 // les gants ne remontent jamais sur les joues
   return {
-    hat: { x: hatX, y: top - 3, em: 0.36 },
-    eyes: { x: 50, y: EYE_LINE + 2, em: 0.34 },
-    // au ras de la base : plafonner trop haut le faisait remonter en plein ventre
-    // sur les fruits allongés (ananas, mangue), là où on attend un cou.
-    neck: { x: 50, y: Math.max(Math.min(bottom - 7, 81), 74), em: 0.2 },
-    hands: { x: 50, y: EYE_LINE + 6, em: 0.22, spread: side },
+    // em 0.48 : les chapeaux en EMOJI ne couvraient que ~57 % de la largeur du crâne, la
+    // moitié de ce que couvre un bonnet dessiné. Pas 1,5× comme les dessins — un emoji
+    // remplit toute sa boîte, il déborderait du cadre par le haut.
+    hat: { x: hatX, y: top, em: 0.48, from: 'bottom', bite: 14, half },
+    eyes: { x: 50, y: EYE_LINE + 2, em: 0.34, half },
+    // suspendu à la base du fruit : plus la pièce est grande, plus elle pend — elle ne
+    // remonte jamais en plein ventre, là où on attend un cou.
+    neck: { x: 50, y: Math.min(bottom, 88), em: 0.2, from: 'top', bite: 17, half },
+    hands: { x: 50, y: EYE_LINE + 6, em: 0.22, spread: side, half },
     // `art` : une paire dessinée est bien plus large qu'un emoji, elle a sa propre ancre.
-    shoes: { x: 50, y: Math.min(bottom + 4, 91), em: 0.22, spread: 10,
+    shoes: { x: 50, y: Math.min(bottom + 4, 91), em: 0.22, spread: 10, half,
              art: { y: Math.min(bottom + 3, 89), em: 0.38 } },
-    // en bas à droite, sous les gants et à l'écart des chaussures (qui restent centrées)
-    sidekick: { x: Math.min(Math.max(50 + half + 10, 75), 85), y: bottom - 5, em: 0.26 },
+    // en bas à droite, sous les bras et à l'écart des chaussures (qui restent centrées).
+    // Écarté du fruit d'une bonne dizaine d'unités : un accessoire est POSÉ à côté, il ne
+    // s'accroche pas au corps. Les bornes le gardent dans le cadre — au-delà de 90 il en
+    // sortirait, et l'aperçu de l'armoire (`.av-stage`, en overflow:hidden) le rognerait.
+    sidekick: { x: Math.min(Math.max(50 + half + 15, 80), 90), y: bottom - 5, em: 0.26, half },
   }
+}
+
+// Le centre de la pièce, une fois qu'on connaît sa taille. Sans `from`, c'est l'ancre.
+// Un dessin peut imposer sa propre morsure, son propre bord d'accroche et un décalage :
+// le slot est réglé pour la pièce type, et certaines n'ont pas la même logique. Les écouteurs
+// tombent au niveau des oreilles, bien plus bas que le bord d'un chapeau ; le drap de fantôme,
+// lui, ne s'accroche à rien — il se CENTRE sur le fruit, qu'il recouvre entièrement.
+function centerY(at, em, drawn) {
+  const from = drawn?.from ?? at.from
+  const bite = drawn?.bite ?? at.bite ?? 0
+  const y = at.y + (drawn?.dy ?? 0)
+  const half = em * 50
+  if (from === 'bottom') return y + bite - half // bord bas posé à y + bite
+  if (from === 'top') return y - bite + half    // bord haut posé à y − bite
+  return y
+}
+
+// Taille de la pièce.
+// ⚠️ Une pièce LARGE — celle qui doit épouser la tête, casque, visière, bandana, chapeau à
+// bord — ne peut pas avoir une taille fixe : mesurés au pixel, les fruits vont de 12 (papaye)
+// à 30 (durian) de demi-largeur, un rapport de 2,5×. Un casque calibré pour un fruit rond
+// déborde de 8 unités de chaque côté sur une mangue.
+// Elle déclare donc `fit` = sa largeur en MULTIPLE de celle du fruit (1 = exactement la
+// tête, 1.1 = 10 % de plus, .77 = un peu plus étroit), et le calcul suit la silhouette.
+// Les bornes évitent les deux extrêmes : sans plancher, la papaye recevrait un casque de
+// 7 px sur un avatar de 132 — proportionné, mais illisible, et invisible en 44 px.
+// Tout ce qui se pose À CÔTÉ (gourde, aura) ou d'un seul côté garde une taille fixe :
+// un objet posé près du fruit n'a aucune raison de suivre sa largeur.
+const FIT_MIN = 0.3
+const FIT_MAX = 0.7
+
+function sizeOf(drawn, at) {
+  if (drawn?.fit == null) return drawn?.em || at.em
+
+  const headWidth = (at.half * 2) / 100
+  return Math.min(Math.max(headWidth * drawn.fit, drawn.minEm ?? FIT_MIN), drawn.maxEm ?? FIT_MAX)
 }
 
 export default function FruitAvatar({ fruit, size = 96, cosmetics = {}, showCosmetics = true, face = true }) {
   const p = fruitParams(fruit)
   const at = anchors(fruitBox(fruit))
-  const worn = (slots) => {
-    if (!showCosmetics) return []
-    const kept = size < COMPACT_BELOW ? slots.filter((s) => COMPACT_SLOTS.includes(s)) : slots
-    return kept.filter((s) => cosmetics[s])
-  }
+  const kept = showCosmetics ? (size < COMPACT_BELOW ? SLOTS.filter((s) => COMPACT_SLOTS.includes(s)) : SLOTS) : []
+  const worn = kept.filter((s) => cosmetics[s])
 
   return (
     <span className="fav" style={{ width: size, height: size, fontSize: size }}>
-      {worn(BACK_SLOTS).map((s) => <Cosmetic key={s} slot={s} worn={cosmetics[s]} at={at[s]} />)}
       <svg viewBox="0 0 100 100" className="fav-svg" role="img" aria-label={fruit || 'fruit'}>
         <Body p={p} />
         {face && <Face />}
       </svg>
-      {worn(FRONT_SLOTS).map((s) => <Cosmetic key={s} slot={s} worn={cosmetics[s]} at={at[s]} />)}
+      {worn.map((s) => <Cosmetic key={s} slot={s} worn={cosmetics[s]} at={at[s]} />)}
     </span>
   )
 }
@@ -90,23 +127,18 @@ function Cosmetic({ slot, worn, at }) {
   const { emoji, art } = typeof worn === 'string' ? { emoji: worn } : (worn || {})
   const drawn = artFor(art)
 
-  if (slot === 'aura') {
-    return (
-      <>
-        {AURA_HALO.map(([x, y], i) => (
-          <span key={i} className="fav-slot fav-glyph fav-aura" style={pin(x, y, 0.22)}>{emoji}</span>
-        ))}
-      </>
-    )
-  }
   if (!at) return null
 
   // Un dessin `pair` contient déjà les deux pièces (les chaussures de face) : il occupe
   // toute la largeur, garde l'ancre dédiée du slot (`at.art`) et n'est jamais dupliqué.
   if (drawn?.pair) {
     const a = { ...at, ...(at.art || {}) }
+    const em = sizeOf(drawn, a)
+    // `back` : la pièce passe derrière la silhouette (z-index 0 < .fav-svg). Les bras d'une
+    // combinaison n'ont l'air de bras que si l'épaule est cachée par le corps.
     return (
-      <span className={`fav-slot fav-${slot}`} style={pin(a.x, a.y, drawn.em || a.em)}>
+      <span className={`fav-slot fav-${slot} ${drawn.back ? 'fav-behind' : ''} ${animClass(drawn)}`}
+            style={pin(a.x, centerY(a, em, drawn), em)}>
         <Art node={drawn.node} />
       </span>
     )
@@ -116,11 +148,16 @@ function Cosmetic({ slot, worn, at }) {
   // ⚠️ La pièce doit représenter UN bras : 🧤 et 🐾 sont déjà des paires et en donnaient
   // quatre — d'où les dessins `mitten` et `paw`. Un emoji-paire dans un slot symétrique
   // est un bug de contenu. `single` = la pièce ne se porte que d'un côté (une baguette).
-  const em = drawn?.em || at.em
+  // ⚠️ Une pièce peut imposer SA taille et SA morsure (`em`/`fit`, `bite` dans le registre
+  // des dessins) : le réglage du slot est calibré pour une pièce moyenne, et une forme large
+  // — un casque audio, une paire de chaussures — ne tient pas au même endroit qu'un nœud
+  // papillon. C'est là qu'on rattrape un emoji qui remplit toute sa boîte.
+  const em = sizeOf(drawn, at)
+  const y = centerY(at, em, drawn)
   const glyph = drawn?.emoji || emoji
   const draw = (x, mirror) => (
-    <span key={x} style={pin(x, at.y, em)}
-          className={`fav-slot fav-${slot} ${drawn?.node ? '' : 'fav-glyph'} ${mirror ? 'fav-mirror' : ''}`}>
+    <span key={x} style={pin(x, y, em)}
+          className={`fav-slot fav-${slot} ${drawn?.node ? '' : 'fav-glyph'} ${mirror ? 'fav-mirror' : ''} ${animClass(drawn)}`}>
       {drawn?.node ? <Art node={drawn.node} /> : glyph}
     </span>
   )
@@ -128,6 +165,14 @@ function Cosmetic({ slot, worn, at }) {
   if (at.spread) return <>{draw(at.x - at.spread, false)}{draw(at.x + at.spread, true)}</>
   return draw(at.x, false)
 }
+
+// Une pièce peut s'ANIMER (`anim` dans le registre des dessins) : réservé aux panoplies de
+// haut rang, c'est ce qui les distingue au premier coup d'œil sans coûter une couleur de plus.
+// ⚠️ La classe est posée sur la PIÈCE, mais le CSS anime le DESSIN qu'elle contient : la pièce
+// porte déjà un `transform` (le centrage `-50 %`), qui s'applique AVANT la rotation et la
+// faisait orbiter au lieu de tourner sur elle-même. Voir la note dans application.css.
+// ⚠️ Ne marche donc que sur une pièce dessinée (`node`), pas sur un emoji.
+const animClass = (drawn) => (drawn?.anim ? `fav-anim-${drawn.anim}` : '')
 
 const Art = ({ node }) => (
   <svg viewBox="0 0 100 100" className="fav-art" role="presentation">{node}</svg>

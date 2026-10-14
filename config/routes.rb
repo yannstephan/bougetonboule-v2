@@ -54,6 +54,7 @@ Rails.application.routes.draw do
   post   "admin/journees",         to: "admin#create_special_day",  as: :admin_special_days
   delete "admin/journees/:id",     to: "admin#destroy_special_day", as: :admin_special_day
   patch  "admin/cosmetiques/:id",  to: "admin#update_cosmetic",     as: :admin_cosmetic
+  patch  "admin/panoplies/:id",    to: "admin#update_set_promo",    as: :admin_set_promo
   post   "admin/joueurs",          to: "admin#create_membership",   as: :admin_memberships
   patch  "admin/joueurs/:id",      to: "admin#update_membership",   as: :admin_membership
 

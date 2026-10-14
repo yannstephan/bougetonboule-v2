@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_07_060636) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_07_130000) do
   create_table "actions", force: :cascade do |t|
     t.string "action_type", null: false
     t.integer "amount"
@@ -67,10 +67,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_07_060636) do
     t.index ["team_id"], name: "index_conversations_on_team_id"
   end
 
+  create_table "cosmetic_sets", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "description"
+    t.string "name", null: false
+    t.datetime "promo_from"
+    t.integer "promo_percent"
+    t.datetime "promo_until"
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_cosmetic_sets_on_name", unique: true
+  end
+
   create_table "cosmetics", force: :cascade do |t|
     t.string "art"
     t.datetime "available_from"
     t.datetime "available_until"
+    t.integer "cosmetic_set_id"
     t.datetime "created_at", null: false
     t.string "emoji"
     t.string "name", null: false
@@ -79,6 +91,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_07_060636) do
     t.string "slot", null: false
     t.string "source", default: "shop", null: false
     t.datetime "updated_at", null: false
+    t.index ["cosmetic_set_id"], name: "index_cosmetics_on_cosmetic_set_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -329,6 +342,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_07_060636) do
   add_foreign_key "conversation_reads", "memberships"
   add_foreign_key "conversations", "games"
   add_foreign_key "conversations", "teams"
+  add_foreign_key "cosmetics", "cosmetic_sets"
   add_foreign_key "games", "events"
   add_foreign_key "games", "teams", column: "winner_team_id"
   add_foreign_key "membership_items", "items"

@@ -8,9 +8,10 @@ import { csrf } from '../lib/csrf'
 const slotLabel = { hat: 'Chapeau', eyes: 'Lunettes', neck: 'Cou', hands: 'Bras',
   shoes: 'Chaussures', sidekick: 'Accessoire', aura: 'Aura' }
 
-// Back-office de l'organisateur : les deux réglages qui se pilotent par des dates et qu'on
-// veut pouvoir changer sans redéployer — journées ×2 et fenêtres de la boutique de saison.
-export default function Admin({ game, today, special_days, cosmetics, teams, players, unassigned_users }) {
+// Back-office de l'organisateur : les réglages qui se pilotent par des dates et qu'on veut
+// pouvoir changer sans redéployer — journées ×2, fenêtres de la boutique de saison, promotions
+// sur les panoplies — ainsi que l'affectation des joueurs à une équipe.
+export default function Admin({ game, today, special_days, cosmetics, sets, teams, players, unassigned_users }) {
   const { flash } = usePage().props
   const [tab, setTab] = useState('players')
 
@@ -33,13 +34,17 @@ export default function Admin({ game, today, special_days, cosmetics, teams, pla
             🎉 Journées ×2
           </button>
           <button className={`adm-tab ${tab === 'shop' ? 'on' : ''}`} onClick={() => setTab('shop')}>
-            ✨ Boutique de saison
+            ✨ Saison
+          </button>
+          <button className={`adm-tab ${tab === 'promo' ? 'on' : ''}`} onClick={() => setTab('promo')}>
+            🏷️ Promos
           </button>
         </div>
 
         {tab === 'players' && <Players teams={teams} players={players} unassigned={unassigned_users} />}
         {tab === 'days' && <SpecialDays days={special_days} today={today} />}
         {tab === 'shop' && <SeasonalShop cosmetics={cosmetics} />}
+        {tab === 'promo' && <Promotions sets={sets} today={today} />}
       </main>
 
       <BottomNav />
@@ -172,6 +177,74 @@ function SpecialDays({ days, today }) {
         </div>
       )}
     </section>
+  )
+}
+
+// Les promotions : une remise en pourcentage sur toutes les pièces d'une panoplie, entre
+// deux dates. Rien n'est écrit dans les prix — la remise se recalcule à l'affichage comme à
+// l'achat, donc la retirer suffit à rétablir les prix d'origine.
+function Promotions({ sets, today }) {
+  return (
+    <section className="av-sec">
+      <h2>Promotions</h2>
+      <p className="av-hint">
+        Une promo s'applique à <em>toutes</em> les pièces d'une panoplie, qui restent achetées
+        à la pièce. Laisse le pourcentage vide pour arrêter la promo : les prix d'origine
+        reviennent tout seuls, rien n'est écrasé. Une date de fin court jusqu'au bout de sa journée.
+      </p>
+
+      {sets.length === 0 ? (
+        <p className="av-empty">Aucune panoplie au catalogue.</p>
+      ) : (
+        <div className="adm-list">
+          {sets.map((s) => <PromoRow key={s.id} set={s} today={today} />)}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function PromoRow({ set }) {
+  const [percent, setPercent] = useState(set.promo_percent ?? '')
+  const [from, setFrom] = useState(set.promo_from || '')
+  const [until, setUntil] = useState(set.promo_until || '')
+  const dirty = String(percent) !== String(set.promo_percent ?? '') ||
+    from !== (set.promo_from || '') || until !== (set.promo_until || '')
+
+  const save = () => {
+    router.patch(`/admin/panoplies/${set.id}`,
+      { promo_percent: percent, promo_from: from, promo_until: until, authenticity_token: csrf() },
+      { preserveScroll: true })
+  }
+
+  return (
+    <div className={`adm-cos rar-tint rar-${set.rarity}`}>
+      <div className="adm-cos-head">
+        <div className="adm-info">
+          <div className="adm-name">🎽 {set.name}</div>
+          <div className="adm-sub">
+            {set.pieces} pièces ·{' '}
+            {set.live
+              ? <><s>{set.full_total} 💎</s> {set.promo_total} 💎</>
+              : `${set.full_total} 💎 au total`}
+          </div>
+        </div>
+        {set.live && <span className="adm-live">−{set.promo_percent} %</span>}
+      </div>
+      <div className="adm-row">
+        <label className="adm-date"><span>−%</span>
+          <input className="field" type="number" min="1" max="90" placeholder="—" value={percent}
+                 onChange={(e) => setPercent(e.target.value)} />
+        </label>
+        <label className="adm-date"><span>du</span>
+          <input className="field" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+        </label>
+        <label className="adm-date"><span>au</span>
+          <input className="field" type="date" value={until} onChange={(e) => setUntil(e.target.value)} />
+        </label>
+        <button className="adm-save" disabled={!dirty} onClick={save}>OK</button>
+      </div>
+    </div>
   )
 }
 

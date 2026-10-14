@@ -15,7 +15,7 @@ puts "Nettoyage…"
 Game.update_all(winner_team_id: nil) # FK games → teams : à détacher avant de supprimer les équipes
 [ Reward, Chest, ConversationRead, Message, Conversation, Notification, PushSubscription,
  Action, MembershipItem, Training, TeamEffect, Membership, Monster, Team,
- SpecialDay, Game, Event, UserCosmetic, Cosmetic, Item, User ].each(&:delete_all)
+ SpecialDay, Game, Event, UserCosmetic, Cosmetic, CosmeticSet, Item, User ].each(&:delete_all)
 
 puts "Catalogue (cosmétiques + objets)…"
 # Données de RÉFÉRENCE, partagées avec la production : le catalogue vit dans LoadCatalog, pas
@@ -159,14 +159,38 @@ end
 
 puts "Cosmétiques possédés…"
 # De quoi voir l'écran avatar rempli sans avoir à gagner un mois de classement.
-[ [ "Yann", "Casquette", true ], [ "Yann", "Aura de feu", true ], [ "Yann", "Baskets de course", true ],
- [ "Yann", "Écharpe de laine", true ], [ "Yann", "Chien de course", true ],
+# ⚠️ Un seul cosmétique ÉQUIPÉ par emplacement : les anciennes pièces de Yann restent dans
+# son armoire mais décrochées, la panoplie du plongeur en occupe six sur sept (voir plus bas).
+[ [ "Yann", "Casquette", false ], [ "Yann", "Aura de feu", false ], [ "Yann", "Baskets de course", false ],
+ [ "Yann", "Écharpe de laine", false ], [ "Yann", "Chien de course", true ],
  [ "Inès", "Lunettes de star", true ], [ "Inès", "Gants de boxe", true ],
  [ "Chloé", "Haut-de-forme doré", false ] ].each do |name, cosmetic, on|
   user = User.find_by(firstname: name)
   UserCosmetic.create!(user:, cosmetic: Cosmetic.find_by(name: cosmetic),
                        equipped: on, acquired_at: 2.weeks.ago, source_game: game)
 end
+
+# Yann porte la panoplie du plongeur en entier : c'est la pièce maîtresse du catalogue, et
+# la voir dès le Hub évite d'aller la chercher dans l'armoire pour juger le rendu. Il lui
+# reste le chien en accessoire — le 7e emplacement, que le plongeur ne remplit pas.
+yann_user = User.find_by(firstname: "Yann")
+# ⚠️ Les pièces SEULEMENT : l'aura de la panoplie arrive toute seule à la dernière d'entre
+# elles (UnlockSetAura), et la créer une seconde fois violerait l'unicité. Le seed passe donc
+# par le vrai chemin du jeu — c'est aussi ce qui le fait échouer si la règle casse.
+CosmeticSet.find_by!(name: "Le plongeur").cosmetics.reject(&:aura?).each do |piece|
+  UserCosmetic.create!(user: yann_user, cosmetic: piece,
+                       equipped: true, acquired_at: 1.week.ago, source_game: game)
+end
+yann_user.user_cosmetics.joins(:cosmetic).find_by(cosmetics: { slot: "aura" })&.update!(equipped: true)
+
+# ⚠️ Le compte de démo doit pouvoir s'offrir TOUTES les panoplies sans courir six mois : le
+# solde est CALCULÉ à partir du catalogue, jamais posé en dur. Ajouter une panoplie remonte
+# donc le solde tout seul — sinon la nouvelle serait invendable le jour de son arrivée, et
+# c'est exactement le moment où l'on veut la regarder.
+# Les auras ne comptent pas : elles ne s'achètent pas, elles tombent quand la panoplie est
+# complète (UnlockSetAura). La marge sert au reste du rayon.
+panoplies = Cosmetic.where.not(cosmetic_set_id: nil).sum(:price_diamonds)
+yann_user.update!(diamonds: panoplies + 1_500)
 
 puts "Vitrine (un compte qui possède TOUT)…"
 # Compte de démo pour juger le catalogue d'un coup d'œil : il possède toutes les pièces, donc
@@ -177,6 +201,10 @@ showcase = User.create!(firstname: "Vitrine", email: "vitrine@btb.test",
 Membership.create!(user: showcase, game:, team: exo, fruit: "ananas", balls: 0, role: "player",
                    weekly_streak: 0, best_streak: 0, streak_jokers: 0)
 Cosmetic.find_each do |c|
+  # Une aura de panoplie a pu être offerte en route (UnlockSetAura, déclenché par la dernière
+  # pièce) : on ne la recrée pas.
+  next if showcase.user_cosmetics.exists?(cosmetic_id: c.id)
+
   UserCosmetic.create!(user: showcase, cosmetic: c, equipped: false,
                        acquired_at: 1.day.ago, source_game: game)
 end
@@ -187,20 +215,58 @@ end
 end
 
 puts "Messages…"
+# Une vraie discussion, sur trois jours : c'est ce qui permet de juger les séparateurs de
+# journée, les bulles longues, les GIF, et surtout les PASTILLES DE NON-LUS par canal.
+# ⚠️ Les URL de GIF sont figées, jamais tirées de l'API au seed : Giphy limite la clé gratuite
+# (429 au bout de quelques dizaines d'appels), et un seed qui dépend du réseau est un seed qui
+# casse. Forme stable `media.giphy.com/media/<id>/200w.gif` — la variante légère, celle qui
+# convient à une bulle de chat.
+GIF = ->(id, title) { { meme_url: "https://media.giphy.com/media/#{id}/200w.gif", meme_title: title } }
+mem = ->(name) { Membership.joins(:user).find_by(users: { firstname: name }) }
+
 general = game.general_conversation
-[ [ "Yann", "Allez les exotiques, on a un mois à gagner 🌴" ],
- [ "Chloé", "Vous allez pleurer, Framboitrix a faim 🍒" ],
- [ "Inès", "10 km ce matin, King-Coco vous salue 🥥" ],
- [ "Théo", "Qui court demain matin ?" ] ].each_with_index do |(name, body), i|
-  m = Membership.joins(:user).find_by(users: { firstname: name })
-  Message.create!(conversation: general, membership: m, body:, created_at: (4 - i).hours.ago)
+[ [ "Chloé", "Bon. Qui a eu l'idée de mettre la ligne d'arrivée en haut d'une côte ?", 2.days.ago - 3.hours ],
+ [ "Yann", "Celui qui a dessiné le parcours court en descente uniquement 🌴", 2.days.ago - 2.hours ],
+ [ "Inès", "12 km ce matin avant le boulot. King-Coco vous salue 🥥", 2.days.ago ],
+ [ "Max", "Framboitrix a repris 400 PV cette nuit, on est loin d'avoir fini 🍒", 1.day.ago - 5.hours ],
+ [ "Théo", "Quelqu'un court demain matin ? 7h au bord de l'Erdre", 1.day.ago - 2.hours ],
+ [ "Léa", "Moi ! Mais 7h30, j'ai pas ton courage", 1.day.ago - 1.hour ],
+ [ "Yann", nil, 1.day.ago, GIF["xT9IgG50Fb7Mi0prBC", "Running Late GIF"] ],
+ [ "Nico", "J'ai couru 8 km, le piège à loup m'a tout pris. Je suis pas bien.", 6.hours.ago ],
+ [ "Chloé", "C'était moi 🐺 désolée pas désolée", 5.hours.ago ],
+ [ "Inès", "On est à 3 jours de la fin du mois, il reste des boules à dépenser !", 3.hours.ago ],
+ [ "Max", nil, 2.hours.ago, GIF["26tn33aiTi1jkl6H6", "Nervous Sweating GIF"] ],
+ [ "Théo", "Allez, dernier effort. On les tient.", 40.minutes.ago ]
+].each do |name, body, at, gif|
+  Message.create!({ conversation: general, membership: mem[name], body:, created_at: at }.merge(gif || {}))
 end
 
-game.conversations.team_chats.find_each do |conv|
-  conv.team.memberships.limit(2).each_with_index do |m, i|
-    Message.create!(conversation: conv, membership: m, created_at: (2 - i).hours.ago,
-                    body: i.zero? ? "On concentre les attaques ce soir ?" : "Ok, je garde mes boules 🍑")
-  end
+# Le canal d'équipe : plus tactique, et plus court — c'est là qu'on parle vraiment.
+[ [ "Yann", "On concentre les attaques ce soir, après 20h ?", 1.day.ago - 4.hours ],
+ [ "Inès", "Ok. Je garde mes 🍑 jusque-là.", 1.day.ago - 3.hours ],
+ [ "Théo", "J'ai un saladier en réserve si ça chauffe 🥣", 1.day.ago ],
+ [ "Léa", "Framboitrix est sous 25 %, leurs soins coûtent 1 🍑. Ça va être long.", 8.hours.ago ],
+ [ "Inès", "Raison de plus pour taper tous en même temps.", 4.hours.ago ],
+ [ "Théo", nil, 90.minutes.ago, GIF["l41lFw057lAJQMwg0", "Lets Go GIF"] ]
+].each do |name, body, at, gif|
+  conv = game.conversations.team_chats.find_by(team_id: exo.id)
+  Message.create!({ conversation: conv, membership: mem[name], body:, created_at: at }.merge(gif || {}))
+end
+
+# L'autre camp discute aussi : sans ça, se connecter en max@btb.test tombe sur un canal vide.
+rouge_conv = game.conversations.team_chats.find_by(team_id: rouges.id)
+[ [ "Max", "King-Coco est à 46 %. On l'achève avant la fin du mois.", 1.day.ago ],
+ [ "Chloé", "J'ai posé un piège sur Nico. Ça devrait les calmer 🐺", 7.hours.ago ],
+ [ "Nico", "Je garde 20 🍑 pour la dernière salve.", 2.hours.ago ]
+].each { |name, body, at| Message.create!(conversation: rouge_conv, membership: mem[name], body:, created_at: at) }
+
+# ⚠️ Le point de LECTURE de Yann, posé exprès entre deux messages : sans lui, tout serait non
+# lu et les deux pastilles afficheraient le même gros chiffre. Là, on voit ce qu'elles servent
+# à montrer — 5 non lus côté partie, 2 côté équipe, et un total de 7 sur le 💬 du bandeau.
+yann_m = mem["Yann"]
+{ general => 5.hours.ago - 30.minutes, game.conversations.team_chats.find_by(team_id: exo.id) => 9.hours.ago }
+  .each do |conv, at|
+  ConversationRead.create!(membership: yann_m, conversation: conv, last_read_at: at)
 end
 
 puts "Activité simulée (pour voir le feed de notifications)…"

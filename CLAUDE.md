@@ -143,10 +143,67 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   après 7 courses scorées sans drop. Rareté pondérée (60/25/12/3), contenu décidé **au drop**
   (💎 15/30/60/120 + parfois un cosmétique non possédé, toujours pour un légendaire — c'est
   par là qu'arrive l'Esprit du loup). Ouverture **dans le sac** (`/sac`, voir plus bas) en
-  **modal plein écran** : coffre SVG qui tremble (`ChestCard`) → POST → au rechargement,
-  `flash[:chest]` rouvre la modal en mode révélation (`ChestReveal`, monté **une seule fois**
-  par page puisqu'on peut avoir plusieurs coffres : couvercle sur charnière, **paillettes**,
-  gains qui sortent en chips). `Chest#open!` idempotent (verrou + statut) crédite et journalise
+  **modal plein écran**, en deux temps de part et d'autre du rechargement Inertia : le coffre
+  s'agite **de plus en plus fort** et fait trembler l'écran (`ChestCard`) → POST → au
+  rechargement, `flash[:chest]` rouvre la modal en mode révélation (`ChestReveal`, monté
+  **une seule fois** par page puisqu'on peut avoir plusieurs coffres).
+  La révélation emprunte la grammaire des **jeux de loot** : flash plein écran, roue de
+  **rayons** qui tourne, couvercle qui claque avec **onde de choc**, colonne de lumière,
+  **pluie de pièces**, et le **butin qui sort du coffre** : chaque gain jaillit de là où est
+  le coffre, monte encore un peu, puis retombe à sa place (d'où sa position **sous** le coffre
+  et **avant** le titre — le titre n'est plus que la légende du butin).
+  ⚠️ On montre la **matière**, pas une phrase : `Chest#open!` rend des **gains structurés**
+  (`{kind: "diamonds", amount:}` / `{kind: "cosmetic", name:, emoji:, art:, rarity:}`) et la
+  modal dessine la vraie pièce (`CosmeticIcon`, dessin ou emoji) dans un médaillon. Le
+  médaillon d'un cosmétique porte **SA** rareté, pas celle du coffre : `DropChest` tire dans
+  tout le catalogue, donc un coffre commun peut cracher un légendaire — c'est le meilleur
+  moment que le jeu sache produire, il doit se voir. C'est la **seule** autre couleur admise
+  dans la modal. Deux règles à garder : ⚠️ tout le reste est peint dans
+  **`--rar`**, la couleur de la rareté (voir « Rareté » plus bas) — aucune autre couleur
+  n'entre dans la modal ; et la **quantité** de fanfare suit la rareté — **comme sa
+  durée** : ~1,9 s et 8 paillettes pour un commun, **~6,6 s et 60 paillettes** pour un
+  légendaire. L'écart est volontairement brutal : c'est le commun expédié en moins de deux
+  secondes qui rend les six secondes du légendaire désirables plutôt que pénibles — le
+  contraste porte la récompense, pas la durée absolue.
+  Une **seule table**, `FANFARE` dans `ChestCard`, pose tout en style en ligne sur la modal :
+  nombre d'éclats et de pièces, `--fanfare` (intensité des lumières), `--rattle` (durée de
+  l'agitation — **le même nombre minute le POST**, la modal ne peut donc pas se désynchroniser
+  de son animation) et **deux facteurs de temps**, parce qu'ils ne s'étirent pas
+  au même rythme : **`--k`** pour l'**atmosphère** (rayons, colonne, onde) et l'attente entre
+  deux gains, **`--k2`** (deux fois moins ample) pour les **gestes** — couvercle qui claque,
+  coffre qui encaisse, butin qui vole. Un geste trop lent ne se lit pas comme de la solennité,
+  il se lit comme une appli qui rame. Chaque durée est un `calc(… * var(--k))` ou `var(--k2)`,
+  tout s'étire d'un coup sans rien réaccorder. Deux exceptions notées dans le CSS : le
+  **flash** ne s'étire pas du tout (un impact dilaté devient un voile blanc), et l'**agitation**
+  est une secousse courte à fréquence **fixe** répétée `--shivers` fois (une seule keyframe
+  étirée sur 3 s donnerait un balancement mou), le gonflement `ease-in` par-dessus portant
+  seul la montée en tension. Les **paillettes** sont réparties en **spirale dorée** avec un
+  rayon en racine carrée : à 60 éclats, une répartition régulière dessinait une grille de
+  rayons et d'anneaux. Départs et durées étalés par paillette — une pluie qui dure, pas un
+  pop synchronisé. Chaque animation a son pendant sous
+  `prefers-reduced-motion` : le tableau final (coffre ouvert, halo, gains) sans rien qui bouge.
+  ⚠️ **La couleur de l'ouverture est celle du plus beau CONTENU**, pas du palier du coffre
+  (`Chest#loot_rarity` = le plus haut de `rarity` et de la rareté du cosmétique). Un coffre
+  commun qui cache un légendaire s'ouvre **en or**, avec la fanfare et la durée d'un
+  légendaire — c'est le meilleur moment que le jeu sache produire, il ne doit pas se jouer en
+  gris ; et un coffre légendaire qui ne cache qu'un chapeau commun garde l'or de son palier
+  (on prend toujours le plus haut, jamais le plus bas). C'est `loot_rarity`, et **elle seule**,
+  qui part au front — le palier brut n'y sert à rien.
+  ⚠️ **La rareté d'un coffre scellé ne s'affiche NULLE PART** : ni pastille, ni teinte, ni
+  ferrures colorées sur la carte du sac. Elle n'apparaît qu'**à partir du clic sur « Ouvrir »**
+  — d'abord la couleur du halo pendant que le coffre s'agite, puis elle éclate à la révélation.
+  C'est toute la tension du geste ; une pastille sur la carte vendrait la mèche des jours à
+  l'avance. (Le front reçoit bien `rarity` dans les props — il en a besoin dès le clic, sans
+  aller-retour serveur — il ne la *montre* simplement pas.)
+  ⚠️ **Le coffre est un dessin, pas un 🎁** (`ChestSvg`, exporté par `ChestCard`) : le même
+  partout — carte du sac (`chest-mini`, 46 px), titre de la section (`chest-tiny`, 22 px),
+  modal qui s'ouvre (150 px). Ses **ferrures prennent la couleur de la rareté** (`.chest-trim`
+  → `--rar`) une fois la modale ouverte, ce qu'un emoji ne savait pas faire ; sur la carte,
+  sans `rar-*`, elles retombent sur leur or par défaut. C'est le cerclage du couvercle qui
+  porte la couleur aux petites tailles, les ferrures verticales disparaissant sous 30 px.
+  Le 🎁 reste dans les **textes** (titre de notification, tuile du Hub, FAQ) : Unicode n'a
+  pas d'emoji coffre.
+  `Chest#open!` idempotent (verrou + statut) crédite et journalise
   dans `rewards` (period `chest-<id>`), doublon acquis entre-temps → +30 💎.
 - **💥 Échec critique** (retour v1) : 1 attaque sur 10 rate (`PerformAction#crit_fail`) — 0 dégât
   et perte de **15 % du solde** (min 1, max 10 🍑), non multipliée par la meute. Taxe les
@@ -238,19 +295,93 @@ en dessous. Le reste suit la **silhouette**, déclarée par chaque fruit dans `c
 via `box` — `top` (ligne du crâne), `bottom` (ligne du sol), `half` (demi-largeur), `hatX`
 optionnel : le chapeau se pose sur le sommet **réel** (banane, carambole, ananas compris), les
 chaussures sous la vraie base, les gants à la vraie largeur (jamais sur les joues, grâce à un
-plancher). `FruitAvatar#anchors()` en déduit les positions et chaque pièce est **centrée** sur
-son point. Les pièces restent **serrées autour du fruit** : une pièce qui s'éloigne fait paraître
+plancher). Les pièces restent **serrées autour du fruit** : une pièce qui s'éloigne fait paraître
 l'avatar plus petit dans un cadre de taille fixe.
+
+⚠️ **`half` se MESURE, il ne s'estime pas.** C'est la demi-largeur du corps **à la ligne des
+bras** (y = 58) — pas la largeur maximale, et pas l'écart entre les deux pixels extrêmes :
+- posé à l'œil, il valait la largeur **max**, ce qui ne vaut que pour un fruit rond. Mesuré au
+  pixel sur la silhouette rendue, quatre fruits étaient faux de 4 à 13 unités : **banane 30 → 18**
+  et **carambole 31 → 17** sont étranglées à mi-hauteur, leurs bras flottaient à 13 unités du corps ;
+  papaye 15 → 12, durian/corossol 32 → 27.
+- on prend la plus longue plage opaque **contiguë** : une épine détachée du corps (les écailles
+  du fruit du dragon) n'est pas de la largeur, et la compter renvoyait les bras dans le vide —
+  le dragon reste donc à 24.
+Même principe que les planches de monstres : **vérifier par la mesure**. Re-mesurer après toute
+retouche d'une silhouette.
+
+⚠️ **Une pièce LARGE épouse la tête, elle n'a pas de taille fixe** (`fit` dans `COSMETIC_ART`,
+`sizeOf()` dans `FruitAvatar`). Mesurés au pixel, les fruits vont de **12 (papaye) à 30 (durian)**
+de demi-largeur — un rapport de **2,5×** : un casque calibré pour un fruit rond débordait de
+8 unités de chaque côté sur une mangue. `fit` exprime la largeur en **multiple de celle du
+fruit** (`1` = exactement la tête, `1.1` = 10 % de plus pour un casque dont les écouteurs se
+posent sur les côtés, `.77` pour un haut-de-forme un peu plus étroit), bornée par
+`FIT_MIN`/`FIT_MAX` — sans plancher, la papaye recevrait un casque de 7 px sur un avatar de
+132, proportionné mais illisible, et invisible à 44 px. Les valeurs de `fit` des pièces
+existantes sont calées pour **redonner leur taille d'avant sur un fruit rond** (demi-largeur 30),
+celui sur lequel elles avaient été réglées : seuls les fruits étroits changent.
+Réservé aux pièces larges (casque, visière, bandana, serviette, chapeaux à bord) : tout ce qui
+se pose **à côté** — gourde, aura, accessoire — garde une taille fixe, un objet posé près du
+fruit n'ayant aucune raison de suivre sa largeur.
+
+⚠️ **Ancrage par le BORD, pas par le centre** (`from` + `bite` dans `anchors()`). `from: 'bottom'`
+pose le bord **bas** de la pièce à `y + bite`, `from: 'top'` son bord **haut** à `y − bite`.
+C'est ce qui fait tenir les **grosses pièces** : centré sur le même point, un casque audio
+descendait jusqu'aux yeux là où un bandeau plat se posait juste. Ancrés par le bas, les deux ont
+leur bord inférieur au même endroit et c'est le **haut** qui pousse dans le vide — changer la
+taille d'une pièce ne la déplace plus. Une pièce peut d'ailleurs imposer **sa** taille et **sa**
+morsure (`em`, `bite` dans `COSMETIC_ART`) : le réglage du slot est calibré pour une pièce
+moyenne, et les écouteurs veulent tomber au niveau des oreilles (`bite: 40`), bien plus bas que
+le bord d'un chapeau.
 
 ⚠️ **Un glyphe emoji pend sous le centre de sa boîte de ligne** : recentrer la boîte posait donc
 toutes les pièces trop bas (lunettes sous les yeux, gants au menton). La classe `.fav-glyph`
 remonte le glyphe de `.115em` de sa propre taille ; les dessins SVG, déjà centrés dans leur
 viewBox, n'y touchent pas.
 
-L'**aura** est une couronne de 6 petits emojis **derrière** le fruit (`z-index` 0 < `.fav-svg`),
-assez rapprochée (rayon 33) pour que la silhouette en masque une partie, et translucide (`.5`) —
-un seul gros emoji avalait l'avatar, une couronne trop large flottait à côté au lieu d'être
-derrière. Sous **44 px** (chat, ligue, listes) seuls aura/lunettes/chapeau sont rendus — sinon
+⚠️ **Une aura ne s'achète pas et ne se tire pas : c'est la RÉCOMPENSE d'une panoplie**
+(`UnlockSetAura`). On l'obtient en possédant **toutes les autres pièces** de sa panoplie, et
+c'est le seul chemin — `Purchase.cosmetic` la refuse même si l'id est posté à la main, et le
+scope **`Cosmetic.drawable`** l'exclut du coffre, du cadeau de série et de la ligue (un seul
+scope pour les trois : c'est ce qui garantit qu'aucun n'oublie la règle).
+- ⚠️ Le déclencheur est un **`after_create` sur `UserCosmetic`**, pas l'achat : une pièce de
+  panoplie peut aussi arriver par un coffre. Accroché à la création du lien joueur↔pièce,
+  aucun chemin ne peut passer à côté. Une aura n'en déclenche pas une autre (garde explicite).
+- La boutique **montre l'aura avant qu'elle soit gagnée**, en pied de son rayon, avec le
+  compte des pièces restantes : c'est elle qui donne une raison de finir la collection.
+- Toutes les auras du seed sont donc `price_diamonds: nil` + `source: "set"`.
+- ⚠️ **7 auras du catalogue n'ont pas encore de panoplie** et sont donc *inobtenables* —
+  voir la roadmap (le Tournesol y est retourné, le plagiste ayant son château).
+
+⚠️ **L'aura n'est plus sur l'avatar : elle peint le FOND DE PAGE**
+(`components/AuraBackground.jsx`). C'était une couronne de 6 emojis derrière le fruit, et elle
+étouffait : dans un cadre de taille fixe on ne peut pas l'élargir sans la faire sortir du cadre.
+Une aura veut de la place, la page en a, l'avatar non. Le slot `aura` n'a pas bougé, seul son
+rendu a changé — c'est toujours un cosmétique qu'on achète et qu'on équipe.
+- **Pour soi** : l'aura équipée est partagée par `inertia_share` (comme le solde de 🍑) et
+  montée par le **Hud**, qui est sur toutes les pages — un écran nouveau n'a rien à déclarer.
+- **Chez les autres** : le profil d'un joueur sert `page_aura`, qui **prime**. Cliquer sur
+  quelqu'un, c'est entrer chez lui, et son aura donne l'ambiance à sa page. ⚠️ Un joueur sans
+  aura sert `page_aura: null` **explicitement** : c'est ce nil qui efface la mienne, sinon on
+  verrait la sienne par défaut (garde `pageAura !== undefined`, verrouillée par un test).
+- ⚠️ Le fond est un **frère** de `.hud`, jamais son enfant : `.hud` est collé avec un z-index,
+  donc tout ce qu'on y mettrait passerait par-dessus le contenu. Et il est en **`z-index:-1`**,
+  pas 0 — une couche positionnée à 0 passe par-dessus le contenu en flux normal ; à -1 elle se
+  glisse entre le fond du `body` et le contenu de `.shell`.
+- Semis **déterministe** : grille décalée d'une demi-case une ligne sur deux, plus un déport et
+  une inclinaison par motif. En grille pure c'était du papier millimétré ; au hasard, les motifs
+  se regroupaient en paquets. Très pâle (12 %) : c'est une ambiance, pas un décor.
+- ⚠️ **Les auras épiques et légendaires DÉRIVENT** : chaque motif s'éloigne un peu, monte en
+  éclat, puis retombe (`.aura-bg.live`). Une aura commune ou rare reste immobile — le mouvement
+  est la récompense des panoplies de haut rang. La **rareté** part donc au front avec l'aura.
+  Durées et départs sont **tous différents** d'un motif à l'autre : à l'unisson, le fond entier
+  se met à respirer, ce qui est insupportable derrière du texte. On anime `translate` et `scale`,
+  les propriétés **individuelles**, jamais `transform` — celui-ci porte déjà l'inclinaison du
+  motif (même règle que les pièces animées de l'avatar).
+- La **cabine d'essai** et l'**armoire** en montrent une version bornée à l'aperçu
+  (`.aura-bg.local`) — sans ça, essayer une aura ne se verrait qu'après avoir quitté l'écran.
+
+Sous **44 px** (chat, ligue, listes) seuls lunettes et chapeau sont rendus sur l'avatar — sinon
 c'est une bouillie d'emojis.
 **Emoji par défaut, SVG quand l'emoji ne peut pas** (`cosmetics.art` → `components/cosmeticArt.jsx`) :
 trois familles d'emojis ne marchent pas sur un avatar-fruit —
@@ -260,13 +391,60 @@ trois familles d'emojis ne marchent pas sur un avatar-fruit —
    côté il donnait **quatre mains** (d'où le dessin `mitten`, une seule moufle).
 
 Ces pièces portent une clé `art` et sont dessinées à plat : `sneakers`/`trail`/`ballet`/`skates`/
-`boots7` (les 5 paires de chaussures), `mitten`, `paw`, `gold_hat` (🎩 est noir et bleu, le nom
-promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `monocle`, `eyepatch`, `visor`,
-`bowtie`, `bib`, `bandana`, `wand` (la baguette magique, `single: true`), `maracas`.
+`boots7`/`worn_sneakers` (les 6 paires de chaussures), `mitten`, `paw`, `gold_hat` (🎩 est noir
+et bleu, le nom promettait de l'or), `cowboy_hat`, `santa_hat`, `bucket_hat`, `monocle`,
+`eyepatch`, `visor`, `bowtie`, `bib`, `bandana`, `wand` (la baguette magique), `maracas` ;
+les quatre du loup (`wolf_ears`, `scar`
+— taille **fixe**, le visage étant le même sur tous les fruits —, `spiked_collar`,
+`wolf_paws`) ; les cinq de Noël, dont `xmas_boots` qui n'est qu'un **recoloriage** de la
+chaussure — le dessin étant déjà paramétré, une panoplie de plus ne coûte que des couleurs —
+et `xmas_arms`, deux bras de manteau à moufles bâtis comme ceux du plongeur ; les cinq du plongeur (`swim_cap`,
+`dive_mask` — vitre **translucide**, un masque opaque effaçait le regard —, `weight_belt`,
+`flippers` qui passent par le même `<Pair />` que les chaussures, `wetsuit_arms`) ; et les
+trois de la panoplie du dimanche :
+`headphones` (🎧 est un casque vu de face, une masse noire sur le crâne ; dessiné, l'arceau
+passe **sur** la silhouette et les écouteurs tombent aux oreilles), `armband` (📱 seul flottait
+comme un objet posé là : ce qu'on porte, ce sont les sangles) et `towel` (🎽 était un débardeur,
+donc une **tenue**, alors que l'avatar est une tête).
+⚠️ **Au cou, une BANDE, jamais un anneau.** Une bouée de sauvetage a été dessinée puis jetée :
+un anneau assez large pour ceinturer le corps mesure ~50 unités de diamètre, donc son sommet
+remonte à la ligne des yeux **où qu'on l'accroche**. Même erreur de catégorie que le débardeur.
+Une ceinture de plomb, un collier à pointes ou une serviette marchent parce qu'ils ne se
+referment pas derrière : ils suivent la base du fruit et s'arrêtent là.
+⚠️ **Un chapeau doit couvrir la largeur du crâne** — 85 à 100 %, comme le bonnet de bain ou
+les bois de renne. Les chapeaux dessinés étaient réglés à `fit: 0.77`, soit ~60 % : ils avaient
+l'air posés sur la tête d'un autre. Ils sont passés à **`1.155` (×1,5)**, avec le `bite` à 18
+au lieu de 14 — l'ancrage pose le bord bas de la BOÎTE sur le crâne, et comme ces dessins
+laissent du vide sous eux, grandir les décollait de la tête. Les chapeaux en **emoji** montent
+de 0.36 à **0.48** seulement : un emoji remplit toute sa boîte, à 1,5× il sortirait du cadre
+par le haut.
+⚠️ Un dessin destiné au **chapeau** doit être **large et plat** : plus haut que large, mis à
+l'échelle pour atteindre les oreilles, il déborde d'un demi-fruit au-dessus du crâne.
+
+⚠️ **Une pièce peut s'ANIMER** (`anim` dans `COSMETIC_ART`) — réservé aux panoplies de haut
+rang : c'est ce qui les distingue au premier coup d'œil sans coûter une couleur de plus.
+Aujourd'hui `spin`, porté par le **nœud papillon de velours** de L'intello : un tour en 2 s,
+puis **5 s d'arrêt** (cycle de 7 s). Le repos domine largement, comme pour l'éclair de l'arène —
+une pièce qui bouge tout le temps tire l'œil en permanence et on finit par ne plus voir l'avatar. Coupé sous `prefers-reduced-motion` comme le reste du jeu.
+⚠️ L'animation est portée par le **dessin** (`.fav-art`), jamais par la pièce (`.fav-slot`).
+La pièce a déjà un `transform` — le centrage `translate -50 %` — et la matrice finale vaut
+`Translate·Rotate·Scale·Transform` : le centrage s'applique donc **avant** la rotation, autour
+d'une origine restée au centre de la boîte non translatée. Résultat, la pièce décrivait un
+cercle du rayon de sa demi-diagonale : elle **orbitait** au lieu de tourner sur elle-même.
+Le dessin, lui, n'a aucun `transform` — il tourne autour de son propre centre.
+⚠️ Corollaire : `anim` ne marche que sur une pièce **dessinée** (`node`), pas sur un emoji,
+qui n'a pas de `.fav-art` à faire tourner.
 
 Trois drapeaux de mise en page, sur l'entrée `COSMETIC_ART` :
-- **`pair: true`** — le dessin contient déjà les deux pièces (chaussures) → jamais dupliqué, et
-  le slot `shoes` lui donne sa propre ancre (`at.art`, plus large qu'un emoji) ;
+- **`pair: true`** — le dessin contient déjà les deux pièces (chaussures, bras de combinaison)
+  → jamais dupliqué, et le slot `shoes` lui donne sa propre ancre (`at.art`, plus large qu'un
+  emoji). C'est **le seul moyen d'avoir deux mains DIFFÉRENTES** : un slot symétrique reflète
+  la même pièce, il ne sait faire que deux fois la même chose ;
+- **`back: true`** — la pièce passe **derrière** la silhouette (`.fav-behind`, z-index 0 sous
+  `.fav-svg`). C'est ce qui rend des bras crédibles : l'épaule part d'un point caché par le
+  corps et seul l'avant-bras ressort, donc un fruit étroit en montre plus qu'un large **sans
+  un seul calcul**. Devant, il fallait creuser un trou au milieu du dessin — et il barrait
+  quand même le visage ;
 - **`single: true`** — la pièce ne se porte que d'un côté (la baguette magique) ;
 - sans drapeau, la pièce est posée **de chaque côté, la droite en miroir** : elle doit donc
   représenter **UN** bras. C'est la règle que violaient 🧤 et 🐾 (déjà des paires → quatre mains).
@@ -276,15 +454,18 @@ les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
-- **Catalogue : 69 pièces** (dont 7 de saison) dans **`LoadCatalog`** (app/services) — et non
-  dans le seed, parce que ce sont des **données de référence** dont la production a besoin :
-  tous les slots garnis, grille 100/250/500/1000, dont 7 **exclusives** `price_diamonds: nil`
-  (sources `event`/`rank`/`drop` : Noël, Halloween, médaille, loup…) — jamais en vente, mais
-  **tirables** par les cadeaux de streak et de ligue (comportement assumé, comme la Couronne).
-  Ajouter une pièce = une ligne dans `LoadCatalog` (slot existant + emoji), aucun code — sauf
+- **Catalogue : 113 pièces** (dont 4 de saison et 55 réparties en 10 panoplies) dans
+  **`LoadCatalog`** (app/services) — et non dans le seed, parce que ce sont des **données de
+  référence** dont la production a besoin : tous les slots garnis, grille 100/250/500/1000,
+  dont 7 **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween,
+  médaille, loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue
+  (comportement assumé, comme la Couronne). Ajouter une pièce = une ligne dans `LoadCatalog`
+  (slot existant + emoji, et `set: "<nom>"` si elle rejoint une panoplie), aucun code — sauf
   si elle a besoin d'un dessin, alors + une entrée dans `COSMETIC_ART`. Puis
-  `bin/rails catalog:load` : **idempotent** (chaque pièce retrouvée par son NOM), donc corriger
-  un prix ici le corrige en base au prochain chargement, sans migration ni reseed.
+  `bin/rails catalog:load` : **idempotent** (chaque pièce — et chaque panoplie — retrouvée par
+  son NOM), donc corriger un prix ici le corrige en base au prochain chargement, sans migration
+  ni reseed. Le seed de démo appelle `LoadCatalog.call(demo_summer: true)` : une seule source
+  de vérité pour le catalogue, partagée avec la production.
   Ajouter un **slot** = une entrée dans `anchors()` + un z-index CSS `.fav-<slot>`.
 - **L'armoire vit dans le sac**, pas ici (`/sac?tab=wardrobe`, `components/Wardrobe.jsx`) :
   c'est **un vestiaire, pas une liste** — l'aperçu de l'avatar et la barre d'emplacements
@@ -293,7 +474,12 @@ catalogue reste en emoji, et le sera par défaut.
   équipé, et le rayon n'affiche **que** les pièces de l'emplacement choisi, avec une case
   « Retirer » quand on porte quelque chose. Empiler tout le catalogue d'un coup obligeait à
   scroller entre la pièce et l'avatar. `/avatar` y renvoie par un bouton.
-- Le seed crée **`vitrine@btb.test`**, un compte qui **possède les 69 pièces** (et ne court pas,
+- ⚠️ **Le solde de 💎 du compte de démo est CALCULÉ**, jamais posé en dur : il vaut le coût de
+toutes les panoplies + 1 500 de marge. Ajouter une panoplie remonte donc le solde tout seul —
+sinon la nouvelle serait invendable le jour de son arrivée, et c'est exactement le moment où
+l'on veut la regarder. (Les auras n'y entrent pas : elles ne s'achètent pas.)
+
+Le seed crée **`vitrine@btb.test`**, un compte qui **possède les 69 pièces** (et ne court pas,
   donc ne fausse ni la ligue ni la meute) : l'armoire liste tout le catalogue, slot par slot,
   pour juger le rendu d'un coup d'œil.
 
@@ -363,10 +549,59 @@ registre : à resituer dès qu'une nouvelle série cadre le visage ailleurs, sin
   personnage n'est plus debout.
 - **`creamed`** : chantilly plein les yeux tant que l'effet dure (= `masked`, donc pour la seule
   équipe aveuglée, celle qui voit « ??? »).
-- **`shielded`** : saladier translucide retourné (= `protected`), le monstre se tasse dessous. En **Combat**, l'attaque secoue + flashe en rouge le monstre
-adverse (💥 + « -N ») et le soin fait gonfler mon monstre avec une lueur verte (✨ + « +N »),
-piloté par état React dans `pages/Combat.jsx` (classes `.impact` / `.healpulse`, guard
-`prefers-reduced-motion`).
+- **`shielded`** : saladier translucide retourné (= `protected`), le monstre se tasse dessous.
+
+### L'écran de combat (`/combat`) — un combat de Pokémon
+Le terrain occupe l'écran, la boîte de commandes tient le pied de page :
+
+```
+┌──────────────────────────────┐
+│ [carte ennemi]        🌿     │  l'adversaire est LOIN : plus haut, plus PETIT (38 %)
+│                     ennemi   │
+│   NOUS                       │  nous sommes au PREMIER PLAN : plus bas, plus GRAND (52 %)
+│   🥥             [ma carte]  │
+├──────────────────────────────┤
+│ Que faites-vous ?       🍑   │  le menu, comme la boîte de dialogue du modèle
+│ [ATTAQUER] [SOIGNER]         │
+│ [POWER-UPS] [RETOUR]         │
+└──────────────────────────────┘
+```
+
+Deux principes portent tout le rendu, et ils ne coûtent **aucun décor** :
+- **La profondeur.** L'ennemi est servi plus petit et posé plus haut : c'est ce qui dit « il est
+  en face ». Chacun a son **ombre elliptique** au sol (dérivée du vert du terrain), qui l'ancre
+  au lieu de le laisser flotter sur un aplat.
+- **La diagonale.** Carte à gauche / monstre à droite en haut, l'inverse en bas. L'œil descend
+  en zigzag et ne confond jamais les deux camps — même barbouillés de chantilly.
+
+Le **terrain** est le seul aplat de **décor** du jeu (un vert très pâle), et il est **dérivé de
+`--mint`** plutôt qu'inventé : il suit donc le thème sombre tout seul.
+
+⚠️ **Un seul bouton orange** (charte 60-30-10) : attaquer est l'action du jeu, tout le reste se
+range derrière. Soigner porte l'indigo, power-ups et retour restent neutres. Chaque commande dit
+**son coût et sa conséquence** sous son libellé — `1 🍑 · échec 1/10`, `2 🍑 · +10 PV` : une
+chance sur dix de tout perdre ne se découvre pas après coup, elle s'annonce là où l'on décide.
+Le porte-monnaie s'affiche **avec son plafond** (`81/100`) — c'est lui qui dit qu'il est temps
+de dépenser.
+
+⚠️ **Écart assumé avec le modèle** : Pokémon cache les PV chiffrés de l'adversaire. Ici on les
+**montre** — savoir s'il reste 300 ou 3 000 PV décide de tout un tour de jeu, et le brouillard
+de guerre est déjà géré par la chantilly. Ce qui doit rester caché l'est déjà.
+
+⚠️ La jauge de **notre** monstre passe vert → orange → rouge en descendant ; celle de
+l'adversaire reste **rouge quoi qu'il arrive** : c'est une cible, pas une santé.
+
+⚠️ Le menu dit « **Que faites-vous ?** », pas « Que fait <monstre> ? ». On ne dirige pas une
+créature, on **décide à plusieurs** — le monstre ne fait qu'encaisser ; et le « vous » rappelle
+qu'on n'attaque jamais seul.
+
+Les **power-ups** sont passés dans une feuille du bas (`ItemPicker`), la même que `TargetPicker`
+et `MonsterPicker` — un seul geste à apprendre. Un objet **déjà en cours y reste listé, grisé**
+plutôt que de disparaître : sinon on croit l'avoir perdu, alors que c'est son effet qui tourne.
+
+L'attaque secoue + flashe en rouge le monstre adverse (💥 + « -N ») et le soin fait gonfler le
+nôtre avec une lueur verte (✨ + « +N »), piloté par état React dans `pages/Combat.jsx` (classes
+`.impact` / `.healpulse`, guard `prefers-reduced-motion`).
 
 ### Le compte à rebours (Hub)
 En haut du Hub, `components/Countdown.jsx` : **une seule ligne compacte** (`.cd`) — pastille du
@@ -463,6 +698,15 @@ Chaque **participation** (Membership) a une page profil consultable par **tout j
 partie** (les deux clans — `ApplicationController#shares_game?`). Elle liste ses sorties (date,
 heure, km, 🍑, statut) et lie vers le détail de chacune.
 
+⚠️ **Le personnage s'y voit en GRAND**, sur la même scène que l'armoire et la cabine d'essai
+(`.av-stage`, 132 px, aura bornée au cadre). C'était une vignette de 72 px à côté du nom : de
+quoi reconnaître quelqu'un, pas de quoi voir **ce qu'il porte** — alors que la tenue est
+justement la seule chose que le jeu donne à montrer aux autres. La scène reçoit `page_aura` et
+non l'aura de l'avatar : c'est la même pièce, mais celle-là porte sa **rareté**, donc une aura
+épique ou légendaire dérive dans le cadre comme elle dérive derrière la page, au lieu d'y faire
+un îlot figé. Et la scène est un **aplat opaque** : sans ce fond borné, elle serait le seul
+rectangle vide d'une page entièrement peinte par l'aura du joueur.
+
 Le **détail d'une sortie** (`/courses/:id`) montre ce qu'on récupère de Strava : titre,
 description, durée, allure, dénivelé, **tracé du parcours** et photo. Les champs sont stockés sur
 `trainings` (`title`, `description`, `moving_time`, `elapsed_time`, `elevation_gain`,
@@ -500,6 +744,101 @@ Le rayon est servi à part (`seasonal` vs `cosmetics` dans `ShopController`) : l
 une date de fin s'affichent dans un encadré violet en tête de l'onglet Cosmétiques, chacune avec
 son compte à rebours (« Encore 12 jours », « Dernier jour ! »). Ouvrir une collection = poser
 deux dates sur des lignes du seed, aucun code.
+
+**🎽 Panoplies** (`CosmeticSet`, `cosmetics.cosmetic_set_id`) : un thème, plusieurs pièces,
+**toutes de la même rareté** — validé par `Cosmetic#rarity_matches_set`, c'est ce qui rend le
+prix d'un ensemble lisible d'un coup d'œil. ⚠️ **L'aura en est exemptée** : depuis qu'elle est
+la récompense et non une pièce à vendre, elle a le droit de valoir plus que ce qu'on a payé
+pour l'obtenir (Le loup : six pièces épiques → une aura **légendaire**). La règle porte sur ce
+qu'on **paie**, et une aura ne se paie pas. On achète **toujours à la pièce** : une panoplie ne
+se vend pas en bloc, elle range le rayon et surtout elle **porte les promotions**.
+
+⚠️ **Le rayon liste des TENUES, pas des pièces.** Une panoplie fermée n'est qu'**une carte**,
+qui montre la panoplie **portée sur le fruit du joueur** — la question devant un rayon de
+panoplies est « est-ce que ça me va ? », pas « combien coûte ce chapeau ». La carte ne dit que
+le compteur (`3/6`), ce qu'il reste à payer, et la promo ou le compte à rebours en pastille.
+**Les pièces et leurs boutons d'achat n'apparaissent qu'une fois la panoplie ouverte**, avec un
+bouton **« Tout essayer »** qui pose l'ensemble dans la cabine d'un coup. L'aperçu de la carte
+est monté comme celui de la cabine d'essai (les pièces posées sur l'avatar du joueur) :
+**aucun aller-retour serveur**. ⚠️ Mais il ne montre **QUE les pièces de la panoplie**, pas ce
+qu'on porte déjà : fusionné avec la tenue en cours, un ensemble de quatre pièces se retrouvait
+affublé du masque de plongée et du chien du joueur, et on ne savait plus ce qui venait de lui.
+Le **fruit** reste celui du joueur — c'est bien sur lui qu'on veut voir la tenue. La cabine
+d'essai, elle, continue de fusionner : c'est une cabine d'*essai*. Et le **fond de la carte porte l'aura** de la panoplie — c'est la seule
+façon de la montrer, puisqu'elle ne se pose pas sur l'avatar mais derrière l'écran : la carte
+donne donc à voir la tenue **et son décor**, d'un coup. Les pièces hors panoplie gardent leur grille, sous « À la pièce ».
+Ses pièces sont **exclues** du rayon permanent et du rayon de saison — une pièce n'apparaît
+que dans un rayon, et sa panoplie prime. Dix panoplies au seed :
+**Coureur du dimanche** (6 pièces **communes** à 100 💎 — écouteurs, serviette éponge,
+téléphone en brassard, baskets fatiguées, ☕ café d'avant-course, 💨 souffle court) et
+**Le plongeur** (5 pièces **rares** à 250 💎 — bonnet de bain, masque et tuba, ceinture de
+plomb, harpon et lampe, palmes → 🐠 Banc de poissons) ; **Le loup** (6 pièces **épiques** à 500 💎 —
+oreilles, balafre, collier à pointes, patte, coussinets, 🦴 os à ronger → 🐺 **Esprit du loup**,
+qui n'existe plus que là) ; et **Noël** (6 pièces **rares** à 250 💎 — bois de renne, lunettes
+du Père Noël, guirlande, manteau et moufles, bottes, 🦌 renne → 🎄 **Sapin scintillant**).
+⚠️ Deux de ses pièces se **disputent l'espace** : le bonnet des lunettes monte jusqu'au crâne
+et disparaît sous les bois de renne. C'est un choix laissé au joueur, pas un bug — mais c'est
+le premier cas où deux pièces d'une même panoplie ne se portent pas bien ensemble.
+Enfin **Le Père Noël** (4 pièces **rares** à 250 💎 — bonnet, grande barbe blanche, bras
+chargés de cadeaux, bottes à boucle → ❄️ **Aura de givre**), **permanente** : c'est un
+déguisement, pas une collection de saison. Son bonnet **réutilise `santa_hat`**, le dessin du
+Bonnet du Réveillon — le redessiner en plus gros aurait dupliqué du contenu pour rien. Et sa
+**barbe occupe le slot des LUNETTES** : on ne peut donc pas porter les deux, ce qui est
+exactement ce qu'on veut d'une barbe de Père Noël.
+Et **L'intello** (5 pièces **légendaires** à 1 000 💎 — haut-de-forme doré, monocle du mentor,
+nœud papillon de velours, livre et verre de vin, chaussures cirées → 🌈 **Arc-en-ciel**), le
+sommet du catalogue à **5 000 💎**. Elle **rapatrie** le haut-de-forme et le monocle, qui
+traînaient seuls au rayon légendaire : une panoplie n'oblige pas à inventer des sosies de ce
+qui existe déjà.
+Enfin **Le chanceux** (4 pièces **rares** à 250 💎 — chapeau de lutin, barbe rousse, pinte et
+chaudron, souliers à boucle → 🍀 **Trèfle**). Trois de ses quatre pièces ne sont
+qu'un **paramétrage** de dessins existants (haut-de-forme, barbe, chaussure de ville) : quand
+les dessins sont découpés, une panoplie de plus ne coûte presque rien.
+⚠️ **Pas de pièce au cou**, comme Le Père Noël : une **barbe descend jusqu'à la base du fruit**
+et couvre entièrement ce qu'on y met. Du contenu invisible vaut moins que pas de contenu.
+Et **La ballerine** (4 pièces **rares** à 250 💎 — diadème, tutu, bras en couronne, ballerines
+rapatriées → 🦢 **Cygne**). ⚠️ Son aura est la **première créée pour une panoplie** plutôt que
+reprise parmi les orphelines, et elle est **épique** quand les pièces sont rares : seules les
+auras épiques et légendaires dérivent en fond, et un banc de cygnes qui glisse lentement est
+exactement ce que la panoplie promet. C'est le premier usage délibéré de cette règle.
+Enfin **Le fantôme** — **une seule pièce**, le drap (épique, 500 💎) → 🕸️ **Toile de sorcière**.
+⚠️ L'aura tombe donc **dès l'achat** : `UnlockSetAura` vérifie qu'on possède toutes les *autres*
+pièces, et il n'y en a pas. La panoplie la plus courte possible marche **sans une ligne de code
+en plus**. Le drap occupe le slot du **chapeau** mais ne s'y accroche pas : là où un chapeau
+pose son bord bas sur le crâne, il se **centre** sur le fruit (`from: 'center'` + `dy`), et
+c'est la seule pièce du jeu bornée par le BAS (`minEm`) — un fruit étroit doit recevoir le même
+drap qu'un fruit large. Ce qui déborde déborde **exprès** : palmes de l'ananas, pointes de la
+carambole, queue d'une cerise. On doit pouvoir deviner qui est dessous.
+Et **Le plagiste** (5 pièces **communes** à 100 💎 — casquette multicolore sans visière,
+lunettes de soleil, short de bain, pelle et seau, tongs → **Château de sable**), deuxième
+panoplie d'entrée à côté du Coureur du dimanche.
+⚠️ Son aura est la **première dessinée** : Unicode n'a pas de château de sable. Le fond de page
+sait déjà afficher un dessin comme un emoji, il n'y a donc rien eu à changer — mais c'est la
+preuve qu'**une aura n'est pas condamnée à un glyphe existant**. Un motif de fond se dessine
+**trapu et à gros aplats** : semé à 22-34 px et à 12 % d'opacité, un trait fin disparaît.
+⚠️ Ses jambes de short sont **volontairement courtes** : plus longues, elles descendaient sur
+les tongs et les effaçaient. Le cou d'un avatar-tête est **juste au-dessus des pieds** — tout
+ce qui y pend se dispute la place avec les chaussures (le tutu de la ballerine a la même
+contrainte, et c'est pour ça qu'il est plat).
+
+⚠️ **Une panoplie peut être SAISONNIÈRE** (Noël) : ce sont ses **pièces** qui portent la
+fenêtre, pas la panoplie. `sets_json` ne retient que les pièces disponibles et **saute une
+panoplie qui n'en a plus aucune** — le rayon entier apparaît le 1er décembre et disparaît le
+6 janvier, sans une ligne de code de plus. Le compte à rebours affiché est le **plus court**
+de ses pièces, c'est la vraie échéance. Ouvrir une collection reste ce que dit la section
+« Boutique de saison » : deux dates. Deux paliers : le rayon d'entrée, puis un objectif
+de collection à 1 500 💎 pour qui a déjà tout le commun — c'est plus qu'une saison parfaite
+(~1 100 💎), et c'est assumé : une panoplie rare se complète sur la durée, ou pendant une promo.
+
+**🏷️ Promotions** (`cosmetic_sets.promo_percent` / `promo_from` / `promo_until`) — le **seul**
+endroit d'où un prix peut bouger, piloté depuis `/admin` (onglet Promos) ou
+`bin/rails season:promo`. ⚠️ **Rien n'est jamais écrit dans les prix** : `price_diamonds` reste
+le prix catalogue et `Cosmetic#current_price` retranche la remise **à la volée** (arrondie au
+multiple de 5 — une boutique n'affiche pas 72 💎). Conséquences : retirer le pourcentage
+rétablit les prix tout seul, rien ne peut « rester soldé » après un bug, et une promo terminée
+pendant qu'un onglet traînait ouvert se paie plein pot — `Purchase.cosmetic` relit
+`current_price` au moment du débit. Le front reçoit `price` (ce qu'on paie) et `full_price`
+(seulement s'il diffère, pour être barré) ; il **affiche** le prix, il ne le décide pas.
 
 Deux onglets : Objets · Cosmétiques. Les achats sont refusés proprement si monnaie insuffisante,
 cosmétique déjà possédé, ou pas d'équipe. **Ce qu'on achète part dans le sac** (`/sac`), qui a son
@@ -569,8 +908,8 @@ style atténué). Une notif peut porter un **`link`** (colonne `notifications.li
 devient alors cliquable (chevron ›). Les notifs « nouvelle course » pointent vers `/courses/:id`.
 
 
-### Memes dans le chat (`Memes`, `components/MemePicker.jsx`)
-Le bouton **+** du composeur ouvre une recherche de memes ; on touche une vignette, elle part
+### GIF dans le chat (`Memes`, `components/MemePicker.jsx`)
+Le bouton **+** du composeur ouvre une recherche de **GIF** ; on touche une vignette, elle part
 **seule** (c'est une réaction, pas une légende). Deux colonnes sur `messages` : `meme_url` +
 `meme_title`, et `body` devient facultatif — un meme seul est un message valide.
 
@@ -578,8 +917,19 @@ Le bouton **+** du composeur ouvre une recherche de memes ; on touche une vignet
 jamais un bouton mort :
 - **Imgflip** par défaut — **aucune clé, aucune inscription**, ~100 modèles populaires mis en
   cache une journée et filtrés par nom en mémoire. La recherche marche dès l'installation.
-- **Giphy** dès que la clé existe (`GIPHY_KEY` ou `GIPHY_API_KEY`) — vraie recherche, catalogue immense. Secret
-  **optionnel** comme Strava/Google/VAPID : c'est une amélioration, pas un prérequis.
+- **Giphy** dès que la clé existe (`GIPHY_KEY` ou `GIPHY_API_KEY`) — vraie recherche de GIF,
+  catalogue immense. Secret **optionnel** comme Strava/Google/VAPID : c'est une amélioration,
+  pas un prérequis. ⚠️ C'est **Giphy qui porte l'intention** (des GIF de réaction) ; les
+  catalogues sans clé ne servent que des modèles de meme FIXES — un repli, pas la cible.
+  ⚠️ L'hôte autorisé est **`giphy.com`** et rien de plus précis : Giphy sert ses images depuis
+  `media0.giphy.com` … `media4.giphy.com`, tirés au hasard d'un appel à l'autre. Lister
+  « media.giphy.com » les refusait tous et la recherche rendait une liste **vide même avec une
+  clé valide**, sans le moindre message. Verrouillé par un test sur les cinq sous-domaines.
+  ⚠️ Le vocabulaire côté **joueur** dit « GIF » ; le code garde `meme_*` (colonnes, service,
+  composant) — renommer une colonne et six fichiers pour un mot ne vaut pas la migration.
+  ⚠️ **Aucun test ne touche le réseau** : ceux du repli retirent la clé de l'ENV, ceux de Giphy
+  en posent une factice et remplacent l'appel HTTP. Sans ça, un `.env` qui porte une clé faisait
+  partir la suite chez Giphy. Pas de `stub` : minitest 6 a sorti `minitest/mock` de la gem.
 
 ⚠️ **`meme_url` n'est PAS un champ d'image libre, et ça doit le rester.** Le Gemfile porte une
 décision explicite (« l'app ne stocke aucune pièce jointe ») : rien n'est envoyé ni hébergé ici,
@@ -593,17 +943,74 @@ La recherche passe par un **rechargement partiel Inertia** (`only: ['memes']`, `
 non par une API JSON à part, comme le veut la convention du projet ; la frappe est temporisée
 de 400 ms pour ne pas tirer une requête par lettre.
 
+### Le fil du chat ne part jamais en entier
+Une conversation de saison finit à plusieurs milliers de messages, et l'écran se **recharge
+toutes les 8 s**. Trois économies, dans l'ordre de ce qu'elles rapportent :
+
+1. **Les props coûteuses sont `InertiaRails.optional`** (`memes`, `older`) : le bloc n'est
+   évalué **que** si le front nomme la prop dans un `only:`. Avant, `Memes.search` partait chez
+   **Giphy à chaque tour de sondage** — huit appels par minute et par onglet ouvert, pour un
+   panneau que personne n'avait ouvert. C'est de loin le plus gros gain de l'écran, bien avant
+   la pagination. ⚠️ Corollaire : `MemePicker` doit **aller chercher** son catalogue à
+   l'ouverture, il ne lui arrive plus tout cuit avec la page.
+2. **Seule la conversation OUVERTE porte ses messages** : le front ne rend jamais le fil de
+   l'onglet fermé, qui n'a besoin que de son libellé et de sa pastille. Changer d'onglet est
+   une visite, elle le servira à ce moment-là. La moitié du poids, sans rien perdre.
+3. **Pagination par curseur**, `ChatController::PAGE` = **30**. La page servie est la plus
+   **récente** ; on remonte avec `?avant=<id>` en rechargement partiel `only: ['older']`.
+   Le serveur tire **un message de plus** que la page pour répondre « y en a-t-il encore ? »
+   sans un second COUNT.
+
+⚠️ **Le curseur est le couple `(created_at, id)`, pas l'id seul** — c'est l'ordre exact de
+`Message.chronological`. Le seed pose des `created_at` à la main, deux messages peuvent donc
+partager la seconde : sans l'`id` en second critère, la frontière d'une page sauterait ou
+répéterait un message.
+
+⚠️ **Le front ACCUMULE, il ne remplace pas.** La fenêtre du serveur glisse d'un cran à chaque
+message reçu : si le front ne gardait que la dernière réponse, le message qui sort de la fenêtre
+laisserait un **trou** dans le fil. Il fusionne donc par `id` et retrie sur `ts` (un
+timestamp servi exprès pour ça — `on`/`at` sont des libellés à la minute, deux messages de la
+même minute s'y égalisent).
+
+⚠️ **Deux besoins opposés dans le même conteneur** : coller au bas quand un message arrive, et
+ne pas bouger d'un pixel quand on greffe une page devant. On mémorise la distance au bas avant
+de charger et on la restaure — ça revient à ancrer la vue sur le message qu'on lisait. Et le
+sondage ne redescend au bas **que si on y était déjà** (`NEAR_BOTTOM`), sinon lire l'historique
+serait impossible : toutes les 8 s, la vue vous reprendrait.
+
+⚠️ **Le seed ne suffit pas à voir la pagination** (une douzaine de messages, tout tient dans la
+première page) : `bin/rails chat:fill` en pose 200, **dans le passé** à partir du plus ancien
+message existant. Le fil du seed reste donc en bas, là où on l'a laissé, et tout l'ajout est de
+l'historique à remonter — empiler par-dessus l'enterrerait et gonflerait les pastilles de non-lus,
+qui sont justement ce que le seed met en scène. Chaque message généré finit par un **espace de
+largeur nulle**, ce qui permet à `chat:clear` de ne retirer que les siens ; sans repère, nettoyer
+voudrait dire « supprimer les N derniers » et emporterait le seed.
+
+⚠️ Le verrou du chargement est une **`ref`**, pas l'état `loading` : le défilement tire des
+dizaines d'événements par seconde qui partagent tous le même rendu, donc la même valeur d'état.
+
 ⚠️ Le chat est le seul écran en **`height:100dvh`** (`.chat-shell`) et non `min-height` : sa
 zone de messages doit pouvoir rétrécir (`min-height:0`), sinon la colonne dépasse l'écran et la
 nav collée **recouvre le composeur** — le champ de saisie devient intouchable au doigt.
 
-### Pastille de messages non lus (💬 du HUD)
+### Messages non lus — deux niveaux
 `conversation_reads` (`membership` × `conversation` × `last_read_at`, index unique) mémorise la
-dernière lecture. `Membership#unread_messages_count` compte les messages **des autres** (équipe +
-général) postés après `last_read_at`, exposé globalement via `chat_unread` (`inertia_share`) et
-affiché en pastille sur le bouton **💬 du HUD**, à gauche de la cloche — donc visible depuis
-n'importe quel écran. Ouvrir le chat (`ChatController#show`) appelle
-`Membership#mark_conversations_read!` → la pastille retombe à 0.
+dernière lecture. `Membership#unread_by_conversation` compte les messages **des autres** postés
+après cette date, **canal par canal**. Deux affichages, qui ne disent pas la même chose :
+- **Le 💬 du HUD** porte le TOTAL (`chat_unread` via `inertia_share`), visible depuis n'importe
+  quel écran : il dit « il y a du neuf ».
+- **Les onglets du chat** portent le compte de LEUR canal : ils disent **où**.
+
+⚠️ **Ouvrir un canal ne marque que celui-là comme lu** (`mark_conversation_read!`, au singulier).
+Avant, ouvrir le chat marquait les deux conversations d'un coup : les onglets ne pouvaient donc
+rien afficher, et on perdait les non-lus de l'équipe en venant lire la partie.
+⚠️ **Le canal ouvert vient de l'URL** (`/chat?canal=team`), comme l'onglet du sac ou de la
+boutique — c'est le seul moyen pour le serveur de savoir ce qu'on lit. Changer d'onglet est
+donc une visite, pas un état local. Le **sondage de 8 s** garde l'URL : chaque tour marque lu
+le canal ouvert et rafraîchit la pastille de l'autre, on voit donc arriver les messages d'à
+côté sans bouger.
+⚠️ On marque lu **AVANT** de compter : le canal qu'on regarde doit être servi à 0, pas avec son
+état d'il y a une seconde.
 ⚠️ Le seed doit vider `ConversationRead` en tête du nettoyage (FK vers membership/conversation).
 
 ### Profil : pas de solde de 🍑
@@ -641,9 +1048,87 @@ en haut et en bas) : on ne perd jamais son solde ni ses raccourcis en faisant d�
 - **`components/Hud.jsx`** — avatar (→ `/avatar`), 🍑, 💎, puis 📖 FAQ · 💬 Chat · 🔔 Notifs.
   Il ne prend **aucune prop** : tout vient d'`inertia_share` (dont `balls`, partagé exprès pour
   lui), donc l'ajouter à un écran ne demande rien à son contrôleur.
+  ⚠️ **Il partage sa peinture avec la nav du bas** (`--nav-bg` / `--nav-plate` / `--nav-on`,
+  marine dans les deux thèmes) : les deux bandeaux **encadrent** la page, et c'est ce cadre qui
+  sépare ce qui appartient au jeu de ce qui appartient à l'écran. **Bords à angle droit** — un
+  bandeau qui touche les deux côtés de l'écran ne s'arrondit pas, il se coupe. Pastilles et boutons ronds passent en `--nav-plate`, l'icône de la
+  page courante en **indigo plein** — sur du marine, l'ancien contour teinté ne se voyait plus.
+  ⚠️ `--hud-h` vaut **64** et non 65 : le bandeau n'a plus de filet d'un pixel, le contraste du
+  marine fait la séparation. Tout ce qui colle dessous (`.av-sticky`) en dépend.
 - **`components/BottomNav.jsx`** — **Hub · Ligue · ⚔️ Combat · 🎒 Sac · Boutique**. Le **Chat
   n'y est pas** : il est passé dans le HUD à gauche de la cloche — deux boutons de même nature
   (ce qu'on a reçu) plutôt qu'une destination de jeu, et un onglet de moins en bas.
+  ⚠️ **Le ⚔️ ne bouge jamais latéralement.** La barre est faite de **deux demi-barres de largeur
+  égale** (`.nav-side`, `flex:1 1 0` — une largeur qui ne doit rien à leur contenu) encadrant le
+  bouton central. En flux simple, le libellé qui s'ouvre poussait ses voisins et le bouton
+  glissait d'un écran à l'autre : le point central d'un CTA permanent doit être le **même
+  partout**, c'est ce qui permet de le viser sans regarder. Quand la place manque (petit
+  téléphone), c'est le **libellé** qui se tronque — jamais le centre qui se déplace.
+  ⚠️ Chaque onglet est une **plaque**, et **seule celle de la page courante porte son libellé** ;
+  les autres se réduisent à leur icône. C'est la barre de Clash of Clans, mais rendue à notre
+  charte : à plat, **indigo** pour l'actif, **orange réservé au combat**. Le libellé s'**ouvre en
+  largeur** (`max-width`) au lieu d'apparaître d'un coup — sinon la barre saute à chaque
+  changement de page.
+  ⚠️ Les icônes sont des **écussons peints** (`assets/nav/*.webp`, servis par
+  `components/navIcons.jsx`) — palmier sur hutte-pitaya, trophée à l'ananas, gants de boxe sur
+  disque orange, sac à dos fruité, étal de marché. Servis comme les **planches de monstres** et
+  pour la même raison : une illustration ne se paramètre pas, et vouloir la refaire en SVG
+  revient à la redessiner en moins bien. ~5 Ko pièce, 128 px, détourés.
+  ⚠️ Ils portent **leur propre fond** — écusson crème cerné de blanc, disque orange pour le
+  combat — et se posent quand même sur une **plaque** : `--nav-plate` au repos, **indigo** sur
+  l'onglet actif. C'est la plaque qui aligne les cinq destinations ; sans elle les écussons
+  flottaient et l'onglet actif était le seul objet encore dessiné — on ne lisait plus une barre
+  d'onglets mais une plaque indigo entourée d'autocollants. Le disque orange du combat étant
+  dans l'image, le bouton ne le dessine plus.
+  ⚠️ **La barre est MARINE dans les deux thèmes** (`--nav-bg` / `--nav-plate` / `--nav-on`,
+  ses propres jetons). C'est le seul élément du jeu peint en dur : elle n'appartient pas à la
+  page, elle la **borde**, et c'est ce contraste qui la détache du contenu sans lui coûter une
+  couleur de la charte. Elle est **à angle droit** et sans **aucun filet** — sur un aplat
+  sombre, la séparation est déjà faite. Les liserés des pastilles suivent la plaque, jamais
+  `--surface`.
+  ⚠️ La plaque active est **figée sur l'indigo du thème clair** (`#4f46e5`), thème sombre
+  compris : la barre est une surface sombre en permanence, l'indigo pâle du thème sombre s'y
+  comporterait comme un fond clair. **C'est là que le ratio de contraste trompe** — sur le
+  papier l'indigo pâle sépare mieux de la barre (4,8:1 contre 2,3:1), mais la plaque est une
+  **surface**, pas du texte, et ce qu'on y pose est un écusson à **liseré blanc** : sur
+  l'indigo pâle il se délave et l'écusson s'écrase. Vérifié au rendu, comme les planches de
+  monstres — la séparation d'avec le marine se fait par la **saturation**, que la luminance
+  ne mesure pas.
+  ⚠️ **Le ⚔️ déborde par le haut** : **deux fois** la taille des autres écussons (72 px contre
+  36) et remonté de 20 px, il dépasse de **23 px** au-dessus du filet de la barre. C'est ce qui
+  le sort du rang — un CTA permanent ne se range pas dans la file, il se pose dessus. Le débord
+  se fait au `translate`, pas par la boîte : **la hauteur de la barre ne bouge pas**, donc rien
+  à recalculer ailleurs ; la place en largeur vient des gouttières et des rembourrages des
+  plaques, resserrés d'autant. Et pas de collerette à dessiner : l'écusson porte déjà son liseré
+  blanc, c'est lui qui tranche le filet — une seconde bague par-dessus ferait un double cerne.
+  ⚠️ Pour la même raison, il n'a **aucun état actif** : l'anneau indigo qu'il portait sur
+  `/combat` doublait son liseré et posait un halo bleu sur le seul objet orange de l'écran. Il
+  n'en a pas besoin — deux fois plus gros, débordant, et le seul rond : on ne peut ni le
+  confondre, ni se demander où l'on est en le regardant.
+  ⚠️ Corollaire : **le chat rembourre son composeur de 25 px en bas** (`.chat-input`). C'est le
+  seul écran où quelque chose d'**interactif** se trouve juste au-dessus de la barre ; sans ça
+  le disque couvrait le bas du champ de saisie, pile au milieu — là où le doigt tape. Tout écran
+  qui collerait un contrôle au bas de la page doit faire pareil.
+  ⚠️ **Contrat d'un écusson** (à respecter pour tout remplaçant) : carré, détouré, 128 px, WebP,
+  et surtout **lisible à 36 px** — c'est la seule taille qui compte, une planche agrandie est
+  toujours trompeuse. Découpage : **exiger une source à vraie transparence** — c'est son
+  canal alpha qui dit où est le contenu, et lui seul donne un bord correctement lissé. Une
+  planche d'IA arrive souvent avec un damier **peint dans l'image** (alpha plein) : on peut la
+  détourer par masque de saturation (le fond est le gris NEUTRE de clarté moyenne, tout le reste
+  est du contenu), mais c'est un pis-aller, le bord doit alors être approximé au flou.
+  ⚠️ Dans les deux cas, il faut **effacer tout ce qui sort de la boîte détectée** : le carré
+  final est plus large que le sticker, il mord donc sur ses voisins de la planche et embarque
+  des bouts de leur contour blanc, qui flottent ensuite à côté de l'icône. Le remplissage du
+  carré n'est qu'un cadre, pas du contenu. Ça ne se voit **pas** sur les plaques du footer, où
+  le fond est clair comme le parasite : il faut poser l'écusson sur un fond criard — le magenta
+  est fait pour ça.
+
+⚠️ **La nav du bas est en `z-index:10`, comme le bandeau, et l'avatar est en
+`isolation:isolate`.** L'avatar distribue des z-index de 0 à 6 entre ses pièces (aura derrière,
+chapeau devant) : sans contexte d'empilement propre, ces valeurs **remontent dans la page** et
+un chapeau à 6 passe par-dessus la nav collée — c'est ce qui arrivait dans la boutique et la
+ligue dès qu'un avatar tombait près du bas de l'écran. L'empilement interne d'un avatar est un
+détail d'implémentation : il ne doit jamais fuir.
 
 ⚠️ **Aucune page n'a de bandeau de titre.** Ce qui dit où l'on est, c'est **l'icône allumée** du
 HUD ou de la nav (`.on` → contour et fond indigo ; anneau indigo autour de l'avatar et du bouton
@@ -674,6 +1159,11 @@ en localStorage.
 - Créer un nouveau dossier sous `app/` (ex. `app/presenters`) demande un **redémarrage** du
   serveur : il n'est pas ajouté aux chemins d'autoload à chaud.
 - Après une migration, redémarrer aussi : Puma garde en cache la liste des colonnes.
+- **Toucher au `.env` demande un redémarrage** : `dotenv` lit le fichier au démarrage et
+  jamais après. Un serveur lancé avant l'ajout d'une clé continue de tourner sans elle —
+  silencieusement, puisque tous ces secrets sont optionnels. Symptôme vécu : la recherche de
+  GIF rendait une liste vide alors que `bin/rails runner` (un process neuf) trouvait 24
+  résultats. Vaut pour Giphy comme pour Strava, Google et VAPID.
 
 ## Design
 
@@ -699,8 +1189,24 @@ réclamation d'une récompense déjà gagnée…) passe par `.btn.brand`, pas pa
 Le reste sont des couleurs de **sens**, pas de décor, et restent donc rares : 🍑 `--peach`
 (boules), 💎 `--violet` (diamants et boutique de saison), `--citron` (récompenses, coffres,
 jours ×2, le ⚡ de l'arène), `--fraise` (camp adverse, pastilles d'alerte),
-`--mint`/`--good`/`--warn`/`--crit` (santé, soin, PV). Rareté cosmétiques :
-common/rare/epic/legendary.
+`--mint`/`--good`/`--warn`/`--crit` (santé, soin, PV).
+
+**Rareté — une seule échelle pour toute l'app** (bloc « Rareté » en **fin** de CSS, et
+`lib/rarity.js` pour les libellés). Gris → vert → violet → or (`--rar-common` `--rar-rare`
+`--rar-epic` `--rar-legendary`, chacun avec son `-ink` vérifié **AA sur l'aplat**) : la
+convention des jeux de loot, **moins le bleu**, qui se confondrait avec l'indigo de `--brand`
+(= « équipé / sélectionné »). Trois classes, et rien d'autre à connaître :
+- **`rar-<rareté>`** ne fait que **poser** `--rar` / `--rar-ink`, qui s'héritent ;
+- **`rar-tint`** = la carte **porte** la couleur (bordure + fond très léger ; halo en plus
+  pour le légendaire, seul à s'annoncer de loin). Séparé du porteur exprès : la modal
+  d'ouverture d'un coffre veut la couleur **sans** le fond clair, elle se joue sur du noir ;
+- **`rar-pill`** = la pastille pleine, **le seul endroit où la rareté s'écrit**.
+
+Appliqué à la vignette de boutique, la case d'armoire, la feuille d'achat, la carte de coffre
+et les gains d'une ouverture. Ajouter une rareté = un token + une ligne, **aucun composant**.
+Le bloc est volontairement en **fin de fichier** : à spécificité égale c'est la dernière règle
+qui gagne, donc la rareté repeint `.shop-cos` / `.av-card` sans surenchérir en sélecteurs —
+et `.av-card.on` (0-2-0) garde la priorité, l'état « équipé » prime sur la rareté.
 
 Deux détails qui font le rendu « mobile Nintendo » : les cartes blanches sont **décollées du
 fond** par une ombre très légère (`--shadow`, une seule règle groupée en tête de fichier — y
@@ -713,7 +1219,9 @@ couleurs s'éclaircissent pour rester lisibles en texte, donc leur encre bascule
 **Toute nouvelle paire aplat/texte se vérifie au ratio AA (4,5:1).**
 
 Mobile-first, `.shell` centré max 460px. Stats en `font-variant-numeric: tabular-nums`.
-Le `theme-color` du manifeste et du layout suit `--brand` (#4f46e5).
+⚠️ Le `theme-color` du manifeste et du layout est celui du **bandeau** (`#232845`), pas celui de
+la marque : c'est la bande que le navigateur peint **au-dessus** du HUD, une autre couleur y
+dessinerait une frontière.
 Tout ce qui **colle** sous le bandeau part de `--hud-h` (65 px) et non de `top:0`, sinon ça
 glisse dessous : c'est le cas des aperçus d'avatar de l'armoire et de la cabine d'essai.
 
@@ -739,7 +1247,7 @@ masque 💬/🔔, et la nav du bas ne garde que le Hub.
 ### Back-office de l'organisateur (`/admin`)
 Réservé au joueur dont la participation est `role: "admin"` (`Membership#admin?`) ; un autre
 joueur est renvoyé à l'accueil, et le lien n'apparaît que pour lui, en bas de l'écran compte.
-Trois réglages, aucun ne demande de redéployer :
+Quatre réglages, aucun ne demande de redéployer :
 - **Joueurs** — **le seul chemin pour rejoindre une partie** (pas d'auto-inscription, voir
   « Rejoindre une partie » plus bas) : chaque équipe liste ses membres avec un sélecteur
   pour en changer un d'équipe (`AdminController#update_membership` — remet son fruit à zéro,
@@ -748,9 +1256,11 @@ Trois réglages, aucun ne demande de redéployer :
   (`#create_membership`, crée le `Membership`, `role: "player"`, `balls: 0`).
 - **Journées ×2** (ajout/suppression).
 - **Boutique de saison** — fenêtres de disponibilité des cosmétiques (deux champs date par
-  cosmétique, vides = pièce permanente). Une borne de fin court jusqu'au **bout de sa
-  journée**, sinon la pièce expirerait à minuit pile.
+  cosmétique, vides = pièce permanente).
+- **Promotions sur les panoplies** (pourcentage + deux dates ; pourcentage vide = promo
+  arrêtée et prix d'origine rétablis, puisque rien n'a été écrit dans les prix).
 
+Une borne de fin court jusqu'au **bout de sa journée**, sinon elle expirerait à minuit pile.
 Créer la partie elle-même (Event/Game/Teams) reste au seed.
 
 Les mêmes réglages en ligne de commande, pour le jour où on est en SSH (`lib/tasks/season.rake`) :
@@ -759,6 +1269,8 @@ bin/rails season:show                                              # état des l
 NAME=Halloween DATE=2026-10-31 bin/rails season:special_day        # journée ×2
 NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
 NAMES='Parasol' bin/rails season:close                             # redevient permanent
+SET='Coureur du dimanche' PERCENT=20 UNTIL=2026-11-15 bin/rails season:promo
+SET='Coureur du dimanche' bin/rails season:unpromo                 # prix d'origine
 ```
 
 ## Production (Fly.io)
@@ -926,6 +1438,11 @@ détail reste au coureur, les autres ne voient que les 🍑 (donnée de jeu dér
 
 ## Roadmap (à faire, ordre suggéré)
 
+0. **Donner une panoplie aux 11 auras orphelines** — depuis qu'une aura est la récompense
+   d'une panoplie, celles qui n'en ont pas ne s'obtiennent plus (Arc-en-ciel, Aura de feu,
+   Tournesol…). Chaque panoplie en sauve une (Esprit du loup, Sapin scintillant, Aura de givre, Arc-en-ciel, Trèfle…) : il en reste huit. Trois issues possibles : bâtir une panoplie autour de
+   chacune, les rattacher aux panoplies existantes, ou les retirer du catalogue. Décision
+   de contenu, pas de code : la mécanique, elle, est en place.
 1. **Admin de partie** — créer Event/Game/Teams depuis l'app (l'écran `/admin` existe déjà pour
    les journées spéciales, la boutique de saison et l'affectation des joueurs ; la validation
    manuelle des courses n'existe pas : le contrôle anti-triche est 100 % automatique, voir la
@@ -948,10 +1465,15 @@ bin/rails runner PackLevelJob.perform_now   # juge la semaine écoulée (jauge d
 bin/rails runner FamineJob.perform_now      # famine + clôture de saison (quotidien en prod)
 MONTH=2026-06 bin/rails league:award_month         # décerne la récompense d'un mois (test)
 
+bin/rails chat:fill                                # 200 messages pour tester la pagination
+COUNT=500 CANAL=team bin/rails chat:fill           # ailleurs, et plus gros
+bin/rails chat:clear                               # ne retire QUE les messages générés
+
 bin/rails catalog:load                             # catalogue boutique (idempotent)
 bin/rails season:show                              # journées ×2 + fenêtres de la boutique
 NAME=Halloween DATE=2026-10-31 bin/rails season:special_day
 NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
+SET='Coureur du dimanche' PERCENT=20 UNTIL=2026-11-15 bin/rails season:promo
 ```
 
 ⚠️ **Vite 8 exige Node ≥ 20.12** (`node:util#styleText`). Node 16 fait planter `bin/dev` avec
@@ -982,7 +1504,8 @@ commande (`bin/rails`, `bin/vite`). Il ne tue que du ruby ou du node, jamais un 
 qui aurait pris le 3000. C'est ce qui permet d'arrêter un serveur lancé depuis un autre
 terminal, ou par un agent, sans avoir de `Ctrl+C` sous la main.
 
-Quatre pièges, tous déjà réglés dans ce dépôt mais à refaire sur une machine neuve :
+Cinq pièges. Les quatre premiers sont déjà réglés dans ce dépôt, mais à refaire sur une
+machine neuve ; le dernier se contourne à chaque fois :
 
 1. **Bundler 4** — le `Gemfile.lock` est en `BUNDLED WITH 4.0.9`, RubyInstaller livre 2.5.x :
    `gem install bundler -v 4.0.9`.
@@ -996,6 +1519,11 @@ Quatre pièges, tous déjà réglés dans ce dépôt mais à refaire sur une mac
 4. **MSYS2** — le paquet winget `RubyInstallerTeam.RubyWithDevKit.3.3` pose MSYS2 mais le
    compilateur est dans `ucrt64\bin`, pas `mingw64\bin` ; `ridk install 3` complète la chaîne
    (nécessaire pour bootsnap et websocket-driver, qui n'ont pas de gem précompilée Windows).
+
+5. **Tests en parallèle** — `parallelize` fait `fork()`, qui n'existe pas sous Windows : la
+   suite complète (87 tests, au-dessus du seuil de 50) meurt en `NotImplementedError` avant
+   d'avoir lancé quoi que ce soit. Lancer **`PARALLEL_WORKERS=1 ruby bin/rails test`** ; un
+   fichier seul passe sans rien (il reste sous le seuil).
 
 Les `VIPS-WARNING … vips-heif.dll` au démarrage sont **sans conséquence** : libvips cherche des
 modules de formats exotiques (HEIF, JXL, PDF) que le projet n'utilise pas.
@@ -1020,6 +1548,15 @@ directement dans une partie remplie. Le seed **rejoue de vrais événements par 
 - **deux courses refusées** par le contrôle anti-triche (tapis sans preuve de Léa, balade à
   10:59/km de Nico) : notif importante avec le motif, sortie visible mais à 0 🍑 ;
 - le fil de notifications (importantes vs secondaires) et la **pastille de non-lus** du Chat.
+
+- le **chat rempli** : 12 messages sur trois jours dans la partie, 6 dans chaque équipe, avec
+  des **GIF**, de quoi juger les séparateurs de journée et les bulles. ⚠️ Un **point de lecture**
+  est posé exprès au milieu (`ConversationRead`) : sans lui tout serait non lu et les deux
+  pastilles afficheraient le même gros chiffre. Là, on lit **4 côté partie, 3 côté équipe**, et
+  7 sur le 💬 du bandeau — c'est ce contraste qui montre à quoi elles servent.
+  ⚠️ Les URL de GIF sont **figées**, jamais tirées de l'API au seed : Giphy limite la clé
+  gratuite (429 au bout de quelques dizaines d'appels) et un seed qui dépend du réseau est un
+  seed qui casse.
 
 Reseeder (`bin/rails db:seed`) régénère tout ça. La **famine** (🍽️) et la **fin de partie** (🏁)
 ne sont pas forcées dans le seed : ce sont des jobs temporels et les déclencher abîmerait l'état

@@ -23,9 +23,37 @@
   --peach:#ff7a59; --citron:#f2b100; --citron-ink:#4a3600; --fraise:#f0325b;
   --mint:#12b58a; --mint-ink:#04352a; --violet:#8b5cf6; --strava:#fc4c02;
   --good:#12b58a; --warn:#e89312; --crit:#e23b54; --r:14px;
-  /* Hauteur du bandeau collé : 14 + 38 (avatar) + 12 + 1 de bordure. Tout ce qui colle
-     en dessous doit partir de là, sinon ça glisse sous le HUD. */
-  --hud-h:65px;
+  /* Rareté — une seule échelle pour toute l'app (boutique, armoire, coffres, gains) :
+     gris → vert → violet → or, la convention des jeux de loot. Pas de bleu : il se
+     confondrait avec l'indigo de --brand, qui veut dire « équipé / sélectionné ».
+     Chaque teinte porte son encre, vérifiée AA sur l'aplat (les pastilles sont pleines). */
+  --rar-common:#64748b;          --rar-common-ink:#fff;
+  --rar-rare:var(--mint);        --rar-rare-ink:var(--mint-ink);
+  --rar-epic:var(--violet);      --rar-epic-ink:#150a2e;
+  --rar-legendary:var(--citron); --rar-legendary-ink:var(--citron-ink);
+  /* La barre du bas est le SEUL élément peint en dur des deux thèmes : un bandeau marine, clair
+     ou sombre. C'est volontaire — elle n'appartient pas à la page, elle la borde, et c'est ce
+     contraste qui la détache du contenu sans lui coûter une couleur de la charte. Elle a donc
+     ses propres jetons (redéclarés à l'identique en thème sombre, plus bas) plutôt que de
+     détourner --surface, qui veut dire « une carte » partout ailleurs. */
+  /* ⚠️ L'encre du marine est BLANCHE, pas un gris-bleu clair. Les chiffres du bandeau (🍑 et 💎)
+     sont les valeurs les plus lues de l'app : les atténuer sur un fond sombre, c'est appliquer
+     un réflexe de thème clair là où il ne vaut plus — sur du marine, un gris clair ne repose
+     pas l'œil, il enlève de l'information. */
+  --nav-bg:#232845; --nav-plate:#2f3557; --nav-ink:#fff;
+  /* ⚠️ La plaque ACTIVE est FIGÉE sur l'indigo du thème clair, dans les DEUX thèmes : la barre
+     est une surface sombre en permanence, l'indigo pâle du thème sombre s'y comporterait comme
+     un fond clair. Vérifié au rendu, et c'est là que le calcul de contraste trompe : sur le
+     papier, l'indigo pâle sépare mieux de la barre (4,8:1 contre 2,3:1) — mais la plaque est
+     une SURFACE, pas du texte, et ce qu'on y pose est un écusson à liseré BLANC. Sur l'indigo
+     pâle, ce liseré se délave et l'écusson s'écrase ; sur l'indigo plein il claque, et la
+     séparation d'avec le marine se fait par la saturation, que le ratio de luminance ne
+     mesure pas. */
+  --nav-on:#4f46e5; --nav-on-ink:#fff;
+  /* Hauteur du bandeau collé : 14 + 38 (avatar) + 12. Tout ce qui colle en dessous doit partir
+     de là, sinon ça glisse sous le HUD. (Il valait 65 du temps où le bandeau portait un filet
+     d'un pixel ; le marine s'en passe.) */
+  --hud-h:64px;
   --shadow:0 1px 2px rgba(15,23,42,.05),0 2px 8px rgba(15,23,42,.05);
 }
 @media (prefers-color-scheme:dark){
@@ -35,6 +63,11 @@
     --brand:#818cf8; --brand-ink:#111827; --accent:#fb923c; --accent-ink:#231000;
     --peach:#ff8a6b; --citron:#ffc63a; --citron-ink:#3a2b00; --fraise:#ff466b;
     --mint:#2fd6a3; --violet:#a78bfa; --good:#2fd6a3; --warn:#ffb03a; --crit:#ff5c72;
+    --rar-common:#94a3b8; --rar-common-ink:#0f1420;
+    /* ⚠️ La barre du bas ne bascule PAS : elle est marine dans les deux thèmes, c'est sa
+       définition. On la remonte à peine pour qu'elle se détache du fond sombre de la page,
+       qui est plus noir qu'elle. */
+    --nav-bg:#1b2039; --nav-plate:#2a3050; --nav-ink:#fff;
     --shadow:none; /* sur fond sombre une ombre ne se voit pas, elle salit le contour */
   }
 }
@@ -46,25 +79,31 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* Cartes blanches sur fond slate : une ombre très légère les décolle du fond, sans aucun
    relief 3D — on reste en flat design, on ajoute juste de la profondeur. Une seule règle
    groupée : toute nouvelle carte s'ajoute ici plutôt que d'inventer son ombre. */
-.arena,.cd,.tile,.lg-card,.lg-row,.shop-card,.shop-cos,.notif,.auth-card,
+.arena,.cd,.tile,.lg-card,.lg-row,.shop-card,.shop-cos,.shop-set-card,.notif,.auth-card,
 .chest-card,.strava-row{box-shadow:var(--shadow)}
 .shop-card.armed{box-shadow:none}
 
 .shell{max-width:460px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
 /* Bandeau du haut, sur toutes les pages et collé comme la nav du bas : les deux restent
-   visibles quand on fait défiler. */
-.hud{display:flex;align-items:center;gap:8px;padding:14px 14px 12px;border-bottom:1px solid var(--line);
-  position:sticky;top:0;z-index:10;background:var(--bg)}
-.curr{display:inline-flex;align-items:center;gap:5px;background:var(--surface-2);border:1px solid var(--line);
-  border-radius:999px;padding:5px 11px;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}
+   visibles quand on fait défiler. ⚠️ Il partage sa peinture avec la barre du bas (`--nav-*`) :
+   les deux bandeaux marine encadrent la page, et c'est ce cadre qui dit ce qui appartient au
+   jeu et ce qui appartient à l'écran. Bords à angle DROIT — un bandeau qui touche les deux
+   côtés de l'écran ne s'arrondit pas, il se coupe. Pas de filet non plus : sur un aplat
+   sombre, le contraste fait déjà la séparation. */
+.hud{display:flex;align-items:center;gap:8px;padding:14px 14px 12px;
+  position:sticky;top:0;z-index:10;background:var(--nav-bg);color:var(--nav-ink)}
+.curr{display:inline-flex;align-items:center;gap:5px;background:var(--nav-plate);
+  border-radius:999px;padding:6px 11px;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}
 /* Les boutons ronds du HUD. Seul le premier pousse le groupe à droite ; les suivants se collent
    à lui — sans ça, chacun réclamerait la place restante et ils se sépareraient. */
-.bell{margin-left:auto;width:34px;height:34px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);
+.bell{margin-left:auto;width:34px;height:34px;border-radius:50%;background:var(--nav-plate);
   display:grid;place-items:center;font-size:16px;text-decoration:none;color:inherit}
 .bell+.bell{margin-left:0}
 /* Page courante : l'icône s'allume. C'est elle qui remplace le bandeau de titre. */
-.bell.on{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 15%,var(--surface))}
-.hud-avatar.on{border-radius:50%;box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--brand)}
+/* Page courante : la pastille prend l'indigo PLEIN, comme la plaque de la nav — sur du marine,
+   un simple contour teinté ne se voyait plus. */
+.bell.on{background:var(--nav-on);color:var(--nav-on-ink)}
+.hud-avatar.on{border-radius:50%;box-shadow:0 0 0 2px var(--nav-bg),0 0 0 4px var(--nav-on)}
 .body{flex:1;display:flex;flex-direction:column;gap:12px;padding:14px}
 .body.onboard{align-items:center;justify-content:center;text-align:center;gap:14px}
 .body.onboard .big{font-size:64px}
@@ -89,6 +128,8 @@ body{margin:0;background:var(--bg);color:var(--text);
 .btn.ghost{background:var(--surface);border:1px solid var(--line-2);color:var(--muted);font-size:13px}
 
 .hud-avatar{display:grid;place-items:center;flex:none;text-decoration:none}
+/* L'initiale de repli (joueur sans fruit) est peinte en --muted, qui s'éteint sur le marine. */
+.hud .fav-blank{color:var(--nav-ink)}
 .btn-logout{align-self:center;background:none;border:none;color:var(--muted);font:inherit;font-weight:700;
   font-size:13px;padding:8px 12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .btn-logout:hover{color:var(--crit)}
@@ -109,19 +150,80 @@ body{margin:0;background:var(--bg);color:var(--text);
 .tile-alert{border-color:var(--citron)}
 .tile-alert .td{color:var(--text);font-weight:700}
 
-.nav{display:flex;align-items:center;justify-content:space-around;padding:9px 10px 14px;
-  border-top:1px solid var(--line);background:var(--surface);position:sticky;bottom:0}
-.nav .n{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--faint);font-weight:600}
-.nav .n.on{color:var(--brand)} .nav .n .ic{font-size:20px}
-/* Le bouton rond du combat est le CTA permanent de l'app : même orange que COMBATTRE.
-   Sur l'écran de combat, il porte l'anneau indigo des onglets actifs. */
-.nav .center{width:52px;height:52px;border-radius:50%;background:var(--accent);color:var(--accent-ink);
-  display:grid;place-items:center;font-size:23px;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 40%,transparent)}
-.nav .center.on{box-shadow:0 0 0 3px var(--surface),0 0 0 6px var(--brand)}
-.nav-ic{position:relative;display:inline-grid;place-items:center}
+/* La nav du bas, en PLAQUES : seule celle de la page courante porte son libellé, les autres
+   se réduisent à leur icône. C'est la barre de Clash of Clans — on lit d'un coup où l'on est,
+   sans que cinq mots se disputent la largeur d'un téléphone. Mais le rendu reste le nôtre :
+   à plat, indigo pour l'actif, orange réservé au combat (charte 60-30-10). */
+/* ⚠️ Marine et à angle DROIT, comme le bandeau du haut : elle va d'un bord à l'autre de
+   l'écran, elle se coupe donc net plutôt que de s'arrondir. Pas de filet non plus — le
+   contraste du bandeau fait à lui seul la séparation qu'une hairline allait chercher. */
+.nav{display:flex;align-items:center;gap:3px;padding:8px 6px 13px;
+  background:var(--nav-bg);position:sticky;bottom:0;z-index:10}
+/* ⚠️ Deux demi-barres de LARGEUR ÉGALE — `flex:1 1 0`, donc une largeur qui ne doit rien à leur
+   contenu. C'est ce qui cloue le ⚔️ au milieu : en flux simple, le libellé qui s'ouvre poussait
+   ses voisins et le bouton central glissait latéralement d'un écran à l'autre. Le point central
+   d'un CTA permanent doit être le MÊME partout, c'est ce qui permet de le viser sans regarder.
+   Quand la place manque vraiment (petit téléphone), c'est le libellé qui se tronque — la plaque
+   peut rétrécir (`min-width:0`) et le libellé est en `overflow:hidden`. Jamais le centre. */
+.nav-side{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:space-evenly;gap:3px}
+/* Chaque onglet est une PLAQUE, y compris au repos : un fond gris très doux qui pose les cinq
+   destinations sur la même ligne de base. Sans lui, les écusson flottaient sur le blanc de la
+   barre et l'onglet actif était le seul objet dessiné — on ne lisait plus une barre d'onglets
+   mais une plaque indigo entourée d'autocollants. */
+.nav .n{display:flex;align-items:center;justify-content:center;height:50px;padding:0 6px;
+  min-width:0;border-radius:16px;background:var(--nav-plate);color:var(--nav-ink);
+  transition:background .2s ease,padding .2s ease}
+/* La plaque active : indigo plein, son encre, et un cran plus haut que les autres. */
+.nav .n.on{background:var(--nav-on);color:var(--nav-on-ink);padding:0 10px 0 6px;
+  box-shadow:0 3px 10px color-mix(in srgb,var(--nav-on) 30%,transparent)}
+/* ⚠️ Le libellé s'OUVRE en largeur au lieu d'apparaître d'un coup : sinon la barre saute à
+   chaque changement de page. Coupé sous prefers-reduced-motion comme le reste du jeu. */
+.nav .n .lb{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;font-size:12px;font-weight:800;
+  transition:max-width .24s ease,opacity .18s ease,margin .24s ease}
+.nav .n.on .lb{max-width:78px;opacity:1;margin-left:6px}
+.nav-emblem{display:block;flex:none;width:36px;height:36px;object-fit:contain;
+  -webkit-user-drag:none;user-select:none}
+/* Le combat reste le CTA permanent de l'app, mais son disque orange est DANS l'image :
+   le bouton ne le dessine plus, il se contente de faire de la place et de porter l'anneau
+   indigo quand on est sur l'écran de combat.
+   ⚠️ Il DÉBORDE par le haut : deux fois la taille des autres écussons (72 px contre 36), remonté
+   de 20 px, il dépasse de 23 px au-dessus du filet supérieur de la barre. C'est ce qui le sort
+   du rang — un CTA permanent ne se range pas dans la file, il se pose dessus. Le débord se fait
+   au `translate` et non par la boîte : la hauteur de la barre ne bouge pas d'un pixel, donc rien
+   à recalculer ailleurs (`--hud-h` et les fonds de page ignorent l'affaire). La place vient des
+   gouttières et des rembourrages des plaques, resserrés d'autant.
+   Pas de collerette à dessiner : l'écusson porte déjà son liseré blanc, c'est LUI qui tranche
+   le filet. Une seconde bague par-dessus ferait un double cerne. */
+.nav .center{width:72px;height:72px;flex:none;border-radius:50%;display:grid;place-items:center;
+  position:relative;z-index:1;translate:0 -20px;
+  box-shadow:0 8px 18px color-mix(in srgb,var(--accent) 42%,transparent)}
+.nav .center .nav-emblem{width:72px;height:72px}
+/* ⚠️ Pas d'état ACTIF sur le ⚔️, contrairement aux quatre plaques. Il portait un anneau indigo
+   quand on était sur l'écran de combat : posé autour d'un écusson qui a DÉJÀ son liseré blanc,
+   ça faisait un double cerne, et un halo bleu sur le seul objet orange de l'écran. Il n'en a de
+   toute façon pas besoin — il est deux fois plus gros que les autres, il déborde de la barre et
+   il est le seul rond : on ne peut pas le confondre avec autre chose, ni se demander où l'on est
+   quand on le regarde. */
+@media (prefers-reduced-motion:reduce){.nav .n,.nav .n .lb{transition:none}}
+.nav-ic{position:relative;flex:none;display:inline-grid;place-items:center}
+/* Sous ~420 px la barre n'a plus de quoi porter « Boutique » en entier : on reprend la place
+   sur les rembourrages et sur les écussons AU REPOS plutôt que sur le libellé, qui est la
+   seule chose que la barre ait à dire. */
+@media (max-width:420px){
+  .nav{gap:2px;padding:8px 4px 13px}
+  .nav-side{gap:2px}
+  .nav .n{padding:0 4px}
+  .nav .n.on{padding:0 8px 0 4px}
+  .nav-emblem{width:32px;height:32px}
+  .nav .center{width:66px;height:66px}
+  .nav .center .nav-emblem{width:66px;height:66px}
+}
 /* Pastille muette : « du nouveau ici », sans chiffre (onglet 🎒) */
-.nav-dot{position:absolute;top:-2px;right:-5px;width:10px;height:10px;border-radius:50%;
-  background:var(--fraise);border:2px solid var(--surface)}
+/* La pastille se pose sur le coin de l'écusson : liseré de la couleur de la BARRE au repos,
+   de la plaque quand l'onglet est actif. */
+.nav-dot{position:absolute;top:-1px;right:-1px;width:11px;height:11px;border-radius:50%;
+  background:var(--fraise);border:2px solid var(--nav-plate)}
+.nav .n.on .nav-dot{border-color:var(--nav-on)}
 
 /* Auth */
 .auth-wrap{min-height:100dvh;display:grid;place-items:center;padding:20px}
@@ -148,29 +250,63 @@ body{margin:0;background:var(--bg);color:var(--text);
    où l'on est. Une ligne de texte de moins à porter sur chaque écran. */
 .nav .n.dis{opacity:.45}
 
-/* combat */
-.cbt-top{padding:14px;text-align:center;border-bottom:1px solid var(--line)}
-.cbt-enemy-name{font-weight:800;font-size:15px}
+/* combat — mis en page comme un COMBAT POKÉMON (voir pages/Combat.jsx pour le pourquoi) :
+   l'adversaire en haut à droite et plus petit, nous en bas à gauche et plus grands, la boîte
+   de commandes en pied d'écran. La profondeur et la diagonale font tout le travail : aucun
+   décor à dessiner, et on ne confond jamais les deux camps. */
+.pkm-field{flex:1;position:relative;display:flex;flex-direction:column;justify-content:space-between;
+  gap:4px;padding:10px 12px 4px;overflow:hidden;
+  /* Le terrain : un vert très pâle DÉRIVÉ de --mint, pas une couleur inventée. C'est le seul
+     aplat de décor du jeu, et il ne sert qu'ici — c'est lui qui fait lire « une scène ». */
+  background:color-mix(in srgb,var(--mint) 7%,var(--surface-2))}
+.pkm-none{margin:auto;color:var(--muted)}
+.pkm-row{display:flex;align-items:center;gap:8px}
+/* ⚠️ Les deux tailles ne sont PAS un réglage esthétique : c'est ce qui dit qui est loin et qui
+   est au premier plan. L'ennemi occupe 38 % de la largeur, nous 52 %. */
+.pkm-row.foe .pkm-slot{width:38%}
+.pkm-row.mine .pkm-slot{width:52%}
+.pkm-slot{position:relative;flex:none;aspect-ratio:1;display:grid;place-items:center}
+.pkm-slot .mon{position:relative;z-index:1}
+/* L'ombre au sol : sans elle le monstre flotte au milieu d'un aplat. Elle est dérivée du vert
+   du terrain, donc elle suit le thème toute seule. */
+.pkm-shadow{position:absolute;left:14%;right:14%;bottom:1%;height:8%;border-radius:50%;z-index:0;
+  background:color-mix(in srgb,var(--mint) 38%,transparent);filter:blur(2px)}
+/* L'ennemi respire — un balancement lent, celui d'avant l'attaque. */
+.pkm-row.foe .pkm-mon{animation:hit 2.6s ease-in-out infinite}
+@keyframes hit{0%,100%{transform:translateX(0)}14%{transform:translateX(-5px)}28%{transform:translateX(4px)}42%{transform:translateX(0)}}
+
+/* La plaque d'identité d'un camp — le pendant de la barre de PV de Pokémon. Bordure franche
+   et pleine : c'est ce trait épais qui la détache du terrain, comme dans le modèle. */
+.pkm-card{flex:1 1 0;min-width:0;background:var(--surface);border:2px solid var(--text);
+  border-radius:14px;padding:8px 10px;box-shadow:var(--shadow)}
+.pkm-who{display:flex;align-items:center;gap:6px}
+.pkm-who .n{font-weight:800;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pkm-tag{margin-left:auto;flex:none;font-size:9px;font-weight:800;border-radius:999px;padding:2px 7px;letter-spacing:.03em}
+.pkm-tag.foe{background:color-mix(in srgb,var(--fraise) 15%,var(--surface));color:var(--fraise)}
+.pkm-tag.mine{background:color-mix(in srgb,var(--brand) 14%,var(--surface));color:var(--brand)}
+.pkm-hp{display:flex;align-items:center;gap:7px;margin-top:6px}
+.pkm-hp .lb{flex:none;font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.04em}
+.pkm-hp .bigbar{display:block;flex:1;height:9px;margin-top:0}
+.pkm-foot{display:flex;align-items:center;gap:6px;margin-top:6px}
+.pkm-num{margin-left:auto;flex:none;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
+
 .bigbar{height:14px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin-top:8px}
-.bigbar>i{display:block;height:100%;border-radius:99px}
+.bigbar>i{display:block;height:100%;border-radius:99px;transition:width .35s ease}
 .bigbar>i.crit{background:var(--crit)}
 .bigbar>i.good{background:var(--good)}
 .bigbar>i.warn{background:var(--warn)}
-/* PV masqués par un fumigène : barre rayée neutre, pleine largeur */
+/* PV masqués par la chantilly : barre rayée neutre, pleine largeur */
 .bigbar>i.unknown{background:repeating-linear-gradient(45deg,var(--surface-3) 0 8px,var(--muted) 8px 10px);opacity:.45}
 .hp-num{font-variant-numeric:tabular-nums;font-size:12px;font-weight:800;margin-top:5px}
-.arena-scene{flex:1;position:relative;display:grid;place-items:center;overflow:hidden;background:var(--surface-2)}
-.foe-mon{font-size:110px;line-height:1;animation:hit 2.6s ease-in-out infinite}
-@keyframes hit{0%,100%{transform:translateX(0)}14%{transform:translateX(-5px)}28%{transform:translateX(4px)}42%{transform:translateX(0)}}
-.my-corner{position:absolute;bottom:10px;left:14px;font-size:50px}
-.dmg{position:absolute;top:30%;left:44%;font-weight:800;font-size:30px;color:var(--fraise);
-  font-variant-numeric:tabular-nums;animation:floatup 1.2s ease-out forwards;pointer-events:none;z-index:2}
+
+/* Les chiffres qui montent, sur le terrain : le dégât côté ennemi, le soin côté nous. */
+.dmg{position:absolute;top:12%;right:16%;font-weight:800;font-size:30px;color:var(--fraise);
+  font-variant-numeric:tabular-nums;animation:floatup 1.2s ease-out forwards;pointer-events:none;z-index:4}
 @keyframes floatup{0%{opacity:0;transform:translateY(10px) scale(.7)}20%{opacity:1}100%{opacity:0;transform:translateY(-40px) scale(1.1)}}
-/* Soin : +PV vert qui monte près de mon monstre (coin bas-gauche). */
-.heal-float{position:absolute;bottom:62px;left:18px;font-weight:800;font-size:26px;color:var(--good);
-  font-variant-numeric:tabular-nums;animation:floatup 1.1s ease-out forwards;pointer-events:none;z-index:2}
+.heal-float{position:absolute;bottom:22%;left:14%;font-weight:800;font-size:26px;color:var(--good);
+  font-variant-numeric:tabular-nums;animation:floatup 1.1s ease-out forwards;pointer-events:none;z-index:4}
 /* Attaque : le monstre adverse encaisse (secousse + flash rouge), remplace l'animation d'attente. */
-.foe-mon-svg.impact{animation:impact .55s ease-out}
+.pkm-mon.impact{animation:impact .55s ease-out}
 @keyframes impact{
   0%{transform:translateX(0) scale(1);filter:none}
   15%{transform:translateX(-9px) rotate(-4deg) scale(1.05);filter:brightness(1.5) drop-shadow(0 0 7px var(--crit))}
@@ -180,33 +316,57 @@ body{margin:0;background:var(--bg);color:var(--text);
   100%{transform:translateX(0)}
 }
 /* Soin : mon monstre gonfle avec une lueur verte. */
-.my-corner-svg.healpulse{animation:healpulse .75s ease-out}
+.pkm-mon.healpulse{animation:healpulse .75s ease-out}
 @keyframes healpulse{
   0%{transform:scale(1);filter:none}
   30%{transform:scale(1.28);filter:brightness(1.25) drop-shadow(0 0 9px var(--good))}
   60%{transform:scale(1.08);filter:brightness(1.1) drop-shadow(0 0 5px var(--good))}
   100%{transform:scale(1);filter:none}
 }
-/* Éclats d'impact / étincelles de soin. */
-.burst{position:absolute;top:34%;left:50%;font-size:46px;pointer-events:none;z-index:3;
+/* Éclats d'impact / étincelles de soin — posés DANS l'emplacement du monstre, donc toujours
+   sur lui quelle que soit la taille de l'écran. */
+.burst{position:absolute;top:28%;left:50%;font-size:44px;pointer-events:none;z-index:3;
   animation:burst .55s ease-out forwards}
 @keyframes burst{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}
   35%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}
   100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}
-.heal-spark{position:absolute;bottom:58px;left:30px;font-size:22px;pointer-events:none;z-index:3;
+.heal-spark{position:absolute;top:32%;left:50%;font-size:26px;pointer-events:none;z-index:3;
   animation:burst .75s ease-out forwards}
 @media (prefers-reduced-motion:reduce){
-  .foe-mon-svg,.foe-mon-svg.impact,.my-corner-svg.healpulse{animation:none}
+  .pkm-row.foe .pkm-mon,.pkm-mon.impact,.pkm-mon.healpulse{animation:none}
   .burst,.heal-spark{display:none}
 }
-.act-gems{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:14px;border-top:1px solid var(--line)}
-.gem-btn{border:none;border-radius:var(--r);aspect-ratio:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:3px;cursor:pointer;font:inherit;background:var(--fraise);color:#fff;transition:filter .12s}
-.gem-btn:disabled{opacity:.4;cursor:not-allowed}
-.gem-btn:not(:disabled):active{transform:translateY(1px)}
-.gem-btn .e{font-size:22px}.gem-btn .c{font-size:10px;font-weight:800;font-variant-numeric:tabular-nums}
-.gem-btn.heal{background:var(--mint);color:var(--mint-ink)}
-.gem-btn.item{background:var(--violet);color:#fff}
+
+/* La boîte de commandes : le menu de Pokémon. Elle s'adresse à l'équipe, pas au monstre. */
+.pkm-menu{padding:12px 14px;border-top:1px solid var(--line);background:var(--surface)}
+.pkm-ask{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;margin-bottom:10px}
+.pkm-purse{margin-left:auto;flex:none;background:var(--surface-2);border-radius:999px;
+  padding:4px 10px;font-size:12px;font-variant-numeric:tabular-nums}
+.pkm-purse i{font-style:normal;color:var(--muted)}
+.pkm-cmds{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pkm-cmd{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:11px 12px;
+  border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2);color:var(--text);
+  font:inherit;text-align:left;text-decoration:none;cursor:pointer;transition:filter .12s}
+.pkm-cmd .t{display:flex;align-items:center;gap:7px;font-weight:800;font-size:14px;letter-spacing:.02em}
+.pkm-cmd .i{font-size:16px}
+.pkm-cmd .h{font-size:11px;font-weight:700;color:var(--muted)}
+.pkm-cmd:disabled{opacity:.45;cursor:not-allowed}
+.pkm-cmd:not(:disabled):active{transform:translateY(1px)}
+/* ⚠️ UN seul bouton orange sur l'écran (charte 60-30-10) : attaquer est l'action du jeu, tout
+   le reste se range derrière. Soigner porte l'indigo, les deux autres restent neutres. */
+.pkm-cmd.atk{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.pkm-cmd.atk .h{color:color-mix(in srgb,var(--accent-ink) 70%,transparent)}
+.pkm-cmd.heal{background:color-mix(in srgb,var(--brand) 9%,var(--surface));
+  border-color:color-mix(in srgb,var(--brand) 22%,var(--line));color:var(--brand)}
+
+/* Les power-ups dans la feuille du bas : un objet en cours reste listé, grisé — sinon on
+   croit l'avoir perdu, alors que c'est son effet qui tourne. */
+.pk-item{display:flex;align-items:center;gap:10px}
+.pk-item .e{font-size:20px}
+.pk-item .n{font-weight:700}
+.pk-item .s{margin-left:auto;font-size:10px;font-weight:800;color:var(--muted)}
+.tp-opt:disabled{opacity:.5;cursor:not-allowed}
+.tp-opt:disabled:hover{border-color:var(--line);color:inherit}
 
 /* chat */
 .chat-tabs{display:flex;gap:8px;padding:12px 14px 6px}
@@ -217,6 +377,12 @@ body{margin:0;background:var(--bg);color:var(--text);
 .tab-dot{display:inline-block;vertical-align:top;width:8px;height:8px;margin-left:4px;
   border-radius:50%;background:var(--fraise)}
 .chat-tab.on .tab-dot{background:#fff}
+/* Non-lus PAR CANAL : c'est la pastille qui dit où il faut aller. Le total du 💬 dans le
+   bandeau ne le dit pas, et c'est justement ce qu'on veut savoir en arrivant sur le chat. */
+.chat-tab-b{display:inline-grid;place-items:center;min-width:18px;height:18px;margin-left:6px;
+  padding:0 5px;border-radius:99px;background:var(--fraise);color:#fff;
+  font-size:10px;font-weight:800;font-variant-numeric:tabular-nums;vertical-align:1px}
+.chat-tab.on .chat-tab-b{background:var(--brand-ink);color:var(--brand)}
 /* Le chat tient EXACTEMENT dans l'écran : sa zone de messages défile, le composeur reste
    au-dessus de la nav. En `min-height`, la colonne grandissait avec les messages et la nav
    collée finissait par recouvrir le champ de saisie — chat inutilisable au doigt. */
@@ -224,6 +390,13 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* min-height:0 : sans lui, un enfant flex refuse de descendre sous la hauteur de son
    contenu — la colonne dépassait 100dvh et la nav collée recouvrait le composeur. */
 .chat-scroll{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:12px 14px}
+/* Le haut du fil : « il en reste », « ça arrive », ou « c'est le début ». Sans repère, remonter
+   donne l'impression que la conversation commence là où le chargement s'est arrêté. */
+.chat-more{align-self:center;font-size:11px;color:var(--muted);padding:4px 12px;margin:2px 0 6px}
+.chat-more-btn{background:var(--surface-2);border:1px solid var(--line);border-radius:99px;
+  font:inherit;font-size:11px;font-weight:700;color:var(--brand);cursor:pointer}
+.chat-more-btn:hover{border-color:var(--brand)}
+
 .chat-day{align-self:center;font-size:10px;font-weight:700;color:var(--muted);background:var(--surface-2);
   border:1px solid var(--line);border-radius:999px;padding:3px 11px;margin:4px 0}
 .msg{max-width:85%;display:flex;gap:8px;align-items:flex-end}
@@ -241,7 +414,10 @@ body{margin:0;background:var(--bg);color:var(--text);
 .msg.me .bub{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);border-bottom-left-radius:14px;border-bottom-right-radius:4px}
 .msg.me .who{color:var(--brand)}
 .chat-empty{color:var(--faint);text-align:center;font-size:13px;margin:auto}
-.chat-input{display:flex;gap:9px;padding:10px 14px;border-top:1px solid var(--line);align-items:center}
+/* ⚠️ Le rembourrage bas est calé sur le DÉBORD du bouton Combat (23 px) : c'est le seul écran
+   où quelque chose d'interactif se trouve juste au-dessus de la barre, et le disque viendrait
+   sinon couvrir le bas du champ de saisie, pile au milieu — là où le doigt tape. */
+.chat-input{display:flex;gap:9px;padding:10px 14px 25px;border-top:1px solid var(--line);align-items:center}
 .chat-input .field{flex:1;margin:0}
 .chat-input .send{width:40px;height:40px;border-radius:50%;background:var(--brand);color:var(--brand-ink);border:none;
   display:grid;place-items:center;font-size:16px;cursor:pointer;flex:none}
@@ -270,7 +446,12 @@ body{margin:0;background:var(--bg);color:var(--text);
 .msg-meme{max-width:100%;width:200px;border-radius:12px;display:block}
 .bub.meme-only{background:none;border:0;padding:0}
 /* avatar-fruit (Hub, chat, classement, écran avatar) */
-.fav{position:relative;display:inline-grid;place-items:center;flex:none;line-height:1}
+/* ⚠️ `isolation:isolate` : l'avatar distribue des z-index de 0 à 6 entre ses pièces (aura
+   derrière, chapeau devant). Sans contexte d'empilement propre, ces valeurs REMONTENT dans
+   la page et un chapeau à 6 passe par-dessus la nav collée. C'est ce qui arrivait dans la
+   boutique et la ligue. L'empilement interne d'un avatar est un détail d'implémentation :
+   il ne doit jamais fuir. (La nav a son z-index:10 par ailleurs, comme le bandeau.) */
+.fav{position:relative;isolation:isolate;display:inline-grid;place-items:center;flex:none;line-height:1}
 .fav-svg{position:relative;z-index:1;width:100%;height:100%;display:block}
 .fav-blank{z-index:1;font-weight:800;color:var(--muted)}
 /* cosmétiques : chaque pièce est CENTRÉE sur un point (left/top en % + recentrage), calculé
@@ -287,13 +468,60 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* pièces dessinées (cosmeticArt.jsx) : un SVG à la place du glyphe emoji */
 .fav-art{display:block;width:1em;height:1em;overflow:visible}
 .cos-art{display:block;width:1em;height:1em}
-.fav-aura{z-index:0;opacity:.5}
 .fav-shoes{z-index:2}
 .fav-sidekick{z-index:2}
 .fav-hands{z-index:3}
 .fav-neck{z-index:4}
 .fav-eyes{z-index:5}
 .fav-hat{z-index:6}
+/* Une pièce qui passe DERRIÈRE la silhouette (bras de combinaison) : elle reste dans la
+   passe « devant » du composant, mais son z-index la fait repasser sous .fav-svg (1).
+   Après les .fav-<slot> : à spécificité égale, c'est la dernière règle qui gagne. */
+.fav-behind{z-index:0}
+
+/* Pièces ANIMÉES (`anim` dans COSMETIC_ART) : réservées aux panoplies de haut rang, c'est ce
+   qui les distingue au premier coup d'œil sans coûter une couleur de plus.
+   ⚠️ L'animation est portée par le DESSIN (`.fav-art`), jamais par la pièce (`.fav-slot`).
+   La pièce a déjà un `transform` (le centrage `translate -50 %`, et le miroir des symétriques),
+   et la matrice finale vaut Translate·Rotate·Scale·Transform : le centrage s'applique donc
+   AVANT la rotation, autour d'une origine restée au centre de la boîte NON translatée. Résultat,
+   la pièce décrivait un cercle du rayon de sa demi-diagonale — elle orbitait au lieu de tourner
+   sur elle-même. Le dessin, lui, n'a aucun transform : il tourne autour de son propre centre.
+   ⚠️ Corollaire : `anim` ne marche que sur une pièce DESSINÉE (`node`), pas sur un emoji, qui
+   n'a pas de `.fav-art` à faire tourner.
+   Un tour en 2 s, puis 5 s d'arrêt : cycle de 7 s dont la rotation n'occupe que le premier
+   tiers. Le repos domine, comme pour l'éclair de l'arène — une pièce qui bouge tout le temps
+   tire l'œil en permanence et on finit par ne plus voir l'avatar. */
+.fav-anim-spin .fav-art{animation:fav-spin 7s linear infinite;transform-origin:50% 50%}
+@keyframes fav-spin{0%{rotate:0deg}28.6%{rotate:360deg}100%{rotate:360deg}}
+@media (prefers-reduced-motion:reduce){.fav-anim-spin .fav-art{animation:none}}
+
+/* Fond de page « aura » (components/AuraBackground.jsx) : les motifs de l'aura équipée,
+   semés sur tout l'écran. C'est ce que l'aura est devenue — en couronne derrière l'avatar,
+   elle était condensée et on ne pouvait pas l'élargir sans sortir du cadre.
+   ⚠️ `z-index:-1` et non `0` : une couche positionnée à 0 passerait PAR-DESSUS le contenu
+   en flux normal. À -1, elle se glisse entre le fond du body et le contenu de `.shell`.
+   Elle est donc montée en FRÈRE de `.hud`, jamais dedans : `.hud` est collé avec un
+   z-index, il crée un contexte d'empilement dont on ne peut plus passer sous le contenu.
+   Très pâle : c'est une ambiance, pas un décor — le texte doit rester lisible par-dessus,
+   et la charte 60-30-10 tient parce que ce fond ne porte aucune couleur d'interface. */
+.aura-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;opacity:.12}
+.aura-motif{position:absolute;line-height:1}
+/* Auras ÉPIQUES et légendaires : les motifs DÉRIVENT lentement, montent en éclat, puis
+   retombent. Chacun a sa durée et son départ (posés par React) — à l'unisson, le fond entier
+   se met à respirer, ce qui est insupportable derrière du texte.
+   ⚠️ On anime `translate` et `scale`, les propriétés INDIVIDUELLES, jamais `transform` : celui-ci
+   porte déjà l'inclinaison du motif. Même règle que les pièces animées de l'avatar. */
+.aura-bg.live .aura-motif{animation:aura-drift var(--dur,13s) var(--delay,0s) ease-in-out infinite}
+@keyframes aura-drift{
+  0%,100%{opacity:.45;scale:.94;translate:0 0}
+  50%{opacity:1;scale:1.08;translate:var(--dx) var(--dy)}}
+@media (prefers-reduced-motion:reduce){.aura-bg.live .aura-motif{animation:none}}
+.aura-glyph{display:block}
+/* Variante bornée à son conteneur, plus franche : l'essayage d'une aura dans la cabine ou
+   l'armoire, là où le fond du site n'a pas encore changé. */
+.aura-bg.local{position:absolute;z-index:0;opacity:.35;border-radius:inherit}
+@media (prefers-color-scheme:dark){.aura-bg{opacity:.16}}
 
 /* monstres SVG */
 .mon{position:relative;display:inline-grid;place-items:center;flex:none;line-height:1}
@@ -307,8 +535,6 @@ body{margin:0;background:var(--bg);color:var(--text);
 .mon-art{object-fit:contain}
 .mon-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .mon-layer.front{z-index:2}
-.foe-mon-svg{animation:hit 2.6s ease-in-out infinite}
-.my-corner-svg{position:absolute;bottom:10px;left:14px}
 /* Usure : à partir du 2e palier de PV franchi, le monstre tangue de plus en plus. */
 .mon.wear2 .mon-svg{animation:groggy 4.2s ease-in-out infinite}
 .mon.wear3 .mon-svg{animation:groggy 2.6s ease-in-out infinite}
@@ -354,8 +580,11 @@ body{margin:0;background:var(--bg);color:var(--text);
    fouille un rayon — on juge le rendu sans faire l'aller-retour avec le haut de page. */
 .av-sticky{position:sticky;top:var(--hud-h);z-index:5;margin:-14px -14px 0;padding:14px 14px 8px;
   background:var(--bg);display:flex;flex-direction:column;gap:10px}
-.av-stage{display:grid;place-items:center;padding:16px 0;background:var(--surface-2);
-  border:1px solid var(--line);border-radius:var(--r)}
+/* `position:relative` + `overflow:hidden` : l'aperçu porte le fond d'aura essayée, borné
+   à son cadre (.aura-bg.local). */
+.av-stage{position:relative;overflow:hidden;display:grid;place-items:center;padding:16px 0;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r)}
+.av-stage .fav{position:relative;z-index:1}
 .av-tabs{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .av-tabs::-webkit-scrollbar{display:none}
 .av-tab{position:relative;flex:none;background:var(--surface);border:1px solid var(--line);
@@ -377,10 +606,6 @@ body{margin:0;background:var(--bg);color:var(--text);
 .av-card .tick{position:absolute;top:4px;right:6px;font-size:11px;color:var(--brand);font-weight:900}
 .av-card.on{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 10%,var(--surface))}
 .av-card.bare{border-style:dashed;color:var(--muted)}
-.av-card.rare{border-color:color-mix(in srgb,var(--mint) 45%,var(--line))}
-.av-card.epic{border-color:color-mix(in srgb,var(--violet) 45%,var(--line))}
-.av-card.legendary{border-color:color-mix(in srgb,var(--citron) 60%,var(--line))}
-.av-card.on.rare,.av-card.on.epic,.av-card.on.legendary{border-color:var(--brand)}
 .av-sec h2{margin:0 0 8px;font-size:13px;font-weight:800}
 .av-sec{display:flex;flex-direction:column}
 .av-empty{font-size:12px;color:var(--muted);line-height:1.45;margin:0}
@@ -606,6 +831,63 @@ body{margin:0;background:var(--bg);color:var(--text);
 .shop-season-head{display:flex;flex-direction:column;gap:3px}
 .shop-season-head .t{font-weight:800;font-size:14px;color:var(--violet)}
 .shop-season-head .s{font-size:11px;color:var(--muted);line-height:1.35}
+/* La carte d'une PANOPLIE : ce qu'on voit avant d'entrer. Le rayon liste des TENUES, pas des
+   pièces — la carte montre donc la panoplie portée sur son propre fruit, et les boutons
+   d'achat n'apparaissent qu'une fois entré. Deux colonnes : à trois, l'aperçu devenait trop
+   petit pour qu'on juge la tenue, ce qui est tout l'intérêt de la carte. */
+.shop-sets{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.shop-set-card{position:relative;overflow:hidden;display:flex;flex-direction:column;
+  align-items:center;gap:4px;border-width:1.5px;border-style:solid;border-radius:var(--r);
+  padding:10px 8px 11px;font:inherit;color:inherit;cursor:pointer;text-align:center}
+/* ⚠️ Le fond d'aura est POSITIONNÉ : sans z-index sur le contenu, il passerait par-dessus
+   les enfants en flux normal, qui se peignent avant les éléments positionnés. */
+.shop-set-card .shop-set-look,.shop-set-card .shop-set-name,.shop-set-card .shop-set-meta{
+  position:relative;z-index:1}
+.shop-set-card .shop-promo,.shop-set-card .shop-set-left{z-index:1}
+.shop-set-look{display:grid;place-items:center;height:96px}
+.shop-set-name{font-weight:800;font-size:12px;line-height:1.2}
+.shop-set-meta{display:flex;align-items:center;gap:7px;font-size:11px}
+.shop-set-price{font-weight:800;font-variant-numeric:tabular-nums}
+/* Promo et compte à rebours se posent en pastille sur la carte, pas dans le flux : la
+   vignette doit garder la même hauteur qu'elle en ait ou non. */
+.shop-set-card .shop-promo{position:absolute;top:6px;right:6px}
+.shop-set-left{position:absolute;top:6px;left:6px;background:var(--violet);color:#fff;
+  border-radius:999px;padding:2px 7px;font-size:9px;font-weight:800;white-space:nowrap}
+/* Barre de retour de la panoplie ouverte */
+.shop-set-nav{display:flex;align-items:center;gap:8px}
+.shop-back{flex:1;text-align:left;background:none;border:0;padding:0;font:inherit;
+  font-weight:800;font-size:12px;color:var(--brand);cursor:pointer}
+.shop-tryall{flex:none;background:var(--surface);border:1px solid var(--line-2);border-radius:999px;
+  padding:5px 11px;font:inherit;font-weight:700;font-size:11px;cursor:pointer}
+
+/* Une PANOPLIE : même forme d'encadré que la boutique de saison, mais peinte à la RARETÉ
+   de ses pièces (rar-tint) plutôt qu'en violet — elles sont toutes de la même, c'est ce qui
+   fait qu'un ensemble se lit comme un ensemble. On y achète à la pièce comme ailleurs. */
+.shop-set{border-width:1.5px;border-style:solid;border-radius:var(--r);padding:11px;
+  margin-bottom:12px;display:flex;flex-direction:column;gap:10px}
+.shop-set-head{display:flex;align-items:center;gap:8px}
+.shop-set-head .t{font-weight:800;font-size:14px;flex:1;min-width:0}
+.shop-set-desc{margin:-4px 0 0;font-size:11px;color:var(--muted);line-height:1.35}
+/* Où on en est de la collection : c'est ce compteur qui donne envie de la finir. */
+.shop-set-count{flex:none;font-size:10px;font-weight:800;color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.shop-set-count.done{color:var(--good)}
+/* La promo, seule chose qui puisse faire bouger un prix (pilotée depuis /admin). */
+.shop-promo{flex:none;background:var(--fraise);color:#fff;border-radius:999px;
+  padding:2px 9px;font-size:10px;font-weight:800;white-space:nowrap}
+/* La récompense d'une panoplie : son aura. Montrée AVANT d'être gagnée — c'est elle qui
+   donne une raison de finir la collection. Citron, la couleur des récompenses. */
+.shop-reward{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:12px;
+  border:1.5px dashed color-mix(in srgb,var(--citron) 55%,var(--line));
+  background:color-mix(in srgb,var(--citron) 9%,var(--surface))}
+.shop-reward.got{border-style:solid;border-color:var(--good);
+  background:color-mix(in srgb,var(--good) 9%,var(--surface))}
+.shop-reward-icon{font-size:26px;line-height:1;flex:none;width:32px;text-align:center}
+.shop-reward-text{min-width:0}
+.shop-reward-name{font-weight:800;font-size:12px}
+.shop-reward-sub{font-size:10px;color:var(--muted);line-height:1.35;margin-top:1px}
+/* Le prix catalogue, barré, à gauche du prix payé — servi seulement s'il en diffère. */
+.shop-was{opacity:.65;font-weight:700;margin-right:6px;text-decoration-thickness:1.5px}
 .shop-cos.season{position:relative;padding-top:22px}
 .shop-cos-left{position:absolute;top:6px;left:50%;transform:translateX(-50%);white-space:nowrap;
   background:var(--violet);color:#fff;border-radius:999px;padding:2px 8px;font-size:9px;font-weight:800}
@@ -621,13 +903,10 @@ body{margin:0;background:var(--bg);color:var(--text);
   background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer}
 .shop-cos{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:13px 10px;
   display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
-.shop-cos.rare{border-color:color-mix(in srgb,var(--mint) 45%,var(--line))}
-.shop-cos.epic{border-color:color-mix(in srgb,var(--violet) 50%,var(--line))}
-.shop-cos.legendary{border-color:color-mix(in srgb,var(--citron) 60%,var(--line))}
 .shop-cos.trying{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 9%,var(--surface))}
 .shop-cos-emoji{font-size:36px;line-height:1.1}
 .shop-cos-name{font-weight:800;font-size:12px}
-.shop-cos-rarity{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}
+.shop-cos .rar-pill{margin-bottom:6px}
 .shop-owned{margin-top:auto;font-size:11px;font-weight:700;color:var(--good);text-decoration:none;
   background:color-mix(in srgb,var(--good) 12%,transparent);border-radius:999px;padding:6px 10px;width:100%}
 .shop-armoire{margin-top:14px;display:flex;flex-direction:column;gap:4px;background:var(--surface-2);
@@ -638,9 +917,13 @@ body{margin:0;background:var(--bg);color:var(--text);
 .tr-title{margin:0;font-size:18px;font-weight:800;line-height:1.25}
 
 /* profil joueur */
-.pf-head{display:flex;align-items:center;gap:14px}
-.pf-id{min-width:0}
-.pf-name{font-weight:800;font-size:20px;display:flex;align-items:center;gap:8px}
+/* Le haut d'un profil : le personnage en grand sur la scène de l'armoire, l'identité dessous.
+   C'était un avatar de 72 px à côté du nom — de quoi reconnaître quelqu'un, pas de quoi voir
+   ce qu'il porte, alors que c'est la seule chose que l'app permette de montrer. */
+.pf-head{display:flex;flex-direction:column;gap:10px}
+.pf-stage{padding:22px 0}
+.pf-id{min-width:0;text-align:center}
+.pf-name{font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center;gap:8px}
 .pf-me{font-size:10px;font-weight:800;background:var(--brand);color:var(--brand-ink);border-radius:999px;padding:2px 8px}
 .pf-team{font-size:13px;font-weight:700}
 .pf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
@@ -679,49 +962,172 @@ body{margin:0;background:var(--bg);color:var(--text);
 .chest-card{display:flex;align-items:center;gap:12px;padding:12px 14px;
   background:var(--surface);border:2px solid var(--line-2);border-radius:16px}
 .chest-card+.chest-card{margin-top:9px}
-.chest-card.rar-rare{border-color:var(--mint)}
-.chest-card.rar-epic{border-color:var(--violet)}
-.chest-card.rar-legendary{border-color:var(--citron)}
-.chest-emoji{font-size:30px}
+/* Le coffre de la carte et celui du titre de section sont le MÊME dessin que celui qui
+   s'ouvre (voir ChestSvg) : ferrures à la couleur de la rareté comprises. Un 🎁 emoji
+   promettait un cadeau, et ne savait pas dire de quelle rareté il était.
+   Sélecteurs à deux classes : ils doivent battre le `.chest-svg` de la modal (150px). */
+.chest-svg.chest-mini{width:46px;filter:none;flex:none}
+.chest-svg.chest-tiny{width:22px;filter:none;display:inline-block;vertical-align:-4px}
 .chest-text{flex:1}
 .chest-title{font-weight:800;font-size:14px}
 .chest-sub{font-size:12px;color:var(--muted)}
 .chest-btn{background:var(--citron);color:var(--citron-ink);border:0;border-radius:12px;
   padding:10px 16px;font-weight:800;font-size:13px}
 
-/* Modal d'ouverture : coffre SVG (couvercle sur charnière), paillettes, gains qui sortent */
-.chest-modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;
-  background:rgba(20,16,28,.72);backdrop-filter:blur(3px);animation:chest-fade .25s ease-out}
+/* ---- Ouverture d'un coffre --------------------------------------------------------------
+   Le seul moment de fanfare du jeu, et il emprunte la grammaire des jeux de loot (Vampire
+   Survivors) : le coffre s'agite de plus en plus fort et fait trembler l'écran, le couvercle
+   claque, l'écran flashe, une roue de rayons tourne derrière, une colonne de lumière monte,
+   il pleut des pièces, et les gains s'IMPRIMENT un par un — ils arrivent trop grands et se
+   posent d'un coup sec, ce n'est pas un fondu.
+   Tout est peint dans --rar : la rareté se voit avant de se lire. Et la QUANTITÉ de fanfare
+   suit la rareté (--fanfare, posé par la modale) — un commun ne se joue pas comme un
+   légendaire, sinon le légendaire ne vaut plus rien.
+   La charte 60-30-10 n'est pas entamée : la modale est un plein écran noir, hors de la page.
+   Chaque animation a son pendant sous prefers-reduced-motion, en fin de bloc. */
+.chest-modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(circle at 50% 40%,
+    color-mix(in srgb,var(--rar,var(--citron)) 26%,rgba(12,9,18,.88)) 0%,rgba(9,7,14,.95) 65%);
+  backdrop-filter:blur(3px);animation:chest-fade .25s ease-out;
+  /* Réglages posés en ligne par React (table FANFARE, un seul endroit) — ici, les valeurs
+     de repli. --fanfare : l'intensité des lumières. --rattle : combien de temps le coffre
+     s'agite avant de céder — le même nombre minute le POST.
+     DEUX facteurs de temps, et c'est voulu : --k étire l'ATMOSPHÈRE (rayons, colonne, onde)
+     et l'attente entre deux gains ; --k2, deux fois moins ample, étire les GESTES (couvercle,
+     encaissement, vol du butin), parce qu'un geste trop lent ne se lit pas comme de la
+     solennité mais comme une appli qui rame. */
+  --fanfare:.7;--k:1;--k2:1;--rattle:1s}
 @keyframes chest-fade{from{opacity:0}to{opacity:1}}
 .chest-stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;
   padding:32px 24px;max-width:320px;text-align:center}
-.chest-svg{width:150px;height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.4))}
-.chest-svg.shaking{animation:chest-shake .9s ease-in-out infinite}
-@keyframes chest-shake{0%,100%{transform:rotate(0)}15%{transform:rotate(-7deg) scale(1.03)}
-  35%{transform:rotate(6deg) scale(1.06)}55%{transform:rotate(-5deg) scale(1.08)}75%{transform:rotate(4deg) scale(1.05)}}
+/* Le tremblement de l'écran, pendant que le coffre s'agite (avant le POST). Même principe
+   que le coffre : une secousse courte RÉPÉTÉE --shivers fois, pas une longue étirée. */
+.chest-stage.rattling{animation:chest-quake .16s linear var(--shivers,6)}
+@keyframes chest-quake{0%,100%{transform:translate(0,0)}
+  30%{transform:translate(-2px,1px)}70%{transform:translate(2px,-2px)}}
+
+/* Le coffre et tout ce qui rayonne DE lui vivent dans leur propre boîte : rayons, halo,
+   colonne et onde restent ainsi centrés sur le coffre, et non sur une modale dont la
+   hauteur change avec le nombre de gains. */
+.chest-hold{position:relative;width:170px;height:140px;display:grid;place-items:center}
+.chest-fx{position:absolute;top:50%;left:50%;pointer-events:none}
+
+/* La roue de rayons. Masquée en son centre (le coffre doit rester lisible) et sur son bord
+   (sinon on verrait le disque). Elle jaillit d'un coup puis tourne lentement : DEUX
+   animations séparées, l'une sur `transform`, l'autre sur `rotate` — la propriété à part —
+   sinon la seconde écraserait le centrage de la première. */
+.chest-rays{width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;opacity:0;
+  background:repeating-conic-gradient(from 0deg,var(--rar) 0 2.6deg,transparent 2.6deg 15deg);
+  -webkit-mask-image:radial-gradient(closest-side circle,transparent 4%,#000 11%,transparent 52%);
+  mask-image:radial-gradient(closest-side circle,transparent 4%,#000 11%,transparent 52%);
+  animation:chest-rays-in calc(.55s*var(--k)) ease-out forwards,chest-rays-spin 30s linear infinite}
+@keyframes chest-rays-in{0%{transform:scale(.15)}
+  55%{opacity:calc(.62*var(--fanfare))}100%{opacity:calc(.4*var(--fanfare));transform:scale(1)}}
+@keyframes chest-rays-spin{to{rotate:360deg}}
+
+/* Le halo qui respire derrière le coffre — c'est lui qui reste quand tout est retombé. */
+.chest-glow{width:300px;height:300px;margin:-150px 0 0 -150px;border-radius:50%;filter:blur(4px);
+  background:radial-gradient(circle,color-mix(in srgb,var(--rar) 72%,transparent) 0,
+    color-mix(in srgb,var(--rar) 20%,transparent) 42%,transparent 68%);
+  animation:chest-glow-pulse 2.4s ease-in-out infinite}
+@keyframes chest-glow-pulse{0%,100%{transform:scale(.9);opacity:calc(.5*var(--fanfare) + .2)}
+  50%{transform:scale(1.1);opacity:calc(.75*var(--fanfare) + .2)}}
+
+/* La colonne de lumière qui sort du coffre ouvert : posée sur la ligne du couvercle, pas
+   au centre de la boîte — d'où le `bottom` plutôt que le `top` commun aux autres effets. */
+.chest-beam{top:auto;bottom:calc(50% + 16px);width:200px;height:250px;margin-left:-100px;
+  background:linear-gradient(to top,color-mix(in srgb,var(--rar) 85%,transparent),transparent 84%);
+  clip-path:polygon(42% 100%,58% 100%,100% 0,0 0);filter:blur(3px);
+  opacity:0;transform-origin:50% 100%;
+  animation:chest-beam-up calc(1s*var(--k)) calc(.1s*var(--k)) ease-out forwards}
+@keyframes chest-beam-up{0%{opacity:0;transform:scaleY(.08)}
+  35%{opacity:calc(.8*var(--fanfare))}100%{opacity:calc(.4*var(--fanfare));transform:scaleY(1)}}
+
+/* L'onde de choc du couvercle qui claque, et le flash plein écran au même instant. */
+.chest-shock{width:70px;height:70px;margin:-35px 0 0 -35px;border-radius:50%;
+  border:3px solid var(--rar);opacity:0;
+  animation:chest-shock calc(.85s*var(--k)) calc(.08s*var(--k)) cubic-bezier(.15,.75,.3,1) forwards}
+@keyframes chest-shock{0%{transform:scale(.25);opacity:0}12%{opacity:.95}100%{transform:scale(6.5);opacity:0}}
+.chest-flash{position:fixed;inset:0;pointer-events:none;background:#fff;opacity:0;
+  animation:chest-flash .55s .06s ease-out forwards} /* pas de --k : un flash est un IMPACT,
+  pas une montée — étiré à une seconde il devient un voile blanc au lieu d'un coup */
+@keyframes chest-flash{0%{opacity:0}10%{opacity:calc(.55*var(--fanfare) + .3)}100%{opacity:0}}
+
+/* La pluie de pièces balaie tout l'écran, pas seulement le coffre — elle est donc fille de
+   la modale, pas de .chest-hold. */
+.chest-coin{position:absolute;top:-10%;left:var(--x);font-size:var(--s,17px);pointer-events:none;
+  opacity:0;animation:chest-rain var(--dur,1.9s) var(--delay,0s) linear forwards}
+@keyframes chest-rain{0%{transform:translateY(0) rotate(0);opacity:0}
+  8%{opacity:1}88%{opacity:1}100%{transform:translateY(120vh) rotate(var(--spin,360deg));opacity:0}}
+
+/* Le coffre lui-même. Ses ferrures prennent la couleur de la rareté (.chest-trim) : le bois
+   reste du bois, mais un coffre légendaire est cerclé d'or et un commun de gris. */
+.chest-svg{width:150px;height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.45));position:relative}
+.chest-trim{fill:var(--rar,#f2b100)}
+/* Avant le POST : l'agitation MONTE — c'est ce qui fait attendre le couvercle, et un
+   légendaire se fait attendre trois fois plus longtemps qu'un commun.
+   ⚠️ DEUX animations sur DEUX propriétés indépendantes (`rotate` et `scale`, comme la roue
+   de rayons), et surtout PAS une seule keyframe étirée : étirée sur 2 s elle donnerait un
+   balancement mou, pas un tremblement. La secousse garde donc une fréquence FIXE (.16 s) et
+   c'est le NOMBRE de secousses qui suit la rareté (--shivers) ; le gonflement, lui, s'étire
+   sur toute la durée en `ease-in` — il accélère, c'est lui qui fait monter la tension. */
+.chest-svg.shaking{animation:chest-shiver .16s linear var(--shivers,6),
+  chest-swell var(--rattle) ease-in forwards}
+@keyframes chest-shiver{0%,100%{rotate:0deg}25%{rotate:-4deg}75%{rotate:4deg}}
+@keyframes chest-swell{0%{scale:1}55%{scale:1.05}85%{scale:1.12}100%{scale:1.22}}
+/* Après : il encaisse le coup et redescend. */
+.chest-svg.popped{animation:chest-pop calc(.7s*var(--k2)) cubic-bezier(.2,1.5,.35,1) forwards}
+@keyframes chest-pop{0%{transform:scale(1.2)}28%{transform:scale(1.38)}100%{transform:scale(1.06)}}
 .chest-lid{transform-origin:18px 46px;transition:transform .01s}
-.chest-lid.open{animation:chest-lid-open .7s cubic-bezier(.3,1.5,.5,1) forwards}
-@keyframes chest-lid-open{from{transform:rotate(0)}to{transform:rotate(-70deg) translate(-6px,-10px)}}
-.chest-particle{position:absolute;top:44%;left:50%;font-size:15px;pointer-events:none;opacity:0;
-  animation:chest-burst 1.1s ease-out forwards}
+.chest-lid.open{animation:chest-lid-open calc(.8s*var(--k2)) cubic-bezier(.25,1.6,.45,1) forwards}
+@keyframes chest-lid-open{0%{transform:rotate(0)}
+  55%{transform:rotate(-86deg) translate(-8px,-12px)}100%{transform:rotate(-72deg) translate(-6px,-10px)}}
+
+.chest-particle{position:absolute;top:50%;left:50%;pointer-events:none;opacity:0;
+  color:var(--rar);text-shadow:0 0 8px color-mix(in srgb,var(--rar) 70%,transparent);
+  animation:chest-burst var(--pd,1.2s) ease-out forwards} /* taille et durée : par paillette,
+  posées par React — elles ne doivent pas toutes partir ni s'éteindre ensemble */
 @keyframes chest-burst{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}
-  15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.15);opacity:0}}
-.chest-gains-out{display:flex;flex-direction:column;align-items:center;gap:8px;min-height:40px}
-.chest-gain-chip{background:var(--surface);border:2px solid var(--line-2);border-radius:999px;
-  padding:8px 16px;font-weight:800;font-size:14px;opacity:0;
-  animation:chest-gain-pop .5s cubic-bezier(.2,1.6,.4,1) forwards}
-.chest-gain-chip.rar-rare{border-color:var(--mint)}
-.chest-gain-chip.rar-epic{border-color:var(--violet)}
-.chest-gain-chip.rar-legendary{border-color:var(--citron)}
-@keyframes chest-gain-pop{from{transform:translateY(26px) scale(.6);opacity:0}
-  to{transform:translateY(0) scale(1);opacity:1}}
-.chest-reveal-title{color:#fff;font-weight:800;font-size:17px;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+  15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.2);opacity:0}}
+
+/* Les gains SORTENT du coffre : chacun jaillit de là où il est (le coffre, juste au-dessus),
+   monte encore un peu, puis retombe à sa place — d'où le translateY négatif au départ, calé
+   sur la hauteur de .chest-hold. Ils sont donc placés SOUS le coffre et AVANT le titre : la
+   proximité fait la lecture, le titre n'est plus que la légende du butin.
+   On montre la matière, pas une phrase : le vrai dessin de la pièce (CosmeticIcon) ou les 💎,
+   dans un médaillon — c'est ce que Chest#open! sert en gains structurés. */
+.chest-gains-out{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;
+  gap:8px 20px;min-height:104px}
+.chest-loot{display:flex;flex-direction:column;align-items:center;gap:5px;width:104px;opacity:0;
+  animation:chest-loot-out calc(.75s*var(--k2)) cubic-bezier(.2,1.05,.3,1) forwards}
+@keyframes chest-loot-out{0%{transform:translateY(-120px) scale(.2);opacity:0}
+  16%{opacity:1}45%{transform:translateY(-54px) scale(1.22)}
+  76%{transform:translateY(9px) scale(.93)}100%{transform:translateY(0) scale(1);opacity:1}}
+/* Le médaillon prend la rareté de CE qu'il contient : le coffre pour les 💎, la pièce pour
+   un cosmétique (`rar-<rareté>` posé par React) — un commun peut cracher un légendaire. */
+.chest-loot-medal{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 32%,color-mix(in srgb,var(--rar) 45%,#fff) 0,var(--rar) 76%);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--rar) 40%,transparent),
+             0 0 28px color-mix(in srgb,var(--rar) 60%,transparent)}
+.chest-loot-art{font-size:34px;line-height:1;display:grid;place-items:center;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
+.chest-loot-name{color:#fff;font-weight:800;font-size:13px;line-height:1.25;
+  text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.chest-loot-note{color:rgba(255,255,255,.7);font-size:10px;line-height:1.3}
+.chest-reveal-title{color:#fff;font-weight:800;font-size:19px;
+  text-shadow:0 2px 10px rgba(0,0,0,.6),0 0 22px color-mix(in srgb,var(--rar) 75%,transparent)}
+/* Dans la modale, le bouton porte la rareté : c'est le sujet de l'écran. */
+.chest-stage .chest-btn{background:var(--rar);color:var(--rar-ink);
+  box-shadow:0 6px 20px color-mix(in srgb,var(--rar) 45%,transparent)}
+
 @media (prefers-reduced-motion: reduce){
-  .chest-svg.shaking,.chest-particle{animation:none}
-  .chest-particle{display:none}
+  /* On garde le tableau final — coffre ouvert, halo, gains — sans rien qui bouge. */
+  .chest-svg.shaking,.chest-svg.popped,.chest-stage.rattling,.chest-glow{animation:none}
+  .chest-rays,.chest-shock,.chest-flash,.chest-coin,.chest-particle,.chest-beam{display:none}
   .chest-lid.open{animation:none;transform:rotate(-70deg) translate(-6px,-10px)}
-  .chest-gain-chip{animation:none;opacity:1}
+  .chest-loot{animation:none;opacity:1}
 }
+
 .install-hint{display:flex;align-items:center;gap:10px;margin:10px 14px 0;padding:10px 12px;
   background:var(--surface);border:1px solid var(--line);border-radius:14px;font-size:13px}
 .install-hint .ih-icon{font-size:20px}
@@ -781,7 +1187,9 @@ body{margin:0;background:var(--bg);color:var(--text);
 .notif .nchev{margin-left:auto;align-self:center;color:var(--faint);font-size:20px;font-weight:700;flex:none}
 .bell-badge{position:relative}
 .bell-badge .b{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;border-radius:99px;background:var(--fraise);
-  color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;padding:0 3px}
+  color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;padding:0 3px;
+  border:2px solid var(--nav-plate)}
+.bell.on .b{border-color:var(--nav-on)}
 
 /* Compte à rebours de la course (Hub) */
 /* Jour J : une seule ligne — pastille du décompte, identité de la course, prépa. */
@@ -863,3 +1271,26 @@ body{margin:0;background:var(--bg);color:var(--text);
 .adm-save{background:var(--accent);color:var(--accent-ink);border:none;border-radius:10px;padding:9px 14px;
   font:inherit;font-weight:800;font-size:12px;cursor:pointer;flex:none}
 .adm-save:disabled{background:var(--surface-3);color:var(--faint);cursor:default}
+
+/* ---- Rareté ---------------------------------------------------------------------------
+   Une pièce a la même couleur partout : boutique, cabine d'essai, armoire, coffre, gain.
+   `rar-<rareté>` POSE --rar / --rar-ink et teinte la carte ; tout le reste (la pastille,
+   les éclats de l'ouverture d'un coffre) se contente de lire ces deux variables, qui
+   s'héritent. Ajouter une rareté = une ligne de token + une ligne ici, aucun composant.
+   Volontairement en fin de fichier : voir la note ci-dessus sur la spécificité. */
+.rar-common{--rar:var(--rar-common);--rar-ink:var(--rar-common-ink)}
+.rar-rare{--rar:var(--rar-rare);--rar-ink:var(--rar-rare-ink)}
+.rar-epic{--rar:var(--rar-epic);--rar-ink:var(--rar-epic-ink)}
+.rar-legendary{--rar:var(--rar-legendary);--rar-ink:var(--rar-legendary-ink)}
+/* `rar-tint` = la carte PORTE la couleur. Séparé du porteur ci-dessus parce que tout ce
+   qui prend --rar ne veut pas forcément ce fond clair : la modale d'ouverture d'un coffre
+   se joue sur un plein écran noir, elle ne lit que la variable. */
+.rar-tint{border-color:color-mix(in srgb,var(--rar) 55%,var(--line));
+  background:color-mix(in srgb,var(--rar) 8%,var(--surface))}
+/* Le légendaire est le seul à s'annoncer de loin : un halo, pas une 5e couleur. */
+.rar-tint.rar-legendary{box-shadow:0 0 0 1px color-mix(in srgb,var(--rar) 35%,transparent),
+  0 2px 14px color-mix(in srgb,var(--rar) 28%,transparent)}
+/* La pastille : aplat plein + son encre. C'est le seul endroit où la rareté s'ÉCRIT. */
+.rar-pill{display:inline-block;background:var(--rar,var(--line-2));color:var(--rar-ink,var(--text));
+  border-radius:999px;padding:2px 8px;font-size:9px;font-weight:800;line-height:1.6;
+  text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
