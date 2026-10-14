@@ -4,11 +4,10 @@
 # un bouton qui n'en prendrait qu'un laisserait l'autre en rade sans que rien ne le montre.
 class RewardsController < ApplicationController
   before_action :require_authentication
+  before_action :require_membership
 
   def claim_week
     m = current_membership
-    return redirect_to root_path, alert: "Aucune partie active." unless m
-
     pending = m.rewards.pending.streak.where(streak_week: params[:week]).order(:id)
     return redirect_to root_path, alert: "Rien à réclamer sur cette semaine." if pending.empty?
 

@@ -35,14 +35,14 @@ class PackLevelJob < ApplicationJob
   end
 
   def announce(team, runners)
-    Notification.broadcast(team.memberships.includes(:user).map(&:user),
+    Notification.broadcast(team.users,
                            game: team.game, importance: "important", category: "pack",
                            title: "🐾 Meute niveau #{team.pack_level} !",
                            body: "#{runners} d'entre vous ont couru #{GameRules::PACK_WEEKLY_KM} km cette semaine : " \
                                  "attaques et soins +#{team.pack_percent} % pour toujours.")
     return unless team.opponent
 
-    Notification.broadcast(team.opponent.memberships.includes(:user).map(&:user),
+    Notification.broadcast(team.opponent.users,
                            game: team.game, category: "pack",
                            title: "🐾 La meute adverse grandit",
                            body: "#{team.name} passe meute niveau #{team.pack_level} (+#{team.pack_percent} %).")

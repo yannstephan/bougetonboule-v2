@@ -23,7 +23,7 @@ const TABS = [
 
 export default function BottomNav() {
   const page = usePage()
-  const { inventory_alert: bagAlert = 0 } = page.props
+  const { inventory_alert: bagAlert = 0, has_team: hasTeam = false } = page.props
   const path = (page.url || '/').split('?')[0]
   // Les pages de détail (profil, sortie, admin) n'ont pas d'onglet : rien ne s'allume, et
   // c'est normal — on y arrive depuis un lien, pas depuis la barre.
@@ -40,6 +40,16 @@ export default function BottomNav() {
       <span className="lb">{label}</span>
     </Link>
   )
+
+  // Sans équipe, Ligue/Combat/Sac/Boutique ne mènent qu'à un aller-retour vers le Hub
+  // (voir ApplicationController#require_membership) : seul le Hub reste dans la barre.
+  if (!hasTeam) {
+    return (
+      <nav className="nav">
+        {tab(TABS[0])}
+      </nav>
+    )
+  }
 
   // ⚠️ Les deux moitiés sont des CONTENEURS, pas juste un ordre d'items : elles ont la même
   // largeur (`flex:1 1 0`), quoi qu'elles contiennent. C'est ce qui garde le ⚔️ exactement au

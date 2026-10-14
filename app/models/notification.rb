@@ -1,6 +1,6 @@
 class Notification < ApplicationRecord
-  CATEGORIES = %w[attacked healed streak special_day chest message training_verified
-                  training_rejected game_start league trap effect].freeze
+  CATEGORIES = %w[streak chest message training_verified training_rejected
+                  league trap effect famine game_over pack attacked crit_failed healed].freeze
   # important = poussé en Web Push + listé ; secondary = listé seulement (jamais poussé).
   IMPORTANCE = %w[important secondary].freeze
 
@@ -8,6 +8,7 @@ class Notification < ApplicationRecord
   belongs_to :game, optional: true
 
   validates :importance, inclusion: { in: IMPORTANCE }
+  validates :category, inclusion: { in: CATEGORIES }
 
   # On ne pousse QUE les notifications importantes. Les secondaires (activité des autres) ne
   # remontent que dans la liste, sans notification push.

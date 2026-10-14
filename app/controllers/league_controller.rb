@@ -1,10 +1,9 @@
 class LeagueController < ApplicationController
   before_action :require_authentication
+  before_action :require_membership
 
   def show
     m = current_membership
-    return redirect_to root_path, alert: "Rejoins une partie pour entrer au classement." unless m
-
     month   = LeagueStandings.month(m.game)
     overall = LeagueStandings.overall(m.game)
 

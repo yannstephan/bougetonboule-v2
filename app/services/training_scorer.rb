@@ -50,9 +50,7 @@ class TrainingScorer
   # l'équipe, vent de face ×0,75 posé par l'adversaire). Une course importée en retard
   # (réconciliation) est jugée à sa date réelle, pas à l'heure de l'import.
   def wind_factor
-    @training.membership.team.team_effects
-             .where(kind: %w[back_wind face_wind])
-             .where("created_at <= :at AND (expires_at IS NULL OR expires_at >= :at)", at: @training.date)
+    @training.membership.team.team_effects.winds_at(@training.date)
              .reduce(1.0) { |factor, effect| factor * (effect.modifier || 1).to_f }
   end
 end

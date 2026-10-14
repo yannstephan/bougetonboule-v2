@@ -34,7 +34,7 @@ class FinishGame
       else
         "Égalité parfaite entre les deux clans 🤝 Merci d'avoir couru !"
       end
-    Notification.broadcast(@game.memberships.includes(:user).map(&:user),
+    Notification.broadcast(@game.users,
                            game: @game, importance: "important", category: "game_over",
                            title: "🏁 La partie est terminée", body:)
   end

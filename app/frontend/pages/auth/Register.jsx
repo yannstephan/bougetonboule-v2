@@ -1,7 +1,5 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
+import { csrf } from '../../lib/csrf'
 
 export default function Register() {
   const { flash } = usePage().props
@@ -25,7 +23,7 @@ export default function Register() {
                  value={form.data.email} onChange={(e) => form.setData('email', e.target.value)} />
           <input className="field" type="password" placeholder="Mot de passe (6+ caractères)" autoComplete="new-password" required
                  value={form.data.password} onChange={(e) => form.setData('password', e.target.value)} />
-          <button className="btn primary" type="submit" disabled={form.processing}>Créer mon compte</button>
+          <button className="btn brand" type="submit" disabled={form.processing}>Créer mon compte</button>
         </form>
 
         <div className="or">— ou —</div>

@@ -17,7 +17,10 @@ import PlayerAvatar from './PlayerAvatar'
 // dessus le contenu au lieu de passer dessous.
 export default function Hud() {
   const page = usePage()
-  const { auth, balls = 0, chat_unread: chatUnread = 0, aura, page_aura: pageAura } = page.props
+  const {
+    auth, balls = 0, chat_unread: chatUnread = 0, aura, page_aura: pageAura,
+    has_team: hasTeam = false,
+  } = page.props
   const user = auth?.user
   const unread = user?.unread_count || 0
   const path = (page.url || '/').split('?')[0]
@@ -27,18 +30,30 @@ export default function Hud() {
     <>
       <AuraBackground aura={pageAura !== undefined ? pageAura : aura} />
       <header className="hud">
-        <Link href="/avatar" className={`hud-avatar${on('/avatar')}`} title="Mon avatar et mon compte">
-          <PlayerAvatar avatar={user?.avatar} size={38} />
-        </Link>
+        {/* L'avatar (fruit + cosmétiques) est lié à l'équipe : sans équipe, /avatar redirige
+            au Hub (require_membership), donc pas de lien tant qu'il n'y a rien derrière. */}
+        {hasTeam ? (
+          <Link href="/avatar" className={`hud-avatar${on('/avatar')}`} title="Mon avatar et mon compte">
+            <PlayerAvatar avatar={user?.avatar} size={38} />
+          </Link>
+        ) : (
+          <span className="hud-avatar"><PlayerAvatar avatar={user?.avatar} size={38} /></span>
+        )}
         <span className="curr">🍑 {balls}</span>
         <span className="curr">💎 {user?.diamonds ?? 0}</span>
         <Link href="/faq" className={`bell${on('/faq')}`} title="Règles du jeu">📖</Link>
-        <Link href="/chat" className={`bell bell-badge${on('/chat')}`} title="Chat">
-          💬{chatUnread > 0 && <span className="b">{chatUnread > 9 ? '9+' : chatUnread}</span>}
-        </Link>
-        <Link href="/notifications" className={`bell bell-badge${on('/notifications')}`} title="Notifications">
-          🔔{unread > 0 && <span className="b">{unread > 99 ? '99+' : unread}</span>}
-        </Link>
+        {/* Chat et notifications supposent une équipe : tant que l'admin n'en a pas affecté une,
+            ces deux boîtes de réception n'ont rien à montrer. */}
+        {hasTeam && (
+          <>
+            <Link href="/chat" className={`bell bell-badge${on('/chat')}`} title="Chat">
+              💬{chatUnread > 0 && <span className="b">{chatUnread > 9 ? '9+' : chatUnread}</span>}
+            </Link>
+            <Link href="/notifications" className={`bell bell-badge${on('/notifications')}`} title="Notifications">
+              🔔{unread > 0 && <span className="b">{unread > 99 ? '99+' : unread}</span>}
+            </Link>
+          </>
+        )}
       </header>
     </>
   )

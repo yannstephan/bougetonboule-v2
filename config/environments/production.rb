@@ -24,14 +24,16 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  # config.assume_ssl = true
+  # Le TLS est termine par le proxy Fly (force_https dans fly.toml) : l'app recoit du
+  # HTTP en interne, d'ou assume_ssl — sans lui Rails croirait la connexion non chiffree
+  # et refuserait de poser les cookies de session.
+  config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
+  config.force_ssl = true
 
   # Skip http-to-https redirect for the default health check endpoint.
-  # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+  config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]
@@ -58,16 +60,23 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  config.action_mailer.default_url_options = { host: "bougetonboule.fr", protocol: "https" }
 
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via bin/rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
+  # SMTP (mot de passe oublie). Reste INERTE tant que SMTP_ADDRESS n'est pas pose, comme
+  # Strava/Google/VAPID : l'app doit demarrer sans aucun secret.
+  if ENV["SMTP_ADDRESS"].present?
+    config.action_mailer.delivery_method    = :smtp
+    config.action_mailer.raise_delivery_errors = true
+    config.action_mailer.perform_deliveries = true
+    config.action_mailer.smtp_settings = {
+      address:              ENV["SMTP_ADDRESS"],
+      port:                 ENV.fetch("SMTP_PORT", "587").to_i,
+      user_name:            ENV["SMTP_USER_NAME"],
+      password:             ENV["SMTP_PASSWORD"],
+      authentication:       :plain,
+      enable_starttls_auto: true
+    }
+  end
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
@@ -80,11 +89,13 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
-  # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.hosts = [
+    "bougetonboule.fr",
+    "www.bougetonboule.fr",
+    ENV["FLY_APP_NAME"] && "#{ENV['FLY_APP_NAME']}.fly.dev" # URL de secours Fly
+  ].compact
+
+  # Skip DNS rebinding protection for the default health check endpoint — le controle de
+  # sante de Fly frappe /up sans passer par le nom de domaine public.
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end

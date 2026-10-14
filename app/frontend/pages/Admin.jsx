@@ -3,19 +3,17 @@ import { useState } from 'react'
 import { CosmeticIcon } from '../components/cosmeticArt'
 import Hud from '../components/Hud'
 import BottomNav from '../components/BottomNav'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
+import { csrf } from '../lib/csrf'
 
 const slotLabel = { hat: 'Chapeau', eyes: 'Lunettes', neck: 'Cou', hands: 'Bras',
   shoes: 'Chaussures', sidekick: 'Accessoire', aura: 'Aura' }
 
 // Back-office de l'organisateur : les réglages qui se pilotent par des dates et qu'on veut
-// pouvoir changer sans redéployer — journées ×2, fenêtres de la boutique de saison, et
-// promotions sur les panoplies.
-export default function Admin({ game, today, special_days, cosmetics, sets }) {
+// pouvoir changer sans redéployer — journées ×2, fenêtres de la boutique de saison, promotions
+// sur les panoplies — ainsi que l'affectation des joueurs à une équipe.
+export default function Admin({ game, today, special_days, cosmetics, sets, teams, players, unassigned_users }) {
   const { flash } = usePage().props
-  const [tab, setTab] = useState('days')
+  const [tab, setTab] = useState('players')
 
   return (
     <div className="shell">
@@ -29,6 +27,9 @@ export default function Admin({ game, today, special_days, cosmetics, sets }) {
         <p className="av-hint">Partie « {game.name} ». Ces réglages prennent effet tout de suite.</p>
 
         <div className="adm-tabs">
+          <button className={`adm-tab ${tab === 'players' ? 'on' : ''}`} onClick={() => setTab('players')}>
+            👥 Joueurs
+          </button>
           <button className={`adm-tab ${tab === 'days' ? 'on' : ''}`} onClick={() => setTab('days')}>
             🎉 Journées ×2
           </button>
@@ -40,12 +41,84 @@ export default function Admin({ game, today, special_days, cosmetics, sets }) {
           </button>
         </div>
 
+        {tab === 'players' && <Players teams={teams} players={players} unassigned={unassigned_users} />}
         {tab === 'days' && <SpecialDays days={special_days} today={today} />}
         {tab === 'shop' && <SeasonalShop cosmetics={cosmetics} />}
         {tab === 'promo' && <Promotions sets={sets} today={today} />}
       </main>
 
       <BottomNav />
+    </div>
+  )
+}
+
+// Affectation des joueurs : chaque équipe liste ses membres (changement d'équipe en un
+// select), et les comptes pas encore dans la partie attendent en dessous — c'est le seul
+// chemin pour rejoindre une partie, il n'y a pas d'auto-inscription.
+function Players({ teams, players, unassigned }) {
+  const byTeam = (teamId) => players.filter((p) => p.team_id === teamId)
+
+  const assign = (userId, teamId) => {
+    router.post('/admin/joueurs', { user_id: userId, team_id: teamId, authenticity_token: csrf() },
+      { preserveScroll: true })
+  }
+  const move = (membershipId, teamId) => {
+    if (!confirm("Déplacer ce joueur ? Son fruit-avatar sera remis à zéro (la nouvelle équipe n'a pas forcément les mêmes fruits).")) return
+    router.patch(`/admin/joueurs/${membershipId}`, { team_id: teamId, authenticity_token: csrf() },
+      { preserveScroll: true })
+  }
+
+  return (
+    <section className="av-sec">
+      {teams.map((t) => (
+        <div key={t.id} className="adm-team">
+          <h3 className="adm-team-h">{t.name}</h3>
+          {byTeam(t.id).length === 0 ? (
+            <p className="av-empty">Personne pour l'instant.</p>
+          ) : (
+            <div className="adm-list">
+              {byTeam(t.id).map((p) => (
+                <div key={p.id} className="adm-item">
+                  <div className="adm-info">
+                    <div className="adm-name">{p.name}{p.admin && ' · admin'}</div>
+                    <div className="adm-sub">{p.email}</div>
+                  </div>
+                  <select className="field" value={p.team_id}
+                          onChange={(e) => move(p.id, Number(e.target.value))}>
+                    {teams.map((tt) => <option key={tt.id} value={tt.id}>{tt.name}</option>)}
+                  </select>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+
+      <h2>Pas encore affecté·e</h2>
+      {unassigned.length === 0 ? (
+        <p className="av-empty">Tout le monde a une équipe.</p>
+      ) : (
+        <div className="adm-list">
+          {unassigned.map((u) => <UnassignedRow key={u.id} user={u} teams={teams} onAssign={assign} />)}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function UnassignedRow({ user, teams, onAssign }) {
+  const [teamId, setTeamId] = useState(teams[0]?.id)
+
+  return (
+    <div className="adm-item">
+      <div className="adm-info">
+        <div className="adm-name">{user.name}</div>
+        <div className="adm-sub">{user.email}</div>
+      </div>
+      <select className="field" value={teamId} onChange={(e) => setTeamId(Number(e.target.value))}>
+        {teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+      </select>
+      <button className="adm-save" onClick={() => onAssign(user.id, teamId)}>Affecter</button>
     </div>
   )
 }

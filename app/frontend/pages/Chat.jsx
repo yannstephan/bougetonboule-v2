@@ -4,9 +4,7 @@ import PlayerAvatar from '../components/PlayerAvatar'
 import Hud from '../components/Hud'
 import BottomNav from '../components/BottomNav'
 import MemePicker from '../components/MemePicker'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
+import { csrf } from '../lib/csrf'
 
 // On ne garde jamais deux fois le même message, et on les range dans l'ordre du serveur
 // (created_at puis id). C'est ce tri, et lui seul, qui recolle une page ancienne devant le fil.

@@ -1,7 +1,5 @@
 import { router } from '@inertiajs/react'
-
-const csrf = () =>
-  (typeof document !== 'undefined' && document.querySelector('meta[name=csrf-token]')?.content) || ''
+import { csrf } from '../lib/csrf'
 
 // La série hebdo présentée comme une piste de season pass : cinq paliers, le gros lot au bout,
 // et le cycle se rejoue. Les gains ne tombent plus tout seuls — le joueur vient les chercher.
@@ -49,7 +47,7 @@ export default function StreakPass({ streak }) {
       {claimable.length > 0 ? (
         <div className="pass-claim">
           {claimable.map((n) => (
-            <button key={n.week} type="button" className="btn primary" onClick={() => claim(n.week)}>
+            <button key={n.week} type="button" className="btn brand" onClick={() => claim(n.week)}>
               🎉 Réclamer la semaine {n.week}{n.milestone ? ' + le cadeau 🎁' : ''}
             </button>
           ))}

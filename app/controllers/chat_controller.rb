@@ -1,5 +1,6 @@
 class ChatController < ApplicationController
   before_action :require_authentication
+  before_action :require_membership
 
   # Le fil ne part jamais en entier : on sert la DERNIÈRE page et on remonte à la demande.
   # Une conversation de saison finit à plusieurs milliers de messages, et le chat se recharge
@@ -8,7 +9,6 @@ class ChatController < ApplicationController
 
   def show
     m = current_membership
-    return redirect_to root_path, alert: "Rejoins une partie pour discuter." unless m
     convs = [
       m.game.conversations.general.first,
       m.game.conversations.team_chats.find_by(team_id: m.team_id)

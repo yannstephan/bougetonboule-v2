@@ -11,7 +11,5 @@ class Action < ApplicationRecord
 
   validates :action_type, inclusion: { in: ACTION_TYPES }
 
-  alias_method :creator, :membership
-
   scope :recent, -> { order(created_at: :desc) }
 end

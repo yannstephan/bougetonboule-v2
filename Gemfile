@@ -76,3 +76,8 @@ gem "omniauth-google-oauth2", "~> 1.2"
 gem "omniauth-rails_csrf_protection", "~> 2.0"
 
 gem "web-push", "~> 3.1"
+
+# Limitation du débit des requêtes. L'enjeu n'est pas le vol de comptes (bcrypt), c'est la
+# DISPONIBILITÉ : bcrypt est volontairement coûteux en CPU, donc quelques centaines de
+# tentatives de connexion par minute saturent l'unique vCPU et ralentissent le jeu pour tous.
+gem "rack-attack", "~> 6.7"

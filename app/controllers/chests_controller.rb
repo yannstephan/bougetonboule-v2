@@ -1,8 +1,9 @@
 class ChestsController < ApplicationController
   before_action :require_authentication
+  before_action :require_membership
 
   def open
-    chest = current_membership&.chests&.find_by(id: params[:id])
+    chest = current_membership.chests.find_by(id: params[:id])
     return redirect_to inventory_path, alert: "Ce coffre n'existe pas." unless chest
 
     gains = chest.open!
