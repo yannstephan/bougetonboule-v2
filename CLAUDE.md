@@ -858,6 +858,28 @@ jours suivant sa mise en ligne, sans malveillance particulière.
 - **Désactivé en test** (`Rack::Attack.enabled = false`), sinon des tests qui postent plusieurs
   fois sur `/login` deviendraient instables sans rapport avec ce qu'ils vérifient.
 
+### Chiffrement des jetons Strava
+`users.strava_token` et `users.strava_refresh_token` sont **chiffrés au repos** (Active Record
+Encryption, déclaré dans `User`). C'est la donnée la plus sensible de la base : un jeton
+d'actualisation donne accès aux activités d'un joueur jusqu'à révocation, et il ne tourne pas
+tout seul. Les protéger par le seul accès au serveur ne suffisait pas.
+
+- Chiffrement **non déterministe** (le plus robuste), possible parce qu'**aucun code ne cherche
+  un utilisateur par son jeton**. Seul `strava_uid` sert aux recherches et reste en clair —
+  c'est un identifiant, pas un secret. ⚠️ Ajouter un `where(strava_token: …)` ne marcherait
+  plus : il faudrait basculer la colonne en déterministe.
+- Les clés viennent de l'**environnement**, pas des credentials (le projet n'a pas de
+  `master.key`). `bin/rails db:encryption:init` en génère une paire, **une fois pour toutes**.
+- ⚠️ **Ces clés ne se changent jamais.** Sans elles, les jetons en base sont définitivement
+  illisibles et tous les joueurs doivent reconnecter Strava. À conserver hors du dépôt.
+- `support_unencrypted_data = true` : un jeton écrit en clair avant la bascule reste lisible,
+  sinon restaurer une vieille sauvegarde couperait Strava pour tout le monde d'un coup.
+- En **local**, des clés fixes et publiques sont câblées dans `config/application.rb` : l'app
+  doit tourner sans aucun secret (convention du projet). En production, leur absence lève une
+  erreur **au démarrage** — sauf quand `SECRET_KEY_BASE_DUMMY` est posé, c'est-à-dire pendant
+  `assets:precompile` dans l'image Docker, où aucun secret n'existe encore et où il ne faut
+  surtout pas échouer.
+
 ### Bascule Strava depuis la v1
 L'app API Strava est **la même que la v1** (client 181497, niveau standard, 999 athlètes
 autorisés) — donc rien à redemander, mais deux ressources y sont **uniques par app** :
@@ -982,11 +1004,22 @@ de démo (équipe affamée / partie terminée).
 ⚠️ Le seed doit détacher `games.winner_team_id` avant de supprimer les équipes, et vider
 `ConversationRead` en tête du nettoyage (FK).
 
-### Secrets (optionnels — l'app tourne sans)
-`GOOGLE_CLIENT_ID/SECRET`, `STRAVA_CLIENT_ID/SECRET`, `STRAVA_VERIFY_TOKEN`,
-`VAPID_PUBLIC_KEY/PRIVATE_KEY`, `GIPHY_KEY` (ou dans les credentials Rails). Sans eux,
-Google/Strava/push sont simplement inactifs. La clé Giphy est un bonus : sans elle la
-recherche de memes marche quand même, via les catalogues libres.
+### Secrets
+**Optionnels — l'app tourne sans** : `GOOGLE_CLIENT_ID/SECRET`, `STRAVA_CLIENT_ID/SECRET`,
+`STRAVA_VERIFY_TOKEN`, `VAPID_PUBLIC_KEY/PRIVATE_KEY`, `GIPHY_KEY` (ou dans les credentials
+Rails). Sans eux, Google/Strava/push sont simplement inactifs. La clé Giphy est un bonus :
+sans elle la recherche de memes marche quand même, via les catalogues libres.
+
+**Obligatoires en production** (l'app refuse de démarrer sans) :
+- `SECRET_KEY_BASE` — Rails lève `Missing secret_key_base`. ⚠️ `config/master.key` n'est **pas**
+  nécessaire : sans elle `credentials.dig` renvoie `nil` et chaque secret retombe sur son `ENV`.
+- `AR_ENCRYPTION_PRIMARY_KEY`, `AR_ENCRYPTION_DETERMINISTIC_KEY`,
+  `AR_ENCRYPTION_KEY_DERIVATION_SALT` — chiffrement des jetons Strava (voir ci-dessous).
+
+⚠️ `STRAVA_VERIFY_TOKEN` n'est **pas** un jeton fourni par Strava : c'est une chaîne qu'on
+invente, renvoyée en écho par Strava à la validation du webhook (`hub.verify_token`). Les
+jetons d'accès/actualisation visibles sur le dashboard Strava ne servent **jamais** à l'app :
+chaque joueur obtient les siens par OAuth.
 En **développement**, tout ça se pose dans un **`.env`** à la racine (ignoré par git) : c'est
 à ça que sert `dotenv-rails`, ajouté au groupe dev/test. En production les secrets viennent de
 l'environnement ou des credentials chiffrés — `.env` n'y est jamais lu.
