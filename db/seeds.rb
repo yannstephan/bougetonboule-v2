@@ -39,7 +39,7 @@ exo.update!(opponent: rouges); rouges.update!(opponent: exo)
 Monster.create!(team: exo,    name: "King-Coco",  hp: 4_600, max_hp: GameRules::MONSTER_MAX_HP, state: "hurt")
 Monster.create!(team: rouges, name: "Framboitrix",  hp: 2_510, max_hp: GameRules::MONSTER_MAX_HP, state: "hurt")
 
-# La jauge de meute (semaines où ≥5 coéquipiers ont couru ≥10 km) : quelques paliers déjà gagnés.
+# La jauge de meute (semaines où ≥5 coéquipiers ont couru ≥8 km) : quelques paliers déjà gagnés.
 exo.update!(pack_level: 3)
 rouges.update!(pack_level: 2)
 

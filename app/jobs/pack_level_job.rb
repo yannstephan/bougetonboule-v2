@@ -1,5 +1,5 @@
 # Jauge de meute — tourne le lundi matin (config/recurring.yml) et juge la semaine ÉCOULÉE :
-# si au moins 5 coéquipiers ont chacun couru 10 km (courses qui comptent), l'équipe gagne un
+# si au moins 5 coéquipiers ont chacun couru 8 km (courses qui comptent), l'équipe gagne un
 # palier permanent de +10 % sur ses attaques et ses soins (plafond ×2, voir GameRules).
 # C'est le seul « booster » du jeu : gagné en courant à plusieurs, jamais acheté.
 class PackLevelJob < ApplicationJob

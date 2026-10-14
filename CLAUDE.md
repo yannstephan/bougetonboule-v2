@@ -86,7 +86,7 @@ v1 : ~165 🍑/semaine pour 15 actifs, et une partie morte à mi-saison à cause
 permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
 
 - **🐾 Jauge de meute** (`PackLevelJob`, le lundi) : semaine où **≥ 5 coéquipiers ont couru
-  ≥ 10 km chacun** → `teams.pack_level += 1`, soit **+10 % permanents** sur attaques ET soins.
+  ≥ 8 km chacun** → `teams.pack_level += 1`, soit **+10 % permanents** sur attaques ET soins.
   **Additif, plafond ×2** (10 paliers), jamais multiplicatif, jamais achetable.
   `Team#combat_multiplier` remplace l'ancienne colonne `teams.multiplier` (supprimée).
 - **🍽️ Monstre affamé** (`FamineJob`, quotidien) : équipe sans course depuis **72h** → son
