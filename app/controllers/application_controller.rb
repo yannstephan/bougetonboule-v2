@@ -2,6 +2,9 @@ class ApplicationController < ActionController::Base
   include Authentication
   allow_browser versions: :modern
 
+  # Avant tout le reste : inutile de monter une session pour un hôte qu'on va quitter.
+  prepend_before_action :redirect_to_canonical_host
+
   helper_method :current_membership
 
   inertia_share do
@@ -60,5 +63,24 @@ class ApplicationController < ActionController::Base
     return if current_membership
 
     redirect_to root_path, alert: "Rejoins une équipe pour accéder à ça — en attendant, connecte Strava et jette un œil à la FAQ."
+  end
+  # Renvoie vers l'hôte canonique (config.x.canonical_host, posé en production). Voir
+  # production.rb pour le pourquoi : Strava n'accepte qu'un seul domaine de rappel.
+  #
+  # ⚠️ Deux chemins ne doivent JAMAIS être redirigés :
+  #   - `/strava/webhook` — l'abonnement pointe sur l'apex et Strava NE SUIT PAS les
+  #     redirections : une 301 ferait échouer la validation et perdre des courses. Le
+  #     contrôleur concerné saute donc ce filtre explicitement.
+  #   - `/up` — il n'est pas concerné du tout, `rails/health#show` n'hérite pas d'ici.
+  #
+  # Seules les requêtes GET/HEAD sont redirigées : une 301 sur un POST serait transformée en
+  # GET par les navigateurs, donc le corps du formulaire serait perdu.
+  def redirect_to_canonical_host
+    host = Rails.application.config.x.canonical_host
+    return if host.blank? || request.host == host
+    return unless request.get? || request.head?
+
+    redirect_to "#{request.protocol}#{host}#{request.fullpath}",
+                status: :moved_permanently, allow_other_host: true
   end
 end

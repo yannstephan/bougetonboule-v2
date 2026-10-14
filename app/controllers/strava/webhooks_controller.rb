@@ -2,6 +2,11 @@
 class Strava::WebhooksController < ApplicationController
   skip_forgery_protection
 
+  # ⚠️ Pas de redirection vers l'hôte canonique ici : l'abonnement enregistré chez Strava
+  # pointe sur l'apex et Strava NE SUIT PAS les redirections. Une 301 ferait échouer la
+  # validation de l'abonnement (un GET) et perdre les événements de course.
+  skip_before_action :redirect_to_canonical_host
+
   # Strava valide l'abonnement avec un GET contenant hub.challenge
   def verify
     if params["hub.verify_token"] == verify_token

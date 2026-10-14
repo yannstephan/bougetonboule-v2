@@ -60,7 +60,17 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "bougetonboule.fr", protocol: "https" }
+  # ——— Hôte canonique ———
+  # Strava n'accepte QU'UN SEUL « Authorization Callback Domain » par application, et il ne
+  # couvre pas les sous-domaines. Comme le redirect_uri est construit depuis l'hôte de la
+  # requête (StravaController#authorize_url), un joueur arrivé sur bougetonboule.fr envoyait
+  # https://bougetonboule.fr/strava/callback alors que www.bougetonboule.fr est enregistré :
+  # « Connecter Strava » échouait sur `redirect_uri invalid`. On ramène donc tout le monde sur
+  # le même hôte — ce qui donne au passage un seul cookie de session.
+  # Vider cette valeur désactive la redirection (voir ApplicationController).
+  config.x.canonical_host = ENV.fetch("CANONICAL_HOST", "www.bougetonboule.fr")
+
+  config.action_mailer.default_url_options = { host: "www.bougetonboule.fr", protocol: "https" }
 
   # SMTP (mot de passe oublie). Reste INERTE tant que SMTP_ADDRESS n'est pas pose, comme
   # Strava/Google/VAPID : l'app doit demarrer sans aucun secret.

@@ -1422,6 +1422,33 @@ tout seul. Les protéger par le seul accès au serveur ne suffisait pas.
   `assets:precompile` dans l'image Docker, où aucun secret n'existe encore et où il ne faut
   surtout pas échouer.
 
+### Hôte canonique
+**`www.bougetonboule.fr`** est l'hôte canonique en production (`config.x.canonical_host` dans
+`production.rb`). `ApplicationController#redirect_to_canonical_host` renvoie en **301** tout
+GET/HEAD arrivé ailleurs — apex, `.fly.dev`.
+
+Le motif n'est pas esthétique : **Strava n'accepte qu'un seul « Authorization Callback
+Domain » par application**, et il ne couvre pas les sous-domaines. Or `redirect_uri` est
+construit depuis l'hôte de la requête (`StravaController#authorize_url`), donc un joueur
+arrivé sur l'apex envoyait `https://bougetonboule.fr/strava/callback` alors que
+`www.bougetonboule.fr` est enregistré → **« Connecter Strava » échouait** sur
+`redirect_uri invalid`. Bénéfice annexe : un seul cookie de session, donc plus de
+déconnexion en changeant d'adresse.
+
+⚠️ **Deux chemins ne doivent jamais être redirigés** (verrouillé par
+`test/integration/canonical_host_test.rb`) :
+- **`/strava/webhook`** — l'abonnement enregistré pointe sur l'**apex** et **Strava ne suit
+  pas les redirections** : une 301 ferait échouer la validation (un GET) et **perdre des
+  courses**. `Strava::WebhooksController` saute donc le filtre explicitement.
+- **`/up`** — pas concerné, `rails/health#show` n'hérite pas d'`ApplicationController`. Une
+  301 ferait échouer le contrôle de santé de Fly et la machine serait déclarée morte.
+
+Seuls les GET/HEAD sont redirigés : une 301 sur un POST est transformée en GET par les
+navigateurs, le corps du formulaire serait perdu.
+
+⚠️ Changer d'hôte canonique = changer **trois** réglages à la fois : `config.x.canonical_host`,
+le callback domain chez Strava, et l'URI de redirection Google.
+
 ### Bascule Strava depuis la v1
 L'app API Strava est **la même que la v1** (client 181497, niveau standard, 999 athlètes
 autorisés) — donc rien à redemander, mais deux ressources y sont **uniques par app** :
