@@ -7,7 +7,7 @@ class Message < ApplicationRecord
   validate :some_content
   # Ceinture et bretelles avec le contrôleur : même par la console, `meme_url` ne peut
   # contenir qu'une URL du fournisseur de memes. Ce n'est pas un champ d'image libre.
-  validates :meme_url, format: { with: /\Ahttps:\/\//, message: "doit être une URL https" },
+  validates :meme_url, format: { with: %r{\Ahttps://\S+\z}, message: "doit être une URL https" },
                        allow_blank: true
   validate :meme_from_provider
 
