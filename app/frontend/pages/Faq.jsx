@@ -45,7 +45,7 @@ const SECTIONS = [
   {
     q: '🐾 La jauge de meute (le booster d\'équipe)',
     a: [
-      'Chaque semaine où au moins 5 coéquipiers ont couru chacun 10 km ou plus, ton équipe gagne un palier de meute : +10 % permanents sur les attaques ET les soins.',
+      'Chaque semaine où au moins 5 coéquipiers ont couru chacun 8 km ou plus, ton équipe gagne un palier de meute : +10 % permanents sur les attaques ET les soins.',
       'Les paliers s\'additionnent et ne se perdent jamais, jusqu\'à un maximum de +100 % (attaques et soins doublés).',
       'C\'est le seul « booster » du jeu, et il ne s\'achète pas : il se gagne en courant à plusieurs. Le 5e coureur de la semaine vaut de l\'or — allez chercher les copains qui hésitent !',
       'Le verdict tombe chaque lundi matin, et la jauge des deux équipes est visible par tout le monde.',
