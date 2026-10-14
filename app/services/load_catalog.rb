@@ -101,7 +101,7 @@ class LoadCatalog
       "Le chanceux" => "Il ne s'entraîne pas, il a de la chance. Ça marche presque aussi bien.",
       "La ballerine" => "Diadème, tutu et chaussons. Les bras en couronne, même en côte.",
       "Le fantôme" => "Un drap, deux trous. Personne ne saura que c'est toi qui marches dans les côtes.",
-      "Le plagiste" => "Casquette à quartiers, short à rayures, pelle et seau. Le sable, c'est du dénivelé.",
+      "Le plagiste" => "Casquette à quartiers, short à rayures, pelle et seau. Le sable, c'est du dénivelé."
     }
   end
 
@@ -345,7 +345,7 @@ class LoadCatalog
     { name: "Tongs de plage",        slot: "shoes", rarity: "common", price_diamonds: 100, source: "shop",
       art: "flip_flops",    set: "Le plagiste" },
     { name: "Château de sable",      slot: "aura",  rarity: "common", price_diamonds: nil, source: "set",
-      art: "sandcastle",    set: "Le plagiste" },
+      art: "sandcastle",    set: "Le plagiste" }
     ]
   end
 
