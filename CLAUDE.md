@@ -1300,6 +1300,14 @@ Quatre décisions qui tiennent le tout, chacune documentée dans `fly.toml` :
   ligue du 1er — sauteraient **sans aucune erreur**. C'est le piège du dyno Eco d'Heroku.
 - **Pas de `release_command`.** Il tourne sur une machine éphémère sans le volume, donc sans la
   base. Les migrations sont jouées au démarrage par `bin/docker-entrypoint` (`db:prepare`).
+- ⚠️ **Ne jamais poser `RAILS_MAX_THREADS` ni `WEB_CONCURRENCY`** dans `fly.toml`. Les défauts
+  du projet sont volontairement différents — `config/puma.rb` prend **3 threads**,
+  `config/database.yml` un **pool de 5** — et c'est cet écart qui laisse à Solid Queue (qui
+  tourne *dans* Puma) les **5 connexions** dont il a besoin pour son dispatcher, son worker et
+  son planificateur. Forcer la variable écrase les deux avec la même valeur, et la prod
+  avertit « Solid Queue needs at least 5 database connections but the pool is 3 » : les tâches
+  planifiées peuvent échouer faute de connexion. Sans `WEB_CONCURRENCY`, Puma reste en mode
+  simple, ce qui évite un worker forké inutile sur une machine de 1 Go.
 - **Garde de production sur le seed** (`db/seeds.rb`) : `db:prepare` charge les seeds sur une
   base neuve, et le seed commence par un `delete_all` de toutes les tables. Sans la garde, la
   première prod naissait avec les 15 joueurs de démo. `SEED_DEMO=1` force si besoin.

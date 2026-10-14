@@ -26,10 +26,16 @@ swap_size_mb = 512
 [env]
   # Solid Queue tourne DANS Puma (plugin dans config/puma.rb) : aucun worker à payer.
   SOLID_QUEUE_IN_PUMA = "true"
-  # 1 Go de RAM : un seul worker Puma, 3 threads — à garder aligné avec le pool de
-  # connexions de config/database.yml (max_connections = RAILS_MAX_THREADS).
-  WEB_CONCURRENCY = "1"
-  RAILS_MAX_THREADS = "3"
+  # ⚠️ NE PAS poser RAILS_MAX_THREADS ni WEB_CONCURRENCY ici. Les défauts du projet sont
+  # volontairement DIFFÉRENTS l'un de l'autre et c'est ce qui fait tenir Solid Queue :
+  #   - config/puma.rb        → 3 threads
+  #   - config/database.yml   → pool de 5 connexions
+  # Solid Queue tourne DANS Puma et réclame au moins 5 connexions (dispatcher + worker +
+  # planificateur). Forcer RAILS_MAX_THREADS écrase les deux avec la même valeur et la prod
+  # avertit « needs at least 5 database connections but the pool is 3 » : les tâches
+  # planifiées peuvent alors échouer faute de connexion.
+  # Et sans WEB_CONCURRENCY, Puma reste en mode simple — un worker forké pour rien coûte de
+  # la mémoire sur une machine de 1 Go.
   # Thruster écoute par défaut sur le port 80. Le conteneur tourne en utilisateur non-root
   # (USER 1000 dans le Dockerfile) et c'est l'hôte qui décide si un non-root peut prendre un
   # port < 1024 : vrai sous Docker, pas garanti dans une microVM. 8080 supprime la question.
