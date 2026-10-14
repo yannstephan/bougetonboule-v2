@@ -185,6 +185,7 @@ function Onboarding({ user }) {
 
   return (
     <main className="body onboard">
+      <InstallHint />
       <div className="big">🍑</div>
       <h1>Salut {user?.firstname} !</h1>
       <p>Tu n'es pas encore dans une partie active. Connecte ton compte Strava pour que tes courses comptent.</p>

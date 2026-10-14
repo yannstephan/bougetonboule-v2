@@ -11,7 +11,7 @@ class MessagesController < ApplicationController
     message = conv.messages.new(membership: m, body: params[:body].to_s.strip.presence,
                                 **meme_attributes)
     notify_participants(conv, m, message) if message.save
-    redirect_to chat_path
+    redirect_to chat_path(canal: conv.kind)
   end
 
   private

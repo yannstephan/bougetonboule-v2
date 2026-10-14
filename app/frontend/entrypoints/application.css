@@ -109,6 +109,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 .body.onboard .big{font-size:64px}
 .body.onboard h1{margin:0;font-size:22px;font-weight:800}
 .body.onboard p{margin:0;color:var(--muted);max-width:30ch}
+.body.onboard .install-hint{width:100%;text-align:left}
 
 .specialday{display:flex;align-items:center;gap:9px;background:var(--citron);color:var(--citron-ink);
   border-radius:var(--r);padding:10px 13px;font-size:13px;font-weight:700}
@@ -232,6 +233,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 .auth-card .logo{font-size:54px}
 .auth-card h1{margin:4px 0 2px;font-size:24px;font-weight:800}
 .auth-card .sub{margin:0 0 16px;color:var(--muted);font-size:13px}
+.auth-card .install-hint{margin:0 0 16px;text-align:left}
 .field{width:100%;background:var(--surface-2);border:1px solid var(--line-2);border-radius:11px;
   padding:12px 14px;font-size:14px;color:var(--text);margin-bottom:10px}
 .field:focus{outline:2px solid var(--brand);border-color:var(--brand)}
