@@ -71,7 +71,7 @@ jobs:
       # Les pages sont rendues par Inertia : sans build Vite, le layout ne trouve
       # pas entrypoints/application.css et tous les tests de rendu échouent.
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -79,8 +79,14 @@ jobs:
       - name: Install JS dependencies
         run: npm ci
 
+      # RAILS_ENV et non --mode : vite_ruby ignore --mode pour choisir son dossier de sortie,
+      # le build partait dans public/vite-dev. Sans manifeste de test, chaque worker de
+      # `parallelize` relançait son propre build et effaçait public/vite-test sous les pieds
+      # des autres — d'où des « can't find entrypoints/application.css » au hasard.
       - name: Build assets
-        run: bin/vite build --mode=test
+        env:
+          RAILS_ENV: test
+        run: bin/vite build
 
       - name: Run tests
         env:
