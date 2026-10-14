@@ -1,5 +1,6 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react'
 import { csrf } from '../../lib/csrf'
+import InstallHint from '../../components/InstallHint'
 
 export default function Login() {
   const { flash } = usePage().props
@@ -13,6 +14,8 @@ export default function Login() {
         <div className="logo">🍑</div>
         <h1>Bouge Ton Boule</h1>
         <p className="sub">Connecte-toi pour rejoindre la bataille</p>
+
+        <InstallHint />
 
         {flash?.alert && <div className="flash err">{flash.alert}</div>}
         {flash?.notice && <div className="flash ok">{flash.notice}</div>}
