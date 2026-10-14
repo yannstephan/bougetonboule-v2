@@ -276,11 +276,15 @@ les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
-- **Catalogue : 69 pièces** (dont 7 de saison) dans le seed (tous les slots garnis, grille 100/250/500/1000) dont 7
-  **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween, médaille,
-  loup…) — jamais en vente, mais **tirables** par les cadeaux de streak et de ligue (comportement
-  assumé, comme la Couronne). Ajouter une pièce = une ligne dans le seed (slot existant + emoji),
-  aucun code — sauf si elle a besoin d'un dessin, alors + une entrée dans `COSMETIC_ART`.
+- **Catalogue : 69 pièces** (dont 7 de saison) dans **`LoadCatalog`** (app/services) — et non
+  dans le seed, parce que ce sont des **données de référence** dont la production a besoin :
+  tous les slots garnis, grille 100/250/500/1000, dont 7 **exclusives** `price_diamonds: nil`
+  (sources `event`/`rank`/`drop` : Noël, Halloween, médaille, loup…) — jamais en vente, mais
+  **tirables** par les cadeaux de streak et de ligue (comportement assumé, comme la Couronne).
+  Ajouter une pièce = une ligne dans `LoadCatalog` (slot existant + emoji), aucun code — sauf
+  si elle a besoin d'un dessin, alors + une entrée dans `COSMETIC_ART`. Puis
+  `bin/rails catalog:load` : **idempotent** (chaque pièce retrouvée par son NOM), donc corriger
+  un prix ici le corrige en base au prochain chargement, sans migration ni reseed.
   Ajouter un **slot** = une entrée dans `anchors()` + un z-index CSS `.fav-<slot>`.
 - **L'armoire vit dans le sac**, pas ici (`/sac?tab=wardrobe`, `components/Wardrobe.jsx`) :
   c'est **un vestiaire, pas une liste** — l'aperçu de l'avatar et la barre d'emplacements
@@ -792,6 +796,24 @@ Quatre décisions qui tiennent le tout, chacune documentée dans `fly.toml` :
 déclenche `vite build`, et `node_modules` est exclu par `.dockerignore`. Sans Node, l'image ne
 se construit pas du tout. L'image finale ne contient que le bundle compilé dans `public/vite`.
 
+### Le catalogue, à charger à la main (`LoadCatalog`)
+Une base de production neuve n'a **ni cosmétiques ni objets** : la garde de `db/seeds.rb`
+bloque tout le fichier, et le catalogue y vivait. Il a donc été sorti dans `LoadCatalog`, que
+le seed de démo appelle aussi — une seule source de vérité.
+
+```bash
+bin/rails catalog:load          # 69 cosmétiques + 6 objets, idempotent
+```
+
+⚠️ **À lancer après le premier déploiement**, sinon la boutique est vide, les coffres n'ont
+aucun cosmétique à tirer et les paliers de série rien à offrir. Et comme c'est une tâche rake,
+elle n'existe dans l'image que si elle a été déployée : **ajouter une pièce demande un
+`fly deploy` avant de relancer la tâche.**
+
+La collection d'été est la seule fenêtre de saison « molle » : `demo_summer: true` la cale
+autour d'aujourd'hui pour que la démo montre le rayon, la production prend de vraies dates de
+calendrier. Toutes ces fenêtres s'ajustent ensuite depuis `/admin` **sans redéployer**.
+
 ### Sauvegardes (`BackupDatabase` · `DatabaseBackupJob` · `lib/tasks/backup.rake`)
 Fly prend un **snapshot quotidien** du volume (5 jours de rétention), mais sa propre
 documentation dit de **ne pas s'en servir comme sauvegarde principale** : un volume = une copie
@@ -858,6 +880,28 @@ jours suivant sa mise en ligne, sans malveillance particulière.
 - **Désactivé en test** (`Rack::Attack.enabled = false`), sinon des tests qui postent plusieurs
   fois sur `/login` deviendraient instables sans rapport avec ce qu'ils vérifient.
 
+### Chiffrement des jetons Strava
+`users.strava_token` et `users.strava_refresh_token` sont **chiffrés au repos** (Active Record
+Encryption, déclaré dans `User`). C'est la donnée la plus sensible de la base : un jeton
+d'actualisation donne accès aux activités d'un joueur jusqu'à révocation, et il ne tourne pas
+tout seul. Les protéger par le seul accès au serveur ne suffisait pas.
+
+- Chiffrement **non déterministe** (le plus robuste), possible parce qu'**aucun code ne cherche
+  un utilisateur par son jeton**. Seul `strava_uid` sert aux recherches et reste en clair —
+  c'est un identifiant, pas un secret. ⚠️ Ajouter un `where(strava_token: …)` ne marcherait
+  plus : il faudrait basculer la colonne en déterministe.
+- Les clés viennent de l'**environnement**, pas des credentials (le projet n'a pas de
+  `master.key`). `bin/rails db:encryption:init` en génère une paire, **une fois pour toutes**.
+- ⚠️ **Ces clés ne se changent jamais.** Sans elles, les jetons en base sont définitivement
+  illisibles et tous les joueurs doivent reconnecter Strava. À conserver hors du dépôt.
+- `support_unencrypted_data = true` : un jeton écrit en clair avant la bascule reste lisible,
+  sinon restaurer une vieille sauvegarde couperait Strava pour tout le monde d'un coup.
+- En **local**, des clés fixes et publiques sont câblées dans `config/application.rb` : l'app
+  doit tourner sans aucun secret (convention du projet). En production, leur absence lève une
+  erreur **au démarrage** — sauf quand `SECRET_KEY_BASE_DUMMY` est posé, c'est-à-dire pendant
+  `assets:precompile` dans l'image Docker, où aucun secret n'existe encore et où il ne faut
+  surtout pas échouer.
+
 ### Bascule Strava depuis la v1
 L'app API Strava est **la même que la v1** (client 181497, niveau standard, 999 athlètes
 autorisés) — donc rien à redemander, mais deux ressources y sont **uniques par app** :
@@ -904,6 +948,7 @@ bin/rails runner PackLevelJob.perform_now   # juge la semaine écoulée (jauge d
 bin/rails runner FamineJob.perform_now      # famine + clôture de saison (quotidien en prod)
 MONTH=2026-06 bin/rails league:award_month         # décerne la récompense d'un mois (test)
 
+bin/rails catalog:load                             # catalogue boutique (idempotent)
 bin/rails season:show                              # journées ×2 + fenêtres de la boutique
 NAME=Halloween DATE=2026-10-31 bin/rails season:special_day
 NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
@@ -982,11 +1027,22 @@ de démo (équipe affamée / partie terminée).
 ⚠️ Le seed doit détacher `games.winner_team_id` avant de supprimer les équipes, et vider
 `ConversationRead` en tête du nettoyage (FK).
 
-### Secrets (optionnels — l'app tourne sans)
-`GOOGLE_CLIENT_ID/SECRET`, `STRAVA_CLIENT_ID/SECRET`, `STRAVA_VERIFY_TOKEN`,
-`VAPID_PUBLIC_KEY/PRIVATE_KEY`, `GIPHY_KEY` (ou dans les credentials Rails). Sans eux,
-Google/Strava/push sont simplement inactifs. La clé Giphy est un bonus : sans elle la
-recherche de memes marche quand même, via les catalogues libres.
+### Secrets
+**Optionnels — l'app tourne sans** : `GOOGLE_CLIENT_ID/SECRET`, `STRAVA_CLIENT_ID/SECRET`,
+`STRAVA_VERIFY_TOKEN`, `VAPID_PUBLIC_KEY/PRIVATE_KEY`, `GIPHY_KEY` (ou dans les credentials
+Rails). Sans eux, Google/Strava/push sont simplement inactifs. La clé Giphy est un bonus :
+sans elle la recherche de memes marche quand même, via les catalogues libres.
+
+**Obligatoires en production** (l'app refuse de démarrer sans) :
+- `SECRET_KEY_BASE` — Rails lève `Missing secret_key_base`. ⚠️ `config/master.key` n'est **pas**
+  nécessaire : sans elle `credentials.dig` renvoie `nil` et chaque secret retombe sur son `ENV`.
+- `AR_ENCRYPTION_PRIMARY_KEY`, `AR_ENCRYPTION_DETERMINISTIC_KEY`,
+  `AR_ENCRYPTION_KEY_DERIVATION_SALT` — chiffrement des jetons Strava (voir ci-dessous).
+
+⚠️ `STRAVA_VERIFY_TOKEN` n'est **pas** un jeton fourni par Strava : c'est une chaîne qu'on
+invente, renvoyée en écho par Strava à la validation du webhook (`hub.verify_token`). Les
+jetons d'accès/actualisation visibles sur le dashboard Strava ne servent **jamais** à l'app :
+chaque joueur obtient les siens par OAuth.
 En **développement**, tout ça se pose dans un **`.env`** à la racine (ignoré par git) : c'est
 à ça que sert `dotenv-rails`, ajouté au groupe dev/test. En production les secrets viennent de
 l'environnement ou des credentials chiffrés — `.env` n'y est jamais lu.
