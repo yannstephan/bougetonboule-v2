@@ -454,7 +454,7 @@ les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
-- **Catalogue : 115 pièces** (dont 4 de saison et 55 réparties en 10 panoplies) dans
+- **Catalogue : 116 pièces** (dont 4 de saison et 55 réparties en 10 panoplies) dans
   **`LoadCatalog`** (app/services) — et non dans le seed, parce que ce sont des **données de
   référence** dont la production a besoin : tous les slots garnis, grille 100/250/500/1000,
   dont 7 **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween,
@@ -744,12 +744,15 @@ Le rayon est servi à part (`seasonal` vs `cosmetics` dans `ShopController`) : l
 une date de fin s'affichent dans un encadré violet en tête de l'onglet Cosmétiques, chacune avec
 son compte à rebours (« Encore 12 jours », « Dernier jour ! »). Ouvrir une collection = poser
 deux dates sur des lignes du seed, aucun code.
-⚠️ **Le prix doit tenir dans la fenêtre.** Halloween (15/10 → 5/11) ne dure que trois semaines,
-alors qu'un palier de série rapporte 10 à 50 💎 : une **rare à 250 💎** n'y est atteignable que
-pour qui avait déjà une réserve. D'où les deux **communes à 100 💎** du rayon (🕯️ Bougie de
-veillée, 🧄 Collier de gousses d'ail), qui comblent au passage deux trous — il n'y avait rien
-d'achetable au **chapeau** (la Citrouille est une exclusive, le Drap une épique à 500) et rien
-du tout au **cou**. Une fenêtre courte veut du commun ; le rare se complète sur la durée.
+⚠️ **Le prix doit tenir dans la fenêtre, quitte à sortir de la grille.** Halloween
+(15/10 → 5/11) ne dure que trois semaines alors qu'un palier de série rapporte 10 à 50 💎 : la
+**rare à 250 💎** y est hors de portée sans réserve, et même au prix du commun (100 💎) on n'en
+achèterait qu'une. Le rayon d'Halloween descend donc **sous la grille**, en escalier —
+🍬 **Bonbon** 30 (accessoire) · 🦇 **Chauve-souris** 50 (chapeau) · 💀 **Crâne en main** 80
+(bras) — pour qu'on puisse viser les trois sur la fenêtre. Elles comblent au passage deux trous :
+rien n'était achetable au **chapeau** (la Citrouille est une exclusive, le Drap une épique à 500)
+ni aux **bras**. Règle générale : **une fenêtre courte se paie moins cher qu'un rayon
+permanent** — le prix n'achète pas la même chose quand on a trois semaines pour le réunir.
 
 **🎽 Panoplies** (`CosmeticSet`, `cosmetics.cosmetic_set_id`) : un thème, plusieurs pièces,
 **toutes de la même rareté** — validé par `Cosmetic#rarity_matches_set`, c'est ce qui rend le
