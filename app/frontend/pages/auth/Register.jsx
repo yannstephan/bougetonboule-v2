@@ -11,7 +11,7 @@ export default function Register() {
       <Head title="Créer un compte" />
       <div className="auth-card">
         <div className="logo">🍑</div>
-        <h1>Rejoins le jeu</h1>
+        <h1>Rejoins Bouge Ton Boule</h1>
         <p className="sub">Transforme tes runs en batailles entre potes</p>
 
         {flash?.alert && <div className="flash err">{flash.alert}</div>}
