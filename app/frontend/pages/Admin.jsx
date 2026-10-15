@@ -261,9 +261,11 @@ function SeasonalShop({ cosmetics }) {
     <section className="av-sec">
       <h2>Fenêtres de disponibilité</h2>
       <p className="av-hint">
-        Une pièce sans date est en vente toute l'année. Poser une date la fait entrer dans la
-        boutique de saison : hors de sa fenêtre elle disparaît de la boutique <em>et</em> des
-        tirages (coffre, série, ligue) — mais reste acquise à ceux qui l'ont déjà.
+        Une pièce sans date est disponible toute l'année. Poser une date la borne dans le temps :
+        hors de sa fenêtre elle disparaît de la boutique <em>et</em> des tirages (coffre, série,
+        ligue) — mais reste acquise à ceux qui l'ont déjà. Chaque ligne dit <b>par où la pièce
+        s'obtient</b> : c'est ça qui décide de ce qu'une fenêtre lui fait. Toutes ne sont pas en
+        vente — une exclusive ne tombe que des tirages, et sa fenêtre les borne eux.
       </p>
 
       {/* Filtre d'AFFICHAGE seulement : il ne touche à aucune pièce. */}
@@ -309,12 +311,20 @@ function CosmeticRow({ c }) {
         <div className="adm-info">
           <div className="adm-name">{c.name}</div>
           <div className="adm-sub">
-            {slotLabel[c.slot] || c.slot} · {c.price ? `${c.price} 💎` : 'hors vente'}
+            {slotLabel[c.slot] || c.slot} · {channelLabel(c)}
             {!c.live && ' · hors fenêtre'}
           </div>
         </div>
         {c.live && (c.available_from || c.available_until) && <span className="adm-live">en cours</span>}
       </div>
+      {/* ⚠️ Une aura ne se vend pas et ne se tire pas : sa fenêtre ne pilote RIEN. On garde
+          quand même les champs — c'est le seul endroit d'où effacer une date posée par erreur. */}
+      {c.channel === 'aura' && (
+        <p className="adm-warn">
+          Une fenêtre n'a aucun effet sur une aura : elle s'obtient en complétant sa panoplie,
+          sans passer ni par la boutique ni par les tirages. À laisser vide.
+        </p>
+      )}
       <div className="adm-row">
         <label className="adm-date"><span>du</span>
           <input className="field" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
@@ -326,6 +336,15 @@ function CosmeticRow({ c }) {
       </div>
     </div>
   )
+}
+
+// Par où la pièce s'obtient — « hors vente » tout seul laissait croire qu'une fenêtre posée
+// là ne servait à rien, alors qu'elle borne les TIRAGES d'une exclusive.
+const channelLabel = (c) => {
+  if (c.channel === 'aura') return `aura — récompense de ${c.set_name ? `« ${c.set_name} »` : 'panoplie'}`
+  if (c.channel === 'set') return `panoplie « ${c.set_name} » · ${c.price} 💎`
+  if (c.channel === 'shop') return `en vente · ${c.price} 💎`
+  return 'hors vente · tirages seulement (coffre, série, ligue)'
 }
 
 const frDate = (iso) => {

@@ -193,8 +193,10 @@ class LoadCatalog
       available_from: ete[0], available_until: ete[1] },
     { name: "Bouée canard",       slot: "sidekick", rarity: "rare",  price_diamonds: 250,  source: "shop", emoji: "🦆",
       available_from: ete[0], available_until: ete[1] },
-    { name: "Tournesol",          slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set", emoji: "🌻",
-      available_from: ete[0], available_until: ete[1] },
+    # ⚠️ Pas de fenêtre sur le Tournesol, ni sur aucune aura : ça n'aurait aucun effet (une
+    # aura n'est ni vendue ni tirée, et `UnlockSetAura` ne regarde pas la disponibilité) —
+    # ça ne ferait que poser des dates trompeuses dans /admin.
+    { name: "Tournesol",          slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set", emoji: "🌻" },
     { name: "Araignée porte-poisse", slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop", emoji: "🕷️",
       available_from: halloween[0], available_until: halloween[1] },
 
@@ -265,8 +267,11 @@ class LoadCatalog
       art: "xmas_boots",   set: "Noël", available_from: noel[0], available_until: noel[1] },
     { name: "Renne du traîneau",   slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop",
       emoji: "🦌",         set: "Noël", available_from: noel[0], available_until: noel[1] },
+    # Même règle que le Tournesol : pas de fenêtre sur une aura, ça ne pilote rien. La
+    # saisonnalité de la panoplie est portée par ses pièces À VENDRE — c'est elle qui fait
+    # apparaître et disparaître le rayon entier (`sets_json` ne retient que les disponibles).
     { name: "Sapin scintillant",   slot: "aura",     rarity: "rare", price_diamonds: nil, source: "set",
-      emoji: "🎄",         set: "Noël", available_from: noel[0], available_until: noel[1] },
+      emoji: "🎄",         set: "Noël" },
 
     # Le Père Noël (rare, 250 💎) — PERMANENTE : un déguisement, pas une collection de saison.
     # ⚠️ La barbe occupe le slot des LUNETTES : impossible de porter les deux, exactement ce

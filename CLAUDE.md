@@ -1152,6 +1152,20 @@ Web (VAPID) + clic → ouvre l'app. Icône 🍑 flat : `public/icon.svg` (source
 recevoir les push sur iPhone) ou bouton natif `beforeinstallprompt` ailleurs, refus mémorisé
 en localStorage.
 
+⚠️ **L'abonnement push est un état du NAVIGATEUR, pas du compte** (`lib/push.js` → `pushState`).
+Le serveur connaît des endpoints mais ne peut pas savoir si **celui de cet appareil** en fait
+partie : c'est donc au navigateur qu'on le demande (`Notification.permission` **et**
+`pushManager.getSubscription()` — l'autorisation peut survivre à un abonnement révoqué). Sans
+ça, l'écran Notifications ne savait rien et proposait « Activer » **à chaque visite**, y compris
+à un joueur abonné depuis des semaines. Trois affichages : le CTA seulement si `off`, une ligne
+discrète « activées sur cet appareil » (`.push-cta.on`, sans pointillés — ils annoncent une
+action à faire) si `on`, et le chemin des réglages du navigateur si `denied` (un bouton n'y peut
+plus rien). `unsupported`/`unconfigured` n'affichent **rien** : proposer d'activer ce qui ne peut
+pas l'être n'aide personne. On ne montre rien tant que le navigateur n'a pas répondu (état
+initial `null`), sinon le CTA clignote à chaque chargement. Déjà abonné ici → l'endpoint est
+**repoussé en silence** au serveur, qui l'a peut-être perdu (base restaurée, ligne élaguée) ;
+`find_or_initialize_by(endpoint)` le dédoublonne, donc c'est gratuit quand il est déjà connu.
+
 ### Pièges connus
 - **`form.transform()` de `@inertiajs/react` ne retourne rien** (v3.6.1) : `form.transform(fn).post(…)`
   lève un TypeError et le formulaire ne part jamais, sans erreur visible. Appeler `transform`
@@ -1256,7 +1270,17 @@ Quatre réglages, aucun ne demande de redéployer :
   (`#create_membership`, crée le `Membership`, `role: "player"`, `balls: 0`).
 - **Journées ×2** (ajout/suppression).
 - **Boutique de saison** — fenêtres de disponibilité des cosmétiques (deux champs date par
-  cosmétique, vides = pièce permanente).
+  cosmétique, vides = pièce permanente). ⚠️ Chaque ligne dit **par où la pièce s'obtient**
+  (`channel_of` : `shop` · `set` · `draw` · `aura`), parce que c'est ça qui décide de ce
+  qu'une fenêtre lui fait — et toutes les pièces datées ne sont pas en vente : une
+  **exclusive** (Citrouille maudite, Bonnet du Réveillon…) a un prix nul mais sa fenêtre
+  borne bien les **tirages** (coffre, série, ligue). « hors vente » tout seul laissait croire
+  à un réglage sans effet. ⚠️ Sur une **aura**, en revanche, une fenêtre ne pilote
+  **rien du tout** : ni vendue (`purchasable`), ni tirée (`drawable` l'exclut), et ni
+  `UnlockSetAura` ni la carte de panoplie du rayon ne regardent la disponibilité. L'écran
+  l'avertit en `--warn` et le catalogue n'en pose plus aucune (ni Tournesol, ni Sapin
+  scintillant) ; les champs restent éditables, c'est le seul endroit d'où effacer une date
+  posée par erreur. La saisonnalité d'une panoplie est portée par ses pièces **à vendre**.
 - **Promotions sur les panoplies** (pourcentage + deux dates ; pourcentage vide = promo
   arrêtée et prix d'origine rétablis, puisque rien n'a été écrit dans les prix).
 

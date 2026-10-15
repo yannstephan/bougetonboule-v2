@@ -173,13 +173,30 @@ class AdminController < ApplicationController
   end
 
   def cosmetics_json
-    Cosmetic.order(:slot, :name).map do |c|
+    Cosmetic.includes(:cosmetic_set).order(:slot, :name).map do |c|
       { id: c.id, name: c.name, slot: c.slot, emoji: c.emoji, art: c.art,
         price: c.price_diamonds, rarity: c.rarity,
+        channel: channel_of(c), set_name: c.cosmetic_set&.name,
         available_from: c.available_from&.to_date&.iso8601,
         available_until: c.available_until&.to_date&.iso8601,
         live: c.available? }
     end
+  end
+
+  # Par où une pièce s'obtient — c'est ce qui dit ce qu'une fenêtre lui FAIT, et l'écran ne
+  # peut pas le deviner d'un prix nul. Quatre canaux, et ils ne réagissent pas pareil :
+  #   shop → en vente (la fenêtre la met au rayon de saison) ;
+  #   set  → pièce de panoplie (la fenêtre fait apparaître/disparaître tout le rayon) ;
+  #   draw → hors vente mais TIRABLE (coffre, série, ligue) : la fenêtre garde bien le bonnet
+  #          de Noël hors des tirages de juillet, elle n'a juste rien à voir avec la boutique ;
+  #   aura → récompense de panoplie : ⚠️ une fenêtre n'a AUCUN effet (ni vendue — `purchasable`,
+  #          ni tirée — `drawable` l'exclut, ni filtrée par `UnlockSetAura` ou la carte du rayon).
+  def channel_of(cosmetic)
+    return "aura" if cosmetic.aura?
+    return "set" if cosmetic.cosmetic_set_id
+    return "shop" if cosmetic.price_diamonds
+
+    "draw"
   end
 
   def teams_json
