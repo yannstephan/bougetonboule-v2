@@ -199,15 +199,19 @@ class LoadCatalog
     { name: "Tournesol",          slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set", emoji: "🌻" },
     { name: "Araignée porte-poisse", slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop", emoji: "🕷️",
       available_from: halloween[0], available_until: halloween[1] },
-    # Deux Halloween COMMUNES à 100 💎 : la fenêtre ne dure que trois semaines, et une rare à
-    # 250 💎 n'est pas atteignable en si peu de temps pour qui n'a pas de réserve (un palier de
-    # série donne 10 à 50 💎). Elles comblent aussi deux trous du rayon d'Halloween, qui n'avait
-    # rien d'achetable au chapeau (la Citrouille est une exclusive, le Drap une épique à 500) et
-    # rien du tout au cou. Emoji seul, donc aucune ligne de code — la règle des slots est
-    # respectée : ni chaussure, ni visage entier, ni emoji déjà pair.
-    { name: "Bougie de veillée", slot: "hat", rarity: "common", price_diamonds: 100, source: "shop", emoji: "🕯️",
+    # Trois Halloween COMMUNES, et volontairement SOUS la grille (30/50/80 au lieu de 100) :
+    # la fenêtre ne dure que trois semaines et un palier de série rapporte 10 à 50 💎, donc au
+    # prix du rayon permanent on n'en achèterait qu'une — et la rare à 250 💎 resterait hors de
+    # portée de qui n'a pas de réserve. Un escalier 30 → 50 → 80 laisse viser les trois.
+    # Elles comblent aussi deux trous du rayon, qui n'avait rien d'achetable au chapeau (la
+    # Citrouille est une exclusive, le Drap une épique à 500) ni aux bras.
+    # Emoji seul, donc aucune ligne de code — et les règles de slot tiennent : ni chaussure,
+    # ni visage entier, et 💀 est UN crâne, donc le slot symétrique en met un dans chaque main.
+    { name: "Bonbon d'Halloween", slot: "sidekick", rarity: "common", price_diamonds: 30, source: "shop", emoji: "🍬",
       available_from: halloween[0], available_until: halloween[1] },
-    { name: "Collier de gousses d'ail", slot: "neck", rarity: "common", price_diamonds: 100, source: "shop", emoji: "🧄",
+    { name: "Chauve-souris", slot: "hat", rarity: "common", price_diamonds: 50, source: "shop", emoji: "🦇",
+      available_from: halloween[0], available_until: halloween[1] },
+    { name: "Crâne en main", slot: "hands", rarity: "common", price_diamonds: 80, source: "shop", emoji: "💀",
       available_from: halloween[0], available_until: halloween[1] },
 
     # ——— Panoplies ———
