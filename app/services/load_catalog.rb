@@ -199,6 +199,16 @@ class LoadCatalog
     { name: "Tournesol",          slot: "aura", rarity: "common",    price_diamonds: nil,  source: "set", emoji: "🌻" },
     { name: "Araignée porte-poisse", slot: "sidekick", rarity: "rare", price_diamonds: 250, source: "shop", emoji: "🕷️",
       available_from: halloween[0], available_until: halloween[1] },
+    # Deux Halloween COMMUNES à 100 💎 : la fenêtre ne dure que trois semaines, et une rare à
+    # 250 💎 n'est pas atteignable en si peu de temps pour qui n'a pas de réserve (un palier de
+    # série donne 10 à 50 💎). Elles comblent aussi deux trous du rayon d'Halloween, qui n'avait
+    # rien d'achetable au chapeau (la Citrouille est une exclusive, le Drap une épique à 500) et
+    # rien du tout au cou. Emoji seul, donc aucune ligne de code — la règle des slots est
+    # respectée : ni chaussure, ni visage entier, ni emoji déjà pair.
+    { name: "Bougie de veillée", slot: "hat", rarity: "common", price_diamonds: 100, source: "shop", emoji: "🕯️",
+      available_from: halloween[0], available_until: halloween[1] },
+    { name: "Collier de gousses d'ail", slot: "neck", rarity: "common", price_diamonds: 100, source: "shop", emoji: "🧄",
+      available_from: halloween[0], available_until: halloween[1] },
 
     # ——— Panoplies ———
     # Coureur du dimanche (commune, 100 💎) — trois pièces DESSINÉES : l'emoji ne pouvait pas
