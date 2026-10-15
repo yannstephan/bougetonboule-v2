@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react'
-import { useState } from 'react'
-import { enablePush } from '../lib/push'
+import { useEffect, useState } from 'react'
+import { enablePush, pushState } from '../lib/push'
 import Hud from '../components/Hud'
 import BottomNav from '../components/BottomNav'
 
@@ -12,11 +12,21 @@ const icon = (c) => ({
 export default function Notifications({ notifications }) {
   const { vapid_public_key } = usePage().props
   const [pushMsg, setPushMsg] = useState(null)
+  // null = on ne sait pas encore. On ne montre RIEN tant que le navigateur n'a pas répondu :
+  // afficher « Activer » par défaut le ferait clignoter à chaque visite chez un abonné.
+  const [push, setPush] = useState(null)
+
+  useEffect(() => {
+    let alive = true
+    pushState(vapid_public_key).then((st) => alive && setPush(st)).catch(() => alive && setPush('off'))
+    return () => { alive = false }
+  }, [vapid_public_key])
 
   const activate = async () => {
     setPushMsg('…')
     const r = await enablePush(vapid_public_key)
     setPushMsg(r.message)
+    if (r.ok) setPush('on')
   }
 
   const important = notifications.filter((n) => n.importance === 'important')
@@ -28,10 +38,24 @@ export default function Notifications({ notifications }) {
       <Hud />
 
       <main className="body">
-        <div className="push-cta">
-          <span>🔔 Reçois une alerte pour ce qui te concerne (messages d'équipe, pièges…).</span>
-          <button onClick={activate}>Activer</button>
-        </div>
+        {/* Déjà abonné sur cet appareil : une ligne qui le confirme, pas un bouton. Et rien
+            du tout si le push n'est pas supporté ou pas configuré — proposer d'activer ce
+            qui ne peut pas l'être n'aide personne. */}
+        {push === 'off' && (
+          <div className="push-cta">
+            <span>🔔 Reçois une alerte pour ce qui te concerne (messages d'équipe, pièges…).</span>
+            <button onClick={activate}>Activer</button>
+          </div>
+        )}
+        {push === 'on' && (
+          <div className="push-cta on">🔔 Notifications activées sur cet appareil.</div>
+        )}
+        {push === 'denied' && (
+          <div className="push-cta">
+            <span>🔕 Les notifications sont bloquées pour ce site. Ça se rouvre dans les
+              réglages du navigateur (cadenas de la barre d'adresse → Notifications).</span>
+          </div>
+        )}
         {pushMsg && <div className="flash ok">{pushMsg}</div>}
 
         {notifications.length === 0 && (
