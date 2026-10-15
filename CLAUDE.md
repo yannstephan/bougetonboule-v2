@@ -1149,6 +1149,30 @@ bandeau doit descendre **dans le corps** si elle est du contenu (c'est le cas du
 sortie, `.tr-title`) ; si elle est déjà ailleurs, elle disparaît (le 🍑 de la ligue est dans le
 HUD, le 🐾 du combat dans les effets « Nous »).
 
+### Où le jeu dit son NOM
+Corollaire de l'absence de bandeau de titre : « Bouge Ton Boule » n'avait aucune place en haut
+des écrans, et n'était donc visible **nulle part** une fois connecté (il ne vivait que dans le
+titre d'onglet, le `<h1>` du Login, l'invite d'installation et le manifeste). Il se pose
+maintenant à quatre endroits, **jamais en haut d'un écran de jeu** :
+
+- **Login** (`<h1>`) et **Register** — l'inscription disait « Rejoins le jeu » sans jamais
+  nommer le jeu, alors que c'est l'écran où le nom compte le plus.
+- **L'onboarding du Hub** (`Hub.jsx` → `Onboarding`) : c'est le seul écran qui n'a encore rien
+  à montrer, donc le seul où le jeu doit **se présenter**. Le nom en titre, sa promesse en une
+  ligne (`.onboard-claim`), et « Salut <prénom> ! » rétrogradé en sous-titre (`.onboard-hi`).
+- **`components/Signature.jsx`** — une mention très discrète (🍑 + nom + « La course à pied
+  entre amis ») en **pied** de `/faq` et de l'écran compte `/avatar` : les deux seuls écrans où
+  l'on vient chercher de l'information **sur** le jeu plutôt que du jeu. Composant partagé pour
+  que les deux ne divergent pas ; aucune prop, donc la FAQ reste bien sans prop.
+- **L'étiquette PWA** : `short_name` et `apple-mobile-web-app-title` valent **`BougeTonBoule`**
+  et non plus `BTB` — c'est le label sous l'icône de l'écran d'accueil, donc le nom le plus
+  souvent vu, et un sigle n'y disait rien. En un mot parce qu'iOS tronque vers 11-12 caractères.
+
+⚠️ **Pas de nom dans le HUD ni dans la nav** : le bandeau tient déjà sept objets en 64 px, et
+un wordmark y coûterait une pastille. Le jour où le jeu aura un vrai **logotype** (il n'en a
+pas — son identité visuelle est l'emoji 🍑), c'est aux quatre emplacements ci-dessus qu'il se
+substituera, pas aux bandeaux.
+
 ### PWA (installable)
 `PwaController` (maison) sert `/manifest.json` et `/service-worker` — **pas**
 `Rails::PwaController` : il rate le format du template `.js` (la requête d'enregistrement

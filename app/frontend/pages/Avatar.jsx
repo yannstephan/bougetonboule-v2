@@ -3,6 +3,7 @@ import FruitAvatar from '../components/FruitAvatar'
 import PlayerAvatar from '../components/PlayerAvatar'
 import Hud from '../components/Hud'
 import BottomNav from '../components/BottomNav'
+import Signature from '../components/Signature'
 import { csrf } from '../lib/csrf'
 
 // Le fruit-avatar et le compte. Les cosmétiques se rangent et s'équipent dans le sac
@@ -78,6 +79,8 @@ export default function Avatar({ strava_connected, is_admin, team, fruits, avata
 
         <Link href="/" className="btn brand">C'est bon !</Link>
         <button type="button" className="btn-logout" onClick={logout}>Se déconnecter</button>
+
+        <Signature />
       </main>
 
       <BottomNav />

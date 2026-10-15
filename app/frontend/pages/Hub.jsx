@@ -187,7 +187,11 @@ function Onboarding({ user }) {
     <main className="body onboard">
       <InstallHint />
       <div className="big">🍑</div>
-      <h1>Salut {user?.firstname} !</h1>
+      {/* Le seul écran du jeu qui n'a encore rien à montrer, donc le seul où le jeu doit se
+          présenter : le NOM en titre, sa promesse en une ligne, et le bonjour ensuite. */}
+      <h1>Bouge Ton Boule</h1>
+      <p className="onboard-claim">Chaque kilomètre couru fait pousser une boule 🍑 — et chaque boule frappe le monstre du clan adverse.</p>
+      <p className="onboard-hi">Salut {user?.firstname} !</p>
       <p>Tu n'es pas encore dans une partie active. Connecte ton compte Strava pour que tes courses comptent.</p>
       {!user?.strava_connected
         ? <a className="btn strava" href="/strava/connect">◎ Connecter Strava</a>

@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react'
 import Hud from '../components/Hud'
 import BottomNav from '../components/BottomNav'
+import Signature from '../components/Signature'
 
 // Règles du jeu. Statique : le seul endroit qui décrit le fonctionnement actuel côté joueur.
 // À garder à jour quand une mécanique change (voir CLAUDE.md).
@@ -179,6 +180,8 @@ export default function Faq() {
             <div className="faq-gold-b">On ne gagne des boules qu'en courant. L'argent réel n'existe pas ici, et les diamants ne touchent qu'au cosmétique : impossible d'acheter la victoire. Même le booster de meute se gagne en baskets.</div>
           </div>
         </div>
+
+        <Signature />
       </main>
       <BottomNav />
     </div>

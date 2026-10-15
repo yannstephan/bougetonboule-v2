@@ -110,6 +110,16 @@ body{margin:0;background:var(--bg);color:var(--text);
 .body.onboard h1{margin:0;font-size:22px;font-weight:800}
 .body.onboard p{margin:0;color:var(--muted);max-width:30ch}
 .body.onboard .install-hint{width:100%;text-align:left}
+/* L'onboarding présente le JEU avant le joueur : la promesse se lit en plein texte,
+   le bonjour reste un sous-titre. Les autres paragraphes gardent leur gris. */
+.body.onboard .onboard-claim{color:var(--text);font-weight:600;max-width:32ch}
+.body.onboard .onboard-hi{color:var(--text);font-weight:800;font-size:17px;margin-top:2px}
+
+/* La signature (pied de /faq et /avatar) : très discrète, c'est une mention, pas un titre. */
+.sig{display:flex;flex-direction:column;align-items:center;gap:1px;margin:20px 0 2px;
+  color:var(--faint);font-size:12px;text-align:center;line-height:1.4}
+.sig-ic{font-size:20px}
+.sig b{color:var(--muted);font-weight:800;letter-spacing:.2px}
 
 .specialday{display:flex;align-items:center;gap:9px;background:var(--citron);color:var(--citron-ink);
   border-radius:var(--r);padding:10px 13px;font-size:13px;font-weight:700}
