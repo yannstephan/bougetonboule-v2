@@ -1358,6 +1358,25 @@ le seed de démo appelle aussi — une seule source de vérité.
 bin/rails catalog:load          # 69 cosmétiques + 6 objets, idempotent
 ```
 
+⚠️ **`catalog:load` n'ajoute et ne corrige, il ne SUPPRIME jamais** : il n'upsert que les
+pièces du fichier. Retirer une ligne de `LoadCatalog` ne retire donc rien de la base — la pièce
+reste en vente et continue de tomber des coffres. D'où **`catalog:retire`**
+(`lib/tasks/catalog_retire.rake`), à lancer après l'avoir sortie du catalogue :
+
+```bash
+NAMES='Pièce A,Pièce B' bin/rails catalog:retire
+```
+
+⚠️ Et on ne **détruit** pas une pièce à la légère : `chests.cosmetic_id` (contenu décidé **au
+drop**) et `rewards.cosmetic_id` (cadeau de palier en attente) portent des clés étrangères, et
+seul `user_cosmetics` est en `dependent: :destroy`. Une pièce déjà tirée ne peut pas être
+supprimée sans casser un coffre scellé ou un palier non réclamé — `ClaimReward` lève sur un
+cosmétique nul. La tâche fait donc le bon geste selon le cas : **fenêtre fermée** (entièrement
+dans le passé → `Cosmetic.available` l'exclut de la boutique **et** des tirages, mais l'armoire
+et `ClaimReward` ignorent la fenêtre, donc ceux qui l'ont la gardent et ceux qui l'attendent
+l'encaissent), et **suppression** seulement si la pièce n'est référencée nulle part. Comme elle
+n'est plus dans le catalogue, `catalog:load` ne peut plus la rouvrir.
+
 ⚠️ **À lancer après le premier déploiement**, sinon la boutique est vide, les coffres n'ont
 aucun cosmétique à tirer et les paliers de série rien à offrir. Et comme c'est une tâche rake,
 elle n'existe dans l'image que si elle a été déployée : **ajouter une pièce demande un
@@ -1537,7 +1556,8 @@ bin/rails chat:fill                                # 200 messages pour tester la
 COUNT=500 CANAL=team bin/rails chat:fill           # ailleurs, et plus gros
 bin/rails chat:clear                               # ne retire QUE les messages générés
 
-bin/rails catalog:load                             # catalogue boutique (idempotent)
+bin/rails catalog:load                             # catalogue boutique (idempotent, ne supprime rien)
+NAMES='Pièce A,Pièce B' bin/rails catalog:retire   # retire du jeu une pièce sortie du catalogue
 bin/rails season:show                              # journées ×2 + fenêtres de la boutique
 NAME=Halloween DATE=2026-10-31 bin/rails season:special_day
 NAMES='Parasol,Tournesol' FROM=2026-07-01 UNTIL=2026-08-31 bin/rails season:open
