@@ -46,8 +46,7 @@ class TeamEffectsPresenter
       chips << { kind: "pack", emoji: "🐾", name: "Meute +#{@team.pack_percent} %",
                  labelled: true, until: nil, remaining: nil, by: nil }
     end
-    last_run = @team.last_run_at
-    if @team.monster&.alive? && (last_run.nil? || last_run < GameRules::FAMINE_WARNING_AFTER.ago)
+    if @team.monster&.alive? && @team.famine_clock_from < GameRules::FAMINE_WARNING_AFTER.ago
       chips << { kind: "hungry", emoji: "🍽️", name: "Monstre affamé",
                  labelled: false, until: nil, remaining: nil, by: nil }
     end

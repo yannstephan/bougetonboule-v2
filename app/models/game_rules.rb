@@ -88,6 +88,11 @@ module GameRules
   FAMINE_AFTER         = 72.hours
   FAMINE_HP_PER_DAY    = 50
   FAMINE_FLOOR_RATIO   = 0.05
+  # ⚠️ Trêve de lancement : rien ne se décompte avant cette date (du 10 au 17 octobre 2026,
+  # le temps que tout le monde connecte Strava). L'horloge de famine ne part JAMAIS d'avant
+  # elle — ni le décompte du job, ni l'avertissement 🍽️ du Hub (Team#famine_clock_from) :
+  # le premier jeûne possible est donc le 20 octobre (17 + 72h). Mettre `nil` pour la lever.
+  FAMINE_NOT_BEFORE = Time.zone.parse("2026-10-17 00:00")
 
   # ---------------------------------------------------------------------------
   # Contrôle des courses importées (anti-triche) — appliqué par TrainingPolicy.
