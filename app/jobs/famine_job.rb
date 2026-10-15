@@ -1,7 +1,8 @@
 # Monstre affamé + fin de saison — tourne tous les jours (config/recurring.yml).
 #
 # Famine : une équipe sans aucune course depuis 72h voit son monstre perdre 50 PV par jour
-# de jeûne. Plancher à 5 % des PV max : la famine ne tue jamais, le coup final reste aux
+# de jeûne. Le décompte ne part jamais d'avant la trêve de lancement
+# (GameRules::FAMINE_NOT_BEFORE, via Team#famine_clock_from). Plancher à 5 % des PV max : la famine ne tue jamais, le coup final reste aux
 # joueurs. Le Hub affiche déjà un avertissement 🍽️ dès 48h (TeamEffectsPresenter).
 #
 # Fin de saison : à la date de fin de la partie (ends_at), l'équipe dont le monstre a le
@@ -26,8 +27,7 @@ class FamineJob < ApplicationJob
     monster = team.monster
     return unless monster&.alive?
 
-    last_run = team.last_run_at
-    return if last_run.present? && last_run > GameRules::FAMINE_AFTER.ago
+    return if team.famine_clock_from > GameRules::FAMINE_AFTER.ago
 
     floor = (monster.max_hp * GameRules::FAMINE_FLOOR_RATIO).round
     return if monster.hp <= floor

@@ -45,7 +45,7 @@ export default function Ligue({ month, overall, last_winner, balls }) {
 
         {tab === 'month' && (
           <div className="lg-prize">
-            🎁 Le 1er du mois gagne un cosmétique à la fin du mois.
+            🎁 À la fin du mois, le joueur en tête de ce classement gagne un cosmétique.
             {last_winner && (
               <span className="lg-prev">
                 Dernier vainqueur : <b>{last_winner.name}</b> ({last_winner.period})

@@ -46,6 +46,14 @@ class Team < ApplicationRecord
   # Dernière course qui compte (pour la famine et l'avertissement du Hub).
   def last_run_at = Training.scoring.where(membership: memberships).maximum(:date)
 
+  # Point de départ du décompte de famine : la dernière course, mais jamais avant la trêve
+  # de lancement (GameRules::FAMINE_NOT_BEFORE). Seul endroit qui le calcule — le job et le
+  # presenter en dépendent tous les deux, donc l'avertissement du Hub et la perte de PV ne
+  # peuvent pas se désynchroniser. Jamais nil : sans course, c'est la trêve qui fait l'heure.
+  def famine_clock_from
+    [ last_run_at, GameRules::FAMINE_NOT_BEFORE ].compact.max || Time.zone.at(0)
+  end
+
   def fruits = FruitCatalog.fruits_for(fruit_family)
   def fruit_keys = FruitCatalog.keys_for(fruit_family)
 

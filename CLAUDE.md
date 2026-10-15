@@ -454,7 +454,7 @@ les drapeaux ci-dessus — c'est ainsi qu'on dit « cet emoji ne se duplique pas
 `CosmeticIcon` (même fichier) sert la vignette dans l'armoire et la boutique. Le reste du
 catalogue reste en emoji, et le sera par défaut.
 
-- **Catalogue : 113 pièces** (dont 4 de saison et 55 réparties en 10 panoplies) dans
+- **Catalogue : 115 pièces** (dont 4 de saison et 55 réparties en 10 panoplies) dans
   **`LoadCatalog`** (app/services) — et non dans le seed, parce que ce sont des **données de
   référence** dont la production a besoin : tous les slots garnis, grille 100/250/500/1000,
   dont 7 **exclusives** `price_diamonds: nil` (sources `event`/`rank`/`drop` : Noël, Halloween,
@@ -744,6 +744,12 @@ Le rayon est servi à part (`seasonal` vs `cosmetics` dans `ShopController`) : l
 une date de fin s'affichent dans un encadré violet en tête de l'onglet Cosmétiques, chacune avec
 son compte à rebours (« Encore 12 jours », « Dernier jour ! »). Ouvrir une collection = poser
 deux dates sur des lignes du seed, aucun code.
+⚠️ **Le prix doit tenir dans la fenêtre.** Halloween (15/10 → 5/11) ne dure que trois semaines,
+alors qu'un palier de série rapporte 10 à 50 💎 : une **rare à 250 💎** n'y est atteignable que
+pour qui avait déjà une réserve. D'où les deux **communes à 100 💎** du rayon (🕯️ Bougie de
+veillée, 🧄 Collier de gousses d'ail), qui comblent au passage deux trous — il n'y avait rien
+d'achetable au **chapeau** (la Citrouille est une exclusive, le Drap une épique à 500) et rien
+du tout au **cou**. Une fenêtre courte veut du commun ; le rare se complète sur la durée.
 
 **🎽 Panoplies** (`CosmeticSet`, `cosmetics.cosmetic_set_id`) : un thème, plusieurs pièces,
 **toutes de la même rareté** — validé par `Cosmetic#rarity_matches_set`, c'est ce qui rend le
@@ -1152,6 +1158,20 @@ Web (VAPID) + clic → ouvre l'app. Icône 🍑 flat : `public/icon.svg` (source
 recevoir les push sur iPhone) ou bouton natif `beforeinstallprompt` ailleurs, refus mémorisé
 en localStorage.
 
+⚠️ **L'abonnement push est un état du NAVIGATEUR, pas du compte** (`lib/push.js` → `pushState`).
+Le serveur connaît des endpoints mais ne peut pas savoir si **celui de cet appareil** en fait
+partie : c'est donc au navigateur qu'on le demande (`Notification.permission` **et**
+`pushManager.getSubscription()` — l'autorisation peut survivre à un abonnement révoqué). Sans
+ça, l'écran Notifications ne savait rien et proposait « Activer » **à chaque visite**, y compris
+à un joueur abonné depuis des semaines. Trois affichages : le CTA seulement si `off`, une ligne
+discrète « activées sur cet appareil » (`.push-cta.on`, sans pointillés — ils annoncent une
+action à faire) si `on`, et le chemin des réglages du navigateur si `denied` (un bouton n'y peut
+plus rien). `unsupported`/`unconfigured` n'affichent **rien** : proposer d'activer ce qui ne peut
+pas l'être n'aide personne. On ne montre rien tant que le navigateur n'a pas répondu (état
+initial `null`), sinon le CTA clignote à chaque chargement. Déjà abonné ici → l'endpoint est
+**repoussé en silence** au serveur, qui l'a peut-être perdu (base restaurée, ligne élaguée) ;
+`find_or_initialize_by(endpoint)` le dédoublonne, donc c'est gratuit quand il est déjà connu.
+
 ### Pièges connus
 - **`form.transform()` de `@inertiajs/react` ne retourne rien** (v3.6.1) : `form.transform(fn).post(…)`
   lève un TypeError et le formulaire ne part jamais, sans erreur visible. Appeler `transform`
@@ -1256,7 +1276,17 @@ Quatre réglages, aucun ne demande de redéployer :
   (`#create_membership`, crée le `Membership`, `role: "player"`, `balls: 0`).
 - **Journées ×2** (ajout/suppression).
 - **Boutique de saison** — fenêtres de disponibilité des cosmétiques (deux champs date par
-  cosmétique, vides = pièce permanente).
+  cosmétique, vides = pièce permanente). ⚠️ Chaque ligne dit **par où la pièce s'obtient**
+  (`channel_of` : `shop` · `set` · `draw` · `aura`), parce que c'est ça qui décide de ce
+  qu'une fenêtre lui fait — et toutes les pièces datées ne sont pas en vente : une
+  **exclusive** (Citrouille maudite, Bonnet du Réveillon…) a un prix nul mais sa fenêtre
+  borne bien les **tirages** (coffre, série, ligue). « hors vente » tout seul laissait croire
+  à un réglage sans effet. ⚠️ Sur une **aura**, en revanche, une fenêtre ne pilote
+  **rien du tout** : ni vendue (`purchasable`), ni tirée (`drawable` l'exclut), et ni
+  `UnlockSetAura` ni la carte de panoplie du rayon ne regardent la disponibilité. L'écran
+  l'avertit en `--warn` et le catalogue n'en pose plus aucune (ni Tournesol, ni Sapin
+  scintillant) ; les champs restent éditables, c'est le seul endroit d'où effacer une date
+  posée par erreur. La saisonnalité d'une panoplie est portée par ses pièces **à vendre**.
 - **Promotions sur les panoplies** (pourcentage + deux dates ; pourcentage vide = promo
   arrêtée et prix d'origine rétablis, puisque rien n'a été écrit dans les prix).
 
