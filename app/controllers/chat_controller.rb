@@ -17,6 +17,9 @@ class ChatController < ApplicationController
     # c'est le seul moyen pour le serveur de savoir CE QU'ON LIT, et donc ce qu'il doit
     # marquer lu. Défaut : la conversation de la partie.
     active = convs.find { |c| c.kind == params[:canal] } || convs.first
+    # ⚠️ Le repère de lecture se relit AVANT de marquer, puisque marquer l'écrase : c'est lui
+    # qui dit où le joueur s'était arrêté, donc où la vue doit s'ouvrir.
+    since = m.read_mark_for(active)
     # ⚠️ Marquer AVANT de compter : le canal qu'on regarde doit afficher 0, pas son état
     # d'il y a une seconde. L'autre garde sa pastille — c'est tout l'intérêt.
     m.mark_conversation_read!(active)
@@ -25,6 +28,9 @@ class ChatController < ApplicationController
     props = {
       conversations: convs.map { |c| conv_json(c, m, unread[c.id].to_i, open: c == active) },
       active_kind: active&.kind,
+      # Où ouvrir la vue : le premier message non lu du canal (le front y pose son repère
+      # « nouveaux messages » et s'y cale), nil = au dernier message.
+      first_unread: first_unread_id(active, m, since),
       # ⚠️ Ces deux-là sont `optional` : Inertia ne les évalue QUE si le front les nomme dans
       # un `only:`. Le bloc n'est donc pas exécuté au chargement de la page, ni aux 8 s de
       # sondage. Sans ça, `Memes.search` partait chez Giphy à chaque tour de sondage — huit
@@ -52,6 +58,23 @@ class ChatController < ApplicationController
     return base.merge(has_more: false, messages: []) unless open
 
     base.merge(page(c.messages, m))
+  end
+
+  # Le premier message des AUTRES arrivé depuis la dernière lecture. Le chat s'ouvre dessus
+  # plutôt qu'au bas du fil : sinon il faut remonter à l'aveugle pour retrouver ce qu'on n'a
+  # pas lu, et la pastille qui annonçait 5 messages ne mène nulle part.
+  #
+  # ⚠️ `nil` si le canal n'a JAMAIS été ouvert : tout l'historique serait « non lu » et on
+  # planterait le joueur au premier message de la saison. Une première visite s'ouvre en bas,
+  # comme n'importe quel chat.
+  # ⚠️ Le message peut être trop vieux pour la page servie (30 messages) : le front ne le
+  # trouve alors pas dans son fil et retombe sur le bas tout seul. Rien à vérifier ici — on
+  # ne va pas servir 400 messages pour poser un trait.
+  def first_unread_id(conversation, me, since)
+    return nil if conversation.nil? || since.nil?
+
+    conversation.messages.where.not(membership_id: me.id)
+                .where("messages.created_at > ?", since).chronological.first&.id
   end
 
   def older_json(conversation, before_id)

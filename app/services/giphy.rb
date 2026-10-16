@@ -45,8 +45,29 @@ class Giphy
     call(TRENDING)
   end
 
+  # ⚠️ Les appels à l'API sont COMPTÉS (une clé Giphy a un quota horaire), alors que les mêmes
+  # requêtes reviennent sans cesse : chaque ouverture de la feuille tire les tendances, et tout
+  # le monde cherche « bravo » ou « fatigué ». On garde donc la réponse un quart d'heure — même
+  # raisonnement qu'Imgflip, qui garde son catalogue une journée ; la durée est plus courte
+  # parce que les tendances bougent.
+  #
+  # ⚠️ Les IMAGES ne coûtent rien : elles sont servies par le CDN media*.giphy.com, sans clé.
+  # Un GIF posté dans le chat et revu mille fois ne consomme pas une seule requête d'API —
+  # seules les recherches comptent, donc l'ouverture du sélecteur, jamais l'affichage du fil.
+  TTL = 15.minutes
+
   # Le repli silencieux en cas de panne vit dans Memes::Http, partagé par les trois sources.
+  # ⚠️ On ne met en cache qu'une réponse NON VIDE : une panne (ou un quota dépassé) rend une
+  # liste vide, et la mémoriser un quart d'heure ferait durer l'incident bien après sa fin.
   def self.call(endpoint, **extra)
+    ck = [ "giphy", endpoint, extra ]
+    cached = Rails.cache.read(ck)
+    return cached if cached
+
+    fetch(endpoint, **extra).tap { |gifs| Rails.cache.write(ck, gifs, expires_in: TTL) if gifs.any? }
+  end
+
+  def self.fetch(endpoint, **extra)
     query = URI.encode_www_form(api_key: key, limit: LIMIT, rating: "pg-13",
                                 lang: "fr", bundle: "messaging_non_clips", **extra)
     parse(Memes::Http.get_json("#{endpoint}?#{query}", source: "giphy"))
@@ -64,5 +85,5 @@ class Giphy
     end
   end
 
-  private_class_method :call, :parse
+  private_class_method :call, :fetch, :parse
 end

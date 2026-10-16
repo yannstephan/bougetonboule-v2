@@ -18,7 +18,7 @@ const merge = (a, b) => {
 // qui arrive le pousse. Plus haut, il lit — et rien ne doit lui reprendre son défilement.
 const NEAR_BOTTOM = 120
 
-export default function Chat({ conversations, memes, active_kind: activeKind }) {
+export default function Chat({ conversations, memes, active_kind: activeKind, first_unread: firstUnread }) {
   // ⚠️ Le canal ouvert vit dans l'URL, pas dans un état local : c'est le serveur qui décide
   // ce qui est LU, et il ne peut le savoir que si on le lui dit. Changer d'onglet est donc
   // une visite (`?canal=…`), comme l'onglet du sac ou de la boutique.
@@ -48,12 +48,25 @@ export default function Chat({ conversations, memes, active_kind: activeKind }) 
   // `loading`. Une ref se referme dans l'instant, avant même le rendu suivant.
   const busy = useRef(false)
 
+  // Le repère « nouveaux messages » : le nœud sur lequel la vue se cale en arrivant, et
+  // `placed` pour ne le faire QU'UNE FOIS par canal — après, c'est le joueur qui commande.
+  const unreadRef = useRef(null)
+  const placed = useRef(false)
+
+  // ⚠️ Chaque écriture dans `scrollTop` tire un événement `scroll` : sans ce repère, notre
+  // propre placement passerait pour un geste du joueur et nous interdirait de le refaire
+  // quand un GIF chargé plus tard repousse le fil. On mémorise donc ce qu'on a posé.
+  const mine = useRef(-1)
+  const moved = useRef(false)
+
   useEffect(() => {
     setPool(conv?.messages || [])
     setOlder({ more: !!conv?.has_more, loading: false })
     consumed.current = null
     busy.current = false
     stick.current = true
+    placed.current = false
+    moved.current = false
   }, [activeKind])
 
   useEffect(() => {
@@ -86,23 +99,64 @@ export default function Chat({ conversations, memes, active_kind: activeKind }) 
     })
   }, [older.more, pool, activeKind])
 
+  const setTop = (el, top) => { el.scrollTop = top; mine.current = el.scrollTop }
+  const toBottom = (el) => setTop(el, el.scrollHeight)
+
   const onScroll = () => {
     const el = scrollRef.current
     if (!el) return
+    // Un événement qui ne correspond pas à la dernière valeur qu'on a posée vient du joueur :
+    // à partir de là, on ne touche plus à son défilement de nous-mêmes.
+    if (Math.abs(el.scrollTop - mine.current) > 1) moved.current = true
     stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < NEAR_BOTTOM
     if (el.scrollTop < 60) loadOlder()
   }
+
+  // À l'ouverture, la vue se cale sur le PREMIER MESSAGE NON LU, repère compris, et non au bas
+  // du fil : la pastille annonçait 5 messages, elle doit mener quelque part. À défaut de repère
+  // (tout est lu, ou le canal n'a jamais été ouvert), c'est le dernier message.
+  // `stick` est ensuite DÉDUIT d'où l'on a atterri : si les non-lus tenaient dans l'écran, on
+  // est de fait en bas et un message qui arrive doit pousser la vue.
+  const place = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const node = unreadRef.current
+    if (node) {
+      const d = node.getBoundingClientRect().top - el.getBoundingClientRect().top
+      setTop(el, el.scrollTop + d - 8) // un filet d'air au-dessus du repère
+    } else {
+      toBottom(el)
+    }
+    stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < NEAR_BOTTOM
+  }, [])
 
   useLayoutEffect(() => {
     const el = scrollRef.current
     if (!el) return
     if (anchor.current != null) {
-      el.scrollTop = el.scrollHeight - anchor.current // greffe devant : la vue ne bouge pas
+      setTop(el, el.scrollHeight - anchor.current) // greffe devant : la vue ne bouge pas
       anchor.current = null
+    } else if (!placed.current) {
+      placed.current = true
+      place()
     } else if (stick.current) {
-      el.scrollTop = el.scrollHeight
+      toBottom(el)
     }
   }, [pool])
+
+  // ⚠️ Un GIF n'a AUCUNE hauteur avant d'être chargé (`.msg-meme` ne fixe que sa largeur, la
+  // hauteur venant de l'image elle-même). Au montage, `scrollHeight` ignore donc toutes les
+  // images du fil : on se cale sur un bas qui n'est pas encore le bas — ou sur un repère que
+  // les images d'au-dessus vont repousser — et chaque GIF qui arrive décale le fil de ~200 px.
+  // C'est ce qui ouvrait le chat loin du dernier message, voire tout en haut sur une
+  // conversation courte. On refait donc le placement à chaque image chargée, tant que le
+  // joueur n'a pas défilé lui-même (`moved`) et hors greffe d'historique.
+  const onMedia = useCallback(() => {
+    const el = scrollRef.current
+    if (!el || anchor.current != null) return
+    if (!moved.current) place()
+    else if (stick.current) toBottom(el)
+  }, [place])
 
   useEffect(() => {
     const id = setInterval(
@@ -168,7 +222,10 @@ export default function Chat({ conversations, memes, active_kind: activeKind }) 
         )}
 
         {pool.length
-          ? pool.map((msg, i) => <Message key={msg.id} msg={msg} prev={pool[i - 1]} />)
+          ? pool.map((msg, i) => (
+            <Message key={msg.id} msg={msg} prev={pool[i - 1]} onMedia={onMedia}
+                     unread={msg.id === firstUnread ? unreadRef : null} />
+          ))
           : <div className="chat-empty">Aucun message. Lance la discussion !</div>}
       </div>
 
@@ -189,12 +246,15 @@ export default function Chat({ conversations, memes, active_kind: activeKind }) 
   )
 }
 
-function Message({ msg, prev }) {
+// `unread` n'est pas un booléen mais LA ref du fil : le repère est aussi le point d'ancrage
+// de la vue à l'ouverture, et c'est au seul message qui le porte de la donner.
+function Message({ msg, prev, onMedia, unread }) {
   const newDay = prev?.day_label !== msg.day_label
 
   return (
     <>
       {newDay && <div className="chat-day">{msg.day_label}</div>}
+      {unread && <div className="chat-new" ref={unread}>Nouveaux messages</div>}
       <div className={`msg ${msg.mine ? 'me' : ''}`}>
         <Link href={`/joueurs/${msg.membership_id}`}><PlayerAvatar avatar={msg.avatar} size={40} /></Link>
         <div className="msg-body">
@@ -204,7 +264,8 @@ function Message({ msg, prev }) {
           </span>
           <div className={`bub ${msg.meme_url && !msg.body ? 'meme-only' : ''}`}>
             {msg.meme_url && (
-              <img className="msg-meme" src={msg.meme_url} alt={msg.meme_title || 'meme'} loading="lazy" />
+              <img className="msg-meme" src={msg.meme_url} alt={msg.meme_title || 'meme'}
+                   loading="lazy" onLoad={onMedia} />
             )}
             {msg.body}
           </div>
