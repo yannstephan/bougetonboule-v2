@@ -44,6 +44,15 @@ class Membership < ApplicationRecord
   # Le total, pour la pastille du 💬 dans le bandeau (partagée sur toutes les pages).
   def unread_messages_count = unread_by_conversation.values.sum
 
+  # Jusqu'où j'avais lu ce canal. ⚠️ À relire AVANT `mark_conversation_read!`, qui l'écrase :
+  # c'est ce repère, et lui seul, qui permet au chat de s'ouvrir sur le premier message non lu
+  # plutôt qu'au bas du fil.
+  def read_mark_for(conversation)
+    return nil if conversation.nil?
+
+    conversation_reads.find_by(conversation_id: conversation.id)&.last_read_at
+  end
+
   # « J'ouvre un canal » = ce canal-LÀ est lu jusqu'à maintenant.
   # ⚠️ Un seul, jamais les deux : marquer tout lu en ouvrant le chat effacerait la pastille
   # de l'équipe alors qu'on vient de lire la partie, et les onglets ne diraient plus rien.

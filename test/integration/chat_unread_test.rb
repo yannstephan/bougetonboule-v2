@@ -76,6 +76,54 @@ class ChatUnreadTest < ActionDispatch::IntegrationTest
     assert_match(/"chat_unread":1/, response.body)
   end
 
+  # ————— Où la vue s'ouvre —————
+  # Le chat s'ouvre sur le premier message NON LU, pas au bas du fil : sinon la pastille
+  # annonce 5 messages et il faut remonter à l'aveugle pour les retrouver.
+  test "le premier non-lu est servi au front, et c'est bien le PREMIER" do
+    get "/chat", params: { canal: "general" } # pose le repère de lecture
+    write(@general, body: "1")
+    second = write(@general, body: "2")
+
+    get "/chat", params: { canal: "general" }
+    assert_match(/"first_unread":#{Message.where(body: "1").first.id}\b/, response.body)
+    refute_match(/"first_unread":#{second.id}\b/, response.body)
+  end
+
+  test "tout lu : rien à montrer, la vue reste au dernier message" do
+    write(@general)
+    get "/chat", params: { canal: "general" }
+
+    get "/chat", params: { canal: "general" }
+    assert_match(/"first_unread":null/, response.body)
+  end
+
+  # ⚠️ Un canal jamais ouvert aurait TOUT son historique en non-lu : s'ancrer sur le premier
+  # message, c'est ouvrir le chat au début de la saison. Une première visite s'ouvre en bas.
+  test "une première visite ne plante pas le joueur au début de l'historique" do
+    3.times { write(@general) }
+
+    get "/chat", params: { canal: "general" }
+    assert_match(/"first_unread":null/, response.body)
+  end
+
+  test "mes propres messages ne font pas un repère" do
+    get "/chat", params: { canal: "general" }
+    write(@general, from: @me)
+
+    get "/chat", params: { canal: "general" }
+    assert_match(/"first_unread":null/, response.body)
+  end
+
+  # Le repère est celui du canal OUVERT : c'est le seul fil que le front rende.
+  test "le repère suit le canal ouvert" do
+    get "/chat", params: { canal: "team" }
+    attendu = write(@team)
+    write(@general)
+
+    get "/chat", params: { canal: "team" }
+    assert_match(/"first_unread":#{attendu.id}\b/, response.body)
+  end
+
   test "un message d'une autre équipe ne se voit pas dans mon canal d'équipe" do
     autre = @game.conversations.create!(kind: "team", team: @red)
     write(autre, from: @foe)

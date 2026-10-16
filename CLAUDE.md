@@ -947,6 +947,17 @@ on ne garde que l'URL, chez la source. Le garde-fou `Memes.allowed?` est appliqu
 la console). Sont refusés : autre domaine, `http://`, sous-domaine piégeux
 (`i.imgflip.com.attaquant.test`), URL avec identifiants. Verrouillé par des tests.
 
+⚠️ **Les appels Giphy sont comptés, pas les images.** Le quota d'une clé porte sur l'**API de
+recherche** : ouvrir le sélecteur (les tendances) et chaque frappe temporisée. Un GIF **posté**
+ne coûte rien — on ne garde que son URL, et l'image est servie par le CDN `media*.giphy.com`,
+sans clé : un fil plein de GIF revu mille fois ne consomme **aucune** requête. Les réponses
+sont donc mises en cache **15 minutes** (`Giphy::TTL`, même raisonnement que la journée
+d'Imgflip, en plus court parce que les tendances bougent) : les tendances, tirées à chaque
+ouverture, ne coûtent plus qu'un appel par quart d'heure pour toute la partie, et les mêmes
+recherches (« bravo », « fatigué ») sont gratuites d'un joueur à l'autre. ⚠️ **On ne met en
+cache qu'une réponse non vide** : une panne ou un quota dépassé rend une liste vide, et la
+mémoriser ferait durer l'incident un quart d'heure après sa fin.
+
 Une source qui tombe rend une liste vide plutôt qu'une erreur — le chat n'en dépend jamais.
 La recherche passe par un **rechargement partiel Inertia** (`only: ['memes']`, `?meme_q=`) et
 non par une API JSON à part, comme le veut la convention du projet ; la frappe est temporisée
@@ -1021,6 +1032,34 @@ côté sans bouger.
 ⚠️ On marque lu **AVANT** de compter : le canal qu'on regarde doit être servi à 0, pas avec son
 état d'il y a une seconde.
 ⚠️ Le seed doit vider `ConversationRead` en tête du nettoyage (FK vers membership/conversation).
+
+**Le chat s'ouvre sur le premier message NON LU**, pas au bas du fil : une pastille qui annonce
+5 messages doit mener quelque part, sinon il faut remonter à l'aveugle pour les retrouver.
+`ChatController` sert pour ça `first_unread` (l'id du premier message **des autres** arrivé
+depuis la dernière lecture) et le front y pose un repère **« Nouveaux messages »**
+(`.chat-new`, en `--fraise` comme les pastilles) sur lequel il **cale la vue**.
+- ⚠️ **Le repère de lecture se relit AVANT de marquer** (`Membership#read_mark_for`) :
+  `mark_conversation_read!` l'écrase, et on ne saurait plus où le joueur s'était arrêté.
+- ⚠️ **`nil` si le canal n'a jamais été ouvert** : tout l'historique serait « non lu » et on
+  planterait le joueur au premier message de la saison. Une première visite s'ouvre en bas,
+  comme n'importe quel chat. Idem si le premier non-lu est **trop vieux pour la page servie**
+  (30 messages) : le front ne le trouve pas dans son fil et retombe sur le bas tout seul — on
+  ne sert pas 400 messages pour poser un trait.
+- Le placement n'a lieu qu'**une fois par canal** (`placed`), et `stick` est ensuite **déduit**
+  de là où on a atterri : si les non-lus tenaient dans l'écran, on est de fait en bas et un
+  message qui arrive doit pousser la vue. Le **sondage de 8 s** ne déplace donc rien pendant
+  qu'on lit, et le repère **reste affiché** (prop régulière, préservée par les rechargements
+  partiels `only:`).
+
+⚠️ **Un GIF n'a AUCUNE hauteur avant d'être chargé** — `.msg-meme` ne fixe que sa largeur. Au
+montage, `scrollHeight` ignore donc toutes les images du fil : on se cale sur un bas qui n'est
+pas encore le bas (ou sur un repère que les images d'au-dessus vont repousser), puis chaque GIF
+qui arrive décale le fil de ~200 px. **C'est ce qui ouvrait le chat loin du dernier message,
+voire tout en haut** sur une conversation courte. Chaque image prévient donc quand elle est
+chargée (`onLoad` → `onMedia`) et le placement est refait — tant que le joueur n'a pas défilé
+lui-même. ⚠️ Et pour savoir ça, il faut distinguer **nos** écritures dans `scrollTop` des
+siennes : chacune tire un événement `scroll`, donc on mémorise la valeur posée (`mine`) et un
+événement qui ne lui correspond pas est un geste du joueur.
 
 ### Profil : pas de solde de 🍑
 La réserve de boules d'un joueur ne se voit **que sur sa propre page d'accueil** (le HUD), jamais
