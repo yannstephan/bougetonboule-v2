@@ -33,6 +33,17 @@ class Team < ApplicationRecord
   # Multiplicateur de combat issu de la jauge de meute : +10 % par palier, plafonné à ×2.
   # Additif et gagné uniquement en courant (jamais acheté, jamais multiplicatif).
   def combat_multiplier = [ 1 + pack_level * GameRules::PACK_STEP, 1 + GameRules::PACK_MAX_LEVEL * GameRules::PACK_STEP ].min
+  # Coéquipiers ayant couru au moins PACK_WEEKLY_KM sur la fenêtre (courses qui comptent).
+  # Seul endroit qui le calcule : le job du lundi juge avec, et le Hub affiche le suivi de la
+  # semaine en cours avec — le « 3/5 » qu'on voit ne peut donc pas mentir sur le palier.
+  def pack_runners(window)
+    Training.scoring
+            .where(membership: memberships, date: window)
+            .group(:membership_id)
+            .sum(:distance_meters)
+            .count { |_id, meters| meters >= GameRules::PACK_WEEKLY_KM * 1000 }
+  end
+
   def pack_percent = (pack_level.clamp(0, GameRules::PACK_MAX_LEVEL) * GameRules::PACK_STEP * 100).round
 
   def second_wind_active? = second_wind_until.present? && second_wind_until.future?

@@ -12,10 +12,10 @@ class ScreensTest < ActionDispatch::IntegrationTest
     post "/login", params: { email: @membership.user.email, password: "odyssea2027" }
   end
 
-  test "le Hub affiche le quota du jour" do
+  test "le Hub affiche le suivi de la semaine de chaque équipe" do
     get "/"
     assert_response :success
-    assert_match(/"day_quota":\{"used":8,"cap":10\}/, response.body)
+    assert_match(/"tally":\{"week_balls":8,"total_balls":8,"pack":\{"runners":1,/, response.body)
   end
 
   test "le profil liste les sorties, y compris celles qui ne comptent pas" do

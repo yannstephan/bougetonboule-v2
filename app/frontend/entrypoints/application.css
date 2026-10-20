@@ -731,6 +731,13 @@ body{margin:0;background:var(--bg);color:var(--text);
 .feed-meta b{font-weight:800;color:var(--peach)}
 .feed-meta b.trapped{color:var(--crit)}
 .feed-empty{margin:0;font-size:11px;color:var(--faint)}
+.tally-line{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tally-line + .tally-line{margin-top:6px}
+.tally-n{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+.tally-bar{display:block;height:5px;border-radius:3px;background:var(--surface-3);overflow:hidden;margin:3px 0 1px}
+.tally-bar i{display:block;height:100%;background:var(--brand);border-radius:inherit}
+.feed-col.foe .tally-bar{transform:scaleX(-1)}
+.tally-ok{color:var(--good);font-weight:700}
 
 /* La séparation : un trait qui monte vers le ⚡, l'éclair au centre, le trait qui redescend. */
 .arena-mid{display:flex;flex-direction:column;align-items:center;padding:11px 0}

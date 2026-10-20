@@ -78,7 +78,7 @@ function Standing({ row }) {
   return (
     <Link href={`/joueurs/${row.id}`} className={`lg-row ${row.me ? 'me' : ''} ${row.rank <= 3 ? 'podium' : ''}`}>
       <span className="lg-rank">{medal(row.rank) || row.rank}</span>
-      <PlayerAvatar avatar={row.avatar} size={34} />
+      <PlayerAvatar avatar={row.avatar} size={56} />
       <span className="lg-name">
         {row.name}{row.me && <b> · toi</b>}
         <span className="lg-team" style={{ color: row.team.color }}>{row.team.name}</span>

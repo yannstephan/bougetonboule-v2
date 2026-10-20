@@ -66,24 +66,11 @@ function GameView({ m }) {
       </div>
 
       {!finished && <Link href="/combat" className="btn combat">⚔️ COMBATTRE</Link>}
+      <TeamTally mine={mine} foe={foe} />
       <RunFeed mine={mine} foe={foe} />
       <StreakPass streak={m.streak} />
       <div className="tiles">
         <Link href="/ligue" className="tile" style={{ gridColumn: '1 / -1' }}><span className="ic">🏅</span><div><div className="tn">Classement</div><div className="td">{m.month_rank ? `${m.month_rank}e ce mois-ci` : 'Cours pour entrer'}</div></div></Link>
-        {m.day_quota && (
-          <div className="tile" style={{ gridColumn: '1 / -1' }}>
-            <span className="ic">🧢</span>
-            <div>
-              <div className="tn">Quota du jour</div>
-              <div className="td">
-                {m.day_quota.used} / {m.day_quota.cap} 🍑
-                {m.day_quota.used >= m.day_quota.cap
-                  ? ' · plafond atteint, garde le reste pour demain'
-                  : ' gagnées aujourd’hui'}
-              </div>
-            </div>
-          </div>
-        )}
         <Link href="/sac" className={`tile ${chests > 0 ? 'tile-alert' : ''}`} style={{ gridColumn: '1 / -1' }}>
           <span className="ic">🎒</span>
           <div>
@@ -133,6 +120,47 @@ function TeamSide({ team, mine = false }) {
         </div>
       </div>
       <EffectBadges effects={team.effects} compact />
+    </div>
+  )
+}
+
+// Le suivi des deux équipes, dans la même grille gauche/droite que l'arène : les 🍑 gagnées en
+// courant (la semaine, puis depuis le début) et la jauge de meute de la semaine en cours —
+// combien de coéquipiers ont déjà fait leurs 8 km, sur combien, pour viser le palier du lundi.
+function TeamTally({ mine, foe }) {
+  if (!mine?.tally) return null
+
+  return (
+    <section className="feed">
+      <h2 className="feed-title">Cette semaine</h2>
+      <div className="feed-cols">
+        <TallyColumn tally={mine.tally} mine />
+        <span className="feed-rule" />
+        {foe?.tally ? <TallyColumn tally={foe.tally} /> : <div className="feed-col foe" />}
+      </div>
+    </section>
+  )
+}
+
+function TallyColumn({ tally, mine = false }) {
+  const { pack } = tally
+  const missing = Math.max(pack.needed - pack.runners, 0)
+  const note = pack.maxed ? 'meute au maximum'
+    : missing === 0 ? '✅ palier gagné lundi'
+    : `encore ${missing} pour le palier`
+
+  return (
+    <div className={`feed-col ${mine ? 'mine' : 'foe'}`}>
+      <div className="tally-line">
+        <b className="tally-n">{tally.week_balls} 🍑</b>
+        <span className="feed-meta">gagnées · {tally.total_balls} au total</span>
+      </div>
+      <div className="tally-line">
+        <b className="tally-n">🐾 {pack.runners}/{pack.size}</b>
+        <span className="feed-meta">ont couru {pack.km} km</span>
+        <span className="tally-bar"><i style={{ width: `${Math.min(pack.runners / pack.needed, 1) * 100}%` }} /></span>
+        <span className={`feed-meta ${missing === 0 && !pack.maxed ? 'tally-ok' : ''}`}>{note}</span>
+      </div>
     </div>
   )
 }

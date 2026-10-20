@@ -25,11 +25,10 @@ const EYE_LINE = 52
 // la place, la page en a, l'avatar non. Le slot `aura` existe toujours, seul son rendu a changé.
 const SLOTS = ['shoes', 'sidekick', 'hands', 'neck', 'eyes', 'hat']
 
-// En dessous de cette taille (chat, ligue, listes), l'avatar ne fait plus que quelques
-// dizaines de pixels : on n'y garde que les pièces lisibles, sinon c'est une bouillie
-// d'emojis. Le rendu complet reste sur le Hub et l'écran avatar.
-const COMPACT_BELOW = 44
-const COMPACT_SLOTS = ['eyes', 'hat']
+// ⚠️ Toutes les pièces sont rendues, QUELLE QUE SOIT la taille. Sous 44 px on ne gardait
+// que lunettes et chapeau pour éviter une bouillie d'emojis — mais c'est dans le chat et la
+// ligue que les autres joueurs voient un avatar, presque jamais sur le profil : une tenue
+// invisible là ne sert à rien. Ces écrans servent donc l'avatar plus grand (56 px).
 
 // Ancres en unités du viewBox (0-100). `em` = taille relative à l'avatar, `spread` = écart
 // symétrique pour les paires (gants, chaussures).
@@ -106,8 +105,7 @@ function sizeOf(drawn, at) {
 export default function FruitAvatar({ fruit, size = 96, cosmetics = {}, showCosmetics = true, face = true }) {
   const p = fruitParams(fruit)
   const at = anchors(fruitBox(fruit))
-  const kept = showCosmetics ? (size < COMPACT_BELOW ? SLOTS.filter((s) => COMPACT_SLOTS.includes(s)) : SLOTS) : []
-  const worn = kept.filter((s) => cosmetics[s])
+  const worn = showCosmetics ? SLOTS.filter((s) => cosmetics[s]) : []
 
   return (
     <span className="fav" style={{ width: size, height: size, fontSize: size }}>
