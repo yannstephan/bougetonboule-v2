@@ -21,7 +21,6 @@ class HubController < ApplicationController
       balls: m.balls,
       streak: StreakPassPresenter.call(m),
       month_rank: month_rank(m),
-      day_quota: day_quota(m, special),
       bag_count: m.membership_items.unused.count,
       special_day: special && { name: special.name, multiplier: special.multiplier.to_f },
       my_team: team_payload(m.team, viewer: m.team),
@@ -47,17 +46,6 @@ class HubController < ApplicationController
       race_at: event.race_date.iso8601, starts_at: game.starts_at&.iso8601 }
   end
 
-  # Ce que les courses du jour ont déjà rapporté sur le quota journalier, exprimé en boules
-  # gagnées (un jour spécial ×2 double le quota comme le reste). Rien à afficher tant que le
-  # joueur n'a pas couru aujourd'hui.
-  def day_quota(m, special)
-    used = m.trainings.scoring.where(date: Time.zone.now.all_day).sum(:base_balls)
-    return if used.zero?
-
-    factor = special&.multiplier || 1
-    { used: (used * factor).round, cap: (GameRules::MAX_BALLS_PER_DAY * factor).round }
-  end
-
   # Rang du mois, seulement si le joueur a couru — sinon on l'invite à courir.
   def month_rank(m)
     row = LeagueStandings.month(m.game).row_for(m)
@@ -71,7 +59,24 @@ class HubController < ApplicationController
       total_balls: team.total_balls,
       effects: TeamEffectsPresenter.call(team),
       monster: MonsterPresenter.call(team.monster, viewer_team: viewer),
-      runs: recent_runs(team)
+      runs: recent_runs(team),
+      tally: tally(team)
+    }
+  end
+
+  # Le suivi de l'équipe : les 🍑 GAGNÉES en courant (score des courses, comme la ligue — pas
+  # le solde en banque, que le combat vide) cette semaine et depuis le début, et la jauge de
+  # meute de la semaine en cours, jugée par le même calcul que PackLevelJob le lundi.
+  def tally(team)
+    week = Date.current.beginning_of_week.beginning_of_day..Date.current.end_of_week.end_of_day
+    runs = Training.scoring.where(membership_id: team.memberships.select(:id))
+    since = team.game.starts_at ? runs.where(date: team.game.starts_at..) : runs
+    {
+      week_balls: runs.where(date: week).sum(:score).to_f.round,
+      total_balls: since.sum(:score).to_f.round,
+      pack: { runners: team.pack_runners(week), size: team.memberships.count,
+              needed: GameRules::PACK_RUNNERS_NEEDED, km: GameRules::PACK_WEEKLY_KM,
+              maxed: team.pack_level >= GameRules::PACK_MAX_LEVEL }
     }
   end
 

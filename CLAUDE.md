@@ -243,7 +243,7 @@ supprimer, puis de courir. `StravaSyncJob` sert de filet dans les deux sens : il
 courses récentes et **retire** celles que Strava n'a plus (sauf si l'appel API a échoué).
 
 Côté joueur : l'**allure est affichée partout** (liste des sorties, feed de notifs, page de la
-sortie), un chip **quota du jour** apparaît sur le Hub dès qu'on a couru, la page d'une sortie
+sortie), la page d'une sortie
 explique le plafond journalier atteint, et la FAQ a une section « ✅ Quelles courses comptent ? »
 (en français courant, sans jargon technique). ⚠️ `config.time_zone = "Europe/Paris"` : le quota
 journalier et les jours spéciaux tombent sur le bon jour.
@@ -381,8 +381,10 @@ rendu a changé — c'est toujours un cosmétique qu'on achète et qu'on équipe
 - La **cabine d'essai** et l'**armoire** en montrent une version bornée à l'aperçu
   (`.aura-bg.local`) — sans ça, essayer une aura ne se verrait qu'après avoir quitté l'écran.
 
-Sous **44 px** (chat, ligue, listes) seuls lunettes et chapeau sont rendus sur l'avatar — sinon
-c'est une bouillie d'emojis.
+**Toute la tenue est rendue à toutes les tailles.** On ne gardait sous 44 px que lunettes et
+chapeau, mais c'est dans le **chat et la ligue** que les autres voient un avatar — presque
+jamais sur le profil : une tenue invisible là ne sert à rien. Ces deux écrans servent donc
+l'avatar en **56 px** (au lieu de 40 et 34) pour que les pièces restent lisibles.
 **Emoji par défaut, SVG quand l'emoji ne peut pas** (`cosmetics.art` → `components/cosmeticArt.jsx`) :
 trois familles d'emojis ne marchent pas sur un avatar-fruit —
 1. les **chaussures** (👟 🥾 🛼 sont des godasses *uniques* vues de *profil*, on veut une paire de face) ;
@@ -657,6 +659,15 @@ la version longue. Deux compléments, parce qu'un emoji seul ne se comprend pas 
 
 ⚠️ Conséquence pour tout nouvel effet : l'**emoji le porte à lui seul** sur le Hub — en choisir
 un qui se distingue des autres au premier coup d'œil (voir `TeamEffectsPresenter::KINDS`).
+
+### Le suivi de la semaine (Hub)
+Sous COMBATTRE, `TeamTally` (même grille gauche/droite que l'arène) donne pour chaque équipe :
+les 🍑 **gagnées en courant** cette semaine et depuis le début (somme des `score` des courses
+qui comptent, comme la ligue — **pas** le solde en banque, que le combat vide), et la **jauge de
+meute en cours** : « 🐾 2/6 ont couru 8 km », une barre vers les 5 requis, « encore N pour le
+palier ». Calculé par `Team#pack_runners`, le **même** calcul que `PackLevelJob` le lundi :
+l'affichage ne peut pas promettre un palier que le job refuserait. Il remplace l'ancienne tuile
+« quota du jour », jugée inutile.
 
 ### La piste de série (Hub) — façon season pass
 Sous le fil des sorties, `components/StreakPass.jsx` + `StreakPassPresenter` : la streak hebdo

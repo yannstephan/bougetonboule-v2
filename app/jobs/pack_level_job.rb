@@ -18,20 +18,11 @@ class PackLevelJob < ApplicationJob
   def judge(team, window)
     return if team.pack_level >= GameRules::PACK_MAX_LEVEL
 
-    runners = qualified_runners(team, window)
+    runners = team.pack_runners(window)
     return if runners < GameRules::PACK_RUNNERS_NEEDED
 
     team.increment!(:pack_level)
     announce(team, runners)
-  end
-
-  # Nombre de coéquipiers ayant couru au moins PACK_WEEKLY_KM sur la fenêtre.
-  def qualified_runners(team, window)
-    Training.scoring
-            .where(membership: team.memberships, date: window)
-            .group(:membership_id)
-            .sum(:distance_meters)
-            .count { |_id, meters| meters >= GameRules::PACK_WEEKLY_KM * 1000 }
   end
 
   def announce(team, runners)
