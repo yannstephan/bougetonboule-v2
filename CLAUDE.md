@@ -917,6 +917,12 @@ d'objets. `/boutique?tab=inventory` redirige vers `/sac` (les vieux liens et rac
   l'auteur reçoit une version à la 1re personne (« Tu as infligé… »), les autres la 3e (« X a
   infligé… ») — pour qu'on voie sa propre action dans ses notifications.
 
+⚠️ **Un message d'équipe est poussé mais JAMAIS listé** (`Notification::PUSH_ONLY`, scope
+`listed` utilisé par la liste ET le compteur de la 🔔) : dans la liste, toucher la notif ne
+menait nulle part. Son `link` vaut `/chat?canal=team` et le push ouvre **le lien de la notif**
+(`SendWebPushJob`, `/notifications` à défaut) — le service worker ramène au premier plan la
+fenêtre déjà ouverte au lieu d'en ouvrir une seconde. La pastille 💬 suit les non-lus.
+
 Le **chat général ne crée AUCUNE notification** (seul le chat d'équipe notifie, en important) :
 `MessagesController#notify_participants` sort tôt si `conv.kind != "team"`. Les messages non lus
 du chat se voient sur la **pastille de l'onglet Chat** (voir ci-dessous), pas dans la liste.

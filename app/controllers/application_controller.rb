@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
         user: current_user && {
           id: current_user.id, firstname: current_user.firstname, email: current_user.email,
           diamonds: current_user.diamonds, strava_connected: current_user.strava_connected?,
-          unread_count: current_user.notifications.unread.count,
+          unread_count: current_user.notifications.listed.unread.count,
           avatar: AvatarPresenter.new(current_user, membership: current_membership).as_json
         }
       },

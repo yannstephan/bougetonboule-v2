@@ -3,6 +3,10 @@ class Notification < ApplicationRecord
                   league trap effect famine game_over pack attacked crit_failed healed].freeze
   # important = poussé en Web Push + listé ; secondary = listé seulement (jamais poussé).
   IMPORTANCE = %w[important secondary].freeze
+  # Poussées sur le téléphone mais JAMAIS listées : un message d'équipe se lit dans le chat,
+  # pas dans la liste — la notif y serait une impasse (on la touche, rien ne se passe). Le
+  # push ouvre directement le canal, et la pastille 💬 du HUD fait le reste.
+  PUSH_ONLY = %w[message].freeze
 
   belongs_to :user
   belongs_to :game, optional: true
@@ -16,6 +20,7 @@ class Notification < ApplicationRecord
 
   scope :unread, -> { where(read_at: nil) }
   scope :recent, -> { order(created_at: :desc) }
+  scope :listed, -> { where.not(category: PUSH_ONLY) }
 
   # Crée la même notification pour plusieurs destinataires (feed d'activité, annonces).
   def self.broadcast(users, importance: "secondary", **attrs)
