@@ -356,11 +356,12 @@ seed_rejected[lea, { title: "Tapis de la salle", distance_meters: 5_400, moving_
 seed_rejected[nico, { title: "Balade digestive", distance_meters: 4_100, moving_time: 2_700,
                       route_points: seed_route(4_100), has_heartrate: true, average_heartrate: 96 }]
 
-# Message d'équipe = important (poussé) : n'arrive qu'aux coéquipiers de Léa (exo).
+# Message d'équipe = important (poussé) : n'arrive qu'aux coéquipiers de Léa (exo). Jamais
+# listé (`Notification::PUSH_ONLY`) : son push ouvre le canal d'équipe.
 # Le chat général ne notifie pas (on le suit en ouvrant le chat).
 Notification.broadcast(exo.memberships.includes(:user).where.not(id: lea.id).map(&:user),
                        game:, importance: "important", category: "message", title: "💬 Léa · équipe",
-                       body: "On concentre les attaques ce soir sur Framboitrix ?")
+                       body: "On concentre les attaques ce soir sur Framboitrix ?", link: "/chat?canal=team")
 
 # Étale les horodatages sur les dernières heures pour un feed lisible (sinon tout à la même minute).
 fresh = Notification.where("id > ?", before_id).order(:id).to_a

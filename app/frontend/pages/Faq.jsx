@@ -129,10 +129,10 @@ const SECTIONS = [
   {
     q: '🔔 Les notifications',
     a: [
-      '« Pour toi » : ce qui te concerne directement — message d\'équipe, récompense, palier de meute, monstre affamé, second souffle, vent de face ou chantilly reçue, tout ce qui touche aux pièges (ta course piégée, ton piège réussi ou déjoué), ta course retirée du jeu, et la fin de la partie. Ce sont les seules poussées sur ton téléphone.',
+      '« Pour toi » : ce qui te concerne directement — récompense, palier de meute, monstre affamé, second souffle, vent de face ou chantilly reçue, tout ce qui touche aux pièges (ta course piégée, ton piège réussi ou déjoué), ta course retirée du jeu, et la fin de la partie. Ce sont les seules poussées sur ton téléphone.',
       '« Activité de la partie » : le reste, en fil d\'activité (X a couru et ce que ça lui rapporte, X a activé un vent de dos, un piège a été posé…). Listé, mais jamais poussé.',
       '➕ Dans le chat, le bouton + à côté du champ ouvre une recherche de memes : tape un mot, touche celui qui te plaît, il part tout seul. Tu ne peux pas envoyer tes propres images — seulement des memes du catalogue.',
-      'Le chat général ne crée pas de notification : les messages non lus (équipe + général) sont signalés par une pastille sur le bouton 💬, en haut de l\'accueil à côté de la cloche.',
+      '💬 Un message de ton équipe arrive en notification sur ton téléphone : touche-la, tu tombes directement dans le chat d\'équipe. Il n\'est pas listé ici — il se lit dans le chat. Le chat général ne crée pas de notification. Les messages non lus (équipe + général) sont signalés par une pastille sur le bouton 💬, en haut de l\'accueil à côté de la cloche.',
       'Active les notifications push depuis l\'écran 🔔 pour recevoir les alertes « Pour toi ».',
     ],
   },

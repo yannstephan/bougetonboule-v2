@@ -9,8 +9,9 @@ class SendWebPushJob < ApplicationJob
     vapid = Rails.application.config.x.vapid
     return if vapid[:public_key].blank? || vapid[:private_key].blank?
 
+    # Le clic mène là où la notif pointe (canal d'équipe, sortie…), sinon à la liste.
     payload = { title: notif.title.presence || "Bouge Ton Boule",
-                body: notif.body.to_s, url: "/notifications" }.to_json
+                body: notif.body.to_s, url: notif.link.presence || "/notifications" }.to_json
 
     notif.user.push_subscriptions.find_each do |sub|
       WebPush.payload_send(

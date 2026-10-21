@@ -25,14 +25,15 @@ class MessagesController < ApplicationController
     { meme_url: url, meme_title: params[:meme_title].to_s.truncate(120).presence }
   end
 
-  # Seul le chat d'équipe déclenche une notification (importante, poussée). Le chat général
-  # ne notifie personne : on le suit en ouvrant le chat, pas dans la liste des notifications.
+  # Seul le chat d'équipe déclenche une notification (importante, poussée), et elle n'est
+  # jamais listée (`Notification::PUSH_ONLY`) : le push ouvre directement le canal d'équipe.
+  # Le chat général ne notifie personne : on le suit en ouvrant le chat.
   def notify_participants(conv, sender, message)
     return unless conv.kind == "team"
 
     recipients = conv.team.memberships.includes(:user).where.not(id: sender.id).map(&:user)
     Notification.broadcast(recipients, game: conv.game, category: "message", importance: "important",
                            title: "💬 #{sender.display_name} · équipe",
-                           body: message.preview)
+                           body: message.preview, link: chat_path(canal: "team"))
   end
 end

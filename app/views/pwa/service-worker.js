@@ -16,7 +16,18 @@ self.addEventListener("push", (event) => {
   )
 })
 
+// Si l'app est déjà ouverte, on la ramène au premier plan sur la bonne page plutôt que d'en
+// ouvrir une deuxième fenêtre (sur Android, la PWA se dédoublait à chaque notification).
 self.addEventListener("notificationclick", (event) => {
   event.notification.close()
-  event.waitUntil(clients.openWindow(event.notification.data.url || "/"))
+  const url = new URL(event.notification.data.url || "/", self.location.origin).href
+  event.waitUntil((async () => {
+    const open = await clients.matchAll({ type: "window", includeUncontrolled: true })
+    const client = open.find((c) => new URL(c.url).origin === self.location.origin)
+    if (client && "navigate" in client) {
+      await client.focus()
+      return client.navigate(url)
+    }
+    return clients.openWindow(url)
+  })())
 })
