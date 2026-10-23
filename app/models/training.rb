@@ -27,10 +27,6 @@ class Training < ApplicationRecord
   def real? = status.in?(REAL_STATUSES)
   def trapped? = status == "trapped"
 
-  # Les 🍑 que la course rapporte au porte-monnaie. Une piégée garde son score (ligue,
-  # meute) mais ne rapporte rien.
-  def balls_earned = trapped? ? 0 : score.to_f
-
   # Verse les 🍑 de la course à la participation, dans la limite du porte-monnaie
   # (GameRules::WALLET_CAP) : l'excédent est perdu. Le score de la course reste entier —
   # c'est lui que compte la ligue. Idempotent (balls_credited_at) : la réconciliation

@@ -21,6 +21,10 @@ class ImportTrainingTest < ActiveSupport::TestCase
     assert_match "course à pied", training.rejection_reason
     assert_equal 0, training.score.to_i
     assert_equal 0, @membership.reload.balls
+    # Jamais dépensables : rien n'est versé, même en forçant un second crédit.
+    assert_nil training.credit_balls!
+    assert_equal 0, training.reload.credited_balls.to_i
+    assert_equal 0, @membership.reload.balls
   end
 
   test "une course non conforme ne fait pas claquer le piège à loup" do
@@ -109,15 +113,16 @@ class ImportTrainingTest < ActiveSupport::TestCase
     assert_nil trap.resolved_training_id
   end
 
-  test "une course piégée ne rapporte aucune boule mais compte en ligue et pour la meute" do
+  test "une course piégée ne rapporte aucune boule mais ses km comptent" do
     arm_trap!
     training = ImportTraining.call(@membership, strava_activity)
 
     assert_equal "trapped", training.status
-    assert_equal 8, training.score.to_i
-    assert_equal 0, training.balls_earned
+    assert_equal 0, training.score.to_i
     assert_equal 0, @membership.reload.balls
-    assert_equal 8, LeagueStandings.overall(@game).row_for(@membership).score
+    row = LeagueStandings.overall(@game).row_for(@membership)
+    assert_equal 0, row.score
+    assert_equal training.distance_meters, row.distance_meters
     window = training.date.beginning_of_week..training.date.end_of_week
     assert_equal 1, @membership.team.pack_runners(window)
     assert_equal training.date, @membership.team.last_run_at # la famine la voit aussi
