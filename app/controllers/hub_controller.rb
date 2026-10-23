@@ -90,7 +90,7 @@ class HubController < ApplicationController
             .recent.limit(5)
             .map do |t|
       { id: t.id, who: t.membership.display_name, km: t.distance_km.round(1),
-        balls: t.score.to_f.round, trapped: t.status == "trapped", day: short_day(t.date) }
+        balls: t.balls_earned.round, trapped: t.trapped?, day: short_day(t.date) }
     end
   end
 

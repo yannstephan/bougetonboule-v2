@@ -17,13 +17,19 @@ class Training < ApplicationRecord
   scope :verified, -> { where(status: "verified") }
   # Courses qui rapportent : vérifiées, ou protégées d'un piège par une jambe de bois.
   scope :scoring, -> { where(status: %w[verified protected]) }
-  # Courses qui ont eu lieu, piégées comprises : ce qui compte pour la série et le feed public.
+  # Courses qui ont eu lieu, piégées comprises : ce qui compte pour la série, le feed public,
+  # la ligue et la jauge de meute (le loup vole les 🍑, pas les km).
   scope :real, -> { where(status: REAL_STATUSES) }
   scope :recent, -> { order(date: :desc) }
 
   def distance_km = distance_meters.to_f / 1000
   def rejected? = status == "rejected"
   def real? = status.in?(REAL_STATUSES)
+  def trapped? = status == "trapped"
+
+  # Les 🍑 que la course rapporte au porte-monnaie. Une piégée garde son score (ligue,
+  # meute) mais ne rapporte rien.
+  def balls_earned = trapped? ? 0 : score.to_f
 
   # Verse les 🍑 de la course à la participation, dans la limite du porte-monnaie
   # (GameRules::WALLET_CAP) : l'excédent est perdu. Le score de la course reste entier —

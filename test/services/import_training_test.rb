@@ -109,6 +109,20 @@ class ImportTrainingTest < ActiveSupport::TestCase
     assert_nil trap.resolved_training_id
   end
 
+  test "une course piégée ne rapporte aucune boule mais compte en ligue et pour la meute" do
+    arm_trap!
+    training = ImportTraining.call(@membership, strava_activity)
+
+    assert_equal "trapped", training.status
+    assert_equal 8, training.score.to_i
+    assert_equal 0, training.balls_earned
+    assert_equal 0, @membership.reload.balls
+    assert_equal 8, LeagueStandings.overall(@game).row_for(@membership).score
+    window = training.date.beginning_of_week..training.date.end_of_week
+    assert_equal 1, @membership.team.pack_runners(window)
+    assert_equal training.date, @membership.team.last_run_at # la famine la voit aussi
+  end
+
   test "la reprise des boules ne met jamais le solde en négatif" do
     training = ImportTraining.call(@membership, strava_activity)
     @membership.update!(balls: 3) # le joueur a déjà dépensé

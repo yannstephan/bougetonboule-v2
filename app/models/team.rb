@@ -36,8 +36,9 @@ class Team < ApplicationRecord
   # Coéquipiers ayant couru au moins PACK_WEEKLY_KM sur la fenêtre (courses qui comptent).
   # Seul endroit qui le calcule : le job du lundi juge avec, et le Hub affiche le suivi de la
   # semaine en cours avec — le « 3/5 » qu'on voit ne peut donc pas mentir sur le palier.
+  # Les piégées comptent : le loup vole les 🍑, pas les km courus.
   def pack_runners(window)
-    Training.scoring
+    Training.real
             .where(membership: memberships, date: window)
             .group(:membership_id)
             .sum(:distance_meters)
@@ -54,8 +55,9 @@ class Team < ApplicationRecord
   def smoke_effects = active_effects.where(kind: "smoke")
   def smoke_masks?(monster_team_id) = smoke_effects.exists?(masked_team_id: monster_team_id)
 
-  # Dernière course qui compte (pour la famine et l'avertissement du Hub).
-  def last_run_at = Training.scoring.where(membership: memberships).maximum(:date)
+  # Dernière course courue (pour la famine et l'avertissement du Hub). Les piégées comptent :
+  # le loup vole les 🍑, pas le fait d'avoir couru.
+  def last_run_at = Training.real.where(membership: memberships).maximum(:date)
 
   # Point de départ du décompte de famine : la dernière course, mais jamais avant la trêve
   # de lancement (GameRules::FAMINE_NOT_BEFORE). Seul endroit qui le calcule — le job et le

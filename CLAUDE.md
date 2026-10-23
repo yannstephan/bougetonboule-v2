@@ -99,7 +99,9 @@ permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
   (via `FamineJob`) → `games.status = "finished"`, `winner_team_id` (nil = égalité au % de PV),
   notification à tous, bannière sur le Hub, combat verrouillé (garde dans `PerformAction`).
 - **🐺 Résolution des pièges** (`ResolveRunEffects`, appelé à l'import) : le piège non résolu
-  le plus ancien visant le coureur se referme → course `trapped`, 0 🍑 — sauf jambe de bois
+  le plus ancien visant le coureur se referme → course `trapped`, **0 🍑 versée** mais elle
+  **garde son score** : le loup vole les boules, pas les km — elle compte en **ligue**, pour la
+  **meute**, éloigne la **famine** et occupe le quota du jour (`credit_balls!` l'ignore, `Training#balls_earned` = 0) — sauf jambe de bois
   armée → course `protected`, 🍑 sauvées. Les `Action` concernées sont marquées `resolved_at`
   (usage unique). Notifications importantes aux deux camps.
 - **🌬️/🌪️ Vents sur les courses** : appliqués par `TrainingScorer` à la **date réelle** de la
@@ -255,7 +257,7 @@ journée puis ont été retirées — ne pas les réintroduire sans demander). D
 - **Du mois** : du 1er au dernier jour du mois en cours.
 - **Général** : depuis `game.starts_at`.
 
-Le score est la somme des 🍑 des `Training` vérifiés de la période. Il n'est **pas stocké** :
+Le score est la somme des `score` des `Training.real` de la période (**piégées comprises**). Il n'est **pas stocké** :
 `LeagueStandings` le recalcule, donc le classement du mois repart de zéro tout seul le 1er —
 rien à remettre à zéro en base. Seule la récompense est persistée.
 

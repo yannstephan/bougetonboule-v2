@@ -57,18 +57,20 @@ class ResolveRunEffects
                            body: "La jambe de bois de #{@m.display_name} a déjoué un piège à loup !")
   end
 
-  # Piège refermé : 0 🍑. La victime ne voit pas qui l'a piégée (l'annonce de pose était
-  # déjà anonyme côté cible) ; le piégeur, lui, est félicité nominativement.
+  # Piège refermé : 0 🍑 versée. Le loup vole les boules, pas les km : la course garde son
+  # score, qui compte pour la ligue et la meute (et occupe le quota du jour, sinon une 2e
+  # sortie le même jour compterait deux fois en ligue). C'est `credit_balls!` qui ne verse
+  # rien à une course piégée.
+  # La victime ne voit pas qui l'a piégée (l'annonce de pose était déjà anonyme côté cible) ;
+  # le piégeur, lui, est félicité nominativement.
   def snap!(trap)
     trap.update!(resolved_at: Time.current, resolved_training: @t)
     @t.status = "trapped"
-    @t.score = 0
-    @t.base_balls = 0 # une course piégée ne rapporte rien : elle ne mange pas le quota du jour
 
     notify(@m.user, importance: "important", title: "🐺 Course piégée !",
            body: "Ta course de #{km} km est tombée dans un piège à loup : 0 🍑 cette fois. Venge-toi !")
     notify(trap.membership.user, importance: "important", title: "🎯 Piège réussi",
-           body: "Ton piège à loup a annulé la course de #{@m.display_name} (#{km} km).")
+           body: "Ton piège à loup a volé les 🍑 de la course de #{@m.display_name} (#{km} km).")
   end
 
   def km = @t.distance_km.round(1)

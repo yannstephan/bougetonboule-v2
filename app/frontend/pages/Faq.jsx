@@ -64,7 +64,7 @@ const SECTIONS = [
     q: '🎒 Les objets (power-ups)',
     a: [
       'Achetés avec tes boules 🍑 à la boutique, rangés dans ton sac 🎒 (son propre onglet, à côté de la boutique), à usage unique. Tu les déclenches quand tu veux.',
-      '🐺 Piège à loup (5 🍑) : tu vises un adversaire ; sa prochaine course rapporte 0 boule. Les autres voient seulement « X a posé un piège à loup », jamais qui est visé.',
+      '🐺 Piège à loup (5 🍑) : tu vises un adversaire ; sa prochaine course ne lui rapporte aucune boule (ses km comptent quand même pour le classement et la meute). Les autres voient seulement « X a posé un piège à loup », jamais qui est visé.',
       '🦿 Jambe de bois (4 🍑) : déjoue le prochain piège sur ta course — tu gardes tes boules. Discrète : personne n\'est prévenu tant qu\'elle n\'a pas servi.',
       '🌬️ Vent de dos (4 🍑) : ×1,5 sur les boules de toute ton équipe pendant 12 h. À déclencher avant les sorties du week-end !',
       '🌪️ Vent de face (4 🍑) : −25 % sur les boules de l\'équipe adverse pendant 12 h. Les victimes sont prévenues — c\'est une déclaration de guerre assumée.',
@@ -107,7 +107,7 @@ const SECTIONS = [
   {
     q: '🏅 Le classement (Ligue)',
     a: [
-      'Un seul classement par partie, les deux clans mélangés. Ton score = la somme des boules de tes courses (les courses piégées comptent pour 0 — raison de plus pour garder une jambe de bois).',
+      'Un seul classement par partie, les deux clans mélangés. Ton score = la somme des boules que tes courses valent. Une course piégée compte quand même : le loup te vole les boules, pas tes km.',
       'Deux périodes : « Du mois » (repart à zéro le 1er de chaque mois) et « Général » (depuis le début de la partie).',
       'Le 1er du classement du mois gagne, à la fin du mois, un cosmétique tiré au hasard parmi ceux qu\'il n\'a pas encore (ou 100 💎 s\'il les possède déjà tous).',
     ],

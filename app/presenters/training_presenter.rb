@@ -13,7 +13,7 @@ class TrainingPresenter
       time: @t.date.strftime("%H:%M"),
       day_label: day_label,
       km: @t.distance_km.round(2),
-      balls: @t.score.to_f.round(1),
+      balls: @t.balls_earned.round(1),
       status: @t.status,
       # L'allure est affichée partout (et pas seulement sur la page d'une sortie) : c'est
       # elle qui décide si une course compte.

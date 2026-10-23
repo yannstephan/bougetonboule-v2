@@ -3,7 +3,8 @@
 #   - `month`   : du 1er au dernier jour du mois (le 1er de chaque mois, tout le monde repart à 0)
 #   - `overall` : depuis le début de la partie
 #
-# Rien n'est stocké : le classement est recalculé depuis les 🍑 des courses vérifiées, donc il
+# Rien n'est stocké : le classement est recalculé depuis le score des courses réelles (piégées
+# comprises — elles ne rapportent pas de 🍑 mais leurs km comptent), donc il
 # repart de zéro tout seul à chaque mois. Seule la récompense du vainqueur est persistée, dans
 # la table `rewards` (voir LeagueMonthlyRewardJob).
 class LeagueStandings
@@ -51,7 +52,7 @@ class LeagueStandings
   private
 
   def period_stats(memberships)
-    Training.scoring
+    Training.real # piégées comprises : le loup vole les 🍑, pas les km
             .where(membership_id: memberships.map(&:id))
             .where(date: from.beginning_of_day..to.end_of_day)
             .group(:membership_id)

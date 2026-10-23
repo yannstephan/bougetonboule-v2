@@ -30,12 +30,13 @@ class TrainingScorer
   private
 
   # Ce qu'il reste du quota journalier de la participation, à la date réelle de la course :
-  # les autres courses scorées de ce jour-là ont déjà consommé leur base.
+  # les autres courses de ce jour-là (piégées comprises : elles comptent en ligue) ont déjà
+  # consommé leur base.
   def daily_room
     return GameRules::MAX_BALLS_PER_DAY if @training.date.blank?
 
     used = @training.membership.trainings
-                    .where(status: %w[verified protected])
+                    .where(status: Training::REAL_STATUSES)
                     .where(date: @training.date.all_day)
                     .where.not(id: @training.id)
                     .sum(:base_balls)

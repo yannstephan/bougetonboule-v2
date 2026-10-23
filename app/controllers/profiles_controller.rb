@@ -15,7 +15,7 @@ class ProfilesController < ApplicationController
 
   def props(m)
     trainings = m.trainings.recent
-    scoring = trainings.select { |t| t.status.in?(%w[verified protected]) }
+    scoring = trainings.select(&:real?) # piégées comprises : ses km ont été courus
     {
       game: { id: m.game.id, name: m.game.name },
       player: {
