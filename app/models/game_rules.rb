@@ -38,10 +38,11 @@ module GameRules
   WALLET_CAP = 100
 
   # Jauge de meute : +10 % permanents (attaques ET soins) par semaine où au moins
-  # 5 coéquipiers ont chacun couru 8 km. Additif, plafonné à ×2 — jamais multiplicatif :
+  # 4 coéquipiers ont chacun couru 8 km (5 au départ : hors de portée avec des équipes de 7,
+  # ça demandait presque toute l'équipe). Additif, plafonné à ×2 — jamais multiplicatif :
   # c'est le multiplicateur cumulable des Vitamines v1 qui avait fait mourir Fraizilla
   # à mi-saison.
-  PACK_RUNNERS_NEEDED = 5
+  PACK_RUNNERS_NEEDED = 4
   PACK_WEEKLY_KM      = 8
   PACK_STEP           = 0.10
   PACK_MAX_LEVEL      = 10

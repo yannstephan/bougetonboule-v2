@@ -85,7 +85,7 @@ La saison type dure ~24 semaines (1er oct → 15 mars). L'équilibrage vient de 
 v1 : ~165 🍑/semaine pour 15 actifs, et une partie morte à mi-saison à cause d'un multiplicateur
 permanent achetable (les « Vitamines ») — d'où les garde-fous ci-dessous.
 
-- **🐾 Jauge de meute** (`PackLevelJob`, le lundi) : semaine où **≥ 5 coéquipiers ont couru
+- **🐾 Jauge de meute** (`PackLevelJob`, le lundi) : semaine où **≥ 4 coéquipiers ont couru
   ≥ 8 km chacun** → `teams.pack_level += 1`, soit **+10 % permanents** sur attaques ET soins.
   **Additif, plafond ×2** (10 paliers), jamais multiplicatif, jamais achetable.
   `Team#combat_multiplier` remplace l'ancienne colonne `teams.multiplier` (supprimée).
@@ -667,7 +667,7 @@ un qui se distingue des autres au premier coup d'œil (voir `TeamEffectsPresente
 Sous COMBATTRE, `TeamTally` (même grille gauche/droite que l'arène) donne pour chaque équipe :
 les 🍑 **gagnées en courant** cette semaine et depuis le début (somme des `score` des courses
 qui comptent, comme la ligue — **pas** le solde en banque, que le combat vide), et la **jauge de
-meute en cours** : « 🐾 2/6 ont couru 8 km », une barre vers les 5 requis, « encore N pour le
+meute en cours** : « 🐾 2/6 ont couru 8 km », une barre vers les 4 requis, « encore N pour le
 palier ». Calculé par `Team#pack_runners`, le **même** calcul que `PackLevelJob` le lundi :
 l'affichage ne peut pas promettre un palier que le job refuserait. Il remplace l'ancienne tuile
 « quota du jour », jugée inutile.
@@ -1638,6 +1638,9 @@ MONTH=2026-06 bin/rails league:award_month         # décerne la récompense d'u
 bin/rails chat:fill                                # 200 messages pour tester la pagination
 COUNT=500 CANAL=team bin/rails chat:fill           # ailleurs, et plus gros
 bin/rails chat:clear                               # ne retire QUE les messages générés
+
+bin/rails combat:reset                             # SIMULATION de remise à zéro du combat (ResetCombat)
+CONFIRM=oui bin/rails combat:reset                 # pour de vrai : PV max, effets/objets effacés, 🍑 = courses re-jugées sans objet
 
 bin/rails catalog:load                             # catalogue boutique (idempotent, ne supprime rien)
 NAMES='Pièce A,Pièce B' bin/rails catalog:retire   # retire du jeu une pièce sortie du catalogue
