@@ -1259,6 +1259,11 @@ initial `null`), sinon le CTA clignote à chaque chargement. Déjà abonné ici 
 `find_or_initialize_by(endpoint)` le dédoublonne, donc c'est gratuit quand il est déjà connu.
 
 ### Pièges connus
+- **La session doit avoir une date d'expiration** (`config/initializers/session_store.rb`,
+  un an glissant). Sans `expire_after`, le cookie meurt à la fermeture du navigateur — donc à
+  chaque fermeture de la PWA : il fallait se reconnecter à chaque ouverture, et on n'atteignait
+  jamais l'écran qui active les push. Ne pas changer la clé du cookie : tout le monde serait
+  déconnecté.
 - **`form.transform()` de `@inertiajs/react` ne retourne rien** (v3.6.1) : `form.transform(fn).post(…)`
   lève un TypeError et le formulaire ne part jamais, sans erreur visible. Appeler `transform`
   puis `post` sur deux lignes. C'est ce qui cassait l'envoi de messages dans le chat.
