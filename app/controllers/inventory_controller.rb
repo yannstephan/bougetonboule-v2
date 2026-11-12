@@ -10,6 +10,9 @@ class InventoryController < ApplicationController
     m = current_membership
     render inertia: "Inventaire", props: {
       initial_tab: params[:tab] == "wardrobe" ? "wardrobe" : "items",
+      # `?slot=neck` ouvre l'armoire sur le bon rayon : c'est là que mènent « L'équiper → »
+      # après un coffre ou un cadeau de série, et la notification qui en garde la trace.
+      initial_slot: params[:slot].presence_in(Cosmetic::SLOTS),
       balls: m.balls,
       chests: chests_json(m),
       inventory: inventory_json(m),

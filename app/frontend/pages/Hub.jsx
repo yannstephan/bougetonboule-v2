@@ -5,6 +5,7 @@ import EffectBadges from '../components/EffectBadges'
 import Countdown from '../components/Countdown'
 import InstallHint from '../components/InstallHint'
 import StreakPass from '../components/StreakPass'
+import { ChestReveal } from '../components/ChestCard'
 import Hud from '../components/Hud'
 import { familyEmoji } from '../lib/gameIcons'
 import { csrf } from '../lib/csrf'
@@ -32,13 +33,17 @@ export default function Hub({ membership }) {
 }
 
 function GameView({ m }) {
-  const chests = usePage().props.inventory_alert || 0
+  const { inventory_alert: chests = 0, flash } = usePage().props
   const mine = m.my_team
   const foe = m.opponent
   const finished = m.game?.status === 'finished'
   return (
     <main className="body">
       <InstallHint />
+      {/* L'encaissement d'une semaine de série revient ici : sans ces lignes, son message
+          partait dans le vide. Le cadeau du palier, lui, passe par ChestReveal (en bas). */}
+      {flash?.notice && <div className="flash ok">{flash.notice}</div>}
+      {flash?.alert && <div className="flash err">{flash.alert}</div>}
       {finished && (
         <div className="specialday" style={{ background: 'var(--violet)' }}>
           🏁 Partie terminée · {m.game.winner ? `Victoire des ${m.game.winner} 🏆` : 'Égalité parfaite 🤝'}
@@ -79,6 +84,7 @@ function GameView({ m }) {
           </div>
         </Link>
       </div>
+      <ChestReveal />
     </main>
   )
 }

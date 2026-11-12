@@ -697,6 +697,13 @@ palier, l'app ne fait que le montrer.
   transaction) : double-clic ou deux onglets ne paient qu'une fois ;
 - le **cosmétique du palier est tiré au moment du palier** (comme le contenu d'un coffre au
   drop), seul le versement attend. Déjà possédé à l'encaissement → +30 💎, comme le coffre.
+- ⚠️ **Le cadeau du palier se RÉVÈLE** : `claim_week` pose `flash[:chest]` (avec un `title`)
+  et le Hub monte `ChestReveal` — la même modale que le coffre, couleur de la pièce offerte
+  (repli 💎 joué en rare). `ClaimReward` rend pour ça des gains **structurés** (`loot`, format
+  de `Chest#open!`, `slot` compris) et laisse une **notif secondaire** qui mène au bon rayon
+  (`/sac?tab=wardrobe&slot=neck` → `initial_slot`). Régression vécue : le message partait
+  vers un Hub qui n'affichait aucun flash, et un joueur a cru son cadeau perdu. Une semaine
+  sans cadeau garde un simple flash, désormais affiché sur le Hub ;
 - ⚠️ les autres sources (coffre, ligue) créditent toujours à la création : elles naissent avec
   `claimed_at` renseigné. Seules `Reward::CLAIMABLE_SOURCES` passent par la case Réclamer.
 

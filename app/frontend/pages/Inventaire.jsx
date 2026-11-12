@@ -12,7 +12,7 @@ import { csrf } from '../lib/csrf'
 // Le sac tient les deux inventaires du joueur : les objets de la partie (🍑, à usage unique)
 // et l'armoire des cosmétiques (💎, globale). C'est le seul endroit d'où l'on ouvre un coffre
 // et d'où l'on équipe une pièce.
-export default function Inventaire({ initial_tab, balls, chests, inventory, armed,
+export default function Inventaire({ initial_tab, initial_slot, balls, chests, inventory, armed,
                                      opponents, team_names, avatar, cosmetics, slots }) {
   const { auth, flash } = usePage().props
   const diamonds = auth.user?.diamonds ?? 0
@@ -47,7 +47,7 @@ export default function Inventaire({ initial_tab, balls, chests, inventory, arme
 
       <main className="body">
         {tab === 'wardrobe' ? (
-          <Wardrobe avatar={avatar} cosmetics={cosmetics} slots={slots} onToggle={toggleCosmetic} />
+          <Wardrobe avatar={avatar} cosmetics={cosmetics} slots={slots} initialSlot={initial_slot} onToggle={toggleCosmetic} />
         ) : (
           <Items chests={chests} armed={armed} inventory={inventory} onUse={useItem} />
         )}

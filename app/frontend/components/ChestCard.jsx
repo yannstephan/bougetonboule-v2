@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { router, usePage } from '@inertiajs/react'
+import { Link, router, usePage } from '@inertiajs/react'
 import { rarityLabel, rarityWord } from '../lib/rarity'
 import { CosmeticIcon } from './cosmeticArt'
 
@@ -136,6 +136,9 @@ function Loot({ gain, delay }) {
 
 // Phase révélation : la modal survit au rechargement grâce au flash. On mémorise le flash
 // écarté (et pas un simple booléen) — sinon, le 2e coffre ouvert d'affilée s'ouvrirait muet.
+// Elle sert aussi le CADEAU DE SÉRIE, sur le Hub (RewardsController#claim_week) : le flash
+// porte alors son propre `title`. Même moment, même grammaire — un palier de cinq semaines
+// mérite au moins ce qu'on donne à un coffre trouvé par hasard.
 export function ChestReveal() {
   const { flash } = usePage().props
   const [dismissed, setDismissed] = useState(null)
@@ -149,10 +152,11 @@ export function ChestReveal() {
   }, [rarity])
 
   if (!chest) return null
+  const wearable = chest.gains.find((g) => g.kind === 'cosmetic' && g.slot)
 
   return (
     <div className={`chest-modal rar-${rarity}`} style={fxStyle(fx.f)}
-         role="dialog" aria-label="Coffre ouvert">
+         role="dialog" aria-label={chest.title || 'Coffre ouvert'}>
       <span className="chest-flash" />
       {fx.rain.map((c, i) => (
         <span key={i} className="chest-coin" style={{
@@ -177,8 +181,14 @@ export function ChestReveal() {
         <div className="chest-gains-out">
           {chest.gains.map((g, i) => <Loot key={i} gain={g} delay={(0.45 + i * 0.32) * fx.f.k} />)}
         </div>
-        <div className="chest-reveal-title">Coffre {rarityWord(rarity)} ouvert !</div>
+        <div className="chest-reveal-title">{chest.title || `Coffre ${rarityWord(rarity)} ouvert !`}</div>
         <button className="chest-btn" onClick={() => setDismissed(flash.chest)}>Récupérer 🎉</button>
+        {/* Une pièce versée n'est pas équipée : sans ce lien, il fallait la chercher au
+            hasard dans l'armoire. On ouvre directement le bon rayon. */}
+        {wearable && (
+          <Link href={`/sac?tab=wardrobe&slot=${wearable.slot}`} className="chest-equip"
+                onClick={() => setDismissed(flash.chest)}>L'équiper →</Link>
+        )}
       </div>
     </div>
   )

@@ -17,8 +17,8 @@ const SLOTS = {
   aura: { label: 'Aura', icon: '✨' },
 }
 
-export default function Wardrobe({ avatar, cosmetics, slots, onToggle }) {
-  const [tab, setTab] = useState(slots[0] || 'hat')
+export default function Wardrobe({ avatar, cosmetics, slots, initialSlot, onToggle }) {
+  const [tab, setTab] = useState(initialSlot || slots[0] || 'hat')
   const active = slots.includes(tab) ? tab : slots[0]
   const inSlot = (slot) => cosmetics.filter((c) => c.slot === slot)
 

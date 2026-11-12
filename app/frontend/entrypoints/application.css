@@ -1146,6 +1146,9 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* Dans la modale, le bouton porte la rareté : c'est le sujet de l'écran. */
 .chest-stage .chest-btn{background:var(--rar);color:var(--rar-ink);
   box-shadow:0 6px 20px color-mix(in srgb,var(--rar) 45%,transparent)}
+/* Le lien secondaire, sous le bouton : du texte dans --rar, pas un deuxième bouton. */
+.chest-equip{color:var(--rar);font-weight:800;font-size:13px;text-decoration:none;
+  text-shadow:0 1px 6px rgba(0,0,0,.6)}
 
 @media (prefers-reduced-motion: reduce){
   /* On garde le tableau final — coffre ouvert, halo, gains — sans rien qui bouge. */

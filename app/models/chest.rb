@@ -57,7 +57,7 @@ class Chest < ApplicationRecord
           # bien cracher un légendaire (DropChest tire dans tout le catalogue), et c'est
           # le meilleur moment que le jeu sait produire. Il doit se voir.
           gains << { kind: "cosmetic", name: cosmetic.name, emoji: cosmetic.emoji,
-                     art: cosmetic.art, rarity: cosmetic.rarity }
+                     art: cosmetic.art, rarity: cosmetic.rarity, slot: cosmetic.slot }
         end
       end
 
